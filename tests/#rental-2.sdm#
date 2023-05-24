@@ -1,0 +1,17 @@
+module rental is
+
+  entity Vehicle
+
+  entity Location
+
+  entity Customer
+
+  entity Booking is
+    identity id -> unknown
+
+    ref vehicle -> {0..1} Vehicle
+    ref from -> Location
+    ref customer -> Customer
+  end
+
+end

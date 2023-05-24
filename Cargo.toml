@@ -1,0 +1,33 @@
+[package]
+name = "sdml"
+description = "Simple Domain Model Language"
+version = "0.1.0"
+authors = ["Simon Johnston <johnstonskj@gmail.com>"]
+repository = "https://github.com/johnstonskj/rust-sdml.git"
+license = "MIT"
+readme = "README.md"
+edition = "2021"
+publish = true
+default-run = "sdml"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+all-features = true
+
+[[bin]]
+name = "sdml"
+path = "src/bin/main.rs"
+
+[dependencies]
+clap = { version = "4.2.7", features = ["derive", "env", "wrap_help"] }
+clap-verbosity-flag = "2.0.1"
+graphviz-rust = "0.6.2"
+language-tags = { version = "0.3.2", features = ["serde"] }
+rust_decimal = "1.29.1"
+serde = { version = "1.0.163", features = ["serde_derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = [ "env-filter" ] }
+tree-sitter = "0.20.10"
+tree-sitter-sdml = {version = "0.1.4", path = "../../tree-sitter-sdml" }
+url = { version = "2.3.1", features = ["serde"] }
+
