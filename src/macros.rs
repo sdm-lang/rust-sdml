@@ -235,28 +235,6 @@ macro_rules! node_wrapper_child_single {
     };
 }
 
-macro_rules! node_wrapper_has_child {
-    ($name: ident, $namestr: literal) => {
-        pub fn $name(&self) -> bool {
-            let parent_node = self.node();
-            let mut cursor = parent_node.walk();
-            cursor.goto_first_child();
-            for _ in 0..parent_node.named_child_count() {
-                while !cursor.node().is_named() {
-                    if !cursor.goto_next_sibling() {
-                        break;
-                    }
-                }
-                if cursor.node().kind() == $namestr {
-                    return true;
-                }
-                cursor.goto_next_sibling();
-            }
-            false
-        }
-    };
-}
-
 // ------------------------------------------------------------------------------------------------
 // Macros ❱ Node Wrapper ❱ Fields
 // ------------------------------------------------------------------------------------------------
@@ -356,6 +334,7 @@ macro_rules! _choice_wrapper_new_impl {
     ($tyname: ident, $fnname: ident, $($varname: literal => $vartype: ident),+) => {
         fn $fnname(source: &'a Cow<'a, str>, node: tree_sitter::Node<'a>) -> Self {
             $(
+                println!("_choice_wrapper_new_impl: {} == {}?", node.kind(), $varname);
                 if node.kind() == $varname {
                     return Self::$vartype(<$vartype<'a>>::new(source, node));
                 }

@@ -172,6 +172,7 @@ pub fn walk_tree(tree: &ParseTree<'_>, walker: &impl TreeWalker) -> Result<(), E
     }
 
     for type_definition in module_body.definitions() {
+        println!("{:#?}", type_definition);
         match type_definition {
             TypeDefinition::Datatype(def) => {
                 walk_datatype_def(&def, walker)?;

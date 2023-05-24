@@ -34,6 +34,7 @@ pub fn write_erd_diagram<W: Write>(tree: &ParseTree<'_>, w: &mut W, format: Outp
     walk_tree(tree, &state)?;
 
     let source = state.buffer.into_inner();
+    println!("{}", source);
 
     if format == OutputFormat::Source {
         w.write(source.as_bytes())?;
@@ -86,15 +87,76 @@ impl TreeWalker for DiagramState {
   node [fontname="Helvetica,Arial,sans-serif"; fontsize=10];
   edge [fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
         labelfontcolor="blue"; labeldistance=2.0];
+  graph [pad="0.5", nodesep="1", ranksep="1"];
+  splines="ortho";
   label="module {}";
 
 "#, name));
         Ok(())
     }
 
-    fn start_entity(&self, name: &str) -> Result<(), Error> {
+    fn import(&self, name: &str) -> Result<(), Error> {
+       println!("import: {}", name);
         let mut buffer = self.buffer.borrow_mut();
-        buffer.push_str(&format!("  {} [label=\"{}\"];\n", name.to_lowercase(), name));
+        buffer.push_str(
+            &format!("  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
+                     name_to_ref(name),
+                     name));
+        *self.entity.borrow_mut() = Some(name.to_string());
+        Ok(())
+    }
+
+    fn start_entity(&self, name: &str) -> Result<(), Error> {
+        println!("entity: {}", name);
+        let mut buffer = self.buffer.borrow_mut();
+        buffer.push_str(
+            &format!("  {} [label=\"{}\"; penwidth=1.5];\n",
+                     name_to_ref(name),
+                     name));
+        *self.entity.borrow_mut() = Some(name.to_string());
+        Ok(())
+    }
+
+    fn start_datatype(&self, name: &str, _base_type: &str) -> Result<(), Error> {
+        println!("datatype: {}", name);
+        let mut buffer = self.buffer.borrow_mut();
+        buffer.push_str(
+            &format!("  {} [label=\"■ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
+                     name_to_ref(name),
+                     name));
+        *self.entity.borrow_mut() = Some(name.to_string());
+        Ok(())
+    }
+
+    fn start_enum(&self, name: &str) -> Result<(), Error> {
+        println!("enum: {}", name);
+        let mut buffer = self.buffer.borrow_mut();
+        buffer.push_str(
+            &format!("  {} [label=\"≣ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
+                     name_to_ref(name),
+                     name));
+        *self.entity.borrow_mut() = Some(name.to_string());
+        Ok(())
+    }
+
+    fn start_event(&self, name: &str, _source: &str) -> Result<(), Error> {
+        println!("event: {}", name);
+        let mut buffer = self.buffer.borrow_mut();
+        buffer.push_str(
+            &format!("  {} [label=\"☇ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
+                     name_to_ref(name),
+                     name));
+        *self.entity.borrow_mut() = Some(name.to_string());
+        Ok(())
+    }
+
+    fn start_structure(&self, name: &str) -> Result<(), Error> {
+        println!("structure: {}", name);
+        let mut buffer = self.buffer.borrow_mut();
+        buffer.push_str(
+            &format!("  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
+                     name_to_ref(name),
+                     name));
         *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
@@ -109,17 +171,10 @@ impl TreeWalker for DiagramState {
             buffer.push_str("  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n");
             self.seen.borrow_mut().push("unknown".to_string());
         }
-        let target_type = if let Some(target_type) = target_type {
-            buffer.push_str(&format!("  {} [shape=rect; label=\"{}\"; style=\"filled\"; fillcolor=\"azure\"];\n",
-                                     target_type.to_lowercase(),
-                                     target_type));
-            target_type
-        } else {
-            "unknown"
-        };
-        buffer.push_str(&format!("  {} -> {} [label=\"{}\"];\n",
+        let target_type = target_type.map(|s|name_to_ref(s)).unwrap_or("unknown".to_string());
+        buffer.push_str(&format!("  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
                                  self.entity.borrow().as_ref().map(|s|s.as_str()).unwrap_or("").to_lowercase(),
-                                 target_type.to_lowercase(),
+                                 target_type,
                                  name));
         Ok(())
     }
@@ -131,18 +186,12 @@ impl TreeWalker for DiagramState {
         target_type: Option<&str>,
     ) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
-        let target_type = target_type.map(|s|s.to_lowercase()).unwrap_or("?".to_string());
-        let to_str = if to == Cardinality::ref_target_default() {
-            String::new()
-        }else {
-            to.to_uml_string()
-        };
-        buffer.push_str(&format!("  {} -> {} [label=\"{}\"; taillabel=\"{}\"; headlabel=\"{}\"];\n",
+        let target_type = target_type.map(|s|name_to_ref(s)).unwrap_or("unknown".to_string());
+        buffer.push_str(&format!("  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\"{}];\n",
                                  self.entity.borrow().as_ref().map(|s|s.as_str()).unwrap_or("").to_lowercase(),
                                  target_type,
                                  name,
-                                 from_str,
-                                 to_str));
+                                 arrow_end("head", &to)));
         Ok(())
     }
 
@@ -154,23 +203,13 @@ impl TreeWalker for DiagramState {
         target_type: Option<&str>,
     ) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
-        let target_type = target_type.map(|s|s.to_lowercase()).unwrap_or("?".to_string());
-        let from_str = if from == Cardinality::ref_source_default() {
-            String::new()
-        }else {
-            from.to_uml_string()
-        };
-        let to_str = if to == Cardinality::ref_target_default() {
-            String::new()
-        }else {
-            to.to_uml_string()
-        };
-        buffer.push_str(&format!("  {} -> {} [label=\"{}\"; taillabel=\"{}\"; headlabel=\"{}\"];\n",
+        let target_type = target_type.map(|s|name_to_ref(s)).unwrap_or("unknown".to_string());
+        buffer.push_str(&format!("  {} -> {} [tooltip=\"{}\";dir=\"both\"{}{}];\n",
                                  self.entity.borrow().as_ref().map(|s|s.as_str()).unwrap_or("").to_lowercase(),
                                  target_type,
                                  name,
-                                 from_str,
-                                 to_str));
+                                 arrow_end("tail", &from),
+                                 arrow_end("head", &to)));
         Ok(())
     }
 
@@ -185,6 +224,7 @@ impl TreeWalker for DiagramState {
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
+#[inline(always)]
 fn mkformat(format: OutputFormat) -> Format {
     match format {
         OutputFormat::ImageJpeg => Format::Jpg,
@@ -192,6 +232,30 @@ fn mkformat(format: OutputFormat) -> Format {
         OutputFormat::ImageSvg => Format::Svg,
         _ => unreachable!(),
     }
+}
+
+
+const CARD_ONLY_ONE: &str = "teetee";
+const CARD_ZERO_OR_ONE: &str = "teeodot";
+
+const CARD_MANY: &str = "ocrow";
+const CARD_ONE_OR_MANY: &str = "ocrowtee";
+const CARD_ZERO_OR_MANY: &str = "ocrowodot";
+
+#[inline(always)]
+fn arrow_end(end: &str, cardinality: &Cardinality) -> String {
+    format!("; arrow{}=\"{}\"", end, match (cardinality.min_occurs(), cardinality.max_occurs()) {
+        (0, None) => CARD_ZERO_OR_MANY,
+        (1, None) => CARD_ONE_OR_MANY,
+        (0, Some(1)) => CARD_ZERO_OR_ONE,
+        (1, Some(1)) => CARD_ONLY_ONE,
+        _ => CARD_MANY,
+    })
+}
+
+#[inline(always)]
+fn name_to_ref(name: &str) -> String {
+    name.replace(":", "_").to_lowercase()
 }
 
 // ------------------------------------------------------------------------------------------------
