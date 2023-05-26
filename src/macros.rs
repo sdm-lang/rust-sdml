@@ -26,6 +26,11 @@ macro_rules! tree_wrapper_impl {
             }
 
             #[inline(always)]
+            pub fn source(&self) -> &Cow<'a, str> {
+                &self.source
+            }
+
+            #[inline(always)]
             pub(crate) fn node(&self) -> tree_sitter::Node<'_> {
                 self.tree.root_node()
             }
@@ -334,7 +339,6 @@ macro_rules! _choice_wrapper_new_impl {
     ($tyname: ident, $fnname: ident, $($varname: literal => $vartype: ident),+) => {
         fn $fnname(source: &'a Cow<'a, str>, node: tree_sitter::Node<'a>) -> Self {
             $(
-                println!("_choice_wrapper_new_impl: {} == {}?", node.kind(), $varname);
                 if node.kind() == $varname {
                     return Self::$vartype(<$vartype<'a>>::new(source, node));
                 }
@@ -369,7 +373,10 @@ macro_rules! write_to_string {
         }
     };
     ($outer:ident, $inner:ident, $formtype:ty) => {
-        pub fn $outer(tree: &$crate::api::ParseTree<'_>, format: $formtype) -> Result<String, $crate::error::Error> {
+        pub fn $outer(
+            tree: &$crate::api::ParseTree<'_>,
+            format: $formtype,
+        ) -> Result<String, $crate::error::Error> {
             let mut buffer = ::std::io::Cursor::new(Vec::new());
             $inner(tree, &mut buffer, format)?;
             Ok(String::from_utf8(buffer.into_inner())?)
@@ -383,7 +390,10 @@ macro_rules! write_to_string {
 
 macro_rules! write_to_file {
     ($outer:ident, $inner:ident) => {
-        pub fn $outer<P>(tree: &$crate::api::ParseTree<'_>, path: P) -> Result<(), $crate::error::Error>
+        pub fn $outer<P>(
+            tree: &$crate::api::ParseTree<'_>,
+            path: P,
+        ) -> Result<(), $crate::error::Error>
         where
             P: AsRef<::std::path::Path>,
         {
@@ -393,7 +403,11 @@ macro_rules! write_to_file {
         }
     };
     ($outer:ident, $inner:ident, $formtype:ty) => {
-        pub fn $outer<P>(tree: &$crate::api::ParseTree<'_>, path: P, format: $formtype) -> Result<(), $crate::error::Error>
+        pub fn $outer<P>(
+            tree: &$crate::api::ParseTree<'_>,
+            path: P,
+            format: $formtype,
+        ) -> Result<(), $crate::error::Error>
         where
             P: AsRef<::std::path::Path>,
         {
@@ -416,7 +430,10 @@ macro_rules! print_to_stdout {
         }
     };
     ($outer:ident, $inner:ident, $formtype:ty) => {
-        pub fn $outer(tree: &$crate::api::ParseTree<'_>, format: $formtype) -> Result<(), $crate::error::Error> {
+        pub fn $outer(
+            tree: &$crate::api::ParseTree<'_>,
+            format: $formtype,
+        ) -> Result<(), $crate::error::Error> {
             $inner(tree, &mut ::std::io::stdout(), format)?;
             Ok(())
         }

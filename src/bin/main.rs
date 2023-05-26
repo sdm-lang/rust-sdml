@@ -1,12 +1,12 @@
 use clap::{Args, Parser, Subcommand};
 use clap_verbosity_flag::Verbosity;
+use sdml::error::{tracing_filter_error, tracing_subscriber_error};
+use std::fmt::Display;
+use std::path::PathBuf;
+use std::str::FromStr;
 use tracing::info;
 use tracing_subscriber::filter::EnvFilter;
 use tracing_subscriber::FmtSubscriber;
-use sdml::error::{tracing_filter_error, tracing_subscriber_error};
-use std::path::PathBuf;
-use std::fmt::Display;
-use std::str::FromStr;
 
 // ------------------------------------------------------------------------------------------------
 // Command-Line Arguments
@@ -34,7 +34,7 @@ enum Commands {
 #[derive(Args, Debug)]
 struct Convert {
     /// Format to convert into (rdf, sexpr)
-    #[arg(short='f', long)]
+    #[arg(short = 'f', long)]
     output_format: ConvertFormat,
 
     /// File name to write to, if not provided will write to stdout
@@ -47,7 +47,9 @@ struct Convert {
 
 #[derive(Clone, Debug)]
 enum ConvertFormat {
-    /// RDF
+    /// Emacs Org Mode Documentation
+    Org,
+    /// RDF Abstract Model
     Rdf,
     /// S-Expressions
     SExpr,
@@ -60,7 +62,7 @@ struct Draw {
     diagram: DrawDiagram,
 
     /// Format for diagram result (source, jpeg, png, svg)
-    #[arg(short='f', long)]
+    #[arg(short = 'f', long)]
     output_format: Option<DiagramFormat>,
 
     /// File name to write to, if not provided will write to stdout
@@ -110,15 +112,14 @@ fn main() -> Result<(), MainError> {
 fn init_logging(verbosity: Verbosity) -> Result<(), MainError> {
     let log_level = verbosity.log_level_filter();
 
-    let filter = EnvFilter::from_default_env()
-        .add_directive(
-            format!("{}={}", module_path!(), log_level)
-                .parse()
-                .map_err(|e| tracing_filter_error(e))?);
+    let filter = EnvFilter::from_default_env().add_directive(
+        format!("{}={}", module_path!(), log_level)
+            .parse()
+            .map_err(tracing_filter_error)?,
+    );
     let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
 
-    tracing::subscriber::set_global_default(subscriber)
-        .map_err(|e| tracing_subscriber_error(e))?;
+    tracing::subscriber::set_global_default(subscriber).map_err(tracing_subscriber_error)?;
 
     info!("Log level set to `LevelFilter::{:?}`", log_level);
 
@@ -164,6 +165,9 @@ impl Execute for Convert {
         let mut writer = output_writer(&self.output_file)?;
 
         match self.output_format {
+            ConvertFormat::Org => {
+                sdml::convert::org::write_as_org(&model, &mut writer)?;
+            }
             ConvertFormat::Rdf => {
                 sdml::convert::rdf::write_as_rdf(&model, &mut writer)?;
             }
@@ -219,10 +223,15 @@ impl Execute for Draw {
 
 impl Display for ConvertFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::Rdf => "rdf",
-            Self::SExpr => "sexpr",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Org => "org",
+                Self::Rdf => "rdf",
+                Self::SExpr => "sexpr",
+            }
+        )
     }
 }
 
@@ -231,6 +240,7 @@ impl FromStr for ConvertFormat {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
+            "org" | "doc" => Ok(Self::Org),
             "rdf" | "ttl" | "turtle" => Ok(Self::Rdf),
             "sexpr" | "s-expr" => Ok(Self::SExpr),
             _ => panic!(),
@@ -244,11 +254,15 @@ impl FromStr for ConvertFormat {
 
 impl Display for DrawDiagram {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::Concepts => "concepts",
-            Self::EntityRelationship => "entities",
-            Self::UmlClass => "uml",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Concepts => "concepts",
+                Self::EntityRelationship => "entities",
+                Self::UmlClass => "uml",
+            }
+        )
     }
 }
 
@@ -277,12 +291,16 @@ impl Default for DiagramFormat {
 
 impl Display for DiagramFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::Source => "src",
-            Self::Jpeg => "jpg",
-            Self::Png => "png",
-            Self::Svg => "svg",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Source => "src",
+                Self::Jpeg => "jpg",
+                Self::Png => "png",
+                Self::Svg => "svg",
+            }
+        )
     }
 }
 

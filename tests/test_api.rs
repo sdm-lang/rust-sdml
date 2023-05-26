@@ -1,4 +1,3 @@
-use sdml;
 use sdml::api::{NodeWrapper, SimpleValue, TypeDefinition, Value};
 use std::str::FromStr;
 use url::Url;
@@ -40,7 +39,11 @@ end"#,
     assert_eq!(imports.len(), 3);
 
     let import = imports.get(0).unwrap();
-    let imported: Vec<&str> = import.imported().iter().map(|i|i.text().unwrap()).collect();
+    let imported: Vec<&str> = import
+        .imported()
+        .iter()
+        .map(|i| i.text().unwrap())
+        .collect();
     assert_eq!(imported, ["foo"]);
 }
 

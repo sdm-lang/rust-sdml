@@ -8,6 +8,7 @@ More detailed description, with
 YYYYY
 
 */
+#![allow(clippy::ptr_arg)]
 
 use crate::error::Error;
 use std::{borrow::Cow, fmt::Display, fs::File, path::Path, str::FromStr};
@@ -87,8 +88,15 @@ impl<'a> ModuleBody<'a> {
     node_wrapper_child_list!(imports, "import", ImportStatement<'a>);
     node_wrapper_child_list!(
         definitions,
-        ["data_type_def", "entity_def", "enum_def", "event_def", "structure_def"],
-        TypeDefinition<'a>);
+        [
+            "data_type_def",
+            "entity_def",
+            "enum_def",
+            "event_def",
+            "structure_def"
+        ],
+        TypeDefinition<'a>
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -99,7 +107,7 @@ node_wrapper!(ImportStatement);
 node_wrapper_impl!(ImportStatement);
 
 impl<'a> ImportStatement<'a> {
-   node_wrapper_child_list!(imported, Import<'a>);
+    node_wrapper_child_list!(imported, Import<'a>);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -180,7 +188,7 @@ node_wrapper_impl!(Double);
 
 impl Double<'_> {
     pub fn value(&self) -> f64 {
-        f64::from_str(&self.text().unwrap()).unwrap()
+        f64::from_str(self.text().unwrap()).unwrap()
     }
 }
 
@@ -191,7 +199,7 @@ node_wrapper_impl!(Decimal);
 
 impl Decimal<'_> {
     pub fn value(&self) -> rust_decimal::Decimal {
-        rust_decimal::Decimal::from_str(&self.text().unwrap()).unwrap()
+        rust_decimal::Decimal::from_str(self.text().unwrap()).unwrap()
     }
 }
 
@@ -202,7 +210,7 @@ node_wrapper_impl!(Integer);
 
 impl Integer<'_> {
     pub fn value(&self) -> i64 {
-        i64::from_str(&self.text().unwrap()).unwrap()
+        i64::from_str(self.text().unwrap()).unwrap()
     }
 }
 
@@ -215,7 +223,7 @@ node_wrapper_impl!(Boolean);
 
 impl Boolean<'_> {
     pub fn value(&self) -> bool {
-        bool::from_str(&self.text().unwrap()).unwrap()
+        bool::from_str(self.text().unwrap()).unwrap()
     }
 }
 
@@ -472,7 +480,11 @@ node_wrapper_impl!(MemberByValue);
 impl<'a> MemberByValue<'a> {
     node_wrapper_field_single!(name, "name", Identifier<'a>);
     node_wrapper_field_single!(target_type, "target", MemberTypeTarget<'a>);
-    node_wrapper_field_single_opt!(target_cardinality, "targetCardinality", MemberCardinality<'a>);
+    node_wrapper_field_single_opt!(
+        target_cardinality,
+        "targetCardinality",
+        MemberCardinality<'a>
+    );
     node_wrapper_field_single_opt!(body, "annotation_only_body", AnnotationOnlyBody<'a>);
 }
 
@@ -485,9 +497,17 @@ node_wrapper_impl!(MemberByReference);
 
 impl<'a> MemberByReference<'a> {
     node_wrapper_field_single!(name, "name", Identifier<'a>);
-    node_wrapper_field_single_opt!(source_cardinality, "sourceCardinality", MemberCardinality<'a>);
+    node_wrapper_field_single_opt!(
+        source_cardinality,
+        "sourceCardinality",
+        MemberCardinality<'a>
+    );
     node_wrapper_field_single!(target_type, "target", MemberTypeTarget<'a>);
-    node_wrapper_field_single_opt!(target_cardinality, "targetCardinality", MemberCardinality<'a>);
+    node_wrapper_field_single_opt!(
+        target_cardinality,
+        "targetCardinality",
+        MemberCardinality<'a>
+    );
     node_wrapper_field_single_opt!(body, "annotation_only_body", AnnotationOnlyBody<'a>);
 }
 

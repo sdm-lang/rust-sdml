@@ -21,8 +21,12 @@ pub enum Error {
     Utf8Error { source: core::str::Utf8Error },
     /// An error was signaled by the standard string conversion functions.
     FromUtf8Error { source: std::string::FromUtf8Error },
-    TracingFilterError { source: tracing_subscriber::filter::ParseError },
-    TracingSubscriberError { source:  tracing::subscriber::SetGlobalDefaultError },
+    TracingFilterError {
+        source: tracing_subscriber::filter::ParseError,
+    },
+    TracingSubscriberError {
+        source: tracing::subscriber::SetGlobalDefaultError,
+    },
 }
 
 ///
@@ -79,10 +83,14 @@ impl Display for Error {
                     format!("A UTF-8 conversion error occurred; source: {}", source),
                 Self::FromUtf8Error { source } =>
                     format!("A UTF-8 conversion error occurred; source: {}", source),
-                Self::TracingFilterError { source } =>
-                    format!("A error occurred parsing a tracing filter; source: {}", source),
-                Self::TracingSubscriberError { source } =>
-                    format!("A error occurred setting the tracing subscriber; source: {}", source),
+                Self::TracingFilterError { source } => format!(
+                    "A error occurred parsing a tracing filter; source: {}",
+                    source
+                ),
+                Self::TracingSubscriberError { source } => format!(
+                    "A error occurred setting the tracing subscriber; source: {}",
+                    source
+                ),
             }
         )
     }

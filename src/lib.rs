@@ -73,10 +73,11 @@ where
     parse_str_inner(Cow::Owned(source))
 }
 
-pub fn parse_str<'a>(source: &'a str) -> Result<ParseTree<'a>, Error> {
+pub fn parse_str(source: &str) -> Result<ParseTree<'_>, Error> {
     parse_str_inner(Cow::Borrowed(source))
 }
 
+#[allow(clippy::needless_lifetimes)]
 fn parse_str_inner<'a>(source: Cow<'a, str>) -> Result<ParseTree<'a>, Error> {
     let mut parser = Parser::new();
     parser

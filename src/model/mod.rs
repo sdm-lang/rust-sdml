@@ -9,10 +9,7 @@ YYYYY
 
 */
 
-use crate::api::ParseTree;
-use crate::draw::OutputFormat;
-use crate::error::Error;
-use std::io::Write;
+// use ...
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -22,19 +19,7 @@ use std::io::Write;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub fn write_uml_diagram<W: Write>(
-    _tree: &ParseTree<'_>,
-    _w: &mut W,
-    _format: OutputFormat,
-) -> Result<(), Error> {
-    todo!()
-}
 
-write_to_string!(to_uml_diagram_string, write_uml_diagram, OutputFormat);
-
-write_to_file!(uml_diagram_to_file, write_uml_diagram, OutputFormat);
-
-print_to_stdout!(print_uml_diagram, write_uml_diagram, OutputFormat);
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions

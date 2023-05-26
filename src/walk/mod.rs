@@ -10,10 +10,12 @@ YYYYY
 */
 
 use crate::api::{
-    Datatype, Entity, Enum, EnumVariant, Event, MemberCardinality, MemberTypeTarget, ParseTree, Structure, TypeDefinition,
+    Datatype, Entity, Enum, EnumVariant, Event, MemberCardinality, MemberTypeTarget, ParseTree,
+    Structure, TypeDefinition,
 };
 use crate::error::Error;
 use rust_decimal::Decimal;
+use tracing::trace;
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
@@ -70,11 +72,7 @@ pub trait TreeWalker {
         Ok(())
     }
     // annotation
-    fn start_identity_member(
-        &self,
-        _name: &str,
-        _target_type: Option<&str>,
-    ) -> Result<(), Error> {
+    fn start_identity_member(&self, _name: &str, _target_type: Option<&str>) -> Result<(), Error> {
         Ok(())
     }
     fn start_by_value_member(
@@ -172,7 +170,7 @@ pub fn walk_tree(tree: &ParseTree<'_>, walker: &impl TreeWalker) -> Result<(), E
     }
 
     for type_definition in module_body.definitions() {
-        println!("{:#?}", type_definition);
+        trace!("{:#?}", type_definition);
         match type_definition {
             TypeDefinition::Datatype(def) => {
                 walk_datatype_def(&def, walker)?;
@@ -275,7 +273,10 @@ impl Cardinality {
     }
 
     pub fn new_single(min_and_max: u32) -> Self {
-        Self { min: min_and_max, max: Some(min_and_max) }
+        Self {
+            min: min_and_max,
+            max: Some(min_and_max),
+        }
     }
 
     pub fn value_target_default() -> Self {
@@ -286,10 +287,7 @@ impl Cardinality {
     }
 
     pub fn ref_source_default() -> Self {
-        Self {
-            min: 0,
-            max: None,
-        }
+        Self { min: 0, max: None }
     }
     pub fn ref_target_default() -> Self {
         Self {
@@ -312,7 +310,13 @@ impl Cardinality {
 
     pub fn to_uml_string(&self) -> String {
         if self.is_range() {
-            format!("{}..{}", self.min, self.max.map(|i|i.to_string()).unwrap_or_else(|| "*".to_string()))
+            format!(
+                "{}..{}",
+                self.min,
+                self.max
+                    .map(|i| i.to_string())
+                    .unwrap_or_else(|| "*".to_string())
+            )
         } else {
             self.min.to_string()
         }
@@ -354,9 +358,16 @@ pub fn walk_entity_def(def: &Entity<'_>, walker: &impl TreeWalker) -> Result<(),
         }
         walker.end_member(identity.name().as_ref())?;
         for member in body.value_members() {
-            let to_cardinality: Cardinality = member.target_cardinality().map(|c|c.into()).unwrap_or_else(Cardinality::value_target_default);
+            let to_cardinality: Cardinality = member
+                .target_cardinality()
+                .map(|c| c.into())
+                .unwrap_or_else(Cardinality::value_target_default);
             if let MemberTypeTarget::IdentifierReference(v) = member.target_type() {
-                walker.start_by_value_member(member.name().as_ref(), to_cardinality, Some(v.as_ref()))?;
+                walker.start_by_value_member(
+                    member.name().as_ref(),
+                    to_cardinality,
+                    Some(v.as_ref()),
+                )?;
             } else {
                 walker.start_by_value_member(member.name().as_ref(), to_cardinality, None)?;
             }
@@ -368,12 +379,28 @@ pub fn walk_entity_def(def: &Entity<'_>, walker: &impl TreeWalker) -> Result<(),
             walker.end_member(member.name().as_ref())?;
         }
         for member in body.ref_members() {
-            let from_cardinality: Cardinality = member.source_cardinality().map(|c|c.into()).unwrap_or_else(Cardinality::ref_source_default);
-            let to_cardinality: Cardinality = member.target_cardinality().map(|c|c.into()).unwrap_or_else(Cardinality::ref_target_default);
+            let from_cardinality: Cardinality = member
+                .source_cardinality()
+                .map(|c| c.into())
+                .unwrap_or_else(Cardinality::ref_source_default);
+            let to_cardinality: Cardinality = member
+                .target_cardinality()
+                .map(|c| c.into())
+                .unwrap_or_else(Cardinality::ref_target_default);
             if let MemberTypeTarget::IdentifierReference(v) = member.target_type() {
-                walker.start_by_reference_member(member.name().as_ref(), from_cardinality, to_cardinality, Some(v.as_ref()))?;
+                walker.start_by_reference_member(
+                    member.name().as_ref(),
+                    from_cardinality,
+                    to_cardinality,
+                    Some(v.as_ref()),
+                )?;
             } else {
-                walker.start_by_reference_member(member.name().as_ref(), from_cardinality, to_cardinality, None)?;
+                walker.start_by_reference_member(
+                    member.name().as_ref(),
+                    from_cardinality,
+                    to_cardinality,
+                    None,
+                )?;
             }
             if let Some(body) = member.body() {
                 for annotation in body.annotations() {
@@ -384,9 +411,16 @@ pub fn walk_entity_def(def: &Entity<'_>, walker: &impl TreeWalker) -> Result<(),
         }
         for group in body.groups() {
             for member in group.value_members() {
-                let to_cardinality: Cardinality = member.target_cardinality().map(|c|c.into()).unwrap_or_else(Cardinality::value_target_default);
+                let to_cardinality: Cardinality = member
+                    .target_cardinality()
+                    .map(|c| c.into())
+                    .unwrap_or_else(Cardinality::value_target_default);
                 if let MemberTypeTarget::IdentifierReference(v) = member.target_type() {
-                    walker.start_by_value_member(member.name().as_ref(), to_cardinality, Some(v.as_ref()))?;
+                    walker.start_by_value_member(
+                        member.name().as_ref(),
+                        to_cardinality,
+                        Some(v.as_ref()),
+                    )?;
                 } else {
                     walker.start_by_value_member(member.name().as_ref(), to_cardinality, None)?;
                 }
@@ -398,12 +432,28 @@ pub fn walk_entity_def(def: &Entity<'_>, walker: &impl TreeWalker) -> Result<(),
                 walker.end_member(member.name().as_ref())?;
             }
             for member in group.ref_members() {
-                let from_cardinality: Cardinality = member.source_cardinality().map(|c|c.into()).unwrap_or_else(Cardinality::ref_source_default);
-                let to_cardinality: Cardinality = member.target_cardinality().map(|c|c.into()).unwrap_or_else(Cardinality::ref_target_default);
+                let from_cardinality: Cardinality = member
+                    .source_cardinality()
+                    .map(|c| c.into())
+                    .unwrap_or_else(Cardinality::ref_source_default);
+                let to_cardinality: Cardinality = member
+                    .target_cardinality()
+                    .map(|c| c.into())
+                    .unwrap_or_else(Cardinality::ref_target_default);
                 if let MemberTypeTarget::IdentifierReference(v) = member.target_type() {
-                    walker.start_by_reference_member(member.name().as_ref(), from_cardinality, to_cardinality, Some(v.as_ref()))?;
+                    walker.start_by_reference_member(
+                        member.name().as_ref(),
+                        from_cardinality,
+                        to_cardinality,
+                        Some(v.as_ref()),
+                    )?;
                 } else {
-                    walker.start_by_reference_member(member.name().as_ref(), from_cardinality, to_cardinality, None)?;
+                    walker.start_by_reference_member(
+                        member.name().as_ref(),
+                        from_cardinality,
+                        to_cardinality,
+                        None,
+                    )?;
                 }
                 if let Some(body) = member.body() {
                     for annotation in body.annotations() {

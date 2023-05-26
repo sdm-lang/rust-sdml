@@ -10,7 +10,6 @@ YYYYY
 */
 
 use crate::api::ParseTree;
-use crate::draw::OutputFormat;
 use crate::error::Error;
 use std::io::Write;
 
@@ -22,19 +21,38 @@ use std::io::Write;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub fn write_uml_diagram<W: Write>(
-    _tree: &ParseTree<'_>,
-    _w: &mut W,
-    _format: OutputFormat,
-) -> Result<(), Error> {
-    todo!()
+const ORG_HEADER: &str = r#"#+TITLE: Module
+#+LANGUAGE: en
+#+STARTUP: overview hidestars inlineimages entitiespretty
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD: <style>img { max-width: 800px; height: auto; }</style>
+#+HTML_HEAD: <style>div.figure { text-align: center; }</style>
+#+OPTIONS: toc:3
+
+"#;
+
+const BEGIN_SRC: &str = r#"#+NAME: lst:full-module-listing
+#+CAPTION: Module Concepts
+#+BEGIN_SRC sdml :cmdline draw --diagram concepts :file ./module-concepts.svg :exports both :noweb yes
+"#;
+
+const END_SRC: &str = "#+END_SRC\n";
+
+pub fn write_as_org<W: Write>(_tree: &ParseTree<'_>, w: &mut W) -> Result<(), Error> {
+    w.write_all(ORG_HEADER.as_bytes())?;
+
+    w.write_all(BEGIN_SRC.as_bytes())?;
+    // w.write(tree.source().as_str().as_bytes())?;
+    w.write_all(END_SRC.as_bytes())?;
+
+    Ok(())
 }
 
-write_to_string!(to_uml_diagram_string, write_uml_diagram, OutputFormat);
+write_to_string!(to_org_string, write_as_org);
 
-write_to_file!(uml_diagram_to_file, write_uml_diagram, OutputFormat);
+write_to_file!(to_org_file, write_as_org);
 
-print_to_stdout!(print_uml_diagram, write_uml_diagram, OutputFormat);
+print_to_stdout!(print_org, write_as_org);
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions

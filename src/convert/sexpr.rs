@@ -26,7 +26,7 @@ use std::io::Write;
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_as_sexpr<W: Write>(tree: &ParseTree<'_>, w: &mut W) -> Result<(), Error> {
-    w.write(tree.node().to_sexp().as_bytes())?;
+    w.write_all(tree.node().to_sexp().as_bytes())?;
     Ok(())
 }
 
