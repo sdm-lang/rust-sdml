@@ -9,10 +9,10 @@ YYYYY
 
 */
 
-use crate::api::ParseTree;
 use crate::draw::OutputFormat;
 use crate::error::Error;
-use crate::walk::{walk_tree, Cardinality, TreeWalker};
+use crate::model::walk::{walk_module, ModuleWalker};
+use crate::model::{Cardinality, Identifier, Module, Span, TypeReference};
 use graphviz_rust::{cmd::CommandArg, cmd::Format, exec_dot};
 use std::cell::RefCell;
 use std::io::Write;
@@ -32,12 +32,12 @@ use tracing::debug;
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_concept_diagram<W: Write>(
-    tree: &ParseTree<'_>,
+    module: &Module,
     w: &mut W,
     format: OutputFormat,
 ) -> Result<(), Error> {
     let state = DiagramState::default();
-    walk_tree(tree, &state)?;
+    walk_module(module, &state)?;
 
     let source = state.buffer.into_inner();
 
@@ -58,7 +58,7 @@ pub fn write_concept_diagram<W: Write>(
 }
 
 pub fn concept_diagram_to_file<P>(
-    tree: &ParseTree<'_>,
+    module: &Module,
     path: P,
     format: OutputFormat,
 ) -> Result<(), Error>
@@ -66,7 +66,7 @@ where
     P: AsRef<Path>,
 {
     let state = DiagramState::default();
-    walk_tree(tree, &state)?;
+    walk_module(module, &state)?;
 
     let source = state.buffer.into_inner();
 
@@ -119,8 +119,8 @@ struct DiagramState {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl TreeWalker for DiagramState {
-    fn start_module(&self, name: &str) -> Result<(), Error> {
+impl ModuleWalker for DiagramState {
+    fn start_module(&self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             r#"digraph G {{
@@ -138,8 +138,9 @@ impl TreeWalker for DiagramState {
         Ok(())
     }
 
-    fn start_entity(&self, name: &str) -> Result<(), Error> {
+    fn start_entity(&self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
+        let name = name.as_ref();
         buffer.push_str(&format!(
             "  {} [label=\"{}\"];\n",
             name.to_lowercase(),
@@ -151,32 +152,41 @@ impl TreeWalker for DiagramState {
 
     fn start_by_reference_member(
         &self,
-        name: &str,
-        from: Cardinality,
-        to: Cardinality,
-        target_type: Option<&str>,
+        name: &Identifier,
+        source_cardinality: Option<&Cardinality>,
+        target_cardinality: Option<&Cardinality>,
+        target_type: &TypeReference,
+        _: Option<&Span>,
     ) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
-        if target_type.is_none() && !*self.has_unknown.borrow() {
+        if matches!(target_type, TypeReference::Unknown) && !*self.has_unknown.borrow() {
             buffer.push_str(
                 "  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n",
             );
             *self.has_unknown.borrow_mut() = true;
         }
-        let target_type = if let Some(target_type) = target_type {
-            target_type.to_lowercase()
+        let target_type = if let TypeReference::Reference(target_type) = target_type {
+            target_type.to_string().to_lowercase()
         } else {
             "unknown".to_string()
         };
-        let from_str = if from == Cardinality::ref_source_default() {
-            String::new()
+        let from_str = if let Some(source_cardinality) = source_cardinality {
+            if source_cardinality != &Cardinality::ref_source_default() {
+                source_cardinality.to_uml_string()
+            } else {
+                String::new()
+            }
         } else {
-            from.to_uml_string()
+            String::new()
         };
-        let to_str = if to == Cardinality::ref_target_default() {
-            String::new()
+        let to_str = if let Some(target_cardinality) = target_cardinality {
+            if target_cardinality != &Cardinality::ref_target_default() {
+                target_cardinality.to_uml_string()
+            } else {
+                String::new()
+            }
         } else {
-            to.to_uml_string()
+            String::new()
         };
         buffer.push_str(&format!(
             "  {} -> {} [label=\"{}\"; taillabel=\"{}\"; headlabel=\"{}\"];\n",
@@ -194,7 +204,7 @@ impl TreeWalker for DiagramState {
         Ok(())
     }
 
-    fn end_module(&self, _name: &str) -> Result<(), Error> {
+    fn end_module(&self, _: &Identifier) -> Result<(), Error> {
         self.buffer.borrow_mut().push_str("}\n");
         *self.entity.borrow_mut() = None;
         Ok(())

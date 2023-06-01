@@ -25,15 +25,9 @@ use std::io::Write;
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn write_as_rdf<W: Write>(_module: &Module, _w: &mut W) -> Result<(), Error> {
+pub fn write_tags<W: Write>(_module: &Module, _w: &mut W) -> Result<(), Error> {
     todo!()
 }
-
-write_to_string!(to_rdf_string, write_as_rdf);
-
-write_to_file!(to_rdf_file, write_as_rdf);
-
-print_to_stdout!(print_rdf, write_as_rdf);
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros

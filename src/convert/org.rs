@@ -9,8 +9,8 @@ YYYYY
 
 */
 
-use crate::api::ParseTree;
 use crate::error::Error;
+use crate::model::Module;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ const BEGIN_SRC: &str = r#"#+NAME: lst:full-module-listing
 
 const END_SRC: &str = "#+END_SRC\n";
 
-pub fn write_as_org<W: Write>(_tree: &ParseTree<'_>, w: &mut W) -> Result<(), Error> {
+pub fn write_as_org<W: Write>(_module: &Module, w: &mut W) -> Result<(), Error> {
     w.write_all(ORG_HEADER.as_bytes())?;
 
     w.write_all(BEGIN_SRC.as_bytes())?;

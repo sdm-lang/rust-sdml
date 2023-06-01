@@ -1,6 +1,8 @@
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml::error::{tracing_filter_error, tracing_subscriber_error};
+use sdml::model::resolve::Resolver;
+use sdml::model::Identifier;
 use std::fmt::Display;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -25,6 +27,10 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// Highlight file
+    Highlight(Highlight),
+    /// Extract tags from file
+    Tags(Tags),
     /// Convert model files into other formats
     Convert(Convert),
     /// Draw diagrams from models
@@ -32,20 +38,59 @@ enum Commands {
 }
 
 #[derive(Args, Debug)]
-struct Convert {
-    /// Format to convert into (rdf, sexpr)
-    #[arg(short = 'f', long)]
-    output_format: ConvertFormat,
-
+struct FileArgs {
     /// File name to write to, if not provided will write to stdout
     #[arg(short, long)]
     output_file: Option<PathBuf>,
 
-    /// SDML model file to convert from
-    input_file: PathBuf,
+    /// The path to use as the IRI base for modules
+    #[arg(short, long)]
+    base_path: Option<PathBuf>,
+
+    /// SDML module to convert
+    module: Identifier,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Args, Debug)]
+struct Highlight {
+    /// Format to convert into
+    #[arg(short = 'f', long)]
+    #[arg(value_enum)]
+    #[arg(default_value_t = HighlightFormat::Ansi)]
+    output_format: HighlightFormat,
+
+    #[command(flatten)]
+    files: FileArgs,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+enum HighlightFormat {
+    /// ANSI escape for console
+    Ansi,
+    /// HTML pre-formatted element
+    Html,
+    /// HTML stand-alone document
+    HtmlStandalone
+}
+
+#[derive(Args, Debug)]
+struct Tags {
+    #[command(flatten)]
+    files: FileArgs,
+}
+
+#[derive(Args, Debug)]
+struct Convert {
+    /// Format to convert into (org, rdf, sexpr)
+    #[arg(short = 'f', long)]
+    #[arg(value_enum)]
+    output_format: ConvertFormat,
+
+    #[command(flatten)]
+    files: FileArgs,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
 enum ConvertFormat {
     /// Emacs Org Mode Documentation
     Org,
@@ -57,23 +102,21 @@ enum ConvertFormat {
 
 #[derive(Args, Debug)]
 struct Draw {
-    /// Diagram to draw (concepts, entities, uml)
+    /// Diagram to draw
     #[arg(short, long)]
+    #[arg(value_enum)]
     diagram: DrawDiagram,
 
-    /// Format for diagram result (source, jpeg, png, svg)
+    /// Format for diagram result
     #[arg(short = 'f', long)]
+    #[arg(value_enum)]
     output_format: Option<DiagramFormat>,
 
-    /// File name to write to, if not provided will write to stdout
-    #[arg(short, long)]
-    output_file: Option<PathBuf>,
-
-    /// SDML model file to convert from
-    input_file: PathBuf,
+    #[command(flatten)]
+    files: FileArgs,
 }
 
-#[derive(Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug)]
 enum DrawDiagram {
     /// Concept Overview
     Concepts,
@@ -83,7 +126,7 @@ enum DrawDiagram {
     UmlClass,
 }
 
-#[derive(Clone, Debug)]
+#[derive(ValueEnum, Clone, Debug)]
 enum DiagramFormat {
     Source,
     Jpeg,
@@ -134,14 +177,6 @@ trait Execute {
     fn execute(&self) -> Result<(), MainError>;
 }
 
-fn output_writer(file: &Option<PathBuf>) -> Result<Box<dyn std::io::Write>, MainError> {
-    if let Some(file) = file {
-        Ok(Box::new(std::fs::File::create(file)?))
-    } else {
-        Ok(Box::new(std::io::stdout()))
-    }
-}
-
 // ------------------------------------------------------------------------------------------------
 // Command Wrappers ❱ Router
 // ------------------------------------------------------------------------------------------------
@@ -149,9 +184,78 @@ fn output_writer(file: &Option<PathBuf>) -> Result<Box<dyn std::io::Write>, Main
 impl Execute for Commands {
     fn execute(&self) -> Result<(), MainError> {
         match self {
+            Commands::Highlight(cmd) => cmd.execute(),
+            Commands::Tags(cmd) => cmd.execute(),
             Commands::Convert(cmd) => cmd.execute(),
             Commands::Draw(cmd) => cmd.execute(),
         }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Command Wrappers ❱ File Args
+// ------------------------------------------------------------------------------------------------
+
+impl FileArgs {
+    fn resolver(&self) -> Resolver {
+        if let Some(base) = &self.base_path {
+            Resolver::in_dir(base.clone())
+        } else {
+            Resolver::default()
+        }
+    }
+
+    fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {
+        if let Some(output_file) = &self.output_file {
+            Ok(Box::new(std::fs::File::create(output_file)?))
+        } else {
+            Ok(Box::new(std::io::stdout()))
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Command Wrappers ❱ Highlight
+// ------------------------------------------------------------------------------------------------
+
+impl Execute for Highlight {
+    fn execute(&self) -> Result<(), MainError> {
+        let resolver = self.files.resolver();
+        let source = resolver.resolve_module_source(&self.files.module)?;
+
+        let mut writer = self.files.output_writer()?;
+
+        match self.output_format {
+            HighlightFormat::Ansi => {
+                sdml::actions::highlight::write_highlighted_as_ansi(source, &mut writer)?
+            }
+            HighlightFormat::Html => {
+                sdml::actions::highlight::write_highlighted_as_html(source, &mut writer, false)?
+            }
+            HighlightFormat::HtmlStandalone => {
+                sdml::actions::highlight::write_highlighted_as_html(source, &mut writer, true)?
+            }
+        }
+
+        Ok(())
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Command Wrappers ❱ Tags
+// ------------------------------------------------------------------------------------------------
+
+impl Execute for Tags {
+    fn execute(&self) -> Result<(), MainError> {
+        let resolver = self.files.resolver();
+        let file_name = resolver.resolve_module_path(&self.files.module)?;
+        let module = sdml::model::parse::parse_file(&file_name)?;
+
+        let mut writer = self.files.output_writer()?;
+
+        sdml::actions::tags::write_tags(&module, &mut writer)?;
+
+        Ok(())
     }
 }
 
@@ -161,8 +265,11 @@ impl Execute for Commands {
 
 impl Execute for Convert {
     fn execute(&self) -> Result<(), MainError> {
-        let model = sdml::parse_file(&self.input_file)?;
-        let mut writer = output_writer(&self.output_file)?;
+        let resolver = self.files.resolver();
+        let file_name = resolver.resolve_module_path(&self.files.module)?;
+        let model = sdml::model::parse::parse_file(&file_name)?;
+
+        let mut writer = self.files.output_writer()?;
 
         match self.output_format {
             ConvertFormat::Org => {
@@ -186,26 +293,29 @@ impl Execute for Convert {
 
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
-        let model = sdml::parse_file(&self.input_file)?;
+        let resolver = self.files.resolver();
+        let file_name = resolver.resolve_module_path(&self.files.module)?;
+        let model = sdml::model::parse::parse_file(&file_name)?;
+
         let format = self.output_format.clone().unwrap_or_default().into();
 
         match self.diagram {
             DrawDiagram::Concepts => {
-                if let Some(path) = &self.output_file {
+                if let Some(path) = &self.files.output_file {
                     sdml::draw::concepts::concept_diagram_to_file(&model, path, format)?;
                 } else {
                     sdml::draw::concepts::print_concept_diagram(&model, format)?;
                 }
             }
             DrawDiagram::EntityRelationship => {
-                if let Some(path) = &self.output_file {
+                if let Some(path) = &self.files.output_file {
                     sdml::draw::erd::erd_diagram_to_file(&model, path, format)?;
                 } else {
                     sdml::draw::erd::print_erd_diagram(&model, format)?;
                 }
             }
             DrawDiagram::UmlClass => {
-                if let Some(path) = &self.output_file {
+                if let Some(path) = &self.files.output_file {
                     sdml::draw::uml::uml_diagram_to_file(&model, path, format)?;
                 } else {
                     sdml::draw::uml::print_uml_diagram(&model, format)?;
@@ -221,6 +331,8 @@ impl Execute for Draw {
 // Formats ❱ Conversion
 // ------------------------------------------------------------------------------------------------
 
+// TODO: default?
+
 impl Display for ConvertFormat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -229,7 +341,7 @@ impl Display for ConvertFormat {
             match self {
                 Self::Org => "org",
                 Self::Rdf => "rdf",
-                Self::SExpr => "sexpr",
+                Self::SExpr => "s-expr",
             }
         )
     }
@@ -242,7 +354,7 @@ impl FromStr for ConvertFormat {
         match s {
             "org" | "doc" => Ok(Self::Org),
             "rdf" | "ttl" | "turtle" => Ok(Self::Rdf),
-            "sexpr" | "s-expr" => Ok(Self::SExpr),
+            "s-expr" => Ok(Self::SExpr),
             _ => panic!(),
         }
     }
@@ -252,6 +364,8 @@ impl FromStr for ConvertFormat {
 // Formats ❱ Diagram Kind
 // ------------------------------------------------------------------------------------------------
 
+// TODO: default?
+
 impl Display for DrawDiagram {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -259,8 +373,8 @@ impl Display for DrawDiagram {
             "{}",
             match self {
                 Self::Concepts => "concepts",
-                Self::EntityRelationship => "entities",
-                Self::UmlClass => "uml",
+                Self::EntityRelationship => "entity-relationship",
+                Self::UmlClass => "uml-class",
             }
         )
     }
@@ -272,8 +386,8 @@ impl FromStr for DrawDiagram {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "concepts" => Ok(Self::Concepts),
-            "entities" | "entity-relations" | "erd" => Ok(Self::EntityRelationship),
-            "uml" | "uml-class" => Ok(Self::UmlClass),
+            "entity-relationship" | "erd" => Ok(Self::EntityRelationship),
+            "uml-class" | "uml" => Ok(Self::UmlClass),
             _ => panic!(),
         }
     }
@@ -281,6 +395,41 @@ impl FromStr for DrawDiagram {
 
 // ------------------------------------------------------------------------------------------------
 // Formats ❱ Diagram Format
+// ------------------------------------------------------------------------------------------------
+
+impl Default for HighlightFormat {
+    fn default() -> Self {
+        Self::Ansi
+    }
+}
+
+impl Display for HighlightFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Ansi => "ansi",
+                Self::Html => "html",
+                Self::HtmlStandalone => "html-standalone"
+            }
+        )
+    }
+}
+
+impl FromStr for HighlightFormat {
+    type Err = sdml::error::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "ansi" => Ok(Self::Ansi),
+            "html" => Ok(Self::Html),
+            "html-standalone" => Ok(Self::HtmlStandalone),
+            _ => panic!(),
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
 impl Default for DiagramFormat {
@@ -309,7 +458,7 @@ impl FromStr for DiagramFormat {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "src" => Ok(Self::Source),
+            "src" | "source" => Ok(Self::Source),
             "jpg" | "jpeg" => Ok(Self::Jpeg),
             "png" => Ok(Self::Png),
             "svg" => Ok(Self::Svg),

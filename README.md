@@ -9,3 +9,14 @@ Rust CLI for Simple Domain Modeling Language (SDML).
 [![GitHub stars](https://img.shields.io/github/stars/johnstonskj/rust-sdml.svg)](https://github.com/johnstonskj/rust-sdml/stargazers)
 
 TBD
+
+Formatting:
+
+* https://github.com/numtide/treefmt/wiki
+* https://melpa.org/#/format-all
+* https://github.com/tweag/topiary
+
+Linting:
+
+* https://github.com/github/super-linter
+

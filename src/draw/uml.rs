@@ -9,9 +9,9 @@ YYYYY
 
 */
 
-use crate::api::ParseTree;
 use crate::draw::OutputFormat;
 use crate::error::Error;
+use crate::model::Module;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -23,7 +23,7 @@ use std::io::Write;
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_uml_diagram<W: Write>(
-    _tree: &ParseTree<'_>,
+    _module: &Module,
     _w: &mut W,
     _format: OutputFormat,
 ) -> Result<(), Error> {

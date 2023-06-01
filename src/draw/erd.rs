@@ -9,10 +9,12 @@ YYYYY
 
 */
 
-use crate::api::ParseTree;
 use crate::draw::OutputFormat;
 use crate::error::Error;
-use crate::walk::{walk_tree, Cardinality, TreeWalker};
+use crate::model::walk::{walk_module, ModuleWalker};
+use crate::model::{
+    Cardinality, Identifier, IdentifierReference, Import, Module, Span, TypeReference,
+};
 use graphviz_rust::{cmd::CommandArg, cmd::Format, exec_dot};
 use std::cell::RefCell;
 use std::io::Write;
@@ -32,12 +34,12 @@ use tracing::{debug, trace};
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_erd_diagram<W: Write>(
-    tree: &ParseTree<'_>,
+    module: &Module,
     w: &mut W,
     format: OutputFormat,
 ) -> Result<(), Error> {
     let state = DiagramState::default();
-    walk_tree(tree, &state)?;
+    walk_module(module, &state)?;
 
     let source = state.buffer.into_inner();
 
@@ -57,16 +59,12 @@ pub fn write_erd_diagram<W: Write>(
     Ok(())
 }
 
-pub fn erd_diagram_to_file<P>(
-    tree: &ParseTree<'_>,
-    path: P,
-    format: OutputFormat,
-) -> Result<(), Error>
+pub fn erd_diagram_to_file<P>(module: &Module, path: P, format: OutputFormat) -> Result<(), Error>
 where
     P: AsRef<Path>,
 {
     let state = DiagramState::default();
-    walk_tree(tree, &state)?;
+    walk_module(module, &state)?;
 
     let source = state.buffer.into_inner();
 
@@ -115,8 +113,8 @@ struct DiagramState {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl TreeWalker for DiagramState {
-    fn start_module(&self, name: &str) -> Result<(), Error> {
+impl ModuleWalker for DiagramState {
+    fn start_module(&self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             r#"digraph G {{
@@ -136,89 +134,110 @@ impl TreeWalker for DiagramState {
         Ok(())
     }
 
-    fn import(&self, name: &str) -> Result<(), Error> {
-        trace!("import: {}", name);
+    fn import(&self, imported: &[Import], _: Option<&Span>) -> Result<(), Error> {
+        trace!("import: {:?}", imported);
         let mut buffer = self.buffer.borrow_mut();
-        buffer.push_str(&format!(
-            "  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name),
-            name
-        ));
-        *self.entity.borrow_mut() = Some(name.to_string());
+        for name in imported {
+            buffer.push_str(&format!(
+                "  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
+                name_to_ref(&name.to_string()),
+                name
+            ));
+        }
+        // ?        *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
 
-    fn start_entity(&self, name: &str) -> Result<(), Error> {
+    fn start_entity(&self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         trace!("entity: {}", name);
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             "  {} [label=\"{}\"; penwidth=1.5];\n",
-            name_to_ref(name),
+            name_to_ref(name.as_ref()),
             name
         ));
         *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
 
-    fn start_datatype(&self, name: &str, _base_type: &str) -> Result<(), Error> {
+    fn start_datatype(
+        &self,
+        name: &Identifier,
+        _base_type: &IdentifierReference,
+        _: Option<&Span>,
+    ) -> Result<(), Error> {
         trace!("datatype: {}", name);
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             "  {} [label=\"■ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name),
+            name_to_ref(name.as_ref()),
             name
         ));
         *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
 
-    fn start_enum(&self, name: &str) -> Result<(), Error> {
+    fn start_enum(&self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         trace!("enum: {}", name);
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             "  {} [label=\"≣ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name),
+            name_to_ref(name.as_ref()),
             name
         ));
         *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
 
-    fn start_event(&self, name: &str, _source: &str) -> Result<(), Error> {
+    fn start_event(
+        &self,
+        name: &Identifier,
+        _source: &IdentifierReference,
+        _: Option<&Span>,
+    ) -> Result<(), Error> {
         trace!("event: {}", name);
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             "  {} [label=\"☇ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name),
+            name_to_ref(name.as_ref()),
             name
         ));
         *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
 
-    fn start_structure(&self, name: &str) -> Result<(), Error> {
+    fn start_structure(&self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         trace!("structure: {}", name);
         let mut buffer = self.buffer.borrow_mut();
         buffer.push_str(&format!(
             "  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name),
+            name_to_ref(name.as_ref()),
             name
         ));
         *self.entity.borrow_mut() = Some(name.to_string());
         Ok(())
     }
 
-    fn start_identity_member(&self, name: &str, target_type: Option<&str>) -> Result<(), Error> {
+    fn start_identity_member(
+        &self,
+        name: &Identifier,
+        target_type: &TypeReference,
+        _: Option<&Span>,
+    ) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
-        if target_type.is_none() && !self.seen.borrow().contains(&"unknown".to_string()) {
+        if matches!(target_type, TypeReference::Unknown)
+            && !self.seen.borrow().contains(&"unknown".to_string())
+        {
             buffer.push_str(
                 "  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n",
             );
             self.seen.borrow_mut().push("unknown".to_string());
         }
-        let target_type = target_type
-            .map(name_to_ref)
-            .unwrap_or_else(|| "unknown".to_string());
+        let target_type = if let TypeReference::Reference(target_type) = target_type {
+            name_to_ref(&target_type.to_string())
+        } else {
+            "unknown".to_string()
+        };
         buffer.push_str(&format!(
             "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
             self.entity
@@ -235,14 +254,22 @@ impl TreeWalker for DiagramState {
 
     fn start_by_value_member(
         &self,
-        name: &str,
-        to: Cardinality,
-        target_type: Option<&str>,
+        name: &Identifier,
+        target_cardinality: Option<&Cardinality>,
+        target_type: &TypeReference,
+        _: Option<&Span>,
     ) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
-        let target_type = target_type
-            .map(name_to_ref)
-            .unwrap_or_else(|| "unknown".to_string());
+        let target_type = if let TypeReference::Reference(target_type) = target_type {
+            name_to_ref(&target_type.to_string())
+        } else {
+            "unknown".to_string()
+        };
+        let target_cardinality = if let Some(target_cardinality) = target_cardinality {
+            arrow_end("head", &target_cardinality)
+        } else {
+            String::new()
+        };
         buffer.push_str(&format!(
             "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\"{}];\n",
             self.entity
@@ -253,22 +280,35 @@ impl TreeWalker for DiagramState {
                 .to_lowercase(),
             target_type,
             name,
-            arrow_end("head", &to)
+            target_cardinality
         ));
         Ok(())
     }
 
     fn start_by_reference_member(
         &self,
-        name: &str,
-        from: Cardinality,
-        to: Cardinality,
-        target_type: Option<&str>,
+        name: &Identifier,
+        source_cardinality: Option<&Cardinality>,
+        target_cardinality: Option<&Cardinality>,
+        target_type: &TypeReference,
+        _: Option<&Span>,
     ) -> Result<(), Error> {
         let mut buffer = self.buffer.borrow_mut();
-        let target_type = target_type
-            .map(name_to_ref)
-            .unwrap_or_else(|| "unknown".to_string());
+        let target_type = if let TypeReference::Reference(target_type) = target_type {
+            name_to_ref(&target_type.to_string())
+        } else {
+            "unknown".to_string()
+        };
+        let source_cardinality = if let Some(source_cardinality) = source_cardinality {
+            arrow_end("tail", &source_cardinality)
+        } else {
+            String::new()
+        };
+        let target_cardinality = if let Some(target_cardinality) = target_cardinality {
+            arrow_end("head", &target_cardinality)
+        } else {
+            String::new()
+        };
         buffer.push_str(&format!(
             "  {} -> {} [tooltip=\"{}\";dir=\"both\"{}{}];\n",
             self.entity
@@ -279,13 +319,13 @@ impl TreeWalker for DiagramState {
                 .to_lowercase(),
             target_type,
             name,
-            arrow_end("tail", &from),
-            arrow_end("head", &to)
+            source_cardinality,
+            target_cardinality
         ));
         Ok(())
     }
 
-    fn end_module(&self, _name: &str) -> Result<(), Error> {
+    fn end_module(&self, _: &Identifier) -> Result<(), Error> {
         self.buffer.borrow_mut().push_str("}\n");
         *self.entity.borrow_mut() = None;
         Ok(())

@@ -19,14 +19,21 @@ name = "sdml"
 path = "src/bin/main.rs"
 
 [dependencies]
+ansi_term = "0.12.1"
+ariadne = "0.2.0"
 clap = { version = "4.2.7", features = ["derive", "env", "wrap_help"] }
 clap-verbosity-flag = "2.0.1"
+concolor = { version = "0.0", features = ["auto"] }
 graphviz-rust = "0.6.2"
 language-tags = { version = "0.3.2", features = ["serde"] }
+lazy_static = "1.4.0"
+regex = "1.8.3"
 rust_decimal = "1.29.1"
+search_path = "0.1.4"
 serde = { version = "1.0.163", features = ["serde_derive"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter" ] }
 tree-sitter = "0.20.10"
+tree-sitter-highlight = "0.20.1"
 tree-sitter-sdml = {version = "0.1.5", path = "../../tree-sitter-sdml" }
 url = { version = "2.3.1", features = ["serde"] }
