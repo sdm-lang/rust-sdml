@@ -266,7 +266,7 @@ impl ModuleWalker for DiagramState {
             "unknown".to_string()
         };
         let target_cardinality = if let Some(target_cardinality) = target_cardinality {
-            arrow_end("head", &target_cardinality)
+            arrow_end("head", target_cardinality)
         } else {
             String::new()
         };
@@ -300,12 +300,12 @@ impl ModuleWalker for DiagramState {
             "unknown".to_string()
         };
         let source_cardinality = if let Some(source_cardinality) = source_cardinality {
-            arrow_end("tail", &source_cardinality)
+            arrow_end("tail", source_cardinality)
         } else {
             String::new()
         };
         let target_cardinality = if let Some(target_cardinality) = target_cardinality {
-            arrow_end("head", &target_cardinality)
+            arrow_end("head", target_cardinality)
         } else {
             String::new()
         };

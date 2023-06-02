@@ -835,15 +835,13 @@ impl ModuleBody {
 
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
         self.imports()
-            .map(|stmt| stmt.imported_modules())
-            .flatten()
+            .flat_map(|stmt| stmt.imported_modules())
             .collect()
     }
 
     pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
         self.imports()
-            .map(|stmt| stmt.imported_types())
-            .flatten()
+            .flat_map(|stmt| stmt.imported_types())
             .collect()
     }
 
@@ -853,15 +851,13 @@ impl ModuleBody {
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         self.definitions()
-            .map(|def| def.referenced_types())
-            .flatten()
+            .flat_map(|def| def.referenced_types())
             .collect()
     }
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.definitions()
-            .map(|def| def.referenced_annotations())
-            .flatten()
+            .flat_map(|def| def.referenced_annotations())
             .collect()
     }
 }
@@ -906,7 +902,7 @@ impl ImportStatement {
     }
 
     pub(crate) fn as_slice(&self) -> &[Import] {
-        &self.imported.as_slice()
+        self.imported.as_slice()
     }
 
     pub fn imported_modules(&self) -> HashSet<&Identifier> {

@@ -383,32 +383,32 @@ fn parse_simple_value<'a>(
                         assert!(cursor.goto_parent());
                         let value = node_as_str(&node, source)?;
                         let value = f64::from_str(value).expect("Invalid value for Double");
-                        return Ok(SimpleValue::from(value).into());
+                        return Ok(SimpleValue::from(value));
                     }
                     "decimal" => {
                         assert!(cursor.goto_parent());
                         let value = node_as_str(&node, source)?;
                         let value = Decimal::from_str(value).expect("Invalid value for Decimal");
-                        return Ok(SimpleValue::from(value).into());
+                        return Ok(SimpleValue::from(value));
                     }
                     "integer" => {
                         assert!(cursor.goto_parent());
                         let value = node_as_str(&node, source)?;
                         let value = i64::from_str(value).expect("Invalid value for Integer");
-                        return Ok(SimpleValue::from(value).into());
+                        return Ok(SimpleValue::from(value));
                     }
                     "boolean" => {
                         assert!(cursor.goto_parent());
                         let value = node_as_str(&node, source)?;
                         let value = bool::from_str(value).expect("Invalid value for Boolean");
-                        return Ok(SimpleValue::from(value).into());
+                        return Ok(SimpleValue::from(value));
                     }
                     "iri_reference" => {
                         assert!(cursor.goto_parent());
                         let value = node_as_str(&node, source)?;
                         let value = Url::from_str(&value[1..(value.len() - 1)])
                             .expect("Invalid value for IriReference");
-                        return Ok(SimpleValue::from(value).into());
+                        return Ok(SimpleValue::from(value));
                     }
                     "line_comment" => {
                         trace!("ignoring comments");

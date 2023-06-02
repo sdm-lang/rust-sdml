@@ -142,7 +142,7 @@ fn write_module<W: Write>(me: &Module, prefix: &str, w: &mut W) -> Result<(), Er
 }
 
 fn write_module_body<W: Write>(me: &ModuleBody, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("(module_body").as_bytes())?;
+    w.write_all("(module_body".as_bytes())?;
     let prefix = format!("{}  ", prefix);
 
     if let Some(span) = me.ts_span() {
@@ -774,7 +774,7 @@ fn write_type_reference<W: Write>(
     w: &mut W,
 ) -> Result<(), Error> {
     if let TypeReference::Reference(reference) = me {
-        write_identifier_reference(reference, &prefix, w)?;
+        write_identifier_reference(reference, prefix, w)?;
     } else {
         w.write_all("(unknown_type)".as_bytes())?;
     }
