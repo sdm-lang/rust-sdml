@@ -168,7 +168,8 @@ fn parse_import<'a>(
                     "module_import" => {
                         let node = node.child_by_field_name("name").unwrap();
                         check_if_error(source, &node)?;
-                        let name = Identifier::new_unchecked(node_as_str(&node, source)?).with_ts_span(node.into());
+                        let name = Identifier::new_unchecked(node_as_str(&node, source)?)
+                            .with_ts_span(node.into());
                         import.add_import(name.into());
                     }
                     "member_import" => {
@@ -226,7 +227,9 @@ fn parse_identifier_reference<'a>(
             if node.is_named() {
                 match node.kind() {
                     "identifier" => {
-                        return Ok(Identifier::new_unchecked(node_as_str(&node, source)?).with_ts_span(node.into()).into())
+                        return Ok(Identifier::new_unchecked(node_as_str(&node, source)?)
+                            .with_ts_span(node.into())
+                            .into())
                     }
                     "qualified_identifier" => {
                         return Ok(parse_qualified_identifier(source, &mut node.walk())?.into());

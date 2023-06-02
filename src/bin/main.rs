@@ -251,6 +251,8 @@ impl Execute for Tags {
         let file_name = resolver.resolve_module_path(&self.files.module)?;
         let module = sdml::model::parse::parse_file(&file_name)?;
 
+        info!("loaded module: {}, is_complete: {}", module.name(), module.is_complete());
+
         let mut writer = self.files.output_writer()?;
 
         sdml::actions::tags::write_tags(&module, &mut writer)?;
@@ -268,6 +270,8 @@ impl Execute for Convert {
         let resolver = self.files.resolver();
         let file_name = resolver.resolve_module_path(&self.files.module)?;
         let model = sdml::model::parse::parse_file(&file_name)?;
+
+        info!("loaded module: {}, is_complete: {}", model.name(), model.is_complete());
 
         let mut writer = self.files.output_writer()?;
 
@@ -296,6 +300,8 @@ impl Execute for Draw {
         let resolver = self.files.resolver();
         let file_name = resolver.resolve_module_path(&self.files.module)?;
         let model = sdml::model::parse::parse_file(&file_name)?;
+
+        info!("loaded module: {}, is_complete: {}", model.name(), model.is_complete());
 
         let format = self.output_format.clone().unwrap_or_default().into();
 

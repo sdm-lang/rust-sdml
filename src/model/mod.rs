@@ -622,6 +622,26 @@ macro_rules! referenced_annotations_impl {
     };
 }
 
+macro_rules! is_complete_impl {
+    ($tyname: ty => $field: ident) => {
+        impl $tyname {
+            pub fn is_complete(&self) -> bool {
+                self.$field
+                    .as_ref()
+                    .map(|b| b.is_complete())
+                    .unwrap_or_default()
+            }
+        }
+    };
+    ($tyname: ty ; $field: ident) => {
+        impl $tyname {
+            pub fn is_complete(&self) -> bool {
+                self.$field.is_some()
+            }
+        }
+    };
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
@@ -762,6 +782,10 @@ impl Module {
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body.referenced_annotations()
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.body.definitions().all(|def| def.is_complete())
     }
 }
 
@@ -1281,6 +1305,16 @@ impl TypeDefinition {
             TypeDefinition::Structure(v) => v.referenced_annotations(),
         }
     }
+
+    pub fn is_complete(&self) -> bool {
+        match self {
+            TypeDefinition::Datatype(v) => v.is_complete(),
+            TypeDefinition::Entity(v) => v.is_complete(),
+            TypeDefinition::Enum(v) => v.is_complete(),
+            TypeDefinition::Event(v) => v.is_complete(),
+            TypeDefinition::Structure(v) => v.is_complete(),
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1299,6 +1333,10 @@ impl DatatypeDef {
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         [self.base_type()].into_iter().collect()
     }
+
+    pub fn is_complete(&self) -> bool {
+        true
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1314,6 +1352,7 @@ referenced_annotations_impl!(AnnotationOnlyBody);
 type_definition_impl!(EntityDef, EntityBody);
 referenced_annotations_impl!(EntityDef => body);
 referenced_types_impl!(EntityDef => body);
+is_complete_impl!(EntityDef => body);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -1337,6 +1376,10 @@ impl EntityBody {
 
     pub fn identity(&self) -> &IdentityMember {
         &self.identity
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.members().all(|m| m.is_complete()) && self.groups().all(|m| m.is_complete())
     }
 }
 
@@ -1368,6 +1411,13 @@ impl EntityMember {
             EntityMember::ByReference(v) => v.target_type(),
         }
     }
+
+    pub fn is_complete(&self) -> bool {
+        match self {
+            EntityMember::ByValue(v) => v.is_complete(),
+            EntityMember::ByReference(v) => v.is_complete(),
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1376,12 +1426,19 @@ has_span_impl!(EntityGroup);
 has_annotations_impl!(EntityGroup);
 has_members_impl!(EntityGroup, EntityMember);
 
+impl EntityGroup {
+    pub fn is_complete(&self) -> bool {
+        self.members().all(|m| m.is_complete())
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Enumerations
 // ------------------------------------------------------------------------------------------------
 
 type_definition_impl!(EnumDef, EnumBody);
 referenced_annotations_impl!(EnumDef => body);
+is_complete_impl!(EnumDef ; body);
 
 impl EnumDef {
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
@@ -1461,6 +1518,7 @@ impl EnumVariant {
 type_definition_impl!(EventDef, StructureBody, event_source, IdentifierReference);
 referenced_annotations_impl!(EventDef => body);
 referenced_types_impl!(EventDef => body);
+is_complete_impl!(EventDef => body);
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Structures
@@ -1469,6 +1527,7 @@ referenced_types_impl!(EventDef => body);
 type_definition_impl!(StructureDef, StructureBody);
 referenced_annotations_impl!(StructureDef => body);
 referenced_types_impl!(StructureDef => body);
+is_complete_impl!(StructureDef => body);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -1479,11 +1538,23 @@ has_groups_impl!(StructureBody, StructureGroup);
 referenced_annotations_impl!(StructureBody);
 referenced_types_impl!(StructureBody);
 
+impl StructureBody {
+    pub fn is_complete(&self) -> bool {
+        self.members().all(|m| m.is_complete()) && self.groups().all(|m| m.is_complete())
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(StructureGroup);
 has_annotations_impl!(StructureGroup);
 has_members_impl!(StructureGroup, ByValueMember);
+
+impl StructureGroup {
+    pub fn is_complete(&self) -> bool {
+        self.members().all(|m| m.is_complete())
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members
@@ -1491,6 +1562,12 @@ has_members_impl!(StructureGroup, ByValueMember);
 
 member_impl!(IdentityMember);
 referenced_annotations_impl!(IdentityMember => body);
+
+impl IdentityMember {
+    pub fn is_complete(&self) -> bool {
+        self.target_type().is_complete()
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 
@@ -1500,6 +1577,10 @@ referenced_annotations_impl!(ByValueMember => body);
 impl ByValueMember {
     pub fn set_target_cardinality(&mut self, cardinality: Cardinality) {
         self.target_cardinality = Some(cardinality);
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.target_type().is_complete()
     }
 }
 
@@ -1521,6 +1602,18 @@ impl ByReferenceMember {
 
     pub fn set_target_cardinality(&mut self, cardinality: Cardinality) {
         self.target_cardinality = Some(cardinality);
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.target_type().is_complete()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl TypeReference {
+    pub fn is_complete(&self) -> bool {
+        matches!(self, Self::Reference(_))
     }
 }
 
