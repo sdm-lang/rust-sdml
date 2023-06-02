@@ -1,0 +1,45 @@
+module rentals is
+
+  ;; This is actually a US VIN
+  import cids:VehicleIdentificationNumber
+
+  import xml
+
+  @xml:base = <https://example.org/v/rentals>
+  @dc:version = 2
+  
+  entity Class
+
+  entity Vehicle is
+    @skos:prefLabel = "Vehicle"@en
+    
+    identity vin -> VehicleIdentificationNumber
+
+    ref rentalClass -> {1} Class
+  end
+
+  structure VehicleInformation is
+    make -> xsd:string
+    model -> xsd:string
+    year -> xsd:integer is
+      @xsd:minValue = 2000
+      @xsd:maxValue = 3000
+    end
+  end
+
+  entity Location
+
+  entity Customer
+
+  entity Booking is
+    identity bookingCode -> unknown
+
+    group
+      ref bookingClass -> {1} Class
+      ref vehicle -> {0..1} Vehicle
+      ref from -> Location
+    end
+    ref customer -> {1} Customer
+  end
+
+end
