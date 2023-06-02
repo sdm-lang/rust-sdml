@@ -63,9 +63,9 @@ const CLOSE_PAREN: &[u8] = ")".as_bytes();
 const CLOSE_PAREN_NEW_LINE: &[u8] = ")\n".as_bytes();
 
 fn write_identifier<W: Write>(me: &Identifier, _: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("(identifier '{}", me.as_ref()).as_bytes())?;
-
+    w.write_all("(identifier ".as_bytes())?;
     maybe_write_span(me.ts_span(), w)?;
+    w.write_all(format!("'{}", me.as_ref()).as_bytes())?;
 
     w.write_all(CLOSE_PAREN)?;
 
@@ -173,7 +173,7 @@ fn write_import_statement<W: Write>(
     prefix: &str,
     w: &mut W,
 ) -> Result<(), Error> {
-    w.write_all(format!("{}(import\n", prefix).as_bytes())?;
+    w.write_all(format!("{}(import", prefix).as_bytes())?;
     let prefix = format!("{}  ", prefix);
 
     if let Some(span) = me.ts_span() {
@@ -182,6 +182,7 @@ fn write_import_statement<W: Write>(
     }
 
     for import in me.imports() {
+        w.write_all(NEW_LINE)?;
         write_import(import, &prefix, w)?;
     }
 
@@ -782,12 +783,12 @@ fn write_type_reference<W: Write>(
 }
 
 fn write_cardinality<W: Write>(me: &Cardinality, _: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(cardinality_expression".as_bytes())?;
+    w.write_all("(cardinality_expression ".as_bytes())?;
     maybe_write_span(me.ts_span(), w)?;
-    w.write_all(format!(" min: {}", me.min_occurs()).as_bytes())?;
+    w.write_all(format!("min: {} ", me.min_occurs()).as_bytes())?;
 
     if let Some(max) = me.max_occurs() {
-        w.write_all(format!(" max: {})", max).as_bytes())?;
+        w.write_all(format!("max: {})", max).as_bytes())?;
     } else {
         w.write_all(CLOSE_PAREN)?;
     }
@@ -806,7 +807,7 @@ fn maybe_write_span<W: Write>(me: Option<&Span>, w: &mut W) -> Result<(), Error>
 
 #[allow(dead_code)]
 fn write_span<W: Write>(me: &Span, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("(span start: {} end: {})", me.start(), me.end()).as_bytes())?;
+    w.write_all(format!("(span start: {} end: {}) ", me.start(), me.end()).as_bytes())?;
 
     Ok(())
 }

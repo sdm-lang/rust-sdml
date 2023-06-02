@@ -92,14 +92,14 @@ fn parse_module<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Modu
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("body").unwrap();
     check_if_error(source, &child)?;
     cursor.reset(child);
     let body = parse_module_body(source, cursor)?;
 
-    Ok(Module::new(name, body))
+    Ok(Module::new(name, body).with_ts_span(node.into()))
 }
 
 fn parse_module_body<'a>(
@@ -107,7 +107,7 @@ fn parse_module_body<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<ModuleBody, Error> {
     trace!("parse_module_body: {:?}", cursor.node());
-    let mut body: ModuleBody = Default::default();
+    let mut body = ModuleBody::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -152,7 +152,7 @@ fn parse_import<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<ImportStatement, Error> {
     trace!("parse_import: {:?}", cursor.node());
-    let mut import: ImportStatement = Default::default();
+    let mut import = ImportStatement::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -168,7 +168,7 @@ fn parse_import<'a>(
                     "module_import" => {
                         let node = node.child_by_field_name("name").unwrap();
                         check_if_error(source, &node)?;
-                        let name = Identifier::new_unchecked(node_as_str(&node, source)?);
+                        let name = Identifier::new_unchecked(node_as_str(&node, source)?).with_ts_span(node.into());
                         import.add_import(name.into());
                     }
                     "member_import" => {
@@ -204,11 +204,11 @@ fn parse_qualified_identifier<'a>(
 
     let child = node.child_by_field_name("module").unwrap();
     check_if_error(source, &child)?;
-    let module = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let module = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("member").unwrap();
     check_if_error(source, &child)?;
-    let member = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let member = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     Ok(QualifiedIdentifier::new(module, member))
 }
@@ -226,7 +226,7 @@ fn parse_identifier_reference<'a>(
             if node.is_named() {
                 match node.kind() {
                     "identifier" => {
-                        return Ok(Identifier::new_unchecked(node_as_str(&node, source)?).into())
+                        return Ok(Identifier::new_unchecked(node_as_str(&node, source)?).with_ts_span(node.into()).into())
                     }
                     "qualified_identifier" => {
                         return Ok(parse_qualified_identifier(source, &mut node.walk())?.into());
@@ -296,7 +296,7 @@ fn parse_annotation<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<
     check_if_error(source, &child)?;
     let value = parse_value(source, &mut child.walk())?;
 
-    Ok(Annotation::new(name, value))
+    Ok(Annotation::new(name, value).with_ts_span(node.into()))
 }
 
 fn parse_value<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Value, Error> {
@@ -427,6 +427,7 @@ fn parse_simple_value<'a>(
 
 fn parse_string<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<LanguageString, Error> {
     trace!("parse_string: {:?}", cursor.node());
+    let root_node = cursor.node();
     let mut has_next = cursor.goto_first_child();
     if has_next {
         let mut value = String::new();
@@ -458,7 +459,7 @@ fn parse_string<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Lang
             has_next = cursor.goto_next_sibling();
         }
         assert!(cursor.goto_parent());
-        return Ok(LanguageString::new(&value, language));
+        return Ok(LanguageString::new(&value, language).with_ts_span(root_node.into()));
     }
     unreachable!()
 }
@@ -478,7 +479,7 @@ fn parse_value_constructor<'a>(
     check_if_error(source, &child)?;
     let value = parse_simple_value(source, cursor)?;
 
-    Ok(ValueConstructor::new(name, value))
+    Ok(ValueConstructor::new(name, value).with_ts_span(node.into()))
 }
 
 fn parse_list_of_values<'a>(
@@ -566,13 +567,13 @@ fn parse_data_type_def<'a>(
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("base_type").unwrap();
     check_if_error(source, &child)?;
     let base_type = parse_identifier_reference(source, cursor)?;
 
-    let mut data_type = DatatypeDef::new(name, base_type);
+    let mut data_type = DatatypeDef::new(name, base_type).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -588,7 +589,7 @@ fn parse_annotation_only_body<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<AnnotationOnlyBody, Error> {
     trace!("parse_annotation_only_body: {:?}", cursor.node());
-    let mut body = AnnotationOnlyBody::default();
+    let mut body = AnnotationOnlyBody::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -620,9 +621,9 @@ fn parse_entity_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
-    let mut entity = EntityDef::new(name);
+    let mut entity = EntityDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -643,7 +644,7 @@ fn parse_entity_body<'a>(
     let child = node.child_by_field_name("identity").unwrap();
     check_if_error(source, &child)?;
     let identity = parse_identity_member(source, &mut child.walk())?;
-    let mut body = EntityBody::new(identity);
+    let mut body = EntityBody::new(identity).with_ts_span(node.into());
 
     let mut has_next = cursor.goto_first_child();
     if has_next {
@@ -690,7 +691,7 @@ fn parse_entity_group<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<EntityGroup, Error> {
     trace!("parse_entity_body: {:?}", cursor.node());
-    let mut group = EntityGroup::default();
+    let mut group = EntityGroup::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -731,8 +732,8 @@ fn parse_enum_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<En
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
-    let mut new_enum = EnumDef::new(name);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
+    let mut new_enum = EnumDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -745,7 +746,7 @@ fn parse_enum_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<En
 
 fn parse_enum_body<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<EnumBody, Error> {
     trace!("parse_enum_body: {:?}", cursor.node());
-    let mut body = EnumBody::default();
+    let mut body = EnumBody::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -780,13 +781,13 @@ fn parse_event_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<E
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("source").unwrap();
     check_if_error(source, &child)?;
     let event_source = parse_identifier_reference(source, cursor)?;
 
-    let mut event = EventDef::new(name, event_source);
+    let mut event = EventDef::new(name, event_source).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -802,7 +803,7 @@ fn parse_structure_body<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<StructureBody, Error> {
     trace!("parse_structure_body: {:?}", cursor.node());
-    let mut body = StructureBody::default();
+    let mut body = StructureBody::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -842,7 +843,7 @@ fn parse_structure_group<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<StructureGroup, Error> {
     trace!("parse_structure_body: {:?}", cursor.node());
-    let mut group = StructureGroup::default();
+    let mut group = StructureGroup::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
@@ -883,8 +884,8 @@ fn parse_structure_def<'a>(
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
-    let mut structure = StructureDef::new(name);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
+    let mut structure = StructureDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -904,13 +905,13 @@ fn parse_identity_member<'a>(
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("target").unwrap();
     check_if_error(source, &child)?;
     let type_reference = parse_type_reference(source, &mut child.walk())?;
 
-    let mut member = IdentityMember::new(name, type_reference);
+    let mut member = IdentityMember::new(name, type_reference).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -930,13 +931,13 @@ fn parse_by_value_member<'a>(
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("target").unwrap();
     check_if_error(source, &child)?;
     let type_reference = parse_type_reference(source, &mut child.walk())?;
 
-    let mut member = ByValueMember::new(name, type_reference);
+    let mut member = ByValueMember::new(name, type_reference).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("targetCardinality") {
         check_if_error(source, &child)?;
@@ -962,13 +963,13 @@ fn parse_by_reference_member<'a>(
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("target").unwrap();
     check_if_error(source, &child)?;
     let type_reference = parse_type_reference(source, &mut child.walk())?;
 
-    let mut member = ByReferenceMember::new(name, type_reference);
+    let mut member = ByReferenceMember::new(name, type_reference).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("sourceCardinality") {
         check_if_error(source, &child)?;
@@ -1000,14 +1001,14 @@ fn parse_enum_variant<'a>(
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+    let name = Identifier::new_unchecked(node_as_str(&child, source)?).with_ts_span(child.into());
 
     let child = node.child_by_field_name("value").unwrap();
     check_if_error(source, &child)?;
     let text = node_as_str(&child, source)?;
     let value = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
 
-    let mut enum_variant = EnumVariant::new(name, value);
+    let mut enum_variant = EnumVariant::new(name, value).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
@@ -1036,9 +1037,9 @@ fn parse_cardinality<'a>(
         check_if_error(source, &child)?;
         let text = node_as_str(&child, source)?;
         let max = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
-        Ok(Cardinality::new_range(min, max))
+        Ok(Cardinality::new_range(min, max).with_ts_span(node.into()))
     } else {
-        Ok(Cardinality::new_single(min))
+        Ok(Cardinality::new_single(min).with_ts_span(node.into()))
     }
 }
 

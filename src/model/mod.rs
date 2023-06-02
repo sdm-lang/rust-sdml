@@ -1618,6 +1618,15 @@ impl From<&Node<'_>> for Span {
     }
 }
 
+impl From<Node<'_>> for Span {
+    fn from(node: Node<'_>) -> Self {
+        Self {
+            start: node.start_byte(),
+            end: node.end_byte(),
+        }
+    }
+}
+
 impl Span {
     pub fn start(&self) -> usize {
         self.start
