@@ -1,25 +1,23 @@
-use sdml::api::{NodeWrapper, SimpleValue, TypeDefinition, Value};
+use sdml::model::{
+    parse::parse_str, Annotation, ImportStatement, ListMember, SimpleValue, TypeDefinition, Value,
+};
 use std::str::FromStr;
 use url::Url;
 
 #[test]
 fn test_parse_empty_module() {
-    let parse_tree = sdml::parse_str("module foo is end");
-    assert!(parse_tree.is_ok());
+    let module = parse_str("module foo is end");
+    println!("{:#?}", module);
+    assert!(module.is_ok());
 
-    let parse_tree = parse_tree.unwrap();
-    let module = parse_tree.module();
+    let module = module.unwrap();
     let name = module.name();
-    let name_text = name.text();
-    assert!(name_text.is_ok());
-
-    let name_text = name_text.unwrap();
-    assert_eq!(name_text, "foo");
+    assert_eq!(name.as_ref(), "foo");
 }
 
 #[test]
 fn test_parse_module_with_imports() {
-    let parse_tree = sdml::parse_str(
+    let module = parse_str(
         r#"module foo is
 
   import foo
@@ -29,27 +27,23 @@ fn test_parse_module_with_imports() {
   import [ goo goo:poo ]
 end"#,
     );
-    assert!(parse_tree.is_ok());
+    println!("{:#?}", module);
+    assert!(module.is_ok());
 
-    let parse_tree = parse_tree.unwrap();
-    let module = parse_tree.module();
+    let module = module.unwrap();
     let body = module.body();
 
-    let imports = body.imports();
+    let imports: Vec<&ImportStatement> = body.imports().collect();
     assert_eq!(imports.len(), 3);
 
     let import = imports.get(0).unwrap();
-    let imported: Vec<&str> = import
-        .imported()
-        .iter()
-        .map(|i| i.text().unwrap())
-        .collect();
+    let imported: Vec<String> = import.imports().map(|i| i.to_string()).collect();
     assert_eq!(imported, ["foo"]);
 }
 
 #[test]
 fn test_parse_module_with_annotations() {
-    let parse_tree = sdml::parse_str(
+    let module = parse_str(
         r#"module foo is
 
   @xml:base = <https://example.org/>
@@ -63,79 +57,79 @@ fn test_parse_module_with_annotations() {
 
 end"#,
     );
-    assert!(parse_tree.is_ok());
+    println!("{:#?}", module);
+    assert!(module.is_ok());
 
-    let parse_tree = parse_tree.unwrap();
-    let module = parse_tree.module();
+    let module = module.unwrap();
     let body = module.body();
 
-    let imports = body.annotations();
-    assert_eq!(imports.len(), 3);
+    let annotations: Vec<&Annotation> = body.annotations().collect();
+    assert_eq!(annotations.len(), 3);
 
-    let annotation = imports.get(0).unwrap();
-    assert_eq!(annotation.name().as_ref(), "xml:base");
-    if let Value::IriReference(value) = annotation.value() {
-        assert_eq!(
-            value.value(),
-            Url::from_str("https://example.org/").unwrap()
-        );
+    let annotation = annotations.get(0).unwrap();
+    assert_eq!(annotation.name().to_string().as_str(), "xml:base");
+    if let Value::Simple(SimpleValue::IriReference(value)) = annotation.value() {
+        assert_eq!(value, &Url::from_str("https://example.org/").unwrap());
     } else {
         panic!();
     }
 
-    let annotation = imports.get(1).unwrap();
-    assert_eq!(annotation.name().as_ref(), "dc:version");
-    if let Value::Integer(value) = annotation.value() {
-        assert_eq!(value.value(), 2);
+    let annotation = annotations.get(1).unwrap();
+    assert_eq!(annotation.name().to_string().as_str(), "dc:version");
+    if let Value::Simple(SimpleValue::Integer(value)) = annotation.value() {
+        assert_eq!(value, &2);
     } else {
         panic!();
     }
 
-    let annotation = imports.get(2).unwrap();
-    assert_eq!(annotation.name().as_ref(), "skos:prefLang");
-    if let Value::ListOfValues(list) = annotation.value() {
-        let values = list.values();
-        assert_eq!(values.len(), 2);
+    let annotation = annotations.get(2).unwrap();
+    assert_eq!(annotation.name().to_string().as_str(), "skos:prefLang");
+    match annotation.value() {
+        Value::List(list) => {
+            let values: Vec<&ListMember> = list.values().collect();
+            assert_eq!(values.len(), 2);
 
-        if let Some(SimpleValue::String(value)) = values.get(0) {
-            assert_eq!(value.string().value(), "aa");
-            assert_eq!(value.language().unwrap().value(), "en");
-        } else {
+            if let Some(ListMember::Simple(SimpleValue::String(value))) = values.get(0) {
+                assert_eq!(value.value().as_str(), "aa");
+                assert_eq!(value.language().unwrap().as_ref(), "en");
+            } else {
+                panic!();
+            }
+
+            if let Some(ListMember::Simple(SimpleValue::String(value))) = values.get(1) {
+                assert_eq!(value.value().as_str(), "bb");
+                assert!(value.language().is_none());
+            } else {
+                panic!();
+            }
+        }
+        _ => {
             panic!();
         }
-
-        if let Some(SimpleValue::String(value)) = values.get(1) {
-            assert_eq!(value.string().value(), "bb");
-            assert!(value.language().is_none());
-        } else {
-            panic!();
-        }
-    } else {
-        panic!();
     }
 }
 
 #[test]
 fn test_parse_datatype() {
-    let parse_tree = sdml::parse_str(
+    let module = parse_str(
         r#"module foo is
 
   datatype Name <- xsd:string
 
 end"#,
     );
-    assert!(parse_tree.is_ok());
+    println!("{:#?}", module);
+    assert!(module.is_ok());
 
-    let parse_tree = parse_tree.unwrap();
-    let module = parse_tree.module();
+    let module = module.unwrap();
     let body = module.body();
 
-    let types = body.definitions();
+    let types: Vec<&TypeDefinition> = body.definitions().collect();
     assert_eq!(types.len(), 1);
 
     if let Some(TypeDefinition::Datatype(definition)) = types.get(0) {
         assert_eq!(definition.name().as_ref(), "Name");
-        assert_eq!(definition.base_type().as_ref(), "xsd:string");
+        assert_eq!(definition.base_type().to_string().as_str(), "xsd:string");
     } else {
         panic!();
     }

@@ -1,0 +1,72 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 56,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 16,
+            },
+        ),
+        value: "datatypex",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 17,
+                end: 55,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Datatype(
+                DatatypeDef {
+                    span: Some(
+                        Span {
+                            start: 23,
+                            end: 50,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 32,
+                                end: 36,
+                            },
+                        ),
+                        value: "Name",
+                    },
+                    base_type: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 40,
+                                        end: 43,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 44,
+                                        end: 50,
+                                    },
+                                ),
+                                value: "string",
+                            },
+                        },
+                    ),
+                    body: None,
+                },
+            ),
+        ],
+    },
+}

@@ -199,7 +199,7 @@ impl Execute for Commands {
 impl FileArgs {
     fn resolver(&self) -> Resolver {
         if let Some(base) = &self.base_path {
-            Resolver::in_dir(base.clone())
+            Resolver::default().prepend(base.clone())
         } else {
             Resolver::default()
         }

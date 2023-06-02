@@ -41,18 +41,30 @@ pub enum Error {
         input: String,
     },
     InvalidNodeKind {
+        rule: String,
         got: String,
     },
     UnexpectedNodeKind {
+        rule: String,
         expected: String,
         got: String,
     },
     MissingNodeKind {
+        rule: String,
         expected: String,
     },
     InvalidValueForType {
         value: String,
         type_name: String,
+    },
+    ModuleFileNotFound {
+        name: String,
+    },
+    ModuleParseError {
+        rule: Option<String>,
+        node_name: String,
+        start: usize,
+        end: usize,
     },
 }
 
@@ -124,38 +136,53 @@ where
 
 /// Construct an invalid value Error from the provided input.
 #[inline]
-pub fn invalid_node_kind<S1, S2>(got: S2) -> Error
+pub fn invalid_node_kind<S1, S2>(rule: S1, got: S2) -> Error
 where
     S1: Into<String>,
     S2: Into<String>,
 {
+    let rule = rule.into();
     let got = got.into();
-    error!("Unexpected node kind; got: {}", got);
-    Error::InvalidNodeKind { got }
+    error!("Unexpected node kind; got: {}, in rule: {}", got, rule);
+    Error::InvalidNodeKind { rule, got }
 }
 
 /// Construct an invalid value Error from the provided input.
 #[inline]
-pub fn unexpected_node_kind<S1, S2>(expected: S1, got: S2) -> Error
+pub fn unexpected_node_kind<S1, S2, S3>(rule: S1, expected: S2, got: S3) -> Error
+where
+    S1: Into<String>,
+    S2: Into<String>,
+    S3: Into<String>,
+{
+    let rule = rule.into();
+    let expected = expected.into();
+    let got = got.into();
+    error!(
+        "Invalid node kind; expecting: {}, got: {}, in rule: {}",
+        expected, got, rule
+    );
+    Error::UnexpectedNodeKind {
+        rule,
+        expected,
+        got,
+    }
+}
+
+/// Construct an invalid value Error from the provided input.
+#[inline]
+pub fn missing_node_kind<S1, S2>(rule: S1, expected: S2) -> Error
 where
     S1: Into<String>,
     S2: Into<String>,
 {
+    let rule = rule.into();
     let expected = expected.into();
-    let got = got.into();
-    error!("Invalid node kind; expecting: {}, got: {}", expected, got);
-    Error::UnexpectedNodeKind { expected, got }
-}
-
-/// Construct an invalid value Error from the provided input.
-#[inline]
-pub fn missing_node_kind<S>(expected: S) -> Error
-where
-    S: Into<String>,
-{
-    let expected = expected.into();
-    error!("Missing node kind; expecting: {}", expected);
-    Error::MissingNodeKind { expected }
+    error!(
+        "Missing node kind; expecting: {}, in rule: {}",
+        expected, rule
+    );
+    Error::MissingNodeKind { rule, expected }
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -172,6 +199,50 @@ where
         value, type_name
     );
     Error::InvalidValueForType { value, type_name }
+}
+
+/// Construct an invalid value Error from the provided input.
+#[inline]
+pub fn module_file_not_found<S>(name: S) -> Error
+where
+    S: Into<String>,
+{
+    let name = name.into();
+    error!("Could not resolve module name to a file; name: {}", name);
+    Error::ModuleFileNotFound { name }
+}
+
+/// Construct an invalid value Error from the provided input.
+#[inline]
+pub fn module_parse_error<S1, S2>(
+    node_name: S1,
+    start: usize,
+    end: usize,
+    rule: Option<S2>,
+) -> Error
+where
+    S1: Into<String>,
+    S2: Into<String>,
+{
+    let node_name = node_name.into();
+    let rule = rule.map(|s| s.into());
+    error!(
+        "Error reported parsing module; node name: {} range: {}..{}{}",
+        node_name,
+        start,
+        end,
+        if let Some(rule) = &rule {
+            format!(", in rule: {}", rule)
+        } else {
+            String::new()
+        }
+    );
+    Error::ModuleParseError {
+        rule,
+        node_name,
+        start,
+        end,
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -205,15 +276,42 @@ impl Display for Error {
                     "Provided input is not a valid language tag; input: {:?}",
                     input
                 ),
-                Self::InvalidNodeKind { got } => format!("Unexpected node kind; got: {}", got),
-                Self::UnexpectedNodeKind { expected, got } =>
-                    format!("Invalid node kind; expecting: {}, got: {}", expected, got),
+                Self::InvalidNodeKind { rule, got } =>
+                    format!("Unexpected node kind; got: {}, in rule: {}", got, rule),
+                Self::UnexpectedNodeKind {
+                    rule,
+                    expected,
+                    got,
+                } => format!(
+                    "Invalid node kind; expecting: {}, got: {}, in rule: {}",
+                    expected, got, rule
+                ),
                 Self::InvalidValueForType { value, type_name } => format!(
                     "Invalid value for type; value: {}, type: {}",
                     value, type_name
                 ),
-                Self::MissingNodeKind { expected } =>
-                    format!("Missing node kind; expecting: {}", expected),
+                Self::MissingNodeKind { rule, expected } => format!(
+                    "Missing node kind; expecting: {}, in rule: {}",
+                    expected, rule
+                ),
+                Self::ModuleFileNotFound { name } =>
+                    format!("Could not resolve module name to a file; name: {}", name),
+                Self::ModuleParseError {
+                    rule,
+                    node_name,
+                    start,
+                    end,
+                } => format!(
+                    "Error reported parsing module; node name: {} range: {}..{}{}",
+                    node_name,
+                    start,
+                    end,
+                    if let Some(rule) = rule {
+                        format!(", in rule: {}", rule)
+                    } else {
+                        String::new()
+                    }
+                ),
             }
         )
     }

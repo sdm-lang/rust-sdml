@@ -9,7 +9,7 @@ YYYYY
 
 */
 
-use crate::error::Error;
+use crate::error::{module_file_not_found, Error};
 use crate::model::{Identifier, Module};
 use ariadne::Source;
 use search_path::SearchPath;
@@ -35,6 +35,8 @@ pub struct ResolvedModule {
     source: Source,
     parsed: Option<Module>,
 }
+
+pub const SDML_RESOLVER_PATH_VARIABLE: &str = "SDML_PATH";
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -81,7 +83,7 @@ impl ResolvedModule {
 
 impl Default for Resolver {
     fn default() -> Self {
-        let mut search_path = SearchPath::new_or_default("SDML_PATH");
+        let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
         search_path.prepend_cwd();
         Self {
             search_path,
@@ -91,13 +93,23 @@ impl Default for Resolver {
 }
 
 impl Resolver {
-    pub fn in_dir(base: PathBuf) -> Self {
-        let mut search_path = SearchPath::new_or_default("SDML_PATH");
-        search_path.prepend(base);
+    pub fn no_path() -> Self {
         Self {
-            search_path,
+            search_path: Default::default(),
             modules: Default::default(),
         }
+    }
+
+    pub fn prepend(self, path: PathBuf) -> Self {
+        let mut self_mut = self;
+        self_mut.search_path.prepend(path);
+        self_mut
+    }
+
+    pub fn append(self, path: PathBuf) -> Self {
+        let mut self_mut = self;
+        self_mut.search_path.append(path);
+        self_mut
     }
 
     pub fn resolve_module_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
@@ -115,7 +127,7 @@ impl Resolver {
                             })
                     })
             })
-            .ok_or_else(|| panic!())
+            .ok_or_else(|| module_file_not_found(name.clone()))
     }
 
     pub fn resolve_module_source(&self, name: &Identifier) -> Result<String, Error> {

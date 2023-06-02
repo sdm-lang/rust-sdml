@@ -1146,6 +1146,7 @@ into_string_impl!(LanguageTag, value);
 as_str_impl!(LanguageTag, value);
 
 impl LanguageTag {
+    #[allow(dead_code)]
     pub(crate) fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
