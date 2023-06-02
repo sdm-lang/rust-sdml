@@ -2,7 +2,7 @@ use sdml::model::parse::parse_file;
 use std::fs::read_to_string;
 
 macro_rules! test_example {
-    ($fnname: ident, $exname: literal) => (
+    ($fnname: ident, $exname: literal) => {
         #[test]
         fn $fnname() {
             let input = format!("tests/examples/{}.sdm", $exname);
@@ -23,7 +23,7 @@ macro_rules! test_example {
 
             pretty_assertions::assert_eq!(module_as_string, expected_string.unwrap());
         }
-    );
+    };
 }
 
 test_example!(test_empty_module, "empty_module");

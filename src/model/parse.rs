@@ -9,13 +9,13 @@ YYYYY
 
 */
 
-use crate::error::{invalid_value_for_type, unexpected_node_kind, Error, module_parse_error};
+use crate::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
 use crate::model::{
-    Annotation, AnnotationOnlyBody, DatatypeDef, EntityBody, EntityDef, EnumBody, EnumDef,
-    EventDef, Identifier, IdentifierReference, IdentityMember, ImportStatement, LanguageString,
-    LanguageTag, ListOfValues, Module, ModuleBody, QualifiedIdentifier, SimpleValue, StructureBody,
-    StructureDef, StructureGroup, TypeReference, Value, ValueConstructor,
-    ByReferenceMember, ByValueMember, Cardinality, EntityGroup, EnumVariant, TypeDefinition, Import,
+    Annotation, AnnotationOnlyBody, ByReferenceMember, ByValueMember, Cardinality, DatatypeDef,
+    EntityBody, EntityDef, EntityGroup, EnumBody, EnumDef, EnumVariant, EventDef, Identifier,
+    IdentifierReference, IdentityMember, Import, ImportStatement, LanguageString, LanguageTag,
+    ListOfValues, Module, ModuleBody, QualifiedIdentifier, SimpleValue, StructureBody,
+    StructureDef, StructureGroup, TypeDefinition, TypeReference, Value, ValueConstructor,
 };
 use rust_decimal::Decimal;
 use std::borrow::Cow;
@@ -118,8 +118,12 @@ fn parse_module_body<'a>(
             check_if_error("parse_module_body", source, &node)?;
             if node.is_named() {
                 match node.kind() {
-                    "import_statement" => body.add_import(parse_import_statement(source, &mut node.walk())?),
-                    "annotation" => body.add_annotation(parse_annotation(source, &mut node.walk())?),
+                    "import_statement" => {
+                        body.add_import(parse_import_statement(source, &mut node.walk())?)
+                    }
+                    "annotation" => {
+                        body.add_annotation(parse_annotation(source, &mut node.walk())?)
+                    }
                     "type_def" => {
                         body.add_definition(parse_type_definition(source, &mut node.walk())?)
                     }
@@ -185,10 +189,7 @@ fn parse_import_statement<'a>(
     Ok(import)
 }
 
-fn parse_import<'a>(
-    source: &'a str,
-    cursor: &mut TreeCursor<'a>,
-) -> Result<Import, Error> {
+fn parse_import<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Import, Error> {
     trace!("parse_import: {:?}", cursor.node());
     let mut has_next = cursor.goto_first_child();
     if has_next {
@@ -478,7 +479,8 @@ fn parse_list_of_values<'a>(
             if node.is_named() {
                 match node.kind() {
                     "simple_value" => {
-                        list_of_values.add_value(parse_simple_value(source, &mut node.walk())?.into());
+                        list_of_values
+                            .add_value(parse_simple_value(source, &mut node.walk())?.into());
                     }
                     "value_constructor" => {
                         list_of_values.add_value(parse_value_constructor(source, cursor)?.into());
@@ -519,7 +521,7 @@ fn parse_type_definition<'a>(
             check_if_error("parse_type_definition", source, &node)?;
             if node.is_named() {
                 match node.kind() {
-                   "data_type_def" => {
+                    "data_type_def" => {
                         return Ok(parse_data_type_def(source, &mut node.walk())?.into());
                     }
                     "entity_def" => {
@@ -532,7 +534,7 @@ fn parse_type_definition<'a>(
                         return Ok(parse_event_def(source, &mut node.walk())?.into());
                     }
                     "structure_def" => {
-                         return Ok(parse_structure_def(source, &mut node.walk())?.into());
+                        return Ok(parse_structure_def(source, &mut node.walk())?.into());
                     }
                     "line_comment" => {
                         trace!("ignoring comments");
@@ -1098,7 +1100,12 @@ fn check_if_error<'a>(rule: &str, _source: &'a str, node: &Node<'a>) -> Result<(
         //         ariadne::Report::build(ariadne::ReportKind::Error, source, 1)
         //             .finish()
         //             .eprint(source)?;
-        Err(module_parse_error(node.kind(), node.start_byte(), node.end_byte(), Some(rule)))
+        Err(module_parse_error(
+            node.kind(),
+            node.start_byte(),
+            node.end_byte(),
+            Some(rule),
+        ))
     } else {
         Ok(())
     }
