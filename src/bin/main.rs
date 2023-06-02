@@ -27,13 +27,13 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Highlight file
+    /// Highlight an SDML source file
     Highlight(Highlight),
-    /// Extract tags from file
+    /// Extract tags from an SDML Module
     Tags(Tags),
-    /// Convert model files into other formats
+    /// Convert SDML modules into other formats
     Convert(Convert),
-    /// Draw diagrams from models
+    /// Draw diagrams from SDML modules
     Draw(Draw),
 }
 
@@ -70,7 +70,7 @@ enum HighlightFormat {
     /// HTML pre-formatted element
     Html,
     /// HTML stand-alone document
-    HtmlStandalone
+    HtmlStandalone,
 }
 
 #[derive(Args, Debug)]
@@ -411,7 +411,7 @@ impl Display for HighlightFormat {
             match self {
                 Self::Ansi => "ansi",
                 Self::Html => "html",
-                Self::HtmlStandalone => "html-standalone"
+                Self::HtmlStandalone => "html-standalone",
             }
         )
     }

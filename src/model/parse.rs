@@ -157,28 +157,35 @@ fn parse_import<'a>(
     if has_next {
         while has_next {
             let node = cursor.node();
+            trace!(
+                "parse_import (child): {:?} named: {}",
+                node,
+                node.is_named()
+            );
             check_if_error(source, &node)?;
-            match node.kind() {
-                "module_import" => {
-                    let node = node.child_by_field_name("name").unwrap();
-                    check_if_error(source, &node)?;
-                    let name = Identifier::new_unchecked(node_as_str(&node, source)?);
-                    import.add_import(name.into());
-                }
-                "member_import" => {
-                    let node = node.child_by_field_name("name").unwrap();
-                    check_if_error(source, &node)?;
-                    let name = parse_qualified_identifier(source, cursor)?;
-                    import.add_import(name.into());
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "module_import|member_import",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "module_import" => {
+                        let node = node.child_by_field_name("name").unwrap();
+                        check_if_error(source, &node)?;
+                        let name = Identifier::new_unchecked(node_as_str(&node, source)?);
+                        import.add_import(name.into());
+                    }
+                    "member_import" => {
+                        let node = node.child_by_field_name("name").unwrap();
+                        check_if_error(source, &node)?;
+                        let name = parse_qualified_identifier(source, &mut node.walk())?;
+                        import.add_import(name.into());
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "module_import|member_import",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -216,23 +223,23 @@ fn parse_identifier_reference<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "identifier" => {
-                    return Ok(Identifier::new_unchecked(node_as_str(&node, source)?).into())
-                }
-                "qualified_identifier" => {
-                    let node = node.child_by_field_name("name").unwrap();
-                    check_if_error(source, &node)?;
-                    return Ok(parse_qualified_identifier(source, cursor)?.into());
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "identifier|qualified_identifier",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "identifier" => {
+                        return Ok(Identifier::new_unchecked(node_as_str(&node, source)?).into())
+                    }
+                    "qualified_identifier" => {
+                        return Ok(parse_qualified_identifier(source, &mut node.walk())?.into());
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "identifier|qualified_identifier",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -247,19 +254,18 @@ fn parse_type_reference<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<TypeReference, Error> {
     trace!("parse_type_reference: {:?}", cursor.node());
-    let mut has_next = cursor.goto_first_child();
-    if has_next {
-        while has_next {
-            let node = cursor.node();
-            check_if_error(source, &node)?;
+    let mut has_next = true;
+    while has_next {
+        let node = cursor.node();
+        trace!("node {:?} {}", node, node.is_named());
+        check_if_error(source, &node)?;
+        if node.is_named() {
             match node.kind() {
                 "unknown_type" => {
-                    assert!(cursor.goto_parent());
                     return Ok(TypeReference::Unknown);
                 }
                 "identifier_reference" => {
-                    assert!(cursor.goto_parent());
-                    let reference = parse_identifier_reference(source, cursor)?;
+                    let reference = parse_identifier_reference(source, &mut node.walk())?;
                     return Ok(TypeReference::Reference(reference));
                 }
                 "line_comment" => {
@@ -267,29 +273,28 @@ fn parse_type_reference<'a>(
                 }
                 _ => {
                     return Err(unexpected_node_kind(
-                        "identifier|qualified_identifier",
+                        "unknown_type|identifier_reference",
                         node.kind(),
                     ));
                 }
             }
-            has_next = cursor.goto_next_sibling();
         }
-        assert!(cursor.goto_parent());
+        has_next = cursor.goto_next_sibling();
     }
     unreachable!()
 }
 
 fn parse_annotation<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Annotation, Error> {
     let node = cursor.node();
-    trace!("parse_annotations: {:?}", node);
+    trace!("parse_annotation: {:?}", node);
 
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
-    let name = parse_identifier_reference(source, cursor)?;
+    let name = parse_identifier_reference(source, &mut child.walk())?;
 
     let child = node.child_by_field_name("value").unwrap();
     check_if_error(source, &child)?;
-    let value = parse_value(source, cursor)?;
+    let value = parse_value(source, &mut child.walk())?;
 
     Ok(Annotation::new(name, value))
 }
@@ -301,62 +306,55 @@ fn parse_value<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Value
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "string" => {
-                    assert!(cursor.goto_parent());
-                    return Ok(parse_string(source, cursor)?.into());
-                }
-                "double" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = f64::from_str(value).expect("Invalid value for Double");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "decimal" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = Decimal::from_str(value).expect("Invalid value for Decimal");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "integer" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = i64::from_str(value).expect("Invalid value for Integer");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "boolean" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = bool::from_str(value).expect("Invalid value for Boolean");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "iri_reference" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = Url::from_str(&value[1..(value.len() - 1)])
-                        .expect("Invalid value for IriReference");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "value_constructor" => {
-                    assert!(cursor.goto_parent());
-                    return Ok(parse_value_constructor(source, cursor)?.into());
-                }
-                "identifier_reference" => {
-                    assert!(cursor.goto_parent());
-                    return Ok(parse_identifier_reference(source, cursor)?.into());
-                }
-                "list_of_values" => {
-                    assert!(cursor.goto_parent());
-                    return Ok(parse_list_of_values(source, cursor)?.into());
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "identifier|qualified_identifier",
+            if node.is_named() {
+                match node.kind() {
+                    "string" => {
+                        return Ok(parse_string(source, cursor)?.into());
+                    }
+                    "double" => {
+                        let value = node_as_str(&node, source)?;
+                        let value = f64::from_str(value).expect("Invalid value for Double");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "decimal" => {
+                        let value = node_as_str(&node, source)?;
+                        let value = Decimal::from_str(value).expect("Invalid value for Decimal");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "integer" => {
+                        let value = node_as_str(&node, source)?;
+                        let value = i64::from_str(value).expect("Invalid value for Integer");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "boolean" => {
+                        let value = node_as_str(&node, source)?;
+                        let value = bool::from_str(value).expect("Invalid value for Boolean");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "iri_reference" => {
+                        let value = node_as_str(&node, source)?;
+                        let value = Url::from_str(&value[1..(value.len() - 1)])
+                            .expect("Invalid value for IriReference");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "value_constructor" => {
+                        return Ok(parse_value_constructor(source, cursor)?.into());
+                    }
+                    "identifier_reference" => {
+                        return Ok(parse_identifier_reference(source, cursor)?.into());
+                    }
+                    "list_of_values" => {
+                        return Ok(parse_list_of_values(source, cursor)?.into());
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                        "string|double|decimal|integer|boolean|iri_reference|value_constructor|identifier_reference|list_of_values",
                         node.kind(),
                     ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -376,46 +374,48 @@ fn parse_simple_value<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "double" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = f64::from_str(value).expect("Invalid value for Double");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "decimal" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = Decimal::from_str(value).expect("Invalid value for Decimal");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "integer" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = i64::from_str(value).expect("Invalid value for Integer");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "boolean" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = bool::from_str(value).expect("Invalid value for Boolean");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "iri_reference" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = Url::from_str(&value[1..(value.len() - 1)])
-                        .expect("Invalid value for IriReference");
-                    return Ok(SimpleValue::from(value).into());
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "identifier|qualified_identifier",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "double" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = f64::from_str(value).expect("Invalid value for Double");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "decimal" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = Decimal::from_str(value).expect("Invalid value for Decimal");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "integer" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = i64::from_str(value).expect("Invalid value for Integer");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "boolean" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = bool::from_str(value).expect("Invalid value for Boolean");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "iri_reference" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = Url::from_str(&value[1..(value.len() - 1)])
+                            .expect("Invalid value for IriReference");
+                        return Ok(SimpleValue::from(value).into());
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "string|double|decimal|integer|boolean|iri_reference",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -434,25 +434,25 @@ fn parse_string<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<Lang
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "quoted_string" => {
-                    let node_value = node_as_str(&node, source)?;
-                    value = node_value[1..(node_value.len() - 1)].to_string();
-                }
-                "language_tag" => {
-                    let node_value = node_as_str(&node, source)?;
-                    language = Some(LanguageTag::new_unchecked(
-                        &node_value[1..(node_value.len() - 1)],
-                    ));
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "quoted_string" => {
+                        let node_value = node_as_str(&node, source)?;
+                        value = node_value[1..(node_value.len() - 1)].to_string();
+                    }
+                    "language_tag" => {
+                        let node_value = node_as_str(&node, source)?;
+                        language = Some(LanguageTag::new_unchecked(&node_value[1..]));
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "quoted_string|language_tag",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -492,59 +492,62 @@ fn parse_list_of_values<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "string" => {
-                    assert!(cursor.goto_parent());
-                    list_of_values
-                        .add_value(SimpleValue::from(parse_string(source, cursor)?).into());
-                }
-                "double" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = f64::from_str(value).expect("Invalid value for Double");
-                    list_of_values.add_value(SimpleValue::from(value).into());
-                }
-                "decimal" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = Decimal::from_str(value).expect("Invalid value for Decimal");
-                    list_of_values.add_value(SimpleValue::from(value).into());
-                }
-                "integer" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = i64::from_str(value).expect("Invalid value for Integer");
-                    list_of_values.add_value(SimpleValue::from(value).into());
-                }
-                "boolean" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = bool::from_str(value).expect("Invalid value for Boolean");
-                    list_of_values.add_value(SimpleValue::from(value).into());
-                }
-                "iri_reference" => {
-                    assert!(cursor.goto_parent());
-                    let value = node_as_str(&node, source)?;
-                    let value = Url::from_str(&value[1..(value.len() - 1)])
-                        .expect("Invalid value for IriReference");
-                    list_of_values.add_value(SimpleValue::from(value).into());
-                }
-                "value_constructor" => {
-                    assert!(cursor.goto_parent());
-                    list_of_values.add_value(parse_value_constructor(source, cursor)?.into());
-                }
-                "identifier_reference" => {
-                    assert!(cursor.goto_parent());
-                    list_of_values.add_value(parse_identifier_reference(source, cursor)?.into());
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "identifier|qualified_identifier",
+            if node.is_named() {
+                match node.kind() {
+                    "string" => {
+                        assert!(cursor.goto_parent());
+                        list_of_values
+                            .add_value(SimpleValue::from(parse_string(source, cursor)?).into());
+                    }
+                    "double" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = f64::from_str(value).expect("Invalid value for Double");
+                        list_of_values.add_value(SimpleValue::from(value).into());
+                    }
+                    "decimal" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = Decimal::from_str(value).expect("Invalid value for Decimal");
+                        list_of_values.add_value(SimpleValue::from(value).into());
+                    }
+                    "integer" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = i64::from_str(value).expect("Invalid value for Integer");
+                        list_of_values.add_value(SimpleValue::from(value).into());
+                    }
+                    "boolean" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = bool::from_str(value).expect("Invalid value for Boolean");
+                        list_of_values.add_value(SimpleValue::from(value).into());
+                    }
+                    "iri_reference" => {
+                        assert!(cursor.goto_parent());
+                        let value = node_as_str(&node, source)?;
+                        let value = Url::from_str(&value[1..(value.len() - 1)])
+                            .expect("Invalid value for IriReference");
+                        list_of_values.add_value(SimpleValue::from(value).into());
+                    }
+                    "value_constructor" => {
+                        assert!(cursor.goto_parent());
+                        list_of_values.add_value(parse_value_constructor(source, cursor)?.into());
+                    }
+                    "identifier_reference" => {
+                        assert!(cursor.goto_parent());
+                        list_of_values
+                            .add_value(parse_identifier_reference(source, cursor)?.into());
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                        "string|double|decimal|integer|boolean|iri_reference|value_constructor|identifier_reference",
                         node.kind(),
                     ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -591,18 +594,17 @@ fn parse_annotation_only_body<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "annotation" => {
-                    body.add_annotation(parse_annotation(source, cursor)?);
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "annotation" => {
+                        body.add_annotation(parse_annotation(source, cursor)?);
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind("annotation", node.kind()));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -619,11 +621,12 @@ fn parse_entity_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<
     let child = node.child_by_field_name("name").unwrap();
     check_if_error(source, &child)?;
     let name = Identifier::new_unchecked(node_as_str(&child, source)?);
+
     let mut entity = EntityDef::new(name);
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_entity_body(source, cursor)?;
+        let body = parse_entity_body(source, &mut child.walk())?;
         entity.add_body(body);
     }
 
@@ -639,7 +642,7 @@ fn parse_entity_body<'a>(
 
     let child = node.child_by_field_name("identity").unwrap();
     check_if_error(source, &child)?;
-    let identity = parse_identity_member(source, cursor)?;
+    let identity = parse_identity_member(source, &mut child.walk())?;
     let mut body = EntityBody::new(identity);
 
     let mut has_next = cursor.goto_first_child();
@@ -647,27 +650,32 @@ fn parse_entity_body<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "annotation" => {
-                    body.add_annotation(parse_annotation(source, cursor)?);
-                }
-                "member_by_value" => {
-                    body.add_member(parse_by_value_member(source, cursor)?.into());
-                }
-                "member_by_reference" => {
-                    body.add_member(parse_by_reference_member(source, cursor)?.into());
-                }
-                "entity_group" => {
-                    body.add_group(parse_entity_group(source, cursor)?);
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "annotation" => {
+                        body.add_annotation(parse_annotation(source, &mut node.walk())?);
+                    }
+                    "member_by_value" => {
+                        body.add_member(parse_by_value_member(source, &mut node.walk())?.into());
+                    }
+                    "member_by_reference" => {
+                        body.add_member(
+                            parse_by_reference_member(source, &mut node.walk())?.into(),
+                        );
+                    }
+                    "entity_group" => {
+                        body.add_group(parse_entity_group(source, &mut node.walk())?);
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    "identity_member" => (),
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "annotation|member_by_value|member_by_reference|entity_group",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -688,24 +696,26 @@ fn parse_entity_group<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "annotation" => {
-                    group.add_annotation(parse_annotation(source, cursor)?);
-                }
-                "member_by_value" => {
-                    group.add_member(parse_by_value_member(source, cursor)?.into());
-                }
-                "member_by_reference" => {
-                    group.add_member(parse_by_reference_member(source, cursor)?.into());
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "annotation" => {
+                        group.add_annotation(parse_annotation(source, cursor)?);
+                    }
+                    "member_by_value" => {
+                        group.add_member(parse_by_value_member(source, cursor)?.into());
+                    }
+                    "member_by_reference" => {
+                        group.add_member(parse_by_reference_member(source, cursor)?.into());
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "annotation|member_by_value|member_by_reference",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -726,7 +736,7 @@ fn parse_enum_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<En
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_enum_body(source, cursor)?;
+        let body = parse_enum_body(source, &mut child.walk())?;
         new_enum.add_body(body);
     }
 
@@ -741,21 +751,20 @@ fn parse_enum_body<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<E
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "annotation" => {
-                    body.add_annotation(parse_annotation(source, cursor)?);
-                }
-                "enum_variant" => {
-                    body.add_variant(parse_enum_variant(source, cursor)?);
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "annotation" => {
+                        body.add_annotation(parse_annotation(source, &mut node.walk())?);
+                    }
+                    "enum_variant" => {
+                        body.add_variant(parse_enum_variant(source, &mut node.walk())?);
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind("annotation|enum_variant", node.kind()));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -781,7 +790,7 @@ fn parse_event_def<'a>(source: &'a str, cursor: &mut TreeCursor<'a>) -> Result<E
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_structure_body(source, cursor)?;
+        let body = parse_structure_body(source, &mut child.walk())?;
         event.add_body(body);
     }
 
@@ -799,24 +808,26 @@ fn parse_structure_body<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "annotation" => {
-                    body.add_annotation(parse_annotation(source, cursor)?);
-                }
-                "member_by_value" => {
-                    body.add_member(parse_by_value_member(source, cursor)?);
-                }
-                "structure_group" => {
-                    body.add_group(parse_structure_group(source, cursor)?);
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "annotation" => {
+                        body.add_annotation(parse_annotation(source, &mut node.walk())?);
+                    }
+                    "member_by_value" => {
+                        body.add_member(parse_by_value_member(source, &mut node.walk())?);
+                    }
+                    "structure_group" => {
+                        body.add_group(parse_structure_group(source, &mut node.walk())?);
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "annotation|member_by_value|structure_group",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -837,21 +848,23 @@ fn parse_structure_group<'a>(
         while has_next {
             let node = cursor.node();
             check_if_error(source, &node)?;
-            match node.kind() {
-                "annotation" => {
-                    group.add_annotation(parse_annotation(source, cursor)?);
-                }
-                "member_by_value" => {
-                    group.add_member(parse_by_value_member(source, cursor)?);
-                }
-                "line_comment" => {
-                    trace!("ignoring comments");
-                }
-                _ => {
-                    return Err(unexpected_node_kind(
-                        "quoted_string|language_tag",
-                        node.kind(),
-                    ));
+            if node.is_named() {
+                match node.kind() {
+                    "annotation" => {
+                        group.add_annotation(parse_annotation(source, &mut node.walk())?);
+                    }
+                    "member_by_value" => {
+                        group.add_member(parse_by_value_member(source, &mut node.walk())?);
+                    }
+                    "line_comment" => {
+                        trace!("ignoring comments");
+                    }
+                    _ => {
+                        return Err(unexpected_node_kind(
+                            "annotation|member_by_value",
+                            node.kind(),
+                        ));
+                    }
                 }
             }
             has_next = cursor.goto_next_sibling();
@@ -875,7 +888,7 @@ fn parse_structure_def<'a>(
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_structure_body(source, cursor)?;
+        let body = parse_structure_body(source, &mut child.walk())?;
         structure.add_body(body);
     }
 
@@ -895,13 +908,13 @@ fn parse_identity_member<'a>(
 
     let child = node.child_by_field_name("target").unwrap();
     check_if_error(source, &child)?;
-    let type_reference = parse_type_reference(source, cursor)?;
+    let type_reference = parse_type_reference(source, &mut child.walk())?;
 
     let mut member = IdentityMember::new(name, type_reference);
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_annotation_only_body(source, cursor)?;
+        let body = parse_annotation_only_body(source, &mut child.walk())?;
         member.add_body(body);
     }
 
@@ -921,19 +934,19 @@ fn parse_by_value_member<'a>(
 
     let child = node.child_by_field_name("target").unwrap();
     check_if_error(source, &child)?;
-    let type_reference = parse_type_reference(source, cursor)?;
+    let type_reference = parse_type_reference(source, &mut child.walk())?;
 
     let mut member = ByValueMember::new(name, type_reference);
 
     if let Some(child) = node.child_by_field_name("targetCardinality") {
         check_if_error(source, &child)?;
-        let cardinality = parse_cardinality(source, cursor)?;
+        let cardinality = parse_cardinality(source, &mut child.walk())?;
         member.set_target_cardinality(cardinality);
     }
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_annotation_only_body(source, cursor)?;
+        let body = parse_annotation_only_body(source, &mut child.walk())?;
         member.add_body(body);
     }
 
@@ -953,25 +966,25 @@ fn parse_by_reference_member<'a>(
 
     let child = node.child_by_field_name("target").unwrap();
     check_if_error(source, &child)?;
-    let type_reference = parse_type_reference(source, cursor)?;
+    let type_reference = parse_type_reference(source, &mut child.walk())?;
 
     let mut member = ByReferenceMember::new(name, type_reference);
 
     if let Some(child) = node.child_by_field_name("sourceCardinality") {
         check_if_error(source, &child)?;
-        let cardinality = parse_cardinality(source, cursor)?;
+        let cardinality = parse_cardinality(source, &mut child.walk())?;
         member.set_source_cardinality(cardinality);
     }
 
     if let Some(child) = node.child_by_field_name("targetCardinality") {
         check_if_error(source, &child)?;
-        let cardinality = parse_cardinality(source, cursor)?;
+        let cardinality = parse_cardinality(source, &mut child.walk())?;
         member.set_target_cardinality(cardinality);
     }
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_annotation_only_body(source, cursor)?;
+        let body = parse_annotation_only_body(source, &mut child.walk())?;
         member.add_body(body);
     }
 
@@ -998,7 +1011,7 @@ fn parse_enum_variant<'a>(
 
     if let Some(child) = node.child_by_field_name("body") {
         check_if_error(source, &child)?;
-        let body = parse_annotation_only_body(source, cursor)?;
+        let body = parse_annotation_only_body(source, &mut child.walk())?;
         enum_variant.add_body(body);
     }
 

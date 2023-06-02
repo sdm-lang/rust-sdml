@@ -12,7 +12,7 @@ YYYYY
 use lazy_static::lazy_static;
 use regex::Regex;
 use rust_decimal::Decimal;
-use std::{fmt::Display, str::FromStr};
+use std::{collections::HashSet, fmt::Display, str::FromStr};
 use tree_sitter::Node;
 use url::Url;
 
@@ -318,7 +318,7 @@ pub struct ByReferenceMember {
     body: Option<AnnotationOnlyBody>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum TypeReference {
     Reference(IdentifierReference),
     Unknown,
@@ -574,6 +574,54 @@ macro_rules! member_impl {
     };
 }
 
+macro_rules! referenced_types_impl {
+    ($tyname: ty => $field: ident) => {
+        impl $tyname {
+            pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+                self.$field
+                    .as_ref()
+                    .map(|b| b.referenced_types())
+                    .unwrap_or_default()
+            }
+        }
+    };
+    ($tyname: ty) => {
+        impl $tyname {
+            pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+                self.members()
+                    .filter_map(|m| {
+                        if let TypeReference::Reference(ty) = m.target_type() {
+                            Some(ty)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect()
+            }
+        }
+    };
+}
+
+macro_rules! referenced_annotations_impl {
+    ($tyname: ty => $field: ident) => {
+        impl $tyname {
+            pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+                self.$field
+                    .as_ref()
+                    .map(|b| b.referenced_annotations())
+                    .unwrap_or_default()
+            }
+        }
+    };
+    ($tyname: ty) => {
+        impl $tyname {
+            pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+                self.annotations().map(|a| a.name()).collect()
+            }
+        }
+    };
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
@@ -695,6 +743,26 @@ impl Module {
     pub fn body(&self) -> &ModuleBody {
         &self.body
     }
+
+    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+        self.body.imported_modules()
+    }
+
+    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+        self.body.imported_types()
+    }
+
+    pub fn declared_types(&self) -> HashSet<&Identifier> {
+        self.body.declared_types()
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.body.referenced_types()
+    }
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body.referenced_annotations()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -740,6 +808,38 @@ impl ModuleBody {
     pub fn definitions(&self) -> impl Iterator<Item = &TypeDefinition> {
         self.definitions.iter()
     }
+
+    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+        self.imports()
+            .map(|stmt| stmt.imported_modules())
+            .flatten()
+            .collect()
+    }
+
+    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+        self.imports()
+            .map(|stmt| stmt.imported_types())
+            .flatten()
+            .collect()
+    }
+
+    pub fn declared_types(&self) -> HashSet<&Identifier> {
+        self.definitions().map(|def| def.name()).collect()
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.definitions()
+            .map(|def| def.referenced_types())
+            .flatten()
+            .collect()
+    }
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.definitions()
+            .map(|def| def.referenced_annotations())
+            .flatten()
+            .collect()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -783,6 +883,27 @@ impl ImportStatement {
 
     pub(crate) fn as_slice(&self) -> &[Import] {
         &self.imported.as_slice()
+    }
+
+    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+        self.imports()
+            .map(|imp| match imp {
+                Import::Module(v) => v,
+                Import::Member(v) => v.module(),
+            })
+            .collect()
+    }
+
+    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+        self.imports()
+            .filter_map(|imp| {
+                if let Import::Member(imp) = imp {
+                    Some(imp)
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 
@@ -1130,6 +1251,38 @@ impl From<StructureDef> for TypeDefinition {
     }
 }
 
+impl TypeDefinition {
+    pub fn name(&self) -> &Identifier {
+        match self {
+            TypeDefinition::Datatype(v) => v.name(),
+            TypeDefinition::Entity(v) => v.name(),
+            TypeDefinition::Enum(v) => v.name(),
+            TypeDefinition::Event(v) => v.name(),
+            TypeDefinition::Structure(v) => v.name(),
+        }
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        match self {
+            TypeDefinition::Datatype(v) => v.referenced_types(),
+            TypeDefinition::Entity(v) => v.referenced_types(),
+            TypeDefinition::Enum(v) => v.referenced_types(),
+            TypeDefinition::Event(v) => v.referenced_types(),
+            TypeDefinition::Structure(v) => v.referenced_types(),
+        }
+    }
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        match self {
+            TypeDefinition::Datatype(v) => v.referenced_annotations(),
+            TypeDefinition::Entity(v) => v.referenced_annotations(),
+            TypeDefinition::Enum(v) => v.referenced_annotations(),
+            TypeDefinition::Event(v) => v.referenced_annotations(),
+            TypeDefinition::Structure(v) => v.referenced_annotations(),
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
@@ -1140,17 +1293,27 @@ type_definition_impl!(
     base_type,
     IdentifierReference
 );
+referenced_annotations_impl!(DatatypeDef => body);
+
+impl DatatypeDef {
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        [self.base_type()].into_iter().collect()
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(AnnotationOnlyBody);
 has_annotations_impl!(AnnotationOnlyBody);
+referenced_annotations_impl!(AnnotationOnlyBody);
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
 type_definition_impl!(EntityDef, EntityBody);
+referenced_annotations_impl!(EntityDef => body);
+referenced_types_impl!(EntityDef => body);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -1158,6 +1321,8 @@ has_span_impl!(EntityBody);
 has_annotations_impl!(EntityBody);
 has_members_impl!(EntityBody, EntityMember);
 has_groups_impl!(EntityBody, EntityGroup);
+referenced_annotations_impl!(EntityBody);
+referenced_types_impl!(EntityBody);
 
 impl EntityBody {
     pub fn new(identity: IdentityMember) -> Self {
@@ -1189,6 +1354,22 @@ impl From<ByReferenceMember> for EntityMember {
     }
 }
 
+impl EntityMember {
+    pub fn name(&self) -> &Identifier {
+        match self {
+            EntityMember::ByValue(v) => v.name(),
+            EntityMember::ByReference(v) => v.name(),
+        }
+    }
+
+    pub fn target_type(&self) -> &TypeReference {
+        match self {
+            EntityMember::ByValue(v) => v.target_type(),
+            EntityMember::ByReference(v) => v.target_type(),
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EntityGroup);
@@ -1200,11 +1381,19 @@ has_members_impl!(EntityGroup, EntityMember);
 // ------------------------------------------------------------------------------------------------
 
 type_definition_impl!(EnumDef, EnumBody);
+referenced_annotations_impl!(EnumDef => body);
+
+impl EnumDef {
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        Default::default()
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EnumBody);
 has_annotations_impl!(EnumBody);
+referenced_annotations_impl!(EnumBody);
 
 impl EnumBody {
     pub fn has_variants(&self) -> bool {
@@ -1225,12 +1414,17 @@ impl EnumBody {
     pub fn variants(&self) -> impl Iterator<Item = &EnumVariant> {
         self.variants.iter()
     }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        Default::default()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EnumVariant);
 has_body_impl!(EnumVariant, AnnotationOnlyBody);
+referenced_annotations_impl!(EnumVariant => body);
 
 impl EnumVariant {
     pub fn new(name: Identifier, value: u32) -> Self {
@@ -1265,12 +1459,16 @@ impl EnumVariant {
 // ------------------------------------------------------------------------------------------------
 
 type_definition_impl!(EventDef, StructureBody, event_source, IdentifierReference);
+referenced_annotations_impl!(EventDef => body);
+referenced_types_impl!(EventDef => body);
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
 type_definition_impl!(StructureDef, StructureBody);
+referenced_annotations_impl!(StructureDef => body);
+referenced_types_impl!(StructureDef => body);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -1278,6 +1476,8 @@ has_span_impl!(StructureBody);
 has_annotations_impl!(StructureBody);
 has_members_impl!(StructureBody, ByValueMember);
 has_groups_impl!(StructureBody, StructureGroup);
+referenced_annotations_impl!(StructureBody);
+referenced_types_impl!(StructureBody);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -1290,10 +1490,12 @@ has_members_impl!(StructureGroup, ByValueMember);
 // ------------------------------------------------------------------------------------------------
 
 member_impl!(IdentityMember);
+referenced_annotations_impl!(IdentityMember => body);
 
 // ------------------------------------------------------------------------------------------------
 
 member_impl!(ByValueMember, target_cardinality, Cardinality);
+referenced_annotations_impl!(ByValueMember => body);
 
 impl ByValueMember {
     pub fn set_target_cardinality(&mut self, cardinality: Cardinality) {
@@ -1310,6 +1512,7 @@ member_impl!(
     target_cardinality,
     Cardinality
 );
+referenced_annotations_impl!(ByReferenceMember => body);
 
 impl ByReferenceMember {
     pub fn set_source_cardinality(&mut self, cardinality: Cardinality) {

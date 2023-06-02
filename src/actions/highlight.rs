@@ -246,7 +246,7 @@ fn highlight_as_ansi_inner<S: AsRef<[u8]>, W: Write>(
                     .last()
                     .unwrap()
                     .paint(&source[start..end])
-                    .write_to(&mut std::io::stdout())?;
+                    .write_to(w)?;
             }
         }
     }
@@ -269,14 +269,20 @@ fn highlight_as_html<S: AsRef<[u8]>, W: Write>(
         write!(w, "{}", HTML_HEADER)?;
     }
 
-    highlight_as_html_inner(source, w, &css_classes, events, if stand_alone { "      " } else { "" })?;
+    highlight_as_html_inner(
+        source,
+        w,
+        &css_classes,
+        events,
+        if stand_alone { "      " } else { "" },
+    )?;
 
     if stand_alone {
         write!(w, "{}", HTML_FOOTER)?;
     }
 
     Ok(())
- }
+}
 
 fn highlight_as_html_inner<S: AsRef<[u8]>, W: Write>(
     source: S,
