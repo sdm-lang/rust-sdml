@@ -70,6 +70,8 @@ YYYYY
 #[macro_use]
 mod macros;
 
+mod syntax;
+
 pub mod error;
 
 pub mod model;

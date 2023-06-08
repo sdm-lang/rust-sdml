@@ -14,11 +14,7 @@ use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
 use rust_decimal::Decimal;
-use std::{
-    collections::HashSet,
-    fmt::Display,
-    str::FromStr,
-};
+use std::{collections::HashSet, fmt::Display, str::FromStr};
 use tree_sitter::Node;
 use url::Url;
 
@@ -79,6 +75,7 @@ pub enum IdentifierReference {
 #[derive(Clone, Debug)]
 pub struct Module {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     body: ModuleBody,
 }
@@ -86,6 +83,7 @@ pub struct Module {
 #[derive(Clone, Debug, Default)]
 pub struct ModuleBody {
     span: Option<Span>,
+    comments: Vec<Comment>,
     imports: Vec<ImportStatement>,
     annotations: Vec<Annotation>,
     definitions: Vec<TypeDefinition>,
@@ -114,6 +112,7 @@ pub enum Import {
 #[derive(Clone, Debug)]
 pub struct Annotation {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: IdentifierReference,
     value: Value,
 }
@@ -194,6 +193,7 @@ pub enum TypeDefinition {
 #[derive(Clone, Debug)]
 pub struct DatatypeDef {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     base_type: IdentifierReference,
     body: Option<AnnotationOnlyBody>,
@@ -202,6 +202,7 @@ pub struct DatatypeDef {
 #[derive(Clone, Debug, Default)]
 pub struct AnnotationOnlyBody {
     span: Option<Span>,
+    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
 }
 
@@ -212,6 +213,7 @@ pub struct AnnotationOnlyBody {
 #[derive(Clone, Debug)]
 pub struct EntityDef {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     body: Option<EntityBody>,
 }
@@ -219,6 +221,7 @@ pub struct EntityDef {
 #[derive(Clone, Debug)]
 pub struct EntityBody {
     span: Option<Span>,
+    comments: Vec<Comment>,
     identity: IdentityMember,
     annotations: Vec<Annotation>,
     members: Vec<EntityMember>,
@@ -234,6 +237,7 @@ pub enum EntityMember {
 #[derive(Clone, Debug, Default)]
 pub struct EntityGroup {
     span: Option<Span>,
+    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     members: Vec<EntityMember>,
 }
@@ -245,6 +249,7 @@ pub struct EntityGroup {
 #[derive(Clone, Debug)]
 pub struct EnumDef {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     body: Option<EnumBody>,
 }
@@ -252,6 +257,7 @@ pub struct EnumDef {
 #[derive(Clone, Debug, Default)]
 pub struct EnumBody {
     span: Option<Span>,
+    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     variants: Vec<EnumVariant>,
 }
@@ -259,6 +265,7 @@ pub struct EnumBody {
 #[derive(Clone, Debug)]
 pub struct EnumVariant {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     value: u32,
     body: Option<AnnotationOnlyBody>,
@@ -271,6 +278,7 @@ pub struct EnumVariant {
 #[derive(Clone, Debug)]
 pub struct EventDef {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     event_source: IdentifierReference,
     body: Option<StructureBody>,
@@ -283,6 +291,7 @@ pub struct EventDef {
 #[derive(Clone, Debug)]
 pub struct StructureDef {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     body: Option<StructureBody>,
 }
@@ -290,6 +299,7 @@ pub struct StructureDef {
 #[derive(Clone, Debug, Default)]
 pub struct StructureBody {
     span: Option<Span>,
+    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     members: Vec<ByValueMember>,
     groups: Vec<StructureGroup>,
@@ -298,6 +308,7 @@ pub struct StructureBody {
 #[derive(Clone, Debug, Default)]
 pub struct StructureGroup {
     span: Option<Span>,
+    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     members: Vec<ByValueMember>,
 }
@@ -309,6 +320,7 @@ pub struct StructureGroup {
 #[derive(Clone, Debug)]
 pub struct UnionDef {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     body: Option<UnionBody>,
 }
@@ -316,6 +328,7 @@ pub struct UnionDef {
 #[derive(Clone, Debug, Default)]
 pub struct UnionBody {
     span: Option<Span>,
+    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     variants: Vec<TypeVariant>,
 }
@@ -323,6 +336,7 @@ pub struct UnionBody {
 #[derive(Clone, Debug)]
 pub struct TypeVariant {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: IdentifierReference,
     rename: Option<Identifier>,
     body: Option<AnnotationOnlyBody>,
@@ -335,6 +349,7 @@ pub struct TypeVariant {
 #[derive(Clone, Debug)]
 pub struct IdentityMember {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     target_type: TypeReference,
     body: Option<AnnotationOnlyBody>,
@@ -343,6 +358,7 @@ pub struct IdentityMember {
 #[derive(Clone, Debug)]
 pub struct ByValueMember {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     target_type: TypeReference,
     target_cardinality: Option<Cardinality>,
@@ -352,6 +368,7 @@ pub struct ByValueMember {
 #[derive(Clone, Debug)]
 pub struct ByReferenceMember {
     span: Option<Span>,
+    comments: Vec<Comment>,
     name: Identifier,
     source_cardinality: Option<Cardinality>,
     target_type: TypeReference,
@@ -476,16 +493,41 @@ macro_rules! has_annotations_impl {
     };
 }
 
-macro_rules! has_members_impl {
-    ($tyname: ty, $membertype: ty) => {
+macro_rules! has_comments_impl {
+    ($tyname: ty) => {
         impl $tyname {
-            pub fn add_member(&mut self, add: $membertype) {
+            pub fn add_comment(&mut self, add: Comment) {
+                self.comments.push(add);
+            }
+
+            pub fn extend_comments<I>(&mut self, extend: I)
+            where
+                I: IntoIterator<Item = Comment>,
+            {
+                self.comments.extend(extend);
+            }
+
+            pub fn has_comments(&self) -> bool {
+                !self.comments.is_empty()
+            }
+
+            pub fn comments(&self) -> impl Iterator<Item = &Comment> {
+                self.comments.iter()
+            }
+        }
+    };
+}
+
+macro_rules! has_members_impl {
+    ($tyname: ty, $tymember: ty) => {
+        impl $tyname {
+            pub fn add_member(&mut self, add: $tymember) {
                 self.members.push(add);
             }
 
             pub fn extend_members<I>(&mut self, extend: I)
             where
-                I: IntoIterator<Item = $membertype>,
+                I: IntoIterator<Item = $tymember>,
             {
                 self.members.extend(extend);
             }
@@ -494,7 +536,7 @@ macro_rules! has_members_impl {
                 !self.members.is_empty()
             }
 
-            pub fn members(&self) -> impl Iterator<Item = &$membertype> {
+            pub fn members(&self) -> impl Iterator<Item = &$tymember> {
                 self.members.iter()
             }
         }
@@ -553,6 +595,7 @@ macro_rules! type_definition_impl {
             pub fn new(name: Identifier $(, $flname: $fltype )*) -> Self {
                 Self {
                     span: None,
+                    comments: Default::default(),
                     name,
                     $(
                         $flname,
@@ -572,6 +615,7 @@ macro_rules! type_definition_impl {
             )*
         }
         has_span_impl!($tyname);
+        has_comments_impl!($tyname);
         has_body_impl!($tyname, $bodytype);
     };
 }
@@ -582,6 +626,7 @@ macro_rules! member_impl {
             pub fn new(name: Identifier, target_type: TypeReference) -> Self {
                 Self {
                     span: None,
+                    comments: Default::default(),
                     name,
                     target_type,
                     body: None
@@ -611,6 +656,7 @@ macro_rules! member_impl {
             )*
         }
         has_span_impl!($tyname);
+       has_comments_impl!($tyname);
         has_body_impl!($tyname, AnnotationOnlyBody);
     };
 }
@@ -856,11 +902,13 @@ impl IdentifierReference {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(Module);
+has_comments_impl!(Module);
 
 impl Module {
     pub fn new(name: Identifier, body: ModuleBody) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             name,
             body,
         }
@@ -903,6 +951,7 @@ impl Module {
 
 has_span_impl!(ModuleBody);
 has_annotations_impl!(ModuleBody);
+has_comments_impl!(ModuleBody);
 
 impl ModuleBody {
     pub fn has_imports(&self) -> bool {
@@ -1053,17 +1102,18 @@ impl From<QualifiedIdentifier> for Import {
 
 enum_display_impl!(Import => Module, Member);
 
-
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Annotations
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(Annotation);
+has_comments_impl!(Annotation);
 
 impl Annotation {
     pub fn new(name: IdentifierReference, value: Value) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             name,
             value,
         }
@@ -1189,6 +1239,23 @@ impl From<bool> for SimpleValue {
 impl From<Url> for SimpleValue {
     fn from(v: Url) -> Self {
         Self::IriReference(v)
+    }
+}
+
+impl Display for SimpleValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::String(v) => v.to_string(),
+                Self::Double(v) => v.to_string(),
+                Self::Decimal(v) => v.to_string(),
+                Self::Integer(v) => v.to_string(),
+                Self::Boolean(v) => v.to_string(),
+                Self::IriReference(v) => v.to_string(),
+            }
+        )
     }
 }
 
@@ -1496,6 +1563,7 @@ impl DatatypeDef {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(AnnotationOnlyBody);
+has_comments_impl!(AnnotationOnlyBody);
 has_annotations_impl!(AnnotationOnlyBody);
 referenced_annotations_impl!(AnnotationOnlyBody);
 
@@ -1511,6 +1579,7 @@ is_complete_impl!(EntityDef => body);
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EntityBody);
+has_comments_impl!(EntityBody);
 has_annotations_impl!(EntityBody);
 has_members_impl!(EntityBody, EntityMember);
 has_groups_impl!(EntityBody, EntityGroup);
@@ -1521,6 +1590,7 @@ impl EntityBody {
     pub fn new(identity: IdentityMember) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             identity,
             annotations: Default::default(),
             members: Default::default(),
@@ -1577,6 +1647,7 @@ impl EntityMember {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EntityGroup);
+has_comments_impl!(EntityGroup);
 has_annotations_impl!(EntityGroup);
 has_members_impl!(EntityGroup, EntityMember);
 
@@ -1603,6 +1674,7 @@ impl EnumDef {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EnumBody);
+has_comments_impl!(EnumBody);
 has_annotations_impl!(EnumBody);
 referenced_annotations_impl!(EnumBody);
 
@@ -1634,6 +1706,7 @@ impl EnumBody {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(EnumVariant);
+has_comments_impl!(EnumVariant);
 has_body_impl!(EnumVariant, AnnotationOnlyBody);
 referenced_annotations_impl!(EnumVariant => body);
 
@@ -1641,6 +1714,7 @@ impl EnumVariant {
     pub fn new(name: Identifier, value: u32) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             name,
             value,
             body: None,
@@ -1650,6 +1724,7 @@ impl EnumVariant {
     pub fn new_with(name: Identifier, value: u32, body: AnnotationOnlyBody) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             name,
             value,
             body: Some(body),
@@ -1686,6 +1761,7 @@ is_complete_impl!(StructureDef => body);
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(StructureBody);
+has_comments_impl!(StructureBody);
 has_annotations_impl!(StructureBody);
 has_members_impl!(StructureBody, ByValueMember);
 has_groups_impl!(StructureBody, StructureGroup);
@@ -1701,6 +1777,7 @@ impl StructureBody {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(StructureGroup);
+has_comments_impl!(StructureGroup);
 has_annotations_impl!(StructureGroup);
 has_members_impl!(StructureGroup, ByValueMember);
 
@@ -1729,6 +1806,7 @@ impl UnionDef {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(UnionBody);
+has_comments_impl!(UnionBody);
 has_annotations_impl!(UnionBody);
 referenced_annotations_impl!(UnionBody);
 
@@ -1760,6 +1838,7 @@ impl UnionBody {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(TypeVariant);
+has_comments_impl!(TypeVariant);
 has_body_impl!(TypeVariant, AnnotationOnlyBody);
 referenced_annotations_impl!(TypeVariant => body);
 
@@ -1767,6 +1846,7 @@ impl TypeVariant {
     pub fn new(name: IdentifierReference) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             name,
             rename: None,
             body: None,
@@ -1776,6 +1856,7 @@ impl TypeVariant {
     pub fn new_with(name: IdentifierReference, body: AnnotationOnlyBody) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             name,
             rename: None,
             body: Some(body),

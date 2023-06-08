@@ -18,11 +18,28 @@ use crate::model::{
     StructureDef, StructureGroup, TypeDefinition, TypeReference, TypeVariant, UnionBody, UnionDef,
     Value, ValueConstructor,
 };
+use crate::syntax::{
+    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_MAX, FIELD_NAME_MEMBER,
+    FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_RENAME, FIELD_NAME_SOURCE,
+    FIELD_NAME_SOURCE_CARDINALITY, FIELD_NAME_TARGET, FIELD_NAME_TARGET_CARDINALITY,
+    FIELD_NAME_VALUE, NODE_KIND_ANNOTATION, NODE_KIND_BOOLEAN, NODE_KIND_DATA_TYPE_DEF,
+    NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP,
+    NODE_KIND_ENUM_DEF, NODE_KIND_ENUM_VARIANT, NODE_KIND_EVENT_DEF, NODE_KIND_IDENTIFIER,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT,
+    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INTEGER, NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG,
+    NODE_KIND_LINE_COMMENT, NODE_KIND_LIST_OF_VALUES, NODE_KIND_MEMBER_BY_REFERENCE,
+    NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT,
+    NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING, NODE_KIND_SIMPLE_VALUE,
+    NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP, NODE_KIND_TYPE_DEF,
+    NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED,
+    NODE_KIND_VALUE_CONSTRUCTOR,
+};
 use ariadne::Source;
 use rust_decimal::Decimal;
 use std::borrow::Cow;
 use std::collections::HashSet;
 use std::fs::read_to_string;
+use std::io::Read;
 use std::path::Path;
 use std::str::FromStr;
 use tracing::{error, trace};
@@ -55,6 +72,12 @@ pub fn parse_str(source: &str) -> Result<Module, Error> {
     parse_str_inner(&Cow::Borrowed(source))
 }
 
+pub fn parse_from<R: Read>(handle: &mut R) -> Result<Module, Error> {
+    let mut source = String::new();
+    handle.read_to_string(&mut source)?;
+    parse_str_inner(&Cow::Owned(source))
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Macros
 // ------------------------------------------------------------------------------------------------
@@ -73,6 +96,7 @@ macro_rules! rule_fn {
 #[derive(Debug)]
 struct ParseContext<'a> {
     source: &'a str,
+    #[allow(dead_code)]
     ariadne: Option<Source>,
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
@@ -85,23 +109,36 @@ struct ParseContext<'a> {
 
 impl<'a> ParseContext<'a> {
     fn new(source: &'a str) -> Self {
-        Self  {
+        Self {
             source,
+            ariadne: Default::default(),
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
         }
     }
 
-   fn node_source(&self, node: &'a Node<'a>) -> Result<&'a str, Error> {
-        Ok(node.utf8_text(self.source.as_bytes())?)
+    fn source(&self) -> &[u8] {
+        self.source.as_bytes()
+    }
+
+    #[allow(dead_code)]
+    fn error_source(&mut self) -> &Source {
+        if self.ariadne.is_none() {
+            self.ariadne = Some(Source::from(self.source));
+        }
+        self.ariadne.as_ref().unwrap()
+    }
+
+    fn node_source(&'a self, node: &'a Node<'a>) -> Result<&'a str, Error> {
+        Ok(node.utf8_text(self.source())?)
     }
 
     fn check_if_error(&self, node: &Node<'a>, rule: &str) -> Result<(), Error> {
         if node.is_error() {
-            //         ariadne::Report::build(ariadne::ReportKind::Error, source, 1)
-            //             .finish()
-            //             .eprint(source)?;
+            //             ariadne::Report::build(ariadne::ReportKind::Error, source, 1)
+            //                 .finish()
+            //                 .eprint(self.error_source())?;
             Err(module_parse_error(
                 node.kind(),
                 node.start_byte(),
@@ -154,29 +191,32 @@ fn parse_str_inner(source: &str) -> Result<Module, Error> {
     let tree = parser.parse(source, None).unwrap();
 
     let node = tree.root_node();
-    if node.kind() == "module" {
+    if node.kind() == NODE_KIND_MODULE {
         let mut context = ParseContext::new(source);
         let mut cursor = tree.walk();
         parse_module(&mut context, &mut cursor)
     } else {
         Err(unexpected_node_kind(
             "parse_str_inner",
-            "module",
+            NODE_KIND_MODULE,
             node.kind(),
         ))
     }
 }
 
-fn parse_module<'a>(context: &mut ParseContext<'a>, cursor: &mut TreeCursor<'a>) -> Result<Module, Error> {
+fn parse_module<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<Module, Error> {
     let node = cursor.node();
     rule_fn!("parse_module", node);
     context.check_if_error(&node, RULE_NAME)?;
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("body").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_BODY).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let body = parse_module_body(context, &mut child.walk())?;
 
@@ -196,22 +236,28 @@ fn parse_module_body<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "import_statement" => {
+                    NODE_KIND_IMPORT_STATEMENT => {
                         body.add_import(parse_import_statement(context, &mut node.walk())?)
                     }
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?)
                     }
-                    "type_def" => {
+                    NODE_KIND_TYPE_DEF => {
                         body.add_definition(parse_type_definition(context, &mut node.walk())?)
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "import_statement|annotation|type_def",
+                            [
+                                NODE_KIND_IMPORT_STATEMENT,
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_TYPE_DEF,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -234,27 +280,21 @@ fn parse_import_statement<'a>(
     if has_next {
         while has_next {
             let node = cursor.node();
-            trace!(
-                "{} (child): {:?} named: {}",
-                RULE_NAME,
-                node,
-                node.is_named()
-            );
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "import" => {
+                    NODE_KIND_IMPORT => {
                         let imported = parse_import(context, &mut node.walk())?;
                         context.add_import(&imported);
                         import.add_import(imported);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "import",
+                            [NODE_KIND_IMPORT, NODE_KIND_LINE_COMMENT].join("|"),
                             node.kind(),
                         ));
                     }
@@ -267,39 +307,42 @@ fn parse_import_statement<'a>(
     Ok(import)
 }
 
-fn parse_import<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<Import, Error> {
+fn parse_import<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<Import, Error> {
     rule_fn!("parse_import", cursor.node());
     let mut has_next = cursor.goto_first_child();
     if has_next {
         while has_next {
             let node = cursor.node();
-            trace!(
-                "parse_import (child): {:?} named: {}",
-                node,
-                node.is_named()
-            );
-            context.check_if_error(&node, "parse_import")?;
+            context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "module_import" => {
-                        let node = node.child_by_field_name("name").unwrap();
-                        context.check_if_error(&node, "parse_import")?;
+                    NODE_KIND_MODULE_IMPORT => {
+                        let node = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+                        context.check_if_error(&node, RULE_NAME)?;
                         let name = parse_identifier(context, &node)?;
                         return Ok(name.into());
                     }
-                    "member_import" => {
-                        let node = node.child_by_field_name("name").unwrap();
-                        context.check_if_error(&node, "parse_import")?;
+                    NODE_KIND_MEMBER_IMPORT => {
+                        let node = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+                        context.check_if_error(&node, RULE_NAME)?;
                         let name = parse_qualified_identifier(context, &mut node.walk())?;
                         return Ok(name.into());
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
-                            "parse_import",
-                            "module_import|member_import",
+                            RULE_NAME,
+                            [
+                                NODE_KIND_MODULE_IMPORT,
+                                NODE_KIND_MEMBER_IMPORT,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -316,7 +359,7 @@ fn parse_identifier<'a>(
     context: &mut ParseContext<'a>,
     node: &Node<'a>,
 ) -> Result<Identifier, Error> {
-    rule_fn!("parse_identifier",node);
+    rule_fn!("parse_identifier", node);
     Ok(Identifier::new_unchecked(context.node_source(&node)?).with_ts_span(node.into()))
 }
 
@@ -327,11 +370,11 @@ fn parse_qualified_identifier<'a>(
     let node = cursor.node();
     rule_fn!("parse_qualified_identifier", node);
 
-    let child = node.child_by_field_name("module").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_MODULE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let module = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("member").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_MEMBER).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let member = parse_identifier(context, &child)?;
 
@@ -350,19 +393,22 @@ fn parse_identifier_reference<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "identifier" => {
-                        return Ok(parse_identifier(context, &node)?.into())
-                    }
-                    "qualified_identifier" => {
+                    NODE_KIND_IDENTIFIER => return Ok(parse_identifier(context, &node)?.into()),
+                    NODE_KIND_QUALIFIED_IDENTIFIER => {
                         return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "identifier|qualified_identifier",
+                            [
+                                NODE_KIND_IDENTIFIER,
+                                NODE_KIND_QUALIFIED_IDENTIFIER,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -375,22 +421,28 @@ fn parse_identifier_reference<'a>(
     unreachable!()
 }
 
-fn parse_annotation<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<Annotation, Error> {
+fn parse_annotation<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<Annotation, Error> {
     let node = cursor.node();
     rule_fn!("parse_annotation", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier_reference(context, &mut child.walk())?;
 
-    let child = node.child_by_field_name("value").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let value = parse_value(context, &mut child.walk())?;
 
     Ok(Annotation::new(name, value).with_ts_span(node.into()))
 }
 
-fn parse_value<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<Value, Error> {
+fn parse_value<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<Value, Error> {
     rule_fn!("parse_value", cursor.node());
     let mut has_next = cursor.goto_first_child();
     if has_next {
@@ -399,27 +451,34 @@ fn parse_value<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>)
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "simple_value" => {
+                    NODE_KIND_SIMPLE_VALUE => {
                         return Ok(parse_simple_value(context, &mut node.walk())?.into());
                     }
-                    "value_constructor" => {
+                    NODE_KIND_VALUE_CONSTRUCTOR => {
                         return Ok(parse_value_constructor(context, cursor)?.into());
                     }
-                    "identifier_reference" => {
+                    NODE_KIND_IDENTIFIER_REFERENCE => {
                         return Ok(parse_identifier_reference(context, cursor)?.into());
                     }
-                    "list_of_values" => {
+                    NODE_KIND_LIST_OF_VALUES => {
                         return Ok(parse_list_of_values(context, cursor)?.into());
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "string|double|decimal|integer|boolean|iri_reference|value_constructor|identifier_reference|list_of_values",
+                            [
+                                NODE_KIND_SIMPLE_VALUE,
+                                NODE_KIND_VALUE_CONSTRUCTOR,
+                                NODE_KIND_IDENTIFIER_REFERENCE,
+                                NODE_KIND_LIST_OF_VALUES,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
-                    ));
+                        ));
                     }
                 }
             }
@@ -441,43 +500,52 @@ fn parse_simple_value<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "string" => {
+                    NODE_KIND_STRING => {
                         let value = parse_string(context, cursor)?;
                         return Ok(SimpleValue::String(value));
                     }
-                    "double" => {
+                    NODE_KIND_DOUBLE => {
                         let value = context.node_source(&node)?;
                         let value = f64::from_str(value).expect("Invalid value for Double");
                         return Ok(SimpleValue::Double(value.into()));
                     }
-                    "decimal" => {
+                    NODE_KIND_DECIMAL => {
                         let value = context.node_source(&node)?;
                         let value = Decimal::from_str(value).expect("Invalid value for Decimal");
                         return Ok(SimpleValue::Decimal(value));
                     }
-                    "integer" => {
+                    NODE_KIND_INTEGER => {
                         let value = context.node_source(&node)?;
                         let value = i64::from_str(value).expect("Invalid value for Integer");
                         return Ok(SimpleValue::Integer(value));
                     }
-                    "boolean" => {
+                    NODE_KIND_BOOLEAN => {
                         let value = context.node_source(&node)?;
                         let value = bool::from_str(value).expect("Invalid value for Boolean");
                         return Ok(SimpleValue::Boolean(value));
                     }
-                    "iri_reference" => {
+                    NODE_KIND_IRI_REFERENCE => {
                         let value = context.node_source(&node)?;
                         let value = Url::from_str(&value[1..(value.len() - 1)])
                             .expect("Invalid value for IriReference");
                         return Ok(SimpleValue::IriReference(value));
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "string|double|decimal|integer|boolean|iri_reference",
+                            [
+                                NODE_KIND_STRING,
+                                NODE_KIND_DOUBLE,
+                                NODE_KIND_DECIMAL,
+                                NODE_KIND_INTEGER,
+                                NODE_KIND_BOOLEAN,
+                                NODE_KIND_IRI_REFERENCE,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -490,7 +558,10 @@ fn parse_simple_value<'a>(
     unreachable!()
 }
 
-fn parse_string<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<LanguageString, Error> {
+fn parse_string<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<LanguageString, Error> {
     rule_fn!("parse_string", cursor.node());
     let root_node = cursor.node();
     let mut has_next = cursor.goto_first_child();
@@ -502,21 +573,26 @@ fn parse_string<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "quoted_string" => {
+                    NODE_KIND_QUOTED_STRING => {
                         let node_value = context.node_source(&node)?;
                         value = node_value[1..(node_value.len() - 1)].to_string();
                     }
-                    "language_tag" => {
+                    NODE_KIND_LANGUAGE_TAG => {
                         let node_value = context.node_source(&node)?;
                         language = Some(LanguageTag::new_unchecked(&node_value[1..]));
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "quoted_string|language_tag",
+                            [
+                                NODE_KIND_QUOTED_STRING,
+                                NODE_KIND_LANGUAGE_TAG,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -537,11 +613,11 @@ fn parse_value_constructor<'a>(
     let node = cursor.node();
     rule_fn!("parse_value_constructor", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier_reference(context, &mut child.walk())?;
 
-    let child = node.child_by_field_name("value").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let value = parse_simple_value(context, &mut child.walk())?;
 
@@ -561,30 +637,35 @@ fn parse_list_of_values<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "simple_value" => {
+                    NODE_KIND_SIMPLE_VALUE => {
                         list_of_values
                             .add_value(parse_simple_value(context, &mut node.walk())?.into());
                     }
-                    "value_constructor" => {
+                    NODE_KIND_VALUE_CONSTRUCTOR => {
                         list_of_values.add_value(parse_value_constructor(context, cursor)?.into());
                     }
-                    "identifier_reference" => {
+                    NODE_KIND_IDENTIFIER_REFERENCE => {
                         list_of_values
                             .add_value(parse_identifier_reference(context, cursor)?.into());
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                        "string|double|decimal|integer|boolean|iri_reference|value_constructor|identifier_reference",
-                        node.kind(),
-                    ));
+                            [
+                                NODE_KIND_SIMPLE_VALUE,
+                                NODE_KIND_VALUE_CONSTRUCTOR,
+                                NODE_KIND_IDENTIFIER_REFERENCE,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
+                            node.kind(),
+                        ));
                     }
                 }
             }
-            // BUG: loop condition will lose the last element?
             has_next = cursor.goto_next_sibling();
         }
         assert!(cursor.goto_parent());
@@ -593,7 +674,7 @@ fn parse_list_of_values<'a>(
 }
 
 fn parse_type_definition<'a>(
-    context: &mut ParseContext<'a>, 
+    context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
 ) -> Result<TypeDefinition, Error> {
     rule_fn!("parse_type_definition", cursor.node());
@@ -604,31 +685,40 @@ fn parse_type_definition<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "data_type_def" => {
+                    NODE_KIND_DATA_TYPE_DEF => {
                         return Ok(parse_data_type_def(context, &mut node.walk())?.into());
                     }
-                    "entity_def" => {
+                    NODE_KIND_ENTITY_DEF => {
                         return Ok(parse_entity_def(context, &mut node.walk())?.into());
                     }
-                    "enum_def" => {
+                    NODE_KIND_ENUM_DEF => {
                         return Ok(parse_enum_def(context, &mut node.walk())?.into());
                     }
-                    "event_def" => {
+                    NODE_KIND_EVENT_DEF => {
                         return Ok(parse_event_def(context, &mut node.walk())?.into());
                     }
-                    "structure_def" => {
+                    NODE_KIND_STRUCTURE_DEF => {
                         return Ok(parse_structure_def(context, &mut node.walk())?.into());
                     }
-                    "union_def" => {
+                    NODE_KIND_UNION_DEF => {
                         return Ok(parse_union_def(context, &mut node.walk())?.into());
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "data_type_def|entity_def|enum_def|event_def|structure_def",
+                            [
+                                NODE_KIND_DATA_TYPE_DEF,
+                                NODE_KIND_ENTITY_DEF,
+                                NODE_KIND_ENUM_DEF,
+                                NODE_KIND_EVENT_DEF,
+                                NODE_KIND_STRUCTURE_DEF,
+                                NODE_KIND_UNION_DEF,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -648,21 +738,24 @@ fn parse_data_type_def<'a>(
     let node = cursor.node();
     rule_fn!("parse_data_type_def", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("base").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_BASE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let base_type = parse_identifier_reference(context, &mut child.walk())?;
 
     context.start_type(&name);
     let mut data_type = DatatypeDef::new(name, base_type).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
-        context.check_if_error(&child, RULE_NAME)?;
-        let body = parse_annotation_only_body(context, cursor)?;
-        data_type.add_body(body);
+    match node.child_by_field_name(FIELD_NAME_BODY) {
+        Some(child) => {
+            context.check_if_error(&child, RULE_NAME)?;
+            let body = parse_annotation_only_body(context, cursor)?;
+            data_type.add_body(body);
+        }
+        _ => (),
     }
 
     context.end_type();
@@ -682,16 +775,16 @@ fn parse_annotation_only_body<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, cursor)?);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation",
+                            [NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT].join("|"),
                             node.kind(),
                         ));
                     }
@@ -704,18 +797,21 @@ fn parse_annotation_only_body<'a>(
     Ok(body)
 }
 
-fn parse_entity_def<'a>(context: &mut ParseContext<'a>, cursor: &mut TreeCursor<'a>) -> Result<EntityDef, Error> {
+fn parse_entity_def<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<EntityDef, Error> {
     let node = cursor.node();
     rule_fn!("parse_entity_def", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
     context.start_type(&name);
     let mut entity = EntityDef::new(name).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_entity_body(context, &mut child.walk())?;
         entity.add_body(body);
@@ -732,7 +828,7 @@ fn parse_entity_body<'a>(
     let node = cursor.node();
     rule_fn!("parse_entity_body", node);
 
-    let child = node.child_by_field_name("identity").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_IDENTITY).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let identity = parse_identity_member(context, &mut child.walk())?;
     let mut body = EntityBody::new(identity).with_ts_span(node.into());
@@ -744,28 +840,35 @@ fn parse_entity_body<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    "member_by_value" => {
+                    NODE_KIND_MEMBER_BY_VALUE => {
                         body.add_member(parse_by_value_member(context, &mut node.walk())?.into());
                     }
-                    "member_by_reference" => {
+                    NODE_KIND_MEMBER_BY_REFERENCE => {
                         body.add_member(
                             parse_by_reference_member(context, &mut node.walk())?.into(),
                         );
                     }
-                    "entity_group" => {
+                    NODE_KIND_ENTITY_GROUP => {
                         body.add_group(parse_entity_group(context, &mut node.walk())?);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
-                    "identity_member" => (),
+                    NODE_KIND_IDENTITY_MEMBER => (),
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation|member_by_value|member_by_reference|entity_group",
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_MEMBER_BY_VALUE,
+                                NODE_KIND_MEMBER_BY_REFERENCE,
+                                NODE_KIND_ENTITY_GROUP,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -791,22 +894,28 @@ fn parse_entity_group<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         group.add_annotation(parse_annotation(context, cursor)?);
                     }
-                    "member_by_value" => {
+                    NODE_KIND_MEMBER_BY_VALUE => {
                         group.add_member(parse_by_value_member(context, cursor)?.into());
                     }
-                    "member_by_reference" => {
+                    NODE_KIND_MEMBER_BY_REFERENCE => {
                         group.add_member(parse_by_reference_member(context, cursor)?.into());
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation|member_by_value|member_by_reference",
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_MEMBER_BY_VALUE,
+                                NODE_KIND_MEMBER_BY_REFERENCE,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -819,18 +928,21 @@ fn parse_entity_group<'a>(
     Ok(group)
 }
 
-fn parse_enum_def<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<EnumDef, Error> {
+fn parse_enum_def<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<EnumDef, Error> {
     let node = cursor.node();
     rule_fn!("parse_enum_def", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
     context.start_type(&name);
     let mut new_enum = EnumDef::new(name).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_enum_body(context, &mut child.walk())?;
         new_enum.add_body(body);
@@ -840,7 +952,10 @@ fn parse_enum_def<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'
     Ok(new_enum)
 }
 
-fn parse_enum_body<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<EnumBody, Error> {
+fn parse_enum_body<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<EnumBody, Error> {
     rule_fn!("parse_enum_body", cursor.node());
     let mut body = EnumBody::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
@@ -850,19 +965,24 @@ fn parse_enum_body<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    "enum_variant" => {
+                    NODE_KIND_ENUM_VARIANT => {
                         body.add_variant(parse_enum_variant(context, &mut node.walk())?);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation|enum_variant",
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_ENUM_VARIANT,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -875,22 +995,25 @@ fn parse_enum_body<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<
     Ok(body)
 }
 
-fn parse_event_def<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<EventDef, Error> {
+fn parse_event_def<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<EventDef, Error> {
     let node = cursor.node();
     rule_fn!("parse_event_def", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("source").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_SOURCE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let event_source = parse_identifier_reference(context, cursor)?;
 
     context.start_type(&name);
     let mut event = EventDef::new(name, event_source).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_structure_body(context, &mut child.walk())?;
         event.add_body(body);
@@ -913,22 +1036,28 @@ fn parse_structure_body<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    "member_by_value" => {
+                    NODE_KIND_MEMBER_BY_VALUE => {
                         body.add_member(parse_by_value_member(context, &mut node.walk())?);
                     }
-                    "structure_group" => {
+                    NODE_KIND_STRUCTURE_GROUP => {
                         body.add_group(parse_structure_group(context, &mut node.walk())?);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation|member_by_value|structure_group",
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_MEMBER_BY_VALUE,
+                                NODE_KIND_STRUCTURE_GROUP,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -954,19 +1083,24 @@ fn parse_structure_group<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         group.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    "member_by_value" => {
+                    NODE_KIND_MEMBER_BY_VALUE => {
                         group.add_member(parse_by_value_member(context, &mut node.walk())?);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation|member_by_value",
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_MEMBER_BY_VALUE,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -986,14 +1120,14 @@ fn parse_structure_def<'a>(
     let node = cursor.node();
     rule_fn!("parse_structure_def", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
     context.start_type(&name);
     let mut structure = StructureDef::new(name).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_structure_body(context, &mut child.walk())?;
         structure.add_body(body);
@@ -1003,18 +1137,21 @@ fn parse_structure_def<'a>(
     Ok(structure)
 }
 
-fn parse_union_def<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<UnionDef, Error> {
+fn parse_union_def<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<UnionDef, Error> {
     let node = cursor.node();
     rule_fn!("parse_union_def", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
     context.start_type(&name);
     let mut new_enum = UnionDef::new(name).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_union_body(context, &mut child.walk())?;
         new_enum.add_body(body);
@@ -1024,7 +1161,10 @@ fn parse_union_def<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<
     Ok(new_enum)
 }
 
-fn parse_union_body<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor<'a>) -> Result<UnionBody, Error> {
+fn parse_union_body<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<UnionBody, Error> {
     rule_fn!("parse_union_body", cursor.node());
     let mut body = UnionBody::default().with_ts_span(cursor.node().into());
     let mut has_next = cursor.goto_first_child();
@@ -1034,19 +1174,24 @@ fn parse_union_body<'a>(context: &mut ParseContext<'a>,  cursor: &mut TreeCursor
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    "annotation" => {
+                    NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    "type_variant" => {
+                    NODE_KIND_TYPE_VARIANT => {
                         body.add_variant(parse_type_variant(context, &mut node.walk())?);
                     }
-                    "line_comment" => {
+                    NODE_KIND_LINE_COMMENT => {
                         trace!("ignoring comments");
                     }
                     _ => {
                         return Err(unexpected_node_kind(
                             RULE_NAME,
-                            "annotation|type_variant",
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_TYPE_VARIANT,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                            .join("|"),
                             node.kind(),
                         ));
                     }
@@ -1066,18 +1211,18 @@ fn parse_identity_member<'a>(
     let node = cursor.node();
     rule_fn!("parse_identity_member", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("target").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_TARGET).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let type_reference = parse_type_reference(context, &mut child.walk())?;
 
     context.start_member(&name);
     let mut member = IdentityMember::new(name, type_reference).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         member.add_body(body);
@@ -1093,24 +1238,24 @@ fn parse_by_value_member<'a>(
     let node = cursor.node();
     rule_fn!("parse_by_value_member", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("target").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_TARGET).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let type_reference = parse_type_reference(context, &mut child.walk())?;
 
     context.start_member(&name);
     let mut member = ByValueMember::new(name, type_reference).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("target_cardinality") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET_CARDINALITY) {
         context.check_if_error(&child, RULE_NAME)?;
         let cardinality = parse_cardinality(context, &mut child.walk())?;
         member.set_target_cardinality(cardinality);
     }
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         member.add_body(body);
@@ -1126,30 +1271,30 @@ fn parse_by_reference_member<'a>(
     let node = cursor.node();
     rule_fn!("parse_by_reference_member", node);
 
-    let child = node.child_by_field_name("name").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("target").unwrap();
+    let child = node.child_by_field_name(FIELD_NAME_TARGET).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let type_reference = parse_type_reference(context, &mut child.walk())?;
 
     context.start_member(&name);
     let mut member = ByReferenceMember::new(name, type_reference).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("source_cardinality") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_SOURCE_CARDINALITY) {
         context.check_if_error(&child, RULE_NAME)?;
         let cardinality = parse_cardinality(context, &mut child.walk())?;
         member.set_source_cardinality(cardinality);
     }
 
-    if let Some(child) = node.child_by_field_name("target_cardinality") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET_CARDINALITY) {
         context.check_if_error(&child, RULE_NAME)?;
         let cardinality = parse_cardinality(context, &mut child.walk())?;
         member.set_target_cardinality(cardinality);
     }
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         member.add_body(body);
@@ -1170,20 +1315,25 @@ fn parse_type_reference<'a>(
         context.check_if_error(&node, RULE_NAME)?;
         if node.is_named() {
             match node.kind() {
-                "unknown_type" => {
+                NODE_KIND_UNKNOWN_TYPE => {
                     return Ok(TypeReference::Unknown);
                 }
-                "identifier_reference" => {
+                NODE_KIND_IDENTIFIER_REFERENCE => {
                     let reference = parse_identifier_reference(context, &mut node.walk())?;
                     return Ok(TypeReference::Reference(reference));
                 }
-                "line_comment" => {
+                NODE_KIND_LINE_COMMENT => {
                     trace!("ignoring comments");
                 }
                 _ => {
                     return Err(unexpected_node_kind(
                         RULE_NAME,
-                        "unknown_type|identifier_reference",
+                        [
+                            NODE_KIND_UNKNOWN_TYPE,
+                            NODE_KIND_IDENTIFIER_REFERENCE,
+                            NODE_KIND_LINE_COMMENT,
+                        ]
+                        .join("|"),
                         node.kind(),
                     ));
                 }
@@ -1201,19 +1351,19 @@ fn parse_enum_variant<'a>(
     let node = cursor.node();
     rule_fn!("parse_enum_variant", node);
 
-    let child = node.child_by_field_name("name").unwrap();
-        context.check_if_error(&child, RULE_NAME)?;
-   let name = parse_identifier(context, &child)?;
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name("value").unwrap();
-        context.check_if_error(&child, RULE_NAME)?;
+    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
     let text = context.node_source(&child)?;
     let value = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
 
     context.start_member(&name);
     let mut enum_variant = EnumVariant::new(name, value).with_ts_span(node.into());
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         enum_variant.add_body(body);
@@ -1229,14 +1379,14 @@ fn parse_type_variant<'a>(
     let node = cursor.node();
     rule_fn!("parse_type_variant", node);
 
-    let child = node.child_by_field_name("name").unwrap();
-        context.check_if_error(&child, RULE_NAME)?;
+    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier_reference(context, &mut child.walk())?;
 
     // FIX: context.start_member(&name);
     let type_variant = TypeVariant::new(name).with_ts_span(node.into());
 
-    let mut type_variant = if let Some(child) = node.child_by_field_name("rename") {
+    let mut type_variant = if let Some(child) = node.child_by_field_name(FIELD_NAME_RENAME) {
         context.check_if_error(&child, RULE_NAME)?;
         let rename = parse_identifier(context, &child)?;
         type_variant.with_rename(rename)
@@ -1244,7 +1394,7 @@ fn parse_type_variant<'a>(
         type_variant
     };
 
-    if let Some(child) = node.child_by_field_name("body") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         type_variant.add_body(body);
@@ -1260,17 +1410,18 @@ fn parse_cardinality<'a>(
     let node = cursor.node();
     rule_fn!("parse_cardinality", node);
 
-    let child = node.child_by_field_name("min").unwrap();
-        context.check_if_error(&child, RULE_NAME)?;
+    let child = node.child_by_field_name(FIELD_NAME_MIN).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
     let text = context.node_source(&child)?;
-    let min = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
+    let min = u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
 
     // TODO: check for range
 
-    if let Some(child) = node.child_by_field_name("max") {
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_MAX) {
         context.check_if_error(&child, RULE_NAME)?;
-       let text = context.node_source(&child)?;
-        let max = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
+        let text = context.node_source(&child)?;
+        let max =
+            u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
         Ok(Cardinality::new_range(min, max).with_ts_span(node.into()))
     } else {
         Ok(Cardinality::new_single(min).with_ts_span(node.into()))

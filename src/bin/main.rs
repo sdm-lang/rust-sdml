@@ -4,6 +4,7 @@ use sdml::error::{tracing_filter_error, tracing_subscriber_error};
 use sdml::model::resolve::ModuleResolver;
 use sdml::model::Identifier;
 use std::fmt::Display;
+use std::io::Read;
 use std::path::PathBuf;
 use std::str::FromStr;
 use tracing::info;
@@ -48,7 +49,7 @@ struct FileArgs {
     base_path: Option<PathBuf>,
 
     /// SDML module to convert
-    module: Identifier,
+    module: Option<Identifier>,
 }
 
 #[derive(Args, Debug)]
@@ -221,7 +222,15 @@ impl FileArgs {
 impl Execute for Highlight {
     fn execute(&self) -> Result<(), MainError> {
         let resolver = self.files.resolver();
-        let source = resolver.resolve_module_source(&self.files.module)?;
+        let source = if let Some(module_name) = &self.files.module {
+            resolver.resolve_module_source(module_name)?
+        } else {
+            let stdin = std::io::stdin();
+            let mut handle = stdin.lock();
+            let mut source = String::new();
+            handle.read_to_string(&mut source)?;
+            source
+        };
 
         let mut writer = self.files.output_writer()?;
 
@@ -248,18 +257,24 @@ impl Execute for Highlight {
 impl Execute for Tags {
     fn execute(&self) -> Result<(), MainError> {
         let resolver = self.files.resolver();
-        let file_name = resolver.resolve_module_path(&self.files.module)?;
-        let module = sdml::model::parse::parse_file(&file_name)?;
+        let model = if let Some(module_name) = &self.files.module {
+            let file_name = resolver.resolve_module_path(module_name)?;
+            sdml::model::parse::parse_file(&file_name)?
+        } else {
+            let stdin = std::io::stdin();
+            let mut handle = stdin.lock();
+            sdml::model::parse::parse_from(&mut handle)?
+        };
 
         info!(
             "loaded module: {}, is_complete: {}",
-            module.name(),
-            module.is_complete()
+            model.name(),
+            model.is_complete()
         );
 
         let mut writer = self.files.output_writer()?;
 
-        sdml::actions::tags::write_tags(&module, &mut writer)?;
+        sdml::actions::tags::write_tags(&model, &mut writer)?;
 
         Ok(())
     }
@@ -272,8 +287,14 @@ impl Execute for Tags {
 impl Execute for Convert {
     fn execute(&self) -> Result<(), MainError> {
         let resolver = self.files.resolver();
-        let file_name = resolver.resolve_module_path(&self.files.module)?;
-        let model = sdml::model::parse::parse_file(&file_name)?;
+        let model = if let Some(module_name) = &self.files.module {
+            let file_name = resolver.resolve_module_path(module_name)?;
+            sdml::model::parse::parse_file(&file_name)?
+        } else {
+            let stdin = std::io::stdin();
+            let mut handle = stdin.lock();
+            sdml::model::parse::parse_from(&mut handle)?
+        };
 
         info!(
             "loaded module: {}, is_complete: {}",
@@ -306,8 +327,14 @@ impl Execute for Convert {
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
         let resolver = self.files.resolver();
-        let file_name = resolver.resolve_module_path(&self.files.module)?;
-        let model = sdml::model::parse::parse_file(&file_name)?;
+        let model = if let Some(module_name) = &self.files.module {
+            let file_name = resolver.resolve_module_path(module_name)?;
+            sdml::model::parse::parse_file(&file_name)?
+        } else {
+            let stdin = std::io::stdin();
+            let mut handle = stdin.lock();
+            sdml::model::parse::parse_from(&mut handle)?
+        };
 
         info!(
             "loaded module: {}, is_complete: {}",

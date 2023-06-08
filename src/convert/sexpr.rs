@@ -18,6 +18,25 @@ use crate::model::{
     StructureBody, StructureDef, StructureGroup, TypeDefinition, TypeReference, TypeVariant,
     UnionBody, UnionDef, Value, ValueConstructor,
 };
+use crate::syntax::{
+    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_LANGUAGE, FIELD_NAME_MAX,
+    FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_RENAME,
+    FIELD_NAME_SOURCE, FIELD_NAME_SOURCE_CARDINALITY, FIELD_NAME_TARGET,
+    FIELD_NAME_TARGET_CARDINALITY, FIELD_NAME_VALUE, NODE_KIND_ANNOTATION,
+    NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_BOOLEAN, NODE_KIND_CARDINALITY_EXPRESSION,
+    NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_BODY,
+    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_BODY, NODE_KIND_ENUM_DEF,
+    NODE_KIND_ENUM_VARIANT, NODE_KIND_EVENT_DEF, NODE_KIND_IDENTIFIER,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT, NODE_KIND_INTEGER,
+    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LIST_OF_VALUES,
+    NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT,
+    NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT,
+    NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING, NODE_KIND_STRING,
+    NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
+    NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE,
+    NODE_KIND_VALUE_CONSTRUCTOR,
+};
+use std::fmt::Display;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -33,7 +52,8 @@ use std::io::Write;
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_as_sexpr<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
-    write_module(module, "", w)
+    let mut writer = Writer::new(w);
+    write_module(module, &mut writer)
 }
 
 write_to_string!(to_sexpr_string, write_as_sexpr);
@@ -50,61 +70,184 @@ print_to_stdout!(print_sexpr, write_as_sexpr);
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
+struct Writer<W>
+where
+    W: Write,
+{
+    indent: String,
+    indentation: String,
+    w: W,
+}
+
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
+
+impl<W> Writer<W>
+where
+    W: Write,
+{
+    fn new(w: W) -> Self {
+        Self::new_with_indent(w, "  ")
+    }
+
+    fn new_with_indent<S: Into<String>>(w: W, indent: S) -> Self {
+        Self {
+            indent: indent.into(),
+            indentation: String::new(),
+            w,
+        }
+    }
+
+    fn value_with_prefix<V: Display, S: AsRef<str>>(
+        &mut self,
+        value: V,
+        prefix: S,
+    ) -> Result<(), Error> {
+        self.w
+            .write_all(format!("{}{}", prefix.as_ref(), value).as_bytes())?;
+        Ok(())
+    }
+
+    fn node<S: AsRef<str>>(&mut self, name: S) -> Result<(), Error> {
+        self.w
+            .write_all(format!("({})", name.as_ref()).as_bytes())?;
+        Ok(())
+    }
+
+    fn node_and_value<S: AsRef<str>, V: Display>(
+        &mut self,
+        name: S,
+        value: V,
+    ) -> Result<(), Error> {
+        self.w
+            .write_all(format!("({} {})", name.as_ref(), value).as_bytes())?;
+        Ok(())
+    }
+
+    fn start_node<S: AsRef<str>>(&mut self, name: S) -> Result<(), Error> {
+        self.w
+            .write_all(format!("({} ", name.as_ref()).as_bytes())?;
+        Ok(())
+    }
+
+    fn start_node_and_newln<S: AsRef<str>>(&mut self, name: S) -> Result<(), Error> {
+        self.w
+            .write_all(format!("({}\n", name.as_ref()).as_bytes())?;
+        Ok(())
+    }
+
+    fn start_node_indented<S: AsRef<str>>(&mut self, name: S) -> Result<(), Error> {
+        self.w
+            .write_all(format!("{}({} ", self.indentation, name.as_ref()).as_bytes())?;
+        Ok(())
+    }
+
+    fn field_name<S: AsRef<str>>(&mut self, name: S) -> Result<(), Error> {
+        self.w
+            .write_all(format!("{}: ", name.as_ref()).as_bytes())?;
+        Ok(())
+    }
+
+    fn field<S: AsRef<str>, V: Display>(&mut self, name: S, value: V) -> Result<(), Error> {
+        self.w
+            .write_all(format!("{}: {}", name.as_ref(), value).as_bytes())?;
+        Ok(())
+    }
+
+    fn field_name_indented<S: AsRef<str>>(&mut self, name: S) -> Result<(), Error> {
+        self.w
+            .write_all(format!("{}{}: ", self.indentation, name.as_ref()).as_bytes())?;
+        Ok(())
+    }
+
+    fn close_paren(&mut self) -> Result<(), Error> {
+        self.w.write_all(")".as_bytes())?;
+        Ok(())
+    }
+
+    fn close_paren_and_newln(&mut self) -> Result<(), Error> {
+        self.w.write_all(")\n".as_bytes())?;
+        Ok(())
+    }
+
+    fn space(&mut self) -> Result<(), Error> {
+        self.w.write_all(" ".as_bytes())?;
+        Ok(())
+    }
+
+    fn newln(&mut self) -> Result<(), Error> {
+        self.w.write_all("\n".as_bytes())?;
+        Ok(())
+    }
+
+    fn newln_and_indentation(&mut self) -> Result<(), Error> {
+        self.w
+            .write_all(format!("\n{}", self.indentation).as_bytes())?;
+        Ok(())
+    }
+
+    fn indentation(&mut self) -> Result<(), Error> {
+        self.w.write_all(self.indentation.as_bytes())?;
+        Ok(())
+    }
+
+    fn indent(&mut self) {
+        self.indentation.push_str(&self.indent)
+    }
+
+    fn outdent(&mut self) {
+        self.indentation = self.indentation.as_str()[self.indent.len()..].to_string();
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
-const NEW_LINE: &[u8] = "\n".as_bytes();
-const CLOSE_PAREN: &[u8] = ")".as_bytes();
-const CLOSE_PAREN_NEW_LINE: &[u8] = ")\n".as_bytes();
-
-fn write_identifier<W: Write>(me: &Identifier, _: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(identifier ".as_bytes())?;
+fn write_identifier<W: Write>(me: &Identifier, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_IDENTIFIER)?;
     maybe_write_span(me.ts_span(), w)?;
-    w.write_all(format!("'{}", me.as_ref()).as_bytes())?;
+    w.value_with_prefix(me, "'")?;
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
     Ok(())
 }
 
 fn write_qualified_identifier<W: Write>(
     me: &QualifiedIdentifier,
-    prefix: &str,
-    w: &mut W,
+    w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.write_all("(qualified_identifier\n".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+    w.start_node_and_newln(NODE_KIND_QUALIFIED_IDENTIFIER)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("{}module: ", prefix).as_bytes())?;
-    write_identifier(me.module(), &prefix, w)?;
-    w.write_all(NEW_LINE)?;
+    w.field_name_indented(FIELD_NAME_MODULE)?;
+    w.value_with_prefix(me.module(), "'")?;
+    w.newln()?;
 
-    w.write_all(format!("{}member: ", prefix).as_bytes())?;
-    write_identifier(me.member(), &prefix, w)?;
+    w.field_name_indented(FIELD_NAME_MEMBER)?;
+    w.value_with_prefix(me.member(), "'")?;
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
 fn write_identifier_reference<W: Write>(
     me: &IdentifierReference,
-    prefix: &str,
-    w: &mut W,
+    w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.write_all("(identifier_reference\n".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
-    w.write_all(prefix.as_bytes())?;
+    w.start_node_and_newln(NODE_KIND_IDENTIFIER_REFERENCE)?;
+    w.indent();
+
+    w.indentation()?;
 
     //     if let Some(span) = me.ts_span() {
     //         w.write_all(format!("\n{}", prefix).as_bytes())?;
@@ -112,204 +255,219 @@ fn write_identifier_reference<W: Write>(
     //     }
 
     match me {
-        IdentifierReference::Identifier(v) => write_identifier(v, &prefix, w)?,
-        IdentifierReference::QualifiedIdentifier(v) => write_qualified_identifier(v, &prefix, w)?,
+        IdentifierReference::Identifier(v) => write_identifier(v, w)?,
+        IdentifierReference::QualifiedIdentifier(v) => write_qualified_identifier(v, w)?,
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_module<W: Write>(me: &Module, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(module", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_module<W: Write>(me: &Module, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_MODULE)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field(FIELD_NAME_NAME, me.name())?;
 
-    w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-    write_module_body(me.body(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_BODY)?;
+    write_module_body(me.body(), w)?;
 
-    w.write_all(CLOSE_PAREN_NEW_LINE)?;
+    w.close_paren_and_newln()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_module_body<W: Write>(me: &ModuleBody, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(module_body".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_module_body<W: Write>(me: &ModuleBody, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_MODULE_BODY)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for import in me.imports() {
-        w.write_all(NEW_LINE)?;
-        write_import_statement(import, &prefix, w)?;
+        w.newln()?;
+        write_import_statement(import, w)?;
     }
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
     for definition in me.definitions() {
-        w.write_all(NEW_LINE)?;
-        write_type_definition(definition, &prefix, w)?;
+        w.newln()?;
+        write_type_definition(definition, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_import_statement<W: Write>(
-    me: &ImportStatement,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all(format!("{}(import", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_import_statement<W: Write>(me: &ImportStatement, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_IMPORT)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for import in me.imports() {
-        w.write_all(NEW_LINE)?;
-        write_import(import, &prefix, w)?;
+        w.newln()?;
+        write_import(import, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_import<W: Write>(me: &Import, prefix: &str, w: &mut W) -> Result<(), Error> {
+fn write_import<W: Write>(me: &Import, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
         Import::Module(v) => {
-            w.write_all(format!("{}(module_import", prefix).as_bytes())?;
-            let prefix = format!("{}  ", prefix);
+            w.start_node_indented(NODE_KIND_MODULE_IMPORT)?;
+            w.indent();
 
             if let Some(span) = v.ts_span() {
-                w.write_all(format!("\n{}", prefix).as_bytes())?;
+                w.newln_and_indentation()?;
                 write_span(span, w)?;
             }
 
-            w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-            write_identifier(v, &prefix, w)?;
+            w.newln_and_indentation()?;
+            w.field_name(FIELD_NAME_NAME)?;
+            write_identifier(v, w)?;
         }
         Import::Member(v) => {
-            w.write_all(format!("{}(member_import", prefix).as_bytes())?;
-            let prefix = format!("{}  ", prefix);
+            w.start_node_indented(NODE_KIND_MEMBER_IMPORT)?;
+            w.indent();
 
             if let Some(span) = v.ts_span() {
-                w.write_all(format!("\n{}", prefix).as_bytes())?;
+                w.newln_and_indentation()?;
                 write_span(span, w)?;
             }
 
-            w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-            write_qualified_identifier(v, &prefix, w)?;
+            w.newln_and_indentation()?;
+            w.field_name(FIELD_NAME_NAME)?;
+            write_qualified_identifier(v, w)?;
         }
     };
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_annotation<W: Write>(me: &Annotation, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(annotation", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_annotation<W: Write>(me: &Annotation, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_ANNOTATION)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier_reference(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier_reference(me.name(), w)?;
 
-    w.write_all(format!("\n{}value: ", prefix).as_bytes())?;
-    write_value(me.value(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_VALUE)?;
+    write_value(me.value(), w)?;
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_value<W: Write>(me: &Value, prefix: &str, w: &mut W) -> Result<(), Error> {
+fn write_value<W: Write>(me: &Value, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
-        Value::Simple(v) => write_simple_value(v, prefix, w)?,
-        Value::ValueConstructor(v) => write_value_constructor(v, prefix, w)?,
-        Value::Reference(v) => write_identifier_reference(v, prefix, w)?,
-        Value::List(vs) => write_list_of_values(vs, prefix, w)?,
+        Value::Simple(v) => write_simple_value(v, w)?,
+        Value::ValueConstructor(v) => write_value_constructor(v, w)?,
+        Value::Reference(v) => write_identifier_reference(v, w)?,
+        Value::List(vs) => write_list_of_values(vs, w)?,
     }
 
     Ok(())
 }
 
-fn write_simple_value<W: Write>(me: &SimpleValue, prefix: &str, w: &mut W) -> Result<(), Error> {
+fn write_simple_value<W: Write>(me: &SimpleValue, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
         SimpleValue::String(v) => {
-            w.write_all("(string".as_bytes())?;
-            let prefix = format!("{}  ", prefix);
+            w.start_node(NODE_KIND_STRING)?;
+            w.indent();
 
-            w.write_all(format!("\n{}(quoted_string {:?})", prefix, v.value()).as_bytes())?;
+            w.newln_and_indentation()?;
+            w.node_and_value(NODE_KIND_QUOTED_STRING, format!("{:?}", v.value()))?;
 
             if let Some(language) = v.language() {
-                w.write_all(format!("\n{}language: ", prefix).as_bytes())?;
-                write_language_tag(language, &prefix, w)?;
+                w.newln_and_indentation()?;
+                w.field_name(FIELD_NAME_LANGUAGE)?;
+                write_language_tag(language, w)?;
             }
-            w.write_all(CLOSE_PAREN)?
+
+            w.outdent();
+            w.close_paren()?
         }
-        SimpleValue::Double(v) => w.write_all(format!("(double {})", v).as_bytes())?,
-        SimpleValue::Decimal(v) => w.write_all(format!("(decimal {})", v).as_bytes())?,
-        SimpleValue::Integer(v) => w.write_all(format!("(integer {})", v).as_bytes())?,
-        SimpleValue::Boolean(v) => w.write_all(format!("(boolean {})", v).as_bytes())?,
+        SimpleValue::Double(v) => w.node_and_value(NODE_KIND_DOUBLE, v)?,
+        SimpleValue::Decimal(v) => w.node_and_value(NODE_KIND_DECIMAL, v)?,
+        SimpleValue::Integer(v) => w.node_and_value(NODE_KIND_INTEGER, v)?,
+        SimpleValue::Boolean(v) => w.node_and_value(NODE_KIND_BOOLEAN, v)?,
         SimpleValue::IriReference(v) => {
-            w.write_all(format!("(iri_reference <{}>)", v).as_bytes())?
+            w.node_and_value(NODE_KIND_IRI_REFERENCE, format!("<{}>", v))?
         }
     }
 
     Ok(())
 }
 
-fn write_list_of_values<W: Write>(me: &ListOfValues, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(list_of_values".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_list_of_values<W: Write>(me: &ListOfValues, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_LIST_OF_VALUES)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for value in me.values() {
-        w.write_all(NEW_LINE)?;
-        write_list_member(value, &prefix, w)?;
+        w.newln()?;
+        write_list_member(value, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
+
+    w.outdent();
+    Ok(())
+}
+
+fn write_language_tag<W: Write>(me: &LanguageTag, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_LANGUAGE_TAG)?;
+    w.value_with_prefix("'", me)?;
+    w.close_paren()?;
 
     Ok(())
 }
 
-fn write_language_tag<W: Write>(me: &LanguageTag, _: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("(language_tag '{})", me.as_ref()).as_bytes())?;
-    Ok(())
-}
-
-fn write_list_member<W: Write>(me: &ListMember, prefix: &str, w: &mut W) -> Result<(), Error> {
+fn write_list_member<W: Write>(me: &ListMember, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
-        ListMember::Simple(v) => write_simple_value(v, prefix, w)?,
-        ListMember::ValueConstructor(v) => write_value_constructor(v, prefix, w)?,
-        ListMember::Reference(v) => write_identifier_reference(v, prefix, w)?,
+        ListMember::Simple(v) => write_simple_value(v, w)?,
+        ListMember::ValueConstructor(v) => write_value_constructor(v, w)?,
+        ListMember::Reference(v) => write_identifier_reference(v, w)?,
     }
 
     Ok(())
@@ -317,560 +475,589 @@ fn write_list_member<W: Write>(me: &ListMember, prefix: &str, w: &mut W) -> Resu
 
 fn write_value_constructor<W: Write>(
     me: &ValueConstructor,
-    prefix: &str,
-    w: &mut W,
+    w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.write_all("(value_constructor".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+    w.start_node(NODE_KIND_VALUE_CONSTRUCTOR)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier_reference(me.type_name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier_reference(me.type_name(), w)?;
 
-    w.write_all(format!("\n{}value: ", prefix).as_bytes())?;
-    write_simple_value(me.value(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_VALUE)?;
+    write_simple_value(me.value(), w)?;
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
+
+    w.outdent();
     Ok(())
 }
 
-fn write_type_definition<W: Write>(
-    me: &TypeDefinition,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_type_definition<W: Write>(me: &TypeDefinition, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
-        TypeDefinition::Datatype(v) => write_data_type_def(v, prefix, w)?,
-        TypeDefinition::Entity(v) => write_entity_def(v, prefix, w)?,
-        TypeDefinition::Enum(v) => write_enum_def(v, prefix, w)?,
-        TypeDefinition::Event(v) => write_event_def(v, prefix, w)?,
-        TypeDefinition::Structure(v) => write_structure_def(v, prefix, w)?,
-        TypeDefinition::Union(v) => write_union_def(v, prefix, w)?,
+        TypeDefinition::Datatype(v) => write_data_type_def(v, w)?,
+        TypeDefinition::Entity(v) => write_entity_def(v, w)?,
+        TypeDefinition::Enum(v) => write_enum_def(v, w)?,
+        TypeDefinition::Event(v) => write_event_def(v, w)?,
+        TypeDefinition::Structure(v) => write_structure_def(v, w)?,
+        TypeDefinition::Union(v) => write_union_def(v, w)?,
     }
 
     Ok(())
 }
 
-fn write_data_type_def<W: Write>(me: &DatatypeDef, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(data_type_def", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_data_type_def<W: Write>(me: &DatatypeDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_DATA_TYPE_DEF)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
-    w.write_all(format!("\n{}base: ", prefix).as_bytes())?;
-    write_identifier_reference(me.base_type(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_BASE)?;
+    write_identifier_reference(me.base_type(), w)?;
 
     if let Some(body) = &me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_annotation_only_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_annotation_only_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
 fn write_annotation_only_body<W: Write>(
     me: &AnnotationOnlyBody,
-    prefix: &str,
-    w: &mut W,
+    w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.write_all("(annotation_only_body".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+    w.start_node(NODE_KIND_ANNOTATION_ONLY_BODY)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_entity_def<W: Write>(me: &EntityDef, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(entity_def", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_entity_def<W: Write>(me: &EntityDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_ENTITY_DEF)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
     if let Some(body) = me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_entity_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_NAME)?;
+        write_entity_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_entity_body<W: Write>(me: &EntityBody, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(entity_body".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_entity_body<W: Write>(me: &EntityBody, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_ENTITY_BODY)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}identity: ", prefix).as_bytes())?;
-    write_identity_member(me.identity(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_IDENTITY)?;
+    write_identity_member(me.identity(), w)?;
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
     for member in me.members() {
-        w.write_all(NEW_LINE)?;
-        write_entity_member(member, &prefix, w)?;
+        w.newln()?;
+        write_entity_member(member, w)?;
     }
 
     for group in me.groups() {
-        w.write_all(NEW_LINE)?;
-        write_entity_group(group, &prefix, w)?
+        w.newln()?;
+        write_entity_group(group, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_entity_member<W: Write>(me: &EntityMember, prefix: &str, w: &mut W) -> Result<(), Error> {
+fn write_entity_member<W: Write>(me: &EntityMember, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
-        EntityMember::ByValue(v) => write_by_value_member(v, prefix, w)?,
-        EntityMember::ByReference(v) => write_by_reference_member(v, prefix, w)?,
+        EntityMember::ByValue(v) => write_by_value_member(v, w)?,
+        EntityMember::ByReference(v) => write_by_reference_member(v, w)?,
     }
 
     Ok(())
 }
 
-fn write_entity_group<W: Write>(me: &EntityGroup, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(entity_group", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_entity_group<W: Write>(me: &EntityGroup, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_ENTITY_GROUP)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
     for member in me.members() {
-        w.write_all(NEW_LINE)?;
-        write_entity_member(member, &prefix, w)?;
+        w.newln()?;
+        write_entity_member(member, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_enum_def<W: Write>(me: &EnumDef, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(enum_def", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_enum_def<W: Write>(me: &EnumDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_ENUM_DEF)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
     if let Some(body) = &me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_enum_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_enum_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN_NEW_LINE)?;
+    w.close_paren_and_newln()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_enum_body<W: Write>(me: &EnumBody, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(enum_body".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_enum_body<W: Write>(me: &EnumBody, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_ENUM_BODY)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
     for variant in me.variants() {
-        w.write_all(NEW_LINE)?;
-        write_enum_variant(variant, &prefix, w)?;
+        w.newln()?;
+        write_enum_variant(variant, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_enum_variant<W: Write>(me: &EnumVariant, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(enum_variant", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_enum_variant<W: Write>(me: &EnumVariant, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_ENUM_VARIANT)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
-    w.write_all(format!("\n{}value: {}", prefix, me.value()).as_bytes())?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_VALUE)?;
 
     if let Some(body) = &me.body() {
-        write_annotation_only_body(body, &prefix, w)?
+        write_annotation_only_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_event_def<W: Write>(me: &EventDef, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(event_def", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_event_def<W: Write>(me: &EventDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_EVENT_DEF)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
-    w.write_all(format!("\n{}source: ", prefix).as_bytes())?;
-    write_identifier_reference(me.event_source(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_SOURCE)?;
+    write_identifier_reference(me.event_source(), w)?;
 
     if let Some(body) = me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_structure_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_structure_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_structure_def<W: Write>(me: &StructureDef, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(structure_def", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_structure_def<W: Write>(me: &StructureDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_STRUCTURE_DEF)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
     if let Some(body) = me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_structure_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_structure_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_structure_body<W: Write>(
-    me: &StructureBody,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all("(structure_body".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_structure_body<W: Write>(me: &StructureBody, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_STRUCTURE_BODY)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
     for member in me.members() {
-        w.write_all(NEW_LINE)?;
-        write_by_value_member(member, &prefix, w)?;
+        w.newln()?;
+        write_by_value_member(member, w)?;
     }
 
     for group in me.groups() {
-        w.write_all(NEW_LINE)?;
-        write_structure_group(group, &prefix, w)?
+        w.newln()?;
+        write_structure_group(group, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_structure_group<W: Write>(
-    me: &StructureGroup,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all(format!("{}(structure_group", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_structure_group<W: Write>(me: &StructureGroup, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_STRUCTURE_GROUP)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
     for member in me.members() {
-        w.write_all(NEW_LINE)?;
-        write_by_value_member(member, &prefix, w)?;
+        w.newln()?;
+        write_by_value_member(member, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_union_def<W: Write>(me: &UnionDef, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(union_def", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_union_def<W: Write>(me: &UnionDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_UNION_DEF)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
     if let Some(body) = &me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_union_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_union_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN_NEW_LINE)?;
+    w.close_paren_and_newln()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_union_body<W: Write>(me: &UnionBody, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(union_body".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_union_body<W: Write>(me: &UnionBody, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_UNION_BODY)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
     for annotation in me.annotations() {
-        w.write_all(NEW_LINE)?;
-        write_annotation(annotation, &prefix, w)?;
+        w.newln()?;
+        write_annotation(annotation, w)?;
     }
 
     for variant in me.variants() {
-        w.write_all(NEW_LINE)?;
-        write_type_variant(variant, &prefix, w)?;
+        w.newln()?;
+        write_type_variant(variant, w)?;
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_type_variant<W: Write>(me: &TypeVariant, prefix: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("{}(type_variant", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_type_variant<W: Write>(me: &TypeVariant, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_TYPE_VARIANT)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier_reference(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier_reference(me.name(), w)?;
 
     if let Some(rename) = &me.rename() {
-        w.write_all(format!("\n{}rename: ", prefix).as_bytes())?;
-        write_identifier(rename, &prefix, w)?;
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_RENAME)?;
+        write_identifier(rename, w)?;
     }
 
     if let Some(body) = &me.body() {
-        write_annotation_only_body(body, &prefix, w)?
+        write_annotation_only_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_identity_member<W: Write>(
-    me: &IdentityMember,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all("(identity_member".as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_identity_member<W: Write>(me: &IdentityMember, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_IDENTITY_MEMBER)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
-    w.write_all(format!("\n{}target: ", prefix).as_bytes())?;
-    write_type_reference(me.target_type(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_TARGET)?;
+    write_type_reference(me.target_type(), w)?;
 
     if let Some(body) = &me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_annotation_only_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_annotation_only_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_by_value_member<W: Write>(
-    me: &ByValueMember,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all(format!("{}(member_by_value", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+fn write_by_value_member<W: Write>(me: &ByValueMember, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_MEMBER_BY_VALUE)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
-    w.write_all(format!("\n{}target: ", prefix).as_bytes())?;
-    write_type_reference(me.target_type(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_TARGET)?;
+    write_type_reference(me.target_type(), w)?;
 
     if let Some(card) = &me.target_cardinality() {
-        w.write_all(format!("\n{}targetCardinality: ", prefix).as_bytes())?;
-        write_cardinality(card, &prefix, w)?;
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_TARGET_CARDINALITY)?;
+        write_cardinality(card, w)?;
     }
 
     if let Some(body) = &me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_annotation_only_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_annotation_only_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
 fn write_by_reference_member<W: Write>(
     me: &ByReferenceMember,
-    prefix: &str,
-    w: &mut W,
+    w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.write_all(format!("{}(member_by_reference", prefix).as_bytes())?;
-    let prefix = format!("{}  ", prefix);
+    w.start_node_indented(NODE_KIND_MEMBER_BY_REFERENCE)?;
+    w.indent();
 
     if let Some(span) = me.ts_span() {
-        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        w.newln_and_indentation()?;
         write_span(span, w)?;
     }
 
-    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
-    write_identifier(me.name(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
-    w.write_all(format!("\n{}target: ", prefix).as_bytes())?;
-    write_type_reference(me.target_type(), &prefix, w)?;
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_TARGET)?;
+    write_type_reference(me.target_type(), w)?;
 
     if let Some(card) = &me.source_cardinality() {
-        w.write_all(format!("\n{}sourceCardinality: ", prefix).as_bytes())?;
-        write_cardinality(card, &prefix, w)?;
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_SOURCE_CARDINALITY)?;
+        write_cardinality(card, w)?;
     }
 
     if let Some(card) = &me.target_cardinality() {
-        w.write_all(format!("\n{}targetCardinality: ", prefix).as_bytes())?;
-        write_cardinality(card, &prefix, w)?;
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_TARGET_CARDINALITY)?;
+        write_cardinality(card, w)?;
     }
 
     if let Some(body) = &me.body() {
-        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
-        write_annotation_only_body(body, &prefix, w)?
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_annotation_only_body(body, w)?
     }
 
-    w.write_all(CLOSE_PAREN)?;
+    w.close_paren()?;
 
+    w.outdent();
     Ok(())
 }
 
-fn write_type_reference<W: Write>(
-    me: &TypeReference,
-    prefix: &str,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_type_reference<W: Write>(me: &TypeReference, w: &mut Writer<W>) -> Result<(), Error> {
     if let TypeReference::Reference(reference) = me {
-        write_identifier_reference(reference, prefix, w)?;
+        write_identifier_reference(reference, w)?;
     } else {
-        w.write_all("(unknown_type)".as_bytes())?;
+        w.node(NODE_KIND_UNKNOWN_TYPE)?;
     }
 
     Ok(())
 }
 
-fn write_cardinality<W: Write>(me: &Cardinality, _: &str, w: &mut W) -> Result<(), Error> {
-    w.write_all("(cardinality_expression ".as_bytes())?;
+fn write_cardinality<W: Write>(me: &Cardinality, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_CARDINALITY_EXPRESSION)?;
+
     maybe_write_span(me.ts_span(), w)?;
-    w.write_all(format!("min: {} ", me.min_occurs()).as_bytes())?;
+
+    w.field(FIELD_NAME_MIN, me.min_occurs())?;
 
     if let Some(max) = me.max_occurs() {
-        w.write_all(format!("max: {})", max).as_bytes())?;
-    } else {
-        w.write_all(CLOSE_PAREN)?;
+        w.space()?;
+        w.field(FIELD_NAME_MAX, max)?;
     }
+
+    w.close_paren()?;
 
     Ok(())
 }
 
 #[allow(dead_code)]
-fn maybe_write_span<W: Write>(me: Option<&Span>, w: &mut W) -> Result<(), Error> {
+fn maybe_write_span<W: Write>(me: Option<&Span>, w: &mut Writer<W>) -> Result<(), Error> {
     if let Some(me) = me {
         write_span(me, w)?;
     }
@@ -879,8 +1066,13 @@ fn maybe_write_span<W: Write>(me: Option<&Span>, w: &mut W) -> Result<(), Error>
 }
 
 #[allow(dead_code)]
-fn write_span<W: Write>(me: &Span, w: &mut W) -> Result<(), Error> {
-    w.write_all(format!("(span start: {} end: {}) ", me.start(), me.end()).as_bytes())?;
+fn write_span<W: Write>(me: &Span, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node("span")?;
+    w.field("start", me.start())?;
+    w.space()?;
+    w.field("end", me.end())?;
+    w.close_paren()?;
+    w.space()?;
 
     Ok(())
 }
