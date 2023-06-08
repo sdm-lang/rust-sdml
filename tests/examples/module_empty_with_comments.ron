@@ -1,0 +1,28 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 251,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 214,
+                end: 222,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 223,
+                end: 229,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [],
+    },
+}

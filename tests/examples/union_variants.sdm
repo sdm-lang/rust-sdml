@@ -1,0 +1,10 @@
+;;; Union, With Variants
+
+module campaign is
+
+  union VehicleClass of
+    Car
+    Boat
+  end
+
+end

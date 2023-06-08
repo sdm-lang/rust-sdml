@@ -1,0 +1,65 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 81,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 39,
+                end: 47,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 48,
+                end: 80,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Annotation {
+                span: Some(
+                    Span {
+                        start: 54,
+                        end: 75,
+                    },
+                ),
+                name: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: None,
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 55,
+                                    end: 57,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 67,
+                                },
+                            ),
+                            value: "published",
+                        },
+                    },
+                ),
+                value: Simple(
+                    Boolean(
+                        false,
+                    ),
+                ),
+            },
+        ],
+        definitions: [],
+    },
+}

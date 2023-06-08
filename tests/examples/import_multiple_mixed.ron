@@ -1,0 +1,107 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 95,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 34,
+                end: 42,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 43,
+                end: 94,
+            },
+        ),
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 49,
+                        end: 89,
+                    },
+                ),
+                imported: [
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 64,
+                                },
+                            ),
+                            value: "target",
+                        },
+                    ),
+                    Member(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 65,
+                                        end: 68,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 69,
+                                        end: 73,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        },
+                    ),
+                    Member(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 74,
+                                        end: 77,
+                                    },
+                                ),
+                                value: "xml",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 78,
+                                        end: 82,
+                                    },
+                                ),
+                                value: "lang",
+                            },
+                        },
+                    ),
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 83,
+                                    end: 87,
+                                },
+                            ),
+                            value: "skos",
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

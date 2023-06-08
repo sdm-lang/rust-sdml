@@ -1,0 +1,28 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 39,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 26,
+                end: 31,
+            },
+        ),
+        value: "empty",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 32,
+                end: 38,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [],
+    },
+}

@@ -1,0 +1,137 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 176,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 46,
+                end: 54,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 55,
+                end: 175,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Entity(
+                EntityDef {
+                    span: Some(
+                        Span {
+                            start: 61,
+                            end: 170,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 68,
+                                end: 76,
+                            },
+                        ),
+                        value: "Campaign",
+                    },
+                    body: Some(
+                        EntityBody {
+                            span: Some(
+                                Span {
+                                    start: 77,
+                                    end: 170,
+                                },
+                            ),
+                            identity: IdentityMember {
+                                span: Some(
+                                    Span {
+                                        start: 85,
+                                        end: 107,
+                                    },
+                                ),
+                                name: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 94,
+                                            end: 96,
+                                        },
+                                    ),
+                                    value: "id",
+                                },
+                                target_type: Unknown,
+                                body: None,
+                            },
+                            annotations: [],
+                            members: [
+                                ByValue(
+                                    ByValueMember {
+                                        span: Some(
+                                            Span {
+                                                start: 113,
+                                                end: 125,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 113,
+                                                    end: 114,
+                                                },
+                                            ),
+                                            value: "a",
+                                        },
+                                        target_type: Unknown,
+                                        target_cardinality: None,
+                                        body: None,
+                                    },
+                                ),
+                            ],
+                            groups: [
+                                EntityGroup {
+                                    span: Some(
+                                        Span {
+                                            start: 131,
+                                            end: 163,
+                                        },
+                                    ),
+                                    annotations: [],
+                                    members: [
+                                        ByValue(
+                                            ByValueMember {
+                                                span: Some(
+                                                    Span {
+                                                        start: 143,
+                                                        end: 155,
+                                                    },
+                                                ),
+                                                name: Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 143,
+                                                            end: 144,
+                                                        },
+                                                    ),
+                                                    value: "b",
+                                                },
+                                                target_type: Unknown,
+                                                target_cardinality: None,
+                                                body: None,
+                                            },
+                                        ),
+                                    ],
+                                },
+                            ],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}

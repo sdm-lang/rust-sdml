@@ -73,6 +73,8 @@ use crate::model::{
     Module, Span, StructureDef, StructureGroup, TypeDefinition, TypeReference, Value,
 };
 
+use super::UnionDef;
+
 // ------------------------------------------------------------------------------------------------
 // Public Macros
 // ------------------------------------------------------------------------------------------------
@@ -155,16 +157,16 @@ pub trait ModuleWalker {
         Ok(())
     }
     // annotation
-    fn start_variant(
+    fn start_enum_variant(
         &self,
-        _identifier: &str,
+        _identifier: &Identifier,
         _value: u32,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
     // annotation
-    fn end_variant(&self, _name: &Identifier) -> Result<(), Error> {
+    fn end_enum_variant(&self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
     fn end_enum(&self, _name: &Identifier) -> Result<(), Error> {
@@ -203,6 +205,26 @@ pub trait ModuleWalker {
         Ok(())
     }
 
+    fn start_union(&self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+        Ok(())
+    }
+    // annotation
+    fn start_type_variant(
+        &self,
+        _identifier: &IdentifierReference,
+        _rename: Option<&Identifier>,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+    // annotation
+    fn end_type_variant(&self, _name: &IdentifierReference) -> Result<(), Error> {
+        Ok(())
+    }
+    fn end_union(&self, _name: &Identifier) -> Result<(), Error> {
+        Ok(())
+    }
+
     fn end_module(&self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
@@ -232,6 +254,7 @@ pub fn walk_module(module: &Module, walker: &impl ModuleWalker) -> Result<(), Er
             TypeDefinition::Enum(def) => walk_enum_def(def, walker)?,
             TypeDefinition::Event(def) => walk_event_def(def, walker)?,
             TypeDefinition::Structure(def) => walk_structure_def(def, walker)?,
+            TypeDefinition::Union(def) => walk_union_def(def, walker)?,
         }
     }
 
@@ -315,6 +338,19 @@ pub fn walk_enum_def(def: &EnumDef, walker: &impl ModuleWalker) -> Result<(), Er
         for annotation in body.annotations() {
             walker.annotation(annotation.name(), annotation.value(), annotation.ts_span())?;
         }
+        for variant in body.variants() {
+            walker.start_enum_variant(variant.name(), variant.value(), variant.ts_span())?;
+            if let Some(body) = variant.body() {
+                for annotation in body.annotations() {
+                    walker.annotation(
+                        annotation.name(),
+                        annotation.value(),
+                        annotation.ts_span(),
+                    )?;
+                }
+            }
+            walker.end_enum_variant(variant.name())?;
+        }
     }
 
     walker.end_enum(def.name())
@@ -359,6 +395,31 @@ pub fn walk_structure_group(
     }
 
     walker.end_group()
+}
+
+pub fn walk_union_def(def: &UnionDef, walker: &impl ModuleWalker) -> Result<(), Error> {
+    walker.start_union(def.name(), def.ts_span())?;
+
+    if let Some(body) = def.body() {
+        for annotation in body.annotations() {
+            walker.annotation(annotation.name(), annotation.value(), annotation.ts_span())?;
+        }
+        for variant in body.variants() {
+            walker.start_type_variant(variant.name(), variant.rename(), variant.ts_span())?;
+            if let Some(body) = variant.body() {
+                for annotation in body.annotations() {
+                    walker.annotation(
+                        annotation.name(),
+                        annotation.value(),
+                        annotation.ts_span(),
+                    )?;
+                }
+            }
+            walker.end_type_variant(variant.name())?;
+        }
+    }
+
+    walker.end_union(def.name())
 }
 
 pub fn walk_identity_member(

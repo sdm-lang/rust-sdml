@@ -2,23 +2,23 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 56,
+            end: 83,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 7,
-                end: 16,
+                start: 29,
+                end: 37,
             },
         ),
-        value: "datatypex",
+        value: "campaign",
     },
     body: ModuleBody {
         span: Some(
             Span {
-                start: 17,
-                end: 55,
+                start: 38,
+                end: 82,
             },
         ),
         imports: [],
@@ -28,18 +28,18 @@ Module {
                 DatatypeDef {
                     span: Some(
                         Span {
-                            start: 23,
-                            end: 50,
+                            start: 44,
+                            end: 77,
                         },
                     ),
                     name: Identifier {
                         span: Some(
                             Span {
-                                start: 32,
-                                end: 36,
+                                start: 53,
+                                end: 63,
                             },
                         ),
-                        value: "Name",
+                        value: "nameString",
                     },
                     base_type: QualifiedIdentifier(
                         QualifiedIdentifier {
@@ -47,8 +47,8 @@ Module {
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 40,
-                                        end: 43,
+                                        start: 67,
+                                        end: 70,
                                     },
                                 ),
                                 value: "xsd",
@@ -56,8 +56,8 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 44,
-                                        end: 50,
+                                        start: 71,
+                                        end: 77,
                                     },
                                 ),
                                 value: "string",

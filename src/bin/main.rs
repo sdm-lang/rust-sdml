@@ -1,7 +1,7 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml::error::{tracing_filter_error, tracing_subscriber_error};
-use sdml::model::resolve::Resolver;
+use sdml::model::resolve::ModuleResolver;
 use sdml::model::Identifier;
 use std::fmt::Display;
 use std::path::PathBuf;
@@ -197,12 +197,12 @@ impl Execute for Commands {
 // ------------------------------------------------------------------------------------------------
 
 impl FileArgs {
-    fn resolver(&self) -> Resolver {
+    fn resolver(&self) -> ModuleResolver {
+        let mut resolver = ModuleResolver::default();
         if let Some(base) = &self.base_path {
-            Resolver::default().prepend(base.clone())
-        } else {
-            Resolver::default()
+            resolver.prepend_to_search_path(base.clone())
         }
+        resolver
     }
 
     fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {

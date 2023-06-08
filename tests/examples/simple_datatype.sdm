@@ -1,5 +1,0 @@
-module datatypex is
-
-  datatype Name <- xsd:string
-
-end

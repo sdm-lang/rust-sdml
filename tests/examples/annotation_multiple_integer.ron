@@ -1,0 +1,82 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 86,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 42,
+                end: 50,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 51,
+                end: 85,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Annotation {
+                span: Some(
+                    Span {
+                        start: 57,
+                        end: 80,
+                    },
+                ),
+                name: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: None,
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 60,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 61,
+                                    end: 68,
+                                },
+                            ),
+                            value: "version",
+                        },
+                    },
+                ),
+                value: List(
+                    ListOfValues {
+                        span: None,
+                        values: [
+                            Simple(
+                                Integer(
+                                    1,
+                                ),
+                            ),
+                            Simple(
+                                Integer(
+                                    2,
+                                ),
+                            ),
+                            Simple(
+                                Integer(
+                                    3,
+                                ),
+                            ),
+                        ],
+                    },
+                ),
+            },
+        ],
+        definitions: [],
+    },
+}

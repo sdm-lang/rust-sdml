@@ -1,0 +1,197 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 151,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 33,
+                end: 41,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 42,
+                end: 150,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Entity(
+                EntityDef {
+                    span: Some(
+                        Span {
+                            start: 48,
+                            end: 145,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 55,
+                                end: 63,
+                            },
+                        ),
+                        value: "Campaign",
+                    },
+                    body: Some(
+                        EntityBody {
+                            span: Some(
+                                Span {
+                                    start: 64,
+                                    end: 145,
+                                },
+                            ),
+                            identity: IdentityMember {
+                                span: Some(
+                                    Span {
+                                        start: 72,
+                                        end: 96,
+                                    },
+                                ),
+                                name: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 81,
+                                            end: 83,
+                                        },
+                                    ),
+                                    value: "id",
+                                },
+                                target_type: Reference(
+                                    QualifiedIdentifier(
+                                        QualifiedIdentifier {
+                                            span: None,
+                                            module: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 87,
+                                                        end: 89,
+                                                    },
+                                                ),
+                                                value: "xs",
+                                            },
+                                            member: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 90,
+                                                        end: 96,
+                                                    },
+                                                ),
+                                                value: "string",
+                                            },
+                                        },
+                                    ),
+                                ),
+                                body: None,
+                            },
+                            annotations: [],
+                            members: [
+                                ByValue(
+                                    ByValueMember {
+                                        span: Some(
+                                            Span {
+                                                start: 102,
+                                                end: 117,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 102,
+                                                    end: 103,
+                                                },
+                                            ),
+                                            value: "a",
+                                        },
+                                        target_type: Reference(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: None,
+                                                    module: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 107,
+                                                                end: 110,
+                                                            },
+                                                        ),
+                                                        value: "xsd",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 111,
+                                                                end: 117,
+                                                            },
+                                                        ),
+                                                        value: "string",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                        target_cardinality: None,
+                                        body: None,
+                                    },
+                                ),
+                                ByValue(
+                                    ByValueMember {
+                                        span: Some(
+                                            Span {
+                                                start: 122,
+                                                end: 138,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 122,
+                                                    end: 123,
+                                                },
+                                            ),
+                                            value: "b",
+                                        },
+                                        target_type: Reference(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: None,
+                                                    module: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 127,
+                                                                end: 130,
+                                                            },
+                                                        ),
+                                                        value: "xsd",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 131,
+                                                                end: 138,
+                                                            },
+                                                        ),
+                                                        value: "integer",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                        target_cardinality: None,
+                                        body: None,
+                                    },
+                                ),
+                            ],
+                            groups: [],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}

@@ -1,0 +1,10 @@
+;;; Annotation, Multiple IRIs
+
+module campaign is
+
+  @dc:seeAlso = [
+      <https://www.dublincore.org/>
+      <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/>
+  ]
+
+end

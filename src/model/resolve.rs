@@ -25,13 +25,14 @@ use std::path::PathBuf;
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
-pub struct Resolver {
+pub struct ModuleResolver {
     search_path: SearchPath,
-    modules: HashMap<Identifier, ResolvedModule>,
+    modules: HashMap<Identifier, LoadedModule>,
 }
 
 #[derive(Clone, Debug)]
-pub struct ResolvedModule {
+pub struct LoadedModule {
+    path: Option<PathBuf>,
     source: Source,
     parsed: Option<Module>,
 }
@@ -54,22 +55,27 @@ pub const SDML_RESOLVER_PATH_VARIABLE: &str = "SDML_PATH";
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl From<Source> for ResolvedModule {
+impl From<Source> for LoadedModule {
     fn from(source: Source) -> Self {
         Self {
+            path: None,
             source,
             parsed: None,
         }
     }
 }
 
-impl From<String> for ResolvedModule {
+impl From<String> for LoadedModule {
     fn from(v: String) -> Self {
         Self::from(Source::from(v))
     }
 }
 
-impl ResolvedModule {
+impl LoadedModule {
+    pub fn path(&self) -> Option<&PathBuf> {
+        self.path.as_ref()
+    }
+
     pub fn source(&self) -> &Source {
         &self.source
     }
@@ -81,7 +87,7 @@ impl ResolvedModule {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Default for Resolver {
+impl Default for ModuleResolver {
     fn default() -> Self {
         let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
         search_path.prepend_cwd();
@@ -92,7 +98,7 @@ impl Default for Resolver {
     }
 }
 
-impl Resolver {
+impl ModuleResolver {
     pub fn no_path() -> Self {
         Self {
             search_path: Default::default(),
@@ -100,16 +106,12 @@ impl Resolver {
         }
     }
 
-    pub fn prepend(self, path: PathBuf) -> Self {
-        let mut self_mut = self;
-        self_mut.search_path.prepend(path);
-        self_mut
+    pub fn prepend_to_search_path(&mut self, path: PathBuf) {
+        self.search_path.prepend(path);
     }
 
-    pub fn append(self, path: PathBuf) -> Self {
-        let mut self_mut = self;
-        self_mut.search_path.append(path);
-        self_mut
+    pub fn append_to_search_path(&mut self, path: PathBuf) {
+        self.search_path.append(path);
     }
 
     pub fn resolve_module_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
@@ -134,51 +136,22 @@ impl Resolver {
         Ok(std::fs::read_to_string(self.resolve_module_path(name)?)?)
     }
 
-    pub fn resolve_module(&mut self, name: &Identifier) -> Result<&ResolvedModule, Error> {
+    pub fn resolve_module(&mut self, name: &Identifier) -> Result<&LoadedModule, Error> {
         if self.modules.contains_key(name) {
             Ok(self.modules.get(name).unwrap())
         } else {
-            let resolved = ResolvedModule::from(self.resolve_module_source(name)?);
+            let resolved = LoadedModule::from(self.resolve_module_source(name)?);
             self.modules.insert(name.clone(), resolved);
             Ok(self.modules.get(name).unwrap())
         }
     }
 
-    pub fn insert(&mut self, name: Identifier, source: Source) -> Option<ResolvedModule> {
-        self.modules.insert(
-            name,
-            ResolvedModule {
-                source,
-                parsed: None,
-            },
-        )
+    pub fn insert(&mut self, name: Identifier, module: LoadedModule) -> Option<LoadedModule> {
+        self.modules.insert(name, module)
     }
 
-    pub fn insert_with_module(
-        &mut self,
-        name: Identifier,
-        source: Source,
-        parsed: Module,
-    ) -> Option<ResolvedModule> {
-        self.modules.insert(
-            name,
-            ResolvedModule {
-                source,
-                parsed: Some(parsed),
-            },
-        )
-    }
-
-    pub fn get(&self, name: &Identifier) -> Option<&ResolvedModule> {
+    pub fn get(&self, name: &Identifier) -> Option<&LoadedModule> {
         self.modules.get(name)
-    }
-
-    pub fn source(&self, name: &Identifier) -> Option<&Source> {
-        self.get(name).map(|resolved| resolved.source())
-    }
-
-    pub fn module(&self, name: &Identifier) -> Option<Option<&Module>> {
-        self.get(name).map(|resolved| resolved.parsed_module())
     }
 }
 

@@ -110,3 +110,19 @@ Linting:
 
 * https://github.com/github/super-linter
 
+# Changes
+
+**Version: 0.1.2**
+
+* Syntax highlighting supported
+* Support the latest grammar
+
+**Version: 0.1.1**
+
+* More drawing details
+* More command-line features
+* Support the latest grammar
+
+**Version: 0.1.0**
+
+* Initial version, limited to basic drawings

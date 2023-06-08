@@ -1,5 +1,5 @@
 /*!
-One-line description.
+Rust types that model the SDML Grammar.
 
 More detailed description, with
 
@@ -9,14 +9,18 @@ YYYYY
 
 */
 
+use crate::error::{invalid_identifier_error, invalid_language_tag_error};
 use lazy_static::lazy_static;
+use ordered_float::OrderedFloat;
 use regex::Regex;
 use rust_decimal::Decimal;
-use std::{collections::HashSet, fmt::Display, str::FromStr};
+use std::{
+    collections::HashSet,
+    fmt::Display,
+    str::FromStr,
+};
 use tree_sitter::Node;
 use url::Url;
-
-use crate::error::{invalid_identifier_error, invalid_language_tag_error};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -36,23 +40,33 @@ pub type ByteSpan = Span;
 pub type CharSpan = Span;
 
 // ------------------------------------------------------------------------------------------------
+// Public Types ❱ Comments
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
+pub struct Comment {
+    span: Option<Span>,
+    value: String,
+}
+
+// ------------------------------------------------------------------------------------------------
 // Public Types ❱ Identifiers
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct Identifier {
     span: Option<Span>,
     value: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct QualifiedIdentifier {
     span: Option<Span>,
     module: Identifier,
     member: Identifier,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub enum IdentifierReference {
     Identifier(Identifier),
     QualifiedIdentifier(QualifiedIdentifier),
@@ -87,7 +101,7 @@ pub struct ImportStatement {
     imported: Vec<Import>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Import {
     Module(Identifier),
     Member(QualifiedIdentifier),
@@ -119,7 +133,7 @@ pub enum Value {
 #[derive(Clone, Debug)]
 pub enum SimpleValue {
     String(LanguageString),
-    Double(f64),
+    Double(OrderedFloat<f64>),
     Decimal(Decimal),
     Integer(i64),
     Boolean(bool),
@@ -170,6 +184,7 @@ pub enum TypeDefinition {
     Enum(EnumDef),
     Event(EventDef),
     Structure(StructureDef),
+    Union(UnionDef),
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -288,6 +303,32 @@ pub struct StructureGroup {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Public Types ❱ Type Definitions ❱ Unions
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
+pub struct UnionDef {
+    span: Option<Span>,
+    name: Identifier,
+    body: Option<UnionBody>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct UnionBody {
+    span: Option<Span>,
+    annotations: Vec<Annotation>,
+    variants: Vec<TypeVariant>,
+}
+
+#[derive(Clone, Debug)]
+pub struct TypeVariant {
+    span: Option<Span>,
+    name: IdentifierReference,
+    rename: Option<Identifier>,
+    body: Option<AnnotationOnlyBody>,
+}
+
+// ------------------------------------------------------------------------------------------------
 // Public Types ❱ Members
 // ------------------------------------------------------------------------------------------------
 
@@ -318,7 +359,7 @@ pub struct ByReferenceMember {
     body: Option<AnnotationOnlyBody>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug)]
 pub enum TypeReference {
     Reference(IdentifierReference),
     Unknown,
@@ -653,6 +694,29 @@ lazy_static! {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Comments
+// ------------------------------------------------------------------------------------------------
+
+simple_display_impl!(Comment, value);
+as_str_impl!(Comment, value);
+into_string_impl!(Comment, value);
+has_span_impl!(Comment);
+
+impl PartialEq for Comment {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+}
+
+impl Eq for Comment {}
+
+impl Comment {
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.value == other.value
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Identifiers
 // ------------------------------------------------------------------------------------------------
 
@@ -676,6 +740,14 @@ as_str_impl!(Identifier, value);
 into_string_impl!(Identifier, value);
 has_span_impl!(Identifier);
 
+impl PartialEq for Identifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+}
+
+impl Eq for Identifier {}
+
 impl Identifier {
     pub fn new_unchecked(s: &str) -> Self {
         Self {
@@ -695,6 +767,10 @@ impl Identifier {
     pub fn is_valid(s: &str) -> bool {
         IDENTIFIER.is_match(s)
     }
+
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.value == other.value
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -706,6 +782,14 @@ impl Display for QualifiedIdentifier {
 }
 
 has_span_impl!(QualifiedIdentifier);
+
+impl PartialEq for QualifiedIdentifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.module == other.module && self.member == other.member
+    }
+}
+
+impl Eq for QualifiedIdentifier {}
 
 impl QualifiedIdentifier {
     pub fn new(module: Identifier, member: Identifier) -> Self {
@@ -722,6 +806,10 @@ impl QualifiedIdentifier {
 
     pub fn member(&self) -> &Identifier {
         &self.member
+    }
+
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.module == other.module && self.member == other.member
     }
 }
 
@@ -740,6 +828,28 @@ impl From<QualifiedIdentifier> for IdentifierReference {
 }
 
 enum_display_impl!(IdentifierReference => Identifier, QualifiedIdentifier);
+
+impl PartialEq for IdentifierReference {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Identifier(l0), Self::Identifier(r0)) => l0.eq(r0),
+            (Self::QualifiedIdentifier(l0), Self::QualifiedIdentifier(r0)) => l0.eq(r0),
+            _ => false,
+        }
+    }
+}
+
+impl Eq for IdentifierReference {}
+
+impl IdentifierReference {
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Identifier(l0), Self::Identifier(r0)) => l0.eq_with_span(r0),
+            (Self::QualifiedIdentifier(l0), Self::QualifiedIdentifier(r0)) => l0.eq_with_span(r0),
+            _ => false,
+        }
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Modules
@@ -943,6 +1053,7 @@ impl From<QualifiedIdentifier> for Import {
 
 enum_display_impl!(Import => Module, Member);
 
+
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Annotations
 // ------------------------------------------------------------------------------------------------
@@ -985,6 +1096,12 @@ impl From<LanguageString> for Value {
 
 impl From<f64> for Value {
     fn from(v: f64) -> Self {
+        Self::Simple(SimpleValue::Double(v.into()))
+    }
+}
+
+impl From<OrderedFloat<f64>> for Value {
+    fn from(v: OrderedFloat<f64>) -> Self {
         Self::Simple(SimpleValue::Double(v))
     }
 }
@@ -1041,6 +1158,12 @@ impl From<LanguageString> for SimpleValue {
 
 impl From<f64> for SimpleValue {
     fn from(v: f64) -> Self {
+        Self::Double(v.into())
+    }
+}
+
+impl From<OrderedFloat<f64>> for SimpleValue {
+    fn from(v: OrderedFloat<f64>) -> Self {
         Self::Double(v)
     }
 }
@@ -1100,6 +1223,14 @@ impl From<&str> for LanguageString {
 
 has_span_impl!(LanguageString);
 
+impl PartialEq for LanguageString {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value && self.language == other.language
+    }
+}
+
+impl Eq for LanguageString {}
+
 impl LanguageString {
     pub(crate) fn new(value: &str, language: Option<LanguageTag>) -> Self {
         Self {
@@ -1115,6 +1246,10 @@ impl LanguageString {
 
     pub fn language(&self) -> Option<&LanguageTag> {
         self.language.as_ref()
+    }
+
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.value == other.value && self.language == other.language
     }
 }
 
@@ -1145,6 +1280,14 @@ has_span_impl!(LanguageTag);
 into_string_impl!(LanguageTag, value);
 as_str_impl!(LanguageTag, value);
 
+impl PartialEq for LanguageTag {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+}
+
+impl Eq for LanguageTag {}
+
 impl LanguageTag {
     #[allow(dead_code)]
     pub(crate) fn new_unchecked(s: &str) -> Self {
@@ -1156,6 +1299,10 @@ impl LanguageTag {
 
     pub fn is_valid(s: &str) -> bool {
         LANGUAGE_TAG.is_match(s)
+    }
+
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.value == other.value
     }
 }
 
@@ -1272,6 +1419,12 @@ impl From<StructureDef> for TypeDefinition {
     }
 }
 
+impl From<UnionDef> for TypeDefinition {
+    fn from(v: UnionDef) -> Self {
+        Self::Union(v)
+    }
+}
+
 impl TypeDefinition {
     pub fn name(&self) -> &Identifier {
         match self {
@@ -1280,6 +1433,7 @@ impl TypeDefinition {
             TypeDefinition::Enum(v) => v.name(),
             TypeDefinition::Event(v) => v.name(),
             TypeDefinition::Structure(v) => v.name(),
+            TypeDefinition::Union(v) => v.name(),
         }
     }
 
@@ -1290,6 +1444,7 @@ impl TypeDefinition {
             TypeDefinition::Enum(v) => v.referenced_types(),
             TypeDefinition::Event(v) => v.referenced_types(),
             TypeDefinition::Structure(v) => v.referenced_types(),
+            TypeDefinition::Union(v) => v.referenced_types(),
         }
     }
 
@@ -1300,6 +1455,7 @@ impl TypeDefinition {
             TypeDefinition::Enum(v) => v.referenced_annotations(),
             TypeDefinition::Event(v) => v.referenced_annotations(),
             TypeDefinition::Structure(v) => v.referenced_annotations(),
+            TypeDefinition::Union(v) => v.referenced_annotations(),
         }
     }
 
@@ -1310,6 +1466,7 @@ impl TypeDefinition {
             TypeDefinition::Enum(v) => v.is_complete(),
             TypeDefinition::Event(v) => v.is_complete(),
             TypeDefinition::Structure(v) => v.is_complete(),
+            TypeDefinition::Union(v) => v.is_complete(),
         }
     }
 }
@@ -1550,6 +1707,97 @@ has_members_impl!(StructureGroup, ByValueMember);
 impl StructureGroup {
     pub fn is_complete(&self) -> bool {
         self.members().all(|m| m.is_complete())
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Type Definitions ❱ Unions
+// ------------------------------------------------------------------------------------------------
+
+type_definition_impl!(UnionDef, UnionBody);
+referenced_annotations_impl!(UnionDef => body);
+is_complete_impl!(UnionDef ; body);
+
+impl UnionDef {
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_types())
+            .unwrap_or_default()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+has_span_impl!(UnionBody);
+has_annotations_impl!(UnionBody);
+referenced_annotations_impl!(UnionBody);
+
+impl UnionBody {
+    pub fn has_variants(&self) -> bool {
+        !self.variants.is_empty()
+    }
+
+    pub fn add_variant(&mut self, variant: TypeVariant) {
+        self.variants.push(variant);
+    }
+
+    pub fn extend_variants<I>(&mut self, extend: I)
+    where
+        I: IntoIterator<Item = TypeVariant>,
+    {
+        self.variants.extend(extend);
+    }
+
+    pub fn variants(&self) -> impl Iterator<Item = &TypeVariant> {
+        self.variants.iter()
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.variants().flat_map(|m| m.referenced_types()).collect()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+has_span_impl!(TypeVariant);
+has_body_impl!(TypeVariant, AnnotationOnlyBody);
+referenced_annotations_impl!(TypeVariant => body);
+
+impl TypeVariant {
+    pub fn new(name: IdentifierReference) -> Self {
+        Self {
+            span: None,
+            name,
+            rename: None,
+            body: None,
+        }
+    }
+
+    pub fn new_with(name: IdentifierReference, body: AnnotationOnlyBody) -> Self {
+        Self {
+            span: None,
+            name,
+            rename: None,
+            body: Some(body),
+        }
+    }
+
+    pub fn with_rename(self, rename: Identifier) -> Self {
+        let mut self_mut = self;
+        self_mut.rename = Some(rename);
+        self_mut
+    }
+
+    pub fn name(&self) -> &IdentifierReference {
+        &self.name
+    }
+
+    pub fn rename(&self) -> Option<&Identifier> {
+        self.rename.as_ref()
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        [&self.name].into_iter().collect()
     }
 }
 

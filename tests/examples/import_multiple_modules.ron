@@ -1,0 +1,61 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 76,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 36,
+                end: 44,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 45,
+                end: 75,
+            },
+        ),
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 51,
+                        end: 70,
+                    },
+                ),
+                imported: [
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 60,
+                                    end: 63,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                    ),
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 64,
+                                    end: 68,
+                                },
+                            ),
+                            value: "skos",
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

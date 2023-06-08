@@ -15,8 +15,8 @@ use crate::model::{
     EntityBody, EntityDef, EntityGroup, EntityMember, EnumBody, EnumDef, EnumVariant, EventDef,
     Identifier, IdentifierReference, IdentityMember, Import, ImportStatement, LanguageTag,
     ListMember, ListOfValues, Module, ModuleBody, QualifiedIdentifier, SimpleValue, Span,
-    StructureBody, StructureDef, StructureGroup, TypeDefinition, TypeReference, Value,
-    ValueConstructor,
+    StructureBody, StructureDef, StructureGroup, TypeDefinition, TypeReference, TypeVariant,
+    UnionBody, UnionDef, Value, ValueConstructor,
 };
 use std::io::Write;
 
@@ -349,6 +349,7 @@ fn write_type_definition<W: Write>(
         TypeDefinition::Enum(v) => write_enum_def(v, prefix, w)?,
         TypeDefinition::Event(v) => write_event_def(v, prefix, w)?,
         TypeDefinition::Structure(v) => write_structure_def(v, prefix, w)?,
+        TypeDefinition::Union(v) => write_union_def(v, prefix, w)?,
     }
 
     Ok(())
@@ -659,6 +660,78 @@ fn write_structure_group<W: Write>(
     for member in me.members() {
         w.write_all(NEW_LINE)?;
         write_by_value_member(member, &prefix, w)?;
+    }
+
+    w.write_all(CLOSE_PAREN)?;
+
+    Ok(())
+}
+
+fn write_union_def<W: Write>(me: &UnionDef, prefix: &str, w: &mut W) -> Result<(), Error> {
+    w.write_all(format!("{}(union_def", prefix).as_bytes())?;
+    let prefix = format!("{}  ", prefix);
+
+    if let Some(span) = me.ts_span() {
+        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        write_span(span, w)?;
+    }
+
+    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
+    write_identifier(me.name(), &prefix, w)?;
+
+    if let Some(body) = &me.body() {
+        w.write_all(format!("\n{}body: ", prefix).as_bytes())?;
+        write_union_body(body, &prefix, w)?
+    }
+
+    w.write_all(CLOSE_PAREN_NEW_LINE)?;
+
+    Ok(())
+}
+
+fn write_union_body<W: Write>(me: &UnionBody, prefix: &str, w: &mut W) -> Result<(), Error> {
+    w.write_all("(union_body".as_bytes())?;
+    let prefix = format!("{}  ", prefix);
+
+    if let Some(span) = me.ts_span() {
+        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        write_span(span, w)?;
+    }
+
+    for annotation in me.annotations() {
+        w.write_all(NEW_LINE)?;
+        write_annotation(annotation, &prefix, w)?;
+    }
+
+    for variant in me.variants() {
+        w.write_all(NEW_LINE)?;
+        write_type_variant(variant, &prefix, w)?;
+    }
+
+    w.write_all(CLOSE_PAREN)?;
+
+    Ok(())
+}
+
+fn write_type_variant<W: Write>(me: &TypeVariant, prefix: &str, w: &mut W) -> Result<(), Error> {
+    w.write_all(format!("{}(type_variant", prefix).as_bytes())?;
+    let prefix = format!("{}  ", prefix);
+
+    if let Some(span) = me.ts_span() {
+        w.write_all(format!("\n{}", prefix).as_bytes())?;
+        write_span(span, w)?;
+    }
+
+    w.write_all(format!("\n{}name: ", prefix).as_bytes())?;
+    write_identifier_reference(me.name(), &prefix, w)?;
+
+    if let Some(rename) = &me.rename() {
+        w.write_all(format!("\n{}rename: ", prefix).as_bytes())?;
+        write_identifier(rename, &prefix, w)?;
+    }
+
+    if let Some(body) = &me.body() {
+        write_annotation_only_body(body, &prefix, w)?
     }
 
     w.write_all(CLOSE_PAREN)?;

@@ -1,0 +1,82 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 95,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 42,
+                end: 50,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 51,
+                end: 94,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Annotation {
+                span: Some(
+                    Span {
+                        start: 57,
+                        end: 89,
+                    },
+                ),
+                name: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: None,
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 60,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 61,
+                                    end: 65,
+                                },
+                            ),
+                            value: "some",
+                        },
+                    },
+                ),
+                value: List(
+                    ListOfValues {
+                        span: None,
+                        values: [
+                            Simple(
+                                Decimal(
+                                    101.0,
+                                ),
+                            ),
+                            Simple(
+                                Decimal(
+                                    102.201,
+                                ),
+                            ),
+                            Simple(
+                                Decimal(
+                                    0.1,
+                                ),
+                            ),
+                        ],
+                    },
+                ),
+            },
+        ],
+        definitions: [],
+    },
+}

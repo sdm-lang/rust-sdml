@@ -1,0 +1,18 @@
+;;; Entity, With Groups
+
+module Campaign is
+
+  entity Campaign is
+    identity id -> xs:string
+
+    group
+      a -> xsd:string
+    end
+
+    group
+      b -> xsd:integer
+    end
+
+  end
+
+end

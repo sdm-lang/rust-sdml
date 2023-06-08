@@ -1,0 +1,49 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 68,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 29,
+                end: 37,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 38,
+                end: 67,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Structure(
+                StructureDef {
+                    span: Some(
+                        Span {
+                            start: 44,
+                            end: 62,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 54,
+                                end: 62,
+                            },
+                        ),
+                        value: "Duration",
+                    },
+                    body: None,
+                },
+            ),
+        ],
+    },
+}

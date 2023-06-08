@@ -2,23 +2,23 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 20,
+            end: 63,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 7,
-                end: 12,
+                start: 44,
+                end: 55,
             },
         ),
-        value: "empty",
+        value: "rental_cars",
     },
     body: ModuleBody {
         span: Some(
             Span {
-                start: 13,
-                end: 19,
+                start: 56,
+                end: 62,
             },
         ),
         imports: [],

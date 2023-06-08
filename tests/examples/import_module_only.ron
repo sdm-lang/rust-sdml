@@ -1,0 +1,50 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 69,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 38,
+                end: 46,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 47,
+                end: 68,
+            },
+        ),
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 53,
+                        end: 63,
+                    },
+                ),
+                imported: [
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 60,
+                                    end: 63,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

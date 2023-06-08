@@ -1,0 +1,7 @@
+;;; Data Type, Empty
+
+module campaign is
+
+  datatype nameString <- xsd:string
+
+end

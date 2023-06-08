@@ -1,0 +1,17 @@
+;;; Entity, With Unknown Member Types
+
+module campaign is
+
+  entity Campaign is
+
+    identity id -> unknown
+
+    a -> unknown
+
+    group
+      b -> unknown
+    end
+
+  end
+
+end

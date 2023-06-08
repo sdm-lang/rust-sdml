@@ -7,12 +7,18 @@ module rentals is
 
   @xml:base = <https://example.org/v/rentals>
   @dc:version = 2
-  
+
   entity Class
+
+  union RentalClass of
+    Compact
+    UtilityVehicle
+    Luxury
+  end
 
   entity Vehicle is
     @skos:prefLabel = "Vehicle"@en
-    
+
     identity vin -> VehicleIdentificationNumber
 
     ref rentalClass -> {1} Class

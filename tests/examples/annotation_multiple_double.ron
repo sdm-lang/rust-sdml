@@ -1,0 +1,88 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 102,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 41,
+                end: 49,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 50,
+                end: 101,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Annotation {
+                span: Some(
+                    Span {
+                        start: 56,
+                        end: 96,
+                    },
+                ),
+                name: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: None,
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 57,
+                                    end: 59,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 60,
+                                    end: 64,
+                                },
+                            ),
+                            value: "some",
+                        },
+                    },
+                ),
+                value: List(
+                    ListOfValues {
+                        span: None,
+                        values: [
+                            Simple(
+                                Double(
+                                    OrderedFloat(
+                                        3.1e101,
+                                    ),
+                                ),
+                            ),
+                            Simple(
+                                Double(
+                                    OrderedFloat(
+                                        1.2e-10,
+                                    ),
+                                ),
+                            ),
+                            Simple(
+                                Double(
+                                    OrderedFloat(
+                                        100000000.0,
+                                    ),
+                                ),
+                            ),
+                        ],
+                    },
+                ),
+            },
+        ],
+        definitions: [],
+    },
+}

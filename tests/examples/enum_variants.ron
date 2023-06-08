@@ -1,0 +1,99 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 109,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 32,
+                end: 40,
+            },
+        ),
+        value: "campaign",
+    },
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 41,
+                end: 108,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Enum(
+                EnumDef {
+                    span: Some(
+                        Span {
+                            start: 47,
+                            end: 103,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 52,
+                                end: 60,
+                            },
+                        ),
+                        value: "NameKind",
+                    },
+                    body: Some(
+                        EnumBody {
+                            span: Some(
+                                Span {
+                                    start: 61,
+                                    end: 103,
+                                },
+                            ),
+                            annotations: [],
+                            variants: [
+                                EnumVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 68,
+                                            end: 80,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 68,
+                                                end: 76,
+                                            },
+                                        ),
+                                        value: "Internal",
+                                    },
+                                    value: 0,
+                                    body: None,
+                                },
+                                EnumVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 85,
+                                            end: 97,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 85,
+                                                end: 93,
+                                            },
+                                        ),
+                                        value: "External",
+                                    },
+                                    value: 1,
+                                    body: None,
+                                },
+                            ],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}
