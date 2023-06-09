@@ -9,7 +9,7 @@ Rust CLI for Simple Domain Modeling Language (SDML).
 [![GitHub stars](https://img.shields.io/github/stars/johnstonskj/rust-sdml.svg)](https://github.com/johnstonskj/rust-sdml/stargazers)
 
 This is  a command-line tool that provides functionality to process
-[SDML](https://github.com/johnstonskj/tree-sitter-sdml) files. 
+[SDML](https://sdml.io) files. The SDML site has more information on the command-line options and capabilities.
 
 # Commands
 
@@ -35,80 +35,24 @@ a component of the search path.
 rentals
 ```
 
-## Convert
+Finally, if no module name is specified the tool will read from `stdin`.
 
-Conversion to an Emacs [org-Mode](https://orgmode.org/) file provides a documentation format with the most complete options.
+## Status
 
-``` shell
-sdml convert --output-format org-mode rentals
-```
-
-This command converts the SDML surface syntax into it's underlying RDF representation.
-
-``` shell
-sdml convert --output-format org-mode rentals
-```
-
-This command convert the SDML surface syntax into an expanded version of the s-expressions used in tree-sitter queries. 
-
-``` shell
-sdml convert --output-format org-mode rentals
-```
-
-## Highlight
-
-For the console this uses ANSI escape sequences to format the text. 
-
-``` shell
-sdml highlight --output-format ansi rentals
-```
-
-To generate formatted and highlighted HTML the tool accepts two different format specifiers, `html` for simply a block
-of HTML that can be inserted into another document, or `html-standalone` to generate a full document around the
-highlighted code block.
-
-``` shell
-sdml highlight --output-format html rentals
-sdml highlight --output-format html-standalone rentals
-```
-
-## Draw
-
-To draw a high-level Concepts diagram, use the diagram specifier `concepts`.
-
-``` shell
-sdml draw --diagram concepts \
-          --output-format svg --output-file rentals.svg \
-          --base-path . rentals
-```
-
-For more detail an Entity-Relationship diagram can be generated with the diagram specifier `entity-relationship`.
-
-``` shell
-sdml draw --diagram entity-relationship \
-          --output-format svg --output-file rentals.svg \
-          --base-path . rentals
-```
-
-For the mose detail a UML Class diagram can be generated with the diagram specifier `uml-class`.
-
-``` shell
-sdml draw --diagram uml-class \
-          --output-format svg --output-file rentals.svg \
-          --base-path . rentals
-```
-
-# Other Links
-
-Formatting:
-
-* https://github.com/numtide/treefmt/wiki
-* https://melpa.org/#/format-all
-* https://github.com/tweag/topiary
-
-Linting:
-
-* https://github.com/github/super-linter
+| Command   | Format              | Status       |
+|-----------|---------------------|--------------|
+| convert   | s-expr              | **Complete** |
+| convert   | rdf                 | Not started  |
+| convert   | org                 | Incomplete   |
+| deps      |                     | Not started  |
+| draw      | concepts            | **Complete** |
+| draw      | entity-relationship | **Complete** |
+| draw      | uml-class           | Not started  |
+| highlight | ansi                | **Complete** |
+| highlight | html                | **Complete** |
+| highlight | html-standalone     | **Complete** |
+| tags      |                     | Not started  |
+| check     |                     | Not started  |
 
 # Changes
 
@@ -126,3 +70,15 @@ Linting:
 **Version: 0.1.0**
 
 * Initial version, limited to basic drawings
+
+# Other Links
+
+Formatting:
+
+* https://github.com/numtide/treefmt/wiki
+* https://melpa.org/#/format-all
+* https://github.com/tweag/topiary
+
+Linting:
+
+* https://github.com/github/super-linter

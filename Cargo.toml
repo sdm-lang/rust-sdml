@@ -36,7 +36,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter" ] }
 tree-sitter = "0.20.10"
 tree-sitter-highlight = "0.20.1"
-tree-sitter-sdml = {version = "0.1.12", path = "../../tree-sitter-sdml" }
+tree-sitter-sdml = { version = "0.1.12", path = "../../tree-sitter-sdml" }
 url = { version = "2.3.1", features = ["serde"] }
 
 [dev-dependencies]
