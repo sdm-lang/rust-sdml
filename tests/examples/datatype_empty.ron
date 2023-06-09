@@ -5,6 +5,7 @@ Module {
             end: 83,
         },
     ),
+    comments: [],
     name: Identifier {
         span: Some(
             Span {
@@ -21,6 +22,7 @@ Module {
                 end: 82,
             },
         ),
+        comments: [],
         imports: [],
         annotations: [],
         definitions: [
@@ -32,6 +34,7 @@ Module {
                             end: 77,
                         },
                     ),
+                    comments: [],
                     name: Identifier {
                         span: Some(
                             Span {

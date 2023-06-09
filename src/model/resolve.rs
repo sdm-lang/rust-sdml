@@ -14,7 +14,8 @@ use crate::model::{Identifier, Module};
 use ariadne::Source;
 use search_path::SearchPath;
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::io::Read;
+use std::path::{Path, PathBuf};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -33,7 +34,8 @@ pub struct ModuleResolver {
 #[derive(Clone, Debug)]
 pub struct LoadedModule {
     path: Option<PathBuf>,
-    source: Source,
+    original: String,
+    report_source: Option<ariadne::Source>,
     parsed: Option<Module>,
 }
 
@@ -55,29 +57,57 @@ pub const SDML_RESOLVER_PATH_VARIABLE: &str = "SDML_PATH";
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl From<Source> for LoadedModule {
-    fn from(source: Source) -> Self {
-        Self {
-            path: None,
-            source,
-            parsed: None,
-        }
-    }
-}
-
-impl From<String> for LoadedModule {
-    fn from(v: String) -> Self {
-        Self::from(Source::from(v))
-    }
-}
-
 impl LoadedModule {
+    pub fn new<S>(source: S) -> Result<Self, Error>
+    where
+        S: Into<String>,
+    {
+        Ok(Self {
+            path: Default::default(),
+            original: source.into(),
+            report_source: Default::default(),
+            parsed: Default::default(),
+        })
+    }
+
+    pub fn new_from_path<P>(path: P) -> Result<Self, Error>
+    where
+        P: AsRef<Path>,
+    {
+        let source = std::fs::read_to_string(path.as_ref())?;
+        let mut new_self = Self::new(source)?;
+        new_self.path = Some(PathBuf::from(path.as_ref()));
+        Ok(new_self)
+    }
+
+    pub fn new_from_stdin() -> Result<Self, Error> {
+        let stdin = std::io::stdin();
+        let mut handle = stdin.lock();
+        Self::new_from_handle(&mut handle)
+    }
+
+    fn new_from_handle<R>(handle: &mut R) -> Result<Self, Error>
+    where
+        R: Read,
+    {
+        let mut source = String::new();
+        handle.read_to_string(&mut source)?;
+        Self::new(source)
+    }
+
     pub fn path(&self) -> Option<&PathBuf> {
         self.path.as_ref()
     }
 
-    pub fn source(&self) -> &Source {
-        &self.source
+    pub fn original_source(&self) -> &String {
+        &self.original
+    }
+
+    pub fn reporter_source(&mut self) -> &Source {
+        if self.report_source.is_none() {
+            self.report_source = Some(Source::from(&self.original));
+        }
+        self.report_source.as_ref().unwrap()
     }
 
     pub fn parsed_module(&self) -> Option<&Module> {
@@ -140,7 +170,7 @@ impl ModuleResolver {
         if self.modules.contains_key(name) {
             Ok(self.modules.get(name).unwrap())
         } else {
-            let resolved = LoadedModule::from(self.resolve_module_source(name)?);
+            let resolved = LoadedModule::new(self.resolve_module_source(name)?)?;
             self.modules.insert(name.clone(), resolved);
             Ok(self.modules.get(name).unwrap())
         }

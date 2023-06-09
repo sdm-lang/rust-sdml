@@ -5,6 +5,7 @@ Module {
             end: 101,
         },
     ),
+    comments: [],
     name: Identifier {
         span: Some(
             Span {
@@ -21,6 +22,7 @@ Module {
                 end: 100,
             },
         ),
+        comments: [],
         imports: [],
         annotations: [
             Annotation {
@@ -30,6 +32,7 @@ Module {
                         end: 95,
                     },
                 ),
+                comments: [],
                 name: QualifiedIdentifier(
                     QualifiedIdentifier {
                         span: None,

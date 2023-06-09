@@ -5,6 +5,7 @@ Module {
             end: 161,
         },
     ),
+    comments: [],
     name: Identifier {
         span: Some(
             Span {
@@ -21,6 +22,7 @@ Module {
                 end: 160,
             },
         ),
+        comments: [],
         imports: [],
         annotations: [],
         definitions: [
@@ -32,6 +34,7 @@ Module {
                             end: 155,
                         },
                     ),
+                    comments: [],
                     name: Identifier {
                         span: Some(
                             Span {
@@ -49,6 +52,7 @@ Module {
                                     end: 155,
                                 },
                             ),
+                            comments: [],
                             identity: IdentityMember {
                                 span: Some(
                                     Span {
@@ -56,6 +60,7 @@ Module {
                                         end: 106,
                                     },
                                 ),
+                                comments: [],
                                 name: Identifier {
                                     span: Some(
                                         Span {
@@ -90,6 +95,7 @@ Module {
                                                 end: 127,
                                             },
                                         ),
+                                        comments: [],
                                         name: Identifier {
                                             span: Some(
                                                 Span {
@@ -136,6 +142,7 @@ Module {
                                                 end: 148,
                                             },
                                         ),
+                                        comments: [],
                                         name: Identifier {
                                             span: Some(
                                                 Span {

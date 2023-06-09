@@ -14,7 +14,7 @@ use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
 use rust_decimal::Decimal;
-use std::{collections::HashSet, fmt::Display, str::FromStr};
+use std::{collections::HashSet, fmt::Display, hash::Hash, str::FromStr};
 use tree_sitter::Node;
 use url::Url;
 
@@ -49,20 +49,20 @@ pub struct Comment {
 // Public Types ❱ Identifiers
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug)]
 pub struct Identifier {
     span: Option<Span>,
     value: String,
 }
 
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug)]
 pub struct QualifiedIdentifier {
     span: Option<Span>,
     module: Identifier,
     member: Identifier,
 }
 
-#[derive(Clone, Debug, Hash)]
+#[derive(Clone, Debug)]
 pub enum IdentifierReference {
     Identifier(Identifier),
     QualifiedIdentifier(QualifiedIdentifier),
@@ -96,6 +96,7 @@ pub struct ModuleBody {
 #[derive(Clone, Debug, Default)]
 pub struct ImportStatement {
     span: Option<Span>,
+    comments: Vec<Comment>,
     imported: Vec<Import>,
 }
 
@@ -729,6 +730,17 @@ macro_rules! is_complete_impl {
     };
 }
 
+macro_rules! check_and_add_comment {
+    ($context: ident, $node: ident, $parent: ident) => {
+        if $context.save_comments() {
+            let comment = Comment::new($context.node_source(&$node)?).with_ts_span($node.into());
+            $parent.add_comment(comment);
+        } else {
+            trace!("not saving comments");
+        }
+    };
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
@@ -742,6 +754,18 @@ lazy_static! {
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Comments
 // ------------------------------------------------------------------------------------------------
+
+impl From<String> for Comment {
+    fn from(v: String) -> Self {
+        Self::new(&v)
+    }
+}
+
+impl From<&str> for Comment {
+    fn from(v: &str) -> Self {
+        Self::new(v)
+    }
+}
 
 simple_display_impl!(Comment, value);
 as_str_impl!(Comment, value);
@@ -757,6 +781,13 @@ impl PartialEq for Comment {
 impl Eq for Comment {}
 
 impl Comment {
+    pub fn new(s: &str) -> Self {
+        Self {
+            span: None,
+            value: s.to_string(),
+        }
+    }
+
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
     }
@@ -793,6 +824,13 @@ impl PartialEq for Identifier {
 }
 
 impl Eq for Identifier {}
+
+impl Hash for Identifier {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // ignore: self.span.hash(state);
+        self.value.hash(state);
+    }
+}
 
 impl Identifier {
     pub fn new_unchecked(s: &str) -> Self {
@@ -836,6 +874,14 @@ impl PartialEq for QualifiedIdentifier {
 }
 
 impl Eq for QualifiedIdentifier {}
+
+impl Hash for QualifiedIdentifier {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // ignore: self.span.hash(state);
+        self.module.hash(state);
+        self.member.hash(state);
+    }
+}
 
 impl QualifiedIdentifier {
     pub fn new(module: Identifier, member: Identifier) -> Self {
@@ -886,6 +932,12 @@ impl PartialEq for IdentifierReference {
 }
 
 impl Eq for IdentifierReference {}
+
+impl Hash for IdentifierReference {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        core::mem::discriminant(self).hash(state);
+    }
+}
 
 impl IdentifierReference {
     pub fn eq_with_span(&self, other: &Self) -> bool {
@@ -950,8 +1002,8 @@ impl Module {
 // ------------------------------------------------------------------------------------------------
 
 has_span_impl!(ModuleBody);
-has_annotations_impl!(ModuleBody);
 has_comments_impl!(ModuleBody);
+has_annotations_impl!(ModuleBody);
 
 impl ModuleBody {
     pub fn has_imports(&self) -> bool {
@@ -1032,11 +1084,13 @@ impl FromIterator<Import> for ImportStatement {
 }
 
 has_span_impl!(ImportStatement);
+has_comments_impl!(ImportStatement);
 
 impl ImportStatement {
     pub fn new(imported: Vec<Import>) -> Self {
         Self {
             span: None,
+            comments: Default::default(),
             imported,
         }
     }

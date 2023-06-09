@@ -11,10 +11,10 @@ YYYYY
 
 use crate::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
 use crate::model::{
-    Annotation, AnnotationOnlyBody, ByReferenceMember, ByValueMember, Cardinality, DatatypeDef,
-    EntityBody, EntityDef, EntityGroup, EnumBody, EnumDef, EnumVariant, EventDef, Identifier,
-    IdentifierReference, IdentityMember, Import, ImportStatement, LanguageString, LanguageTag,
-    ListOfValues, Module, ModuleBody, QualifiedIdentifier, SimpleValue, StructureBody,
+    Annotation, AnnotationOnlyBody, ByReferenceMember, ByValueMember, Cardinality, Comment,
+    DatatypeDef, EntityBody, EntityDef, EntityGroup, EnumBody, EnumDef, EnumVariant, EventDef,
+    Identifier, IdentifierReference, IdentityMember, Import, ImportStatement, LanguageString,
+    LanguageTag, ListOfValues, Module, ModuleBody, QualifiedIdentifier, SimpleValue, StructureBody,
     StructureDef, StructureGroup, TypeDefinition, TypeReference, TypeVariant, UnionBody, UnionDef,
     Value, ValueConstructor,
 };
@@ -101,6 +101,7 @@ struct ParseContext<'a> {
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
+    save_comments: bool,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -115,6 +116,7 @@ impl<'a> ParseContext<'a> {
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
+            save_comments: Default::default(),
         }
     }
 
@@ -136,9 +138,9 @@ impl<'a> ParseContext<'a> {
 
     fn check_if_error(&self, node: &Node<'a>, rule: &str) -> Result<(), Error> {
         if node.is_error() {
-            //             ariadne::Report::build(ariadne::ReportKind::Error, source, 1)
-            //                 .finish()
-            //                 .eprint(self.error_source())?;
+            //ariadne::Report::build(ariadne::ReportKind::Error, (), 1)
+            //    .finish()
+            //    .print(self.error_source())?;
             Err(module_parse_error(
                 node.kind(),
                 node.start_byte(),
@@ -176,6 +178,10 @@ impl<'a> ParseContext<'a> {
 
     fn end_type(&mut self) {
         self.member_names.clear()
+    }
+
+    fn save_comments(&self) -> bool {
+        self.save_comments
     }
 }
 
@@ -246,7 +252,7 @@ fn parse_module_body<'a>(
                         body.add_definition(parse_type_definition(context, &mut node.walk())?)
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, body);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -289,7 +295,7 @@ fn parse_import_statement<'a>(
                         import.add_import(imported);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -332,7 +338,7 @@ fn parse_import<'a>(
                         return Ok(name.into());
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -360,7 +366,7 @@ fn parse_identifier<'a>(
     node: &Node<'a>,
 ) -> Result<Identifier, Error> {
     rule_fn!("parse_identifier", node);
-    Ok(Identifier::new_unchecked(context.node_source(&node)?).with_ts_span(node.into()))
+    Ok(Identifier::new_unchecked(context.node_source(node)?).with_ts_span(node.into()))
 }
 
 fn parse_qualified_identifier<'a>(
@@ -398,7 +404,7 @@ fn parse_identifier_reference<'a>(
                         return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -464,7 +470,7 @@ fn parse_value<'a>(
                         return Ok(parse_list_of_values(context, cursor)?.into());
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -531,7 +537,7 @@ fn parse_simple_value<'a>(
                         return Ok(SimpleValue::IriReference(value));
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -582,7 +588,7 @@ fn parse_string<'a>(
                         language = Some(LanguageTag::new_unchecked(&node_value[1..]));
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -649,7 +655,7 @@ fn parse_list_of_values<'a>(
                             .add_value(parse_identifier_reference(context, cursor)?.into());
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -704,7 +710,7 @@ fn parse_type_definition<'a>(
                         return Ok(parse_union_def(context, &mut node.walk())?.into());
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -749,13 +755,10 @@ fn parse_data_type_def<'a>(
     context.start_type(&name);
     let mut data_type = DatatypeDef::new(name, base_type).with_ts_span(node.into());
 
-    match node.child_by_field_name(FIELD_NAME_BODY) {
-        Some(child) => {
-            context.check_if_error(&child, RULE_NAME)?;
-            let body = parse_annotation_only_body(context, cursor)?;
-            data_type.add_body(body);
-        }
-        _ => (),
+    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
+        context.check_if_error(&child, RULE_NAME)?;
+        let body = parse_annotation_only_body(context, cursor)?;
+        data_type.add_body(body);
     }
 
     context.end_type();
@@ -779,7 +782,7 @@ fn parse_annotation_only_body<'a>(
                         body.add_annotation(parse_annotation(context, cursor)?);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, body);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -855,7 +858,7 @@ fn parse_entity_body<'a>(
                         body.add_group(parse_entity_group(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, body);
                     }
                     NODE_KIND_IDENTITY_MEMBER => (),
                     _ => {
@@ -904,7 +907,7 @@ fn parse_entity_group<'a>(
                         group.add_member(parse_by_reference_member(context, cursor)?.into());
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, group);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -972,7 +975,7 @@ fn parse_enum_body<'a>(
                         body.add_variant(parse_enum_variant(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, body);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -1046,7 +1049,7 @@ fn parse_structure_body<'a>(
                         body.add_group(parse_structure_group(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, body);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -1090,7 +1093,7 @@ fn parse_structure_group<'a>(
                         group.add_member(parse_by_value_member(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, group);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -1181,7 +1184,7 @@ fn parse_union_body<'a>(
                         body.add_variant(parse_type_variant(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
-                        trace!("ignoring comments");
+                        check_and_add_comment!(context, node, body);
                     }
                     _ => {
                         return Err(unexpected_node_kind(
@@ -1323,7 +1326,7 @@ fn parse_type_reference<'a>(
                     return Ok(TypeReference::Reference(reference));
                 }
                 NODE_KIND_LINE_COMMENT => {
-                    trace!("ignoring comments");
+                    trace!("no comments here"); //check_and_add_comment!(context, node, import);
                 }
                 _ => {
                     return Err(unexpected_node_kind(
