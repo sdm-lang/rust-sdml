@@ -1,0 +1,133 @@
+module dcmi_type is
+
+  import [ dcam dcterms owl rdf rdfs xml ]
+
+  @dcterms:modified = xsd:date("2012-06-14")
+  @dcterms:publisher = <http://purl.org/dc/aboutdcmi#DCMI>
+  @dcterms:title = "DCMI Type Vocabulary"@en .
+
+  @xml:base = <http://purl.org/dc/dcmitype/>
+
+  @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_type.ttl>
+
+  structure Collection is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2000-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Collection"@en
+    @rdfs:comment = "An aggregation of resources."@en
+    @dcterms:description = "A collection is described as a group; its parts may also be separately described."@en
+  end
+
+  structure Dataset is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2000-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Dataset"@en
+    @rdfs:comment = "Data encoded in a defined structure."@en
+    @dcterms:description = "Examples include lists, tables, and databases.  A dataset may be useful for direct machine processing."@en
+  end
+
+  structure Event is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2000-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Event"@en
+    @rdfs:comment = "A non-persistent, time-based occurrence."@en
+    @dcterms:description = "Metadata for an event provides descriptive information that is the basis for discovery of the purpose, location, duration, and responsible agents associated with an event. Examples include an exhibition, webcast, conference, workshop, open day, performance, battle, trial, wedding, tea party, conflagration."@en
+  end
+
+  structure Image is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2000-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Image"@en
+    @rdfs:comment = " A visual representation other than text."@en
+    @dcterms:description = "Examples include images and photographs of physical objects, paintings, prints, drawings, other images and graphics, animations and moving pictures, film, diagrams, maps, musical notation.  Note that Image may include both electronic and physical representations."@en
+  end
+
+  structure InteractiveResource is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2000-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Interactive Resource"@en
+    @rdfs:comment = "A resource requiring interaction from the user to be understood, executed, or experienced."@en
+    @dcterms:description = "Examples include forms on Web pages, applets, multimedia learning objects, chat services, or virtual reality environments."@en
+  end
+
+  structure MovingImage is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = Image
+    @dcterms:issued = xsd:date("2003-11-18")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Moving Image"@en
+    @rdfs:comment = "A series of visual representations imparting an impression of motion when shown in succession."@en
+    @dcterms:description = "Examples include animations, movies, television programs, videos, zoetropes, or visual output from a simulation.  Instances of the type Moving Image must also be describable as instances of the broader type Image."@en
+  end
+
+  structure PhysicalObject is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2002-07-13")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Physical Object"@en
+    @rdfs:comment = "An inanimate, three-dimensional object or substance."@en
+    @dcterms:description = "Note that digital representations of, or surrogates for, these objects should use Image, Text or one of the other types."@en
+  end
+
+  structure Service is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2002-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Service"@en
+    @rdfs:comment = "A system that provides one or more functions."@en
+    @dcterms:description = "Examples include a photocopying service, a banking service, an authentication service, interlibrary loans, a Z39.50 or Web server."@en
+  end
+
+  structure Software is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2002-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Software"@en
+    @rdfs:comment = "A computer program in source or compiled form."@en
+    @dcterms:description = "Examples include a C source file, MS-Windows .exe executable, or Perl script."@en
+  end
+
+  structure Sound is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2002-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Sound"@en
+    @rdfs:comment = "A resource primarily intended to be heard."@en
+    @dcterms:description = "Examples include a music playback file format, an audio compact disc, and recorded speech or sounds."@en
+  end
+
+  structure StillImage is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = Image
+    @dcterms:issued = xsd:date("2002-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Still Image"@en
+    @rdfs:comment = "A static visual representation."@en
+    @dcterms:description = "Examples include paintings, drawings, graphic designs, plans and maps. Recommended best practice is to assign the type Text to images of textual materials. Instances of the type Still Image must also be describable as instances of the broader type Image."@en
+  end
+
+  structure Text is
+    @rdf:type = rdfs:Class
+    @dcterms:issued = xsd:date("2002-07-11")
+    @dcam:memberOf = dcterms:DCMIType
+    @rdfs:isDefinedBy = <http://purl.org/dc/dcmitype/>
+    @rdfs:label = "Text"@en
+    @rdfs:comment = "A resource consisting primarily of words for reading."@en
+    @dcterms:description = "Examples include books, letters, dissertations, poems, newspapers, articles, archives of mailing lists. Note that facsimiles or images of texts are still of the genre Text."@en
+  end
