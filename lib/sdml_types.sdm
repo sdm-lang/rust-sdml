@@ -1,8 +1,6 @@
-module sdml_types is
+module sdml_types base <https://sdml.io/sdml-types.ttl> is
 
   import [ xml owl rdf rdfs xsd ]
-
-  @xml:base = <https://sdml.io/sdml-types.ttl>
 
   structure String is
     @rdf:type = rdfs:Datatype

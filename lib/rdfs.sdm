@@ -1,15 +1,13 @@
-module rdfs is
+module rdfs base <http://www.w3.org/2000/01/rdf-schema#> is
 
-  import [ owl rdf xml ]
+  import [ owl rdf ]
 
   @dc:title = "The RDF Schema vocabulary (RDFS)"
   @rdfs:seeAlso = <http://www.w3.org/2000/01/rdf-schema-more>
 
-  @xml:base = <http://www.w3.org/2000/01/rdf-schema#>
-
   structure Resource is
     @rdf:type = Class
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "Resource"@en
     @comment = "The class resource, everything."
   end
@@ -17,7 +15,7 @@ module rdfs is
   structure Class is
     @rdf:type = Class
     @rdfs:subClassOf = Resource
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "Class"@en
     @comment = "The class of classes."
   end
@@ -26,7 +24,7 @@ module rdfs is
     @rdf:type = rdf:Property
     @domain = Class
     @range = Class
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "subClassOf"
     @comment = "The subject is a subclass of a class."
   end
@@ -35,7 +33,7 @@ module rdfs is
     @rdf:type = rdf:Property
     @domain = rdf:Property
     @range = rdf:Property
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "subPropertyOf"
     @comment = "The subject is a subproperty of a property."
   end
@@ -45,7 +43,7 @@ module rdfs is
     @rdf:type = owl:AnnotationProperty
     @domain = Resource
     @range = Literal
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "comment"
     @comment = "A description of the subject resource."
   end
@@ -55,7 +53,7 @@ module rdfs is
     @rdf:type = owl:AnnotationProperty
     @domain = Resource
     @range = Literal
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "label"
     @comment = "A human-readable name for the subject."
   end
@@ -64,7 +62,7 @@ module rdfs is
     @rdf:type = rdf:Property
     @domain = Resource
     @range = Class
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "domain"
     @comment = "A domain of the subject property."
   end
@@ -73,7 +71,7 @@ module rdfs is
     @rdf:type = rdf:Property
     @domain = rdf:Property
     @range = Class
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "range"
     @comment = "A range of the subject property."
   end
@@ -83,7 +81,7 @@ module rdfs is
      @rdf:type = owl:AnnotationProperty
     @domain = Resource
     @range = Resource
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "seeAlso"
     @comment = "Further information about the subject resource."
   end
@@ -94,7 +92,7 @@ module rdfs is
     @subPropertyOf = seelAlso
     @domain = Resource
     @range = Resource
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "isDefinedBy"
     @comment = "The defininition of the subject resource."
   end
@@ -102,7 +100,7 @@ module rdfs is
   structure Literal is
     @rdf:type = Class
     @subClassOf = Resource
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "Literal"
     @comment = "The class of literal values, eg. textual strings and integers."
    end
@@ -110,7 +108,7 @@ module rdfs is
   structure Container is
     @rdf:type = Class
     @subClassOf = Resource
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "Container"
     @comment = "The class of RDF containers."
   end
@@ -118,7 +116,7 @@ module rdfs is
   structure ContainerMembershipProperty is
     @rdf:type = Class
     @subClassOf = Property
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "ContainerMembershipProperty"
     @comment = "The class of container membership properties, rdf:_1, rdf:_2, ...,
                 all of which are sub-properties of 'member'."
@@ -128,7 +126,7 @@ module rdfs is
     @rdf:type = Property
     @domain = Resource
     @range = Resource
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "member"
     @comment = "A member of the subject resource."
   end
@@ -136,7 +134,7 @@ module rdfs is
   structure Datatype is
     @rdf:type = Class
     @subClassOf = Class
-    @isDefinedBy = <http://www.w3.org/2000/01/rdf-schema#>
+    @isDefinedBy = rdfs
     @label = "Datatype"
     @comment = "The class of RDF datatypes."
   end

@@ -1,12 +1,10 @@
-module dcterms is
+module dcterms base <http://purl.org/dc/terms/> is
 
-  import [ dc dcam owl rdf rdfs xml ]
+  import [ dc dcam owl rdf rdfs ]
 
   @modified = xsd:date("2012-06-14")
   @publisher = <http://purl.org/dc/aboutdcmi#DCMI>
   @title = "DCMI Metadata Terms - other"@en
-
-  @xml:base = <http://purl.org/dc/terms/>
 
   @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_terms.ttl>
 
@@ -14,7 +12,7 @@ module dcterms is
     @rdf:type = AgentClass
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Agent"@en
     @rdfs:comment = "A resource that acts or has the power to act."@en
   end
@@ -22,7 +20,7 @@ module dcterms is
   structure AgentClass is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Agent Class"@en
     @rdfs:comment = "A group of agents."@en
   end
@@ -30,7 +28,7 @@ module dcterms is
   structure BibliographicResource is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Bibliographic Resource"@en
     @rdfs:comment = "A book, article, or other documentary resource."@en
   end
@@ -38,7 +36,7 @@ module dcterms is
   structure Box is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "DCMI Box"@en
     @rdfs:comment = "The set of regions in space defined by their geographic coordinates according to the DCMI Box Encoding Scheme."@en
     @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-box/>
@@ -47,7 +45,7 @@ module dcterms is
   structure DCMIType is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "DCMI Type Vocabulary"@en
     @rdfs:comment = "The set of classes specified by the DCMI Type Vocabulary, used to categorize the nature or genre of the resource."@en
     @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-box/>
@@ -56,7 +54,7 @@ module dcterms is
   structure DDC is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "DDC"@en
     @rdfs:comment = "The set of conceptual resources specified by the Dewey Decimal Classification."@en
     @rdfs:seeAlso = <http://www.oclc.org/dewey/>
@@ -66,7 +64,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = MediaType
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "File Format"@en
     @rdfs:comment = "A digital resource format.."@en
   end
@@ -74,7 +72,7 @@ module dcterms is
   structure Frequency is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Frequency"@en
     @rdfs:comment = "A rate at which something recurs."@en
   end
@@ -82,7 +80,7 @@ module dcterms is
   structure IMT is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "IMT"@en
     @rdfs:comment = "The set of media types specified by the Internet Assigned Numbers Authority."@en
     @rdfs:seeAlso = <http://www.iana.org/assignments/media-types/>
@@ -91,7 +89,7 @@ module dcterms is
   structure ISO3166 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "ISO 3166"@en
     @rdfs:comment = "The set of codes listed in ISO 3166-1 for the representation of names of countries."@en
     @rdfs:seeAlso = <https://www.iso.org/obp/ui/#search>
@@ -100,7 +98,7 @@ module dcterms is
   structure ISO639-2 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "ISO 639-2"@en
     @rdfs:comment = "The three-letter alphabetic codes listed in ISO639-2 for the representation of names of languages."@en
     @rdfs:seeAlso = <http://lcweb.loc.gov/standards/iso639-2/langhome.html>
@@ -109,7 +107,7 @@ module dcterms is
   structure ISO639-3 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "ISO 639-3"@en
     @rdfs:comment = "The set of three-letter codes listed in ISO 639-3 for the representation of names of languages."@en
     @rdfs:seeAlso = <http://www.sil.org/iso639-3/>
@@ -119,7 +117,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = LocationPeriodOrJurisdiction
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Jurisdiction"@en
     @rdfs:comment = "The extent or range of judicial, law enforcement, or other authority."@en
   end
@@ -127,7 +125,7 @@ module dcterms is
   structure LLC is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "LLC"@en
     @rdfs:comment = "The set of conceptual resources specified by the Library of Congress Classification."@en
     @rdfs:seeAlso = <http://lcweb.loc.gov/catdir/cpso/lcco/lcco.html>
@@ -136,7 +134,7 @@ module dcterms is
   structure LCSH is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "LCSH"@en
     @rdfs:comment = "The set of labeled concepts specified by the Library of Congress Subject Headings."@en
   end
@@ -145,7 +143,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = RightsStatement
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "License Document"@en
     @rdfs:comment = "A legal document giving official permission to do something with a resource."@en
   end
@@ -153,7 +151,7 @@ module dcterms is
   structure LinguisticSystem is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Linguistic System"@en
     @rdfs:comment = "A system of signs, symbols, sounds, gestures, or rules used in communication."@en
     @dcterms:description = "Written, spoken, sign, and computer languages are linguistic systems."@en
@@ -163,7 +161,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = LocationPeriodOrJurisdiction
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Location"@en
     @rdfs:comment = "A spatial region or named place."@en
   end
@@ -171,7 +169,7 @@ module dcterms is
   structure LocationPeriodOrJurisdiction is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Location, Period, or Jurisdiction"@en
     @rdfs:comment = "A location, period of time, or jurisdiction."@en
   end
@@ -179,7 +177,7 @@ module dcterms is
   structure MESH is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "MeSH"@en
     @rdfs:comment = "The set of labeled concepts specified by the Medical Subject Headings."@en
     @rdfs:seeAlso = <http://www.nlm.nih.gov/mesh/meshhome.html>
@@ -189,7 +187,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = MediaTypeOrExtent
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Media Type"@en
     @rdfs:comment = "A file format or physical medium."@en
   end
@@ -197,7 +195,7 @@ module dcterms is
   structure MediaTypeOrExtent is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Media Type or Extent"@en
     @rdfs:comment = "A media type or extent."@en
   end
@@ -205,7 +203,7 @@ module dcterms is
   structure MethodOfAccrual is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Method of Accrual"@en
     @rdfs:comment = "A method by which resources are added to a collection."@en
   end
@@ -213,7 +211,7 @@ module dcterms is
   structure MethodOfInstruction is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Method of Instruction"@en
     @rdfs:comment = "A process that is used to engender knowledge, attitudes, and skills."@en
   end
@@ -221,7 +219,7 @@ module dcterms is
   structure NLM is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2005-06-13")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "NLM"@en
     @rdfs:comment = "The set of time intervals defined by their limits according to the DCMI Period Encoding Scheme."@en
     @rdfs:seeAlso = <http://wwwcf.nlm.nih.gov/class/>
@@ -230,7 +228,7 @@ module dcterms is
   structure Period is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "DCMI Period"@en
     @rdfs:comment = "The set of conceptual resources specified by the National Library of Medicine Classification."@en
     @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-period/>
@@ -240,7 +238,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = LocationPeriodOrJurisdiction
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Period of Time"@en
     @rdfs:comment = "An interval of time that is named or defined by its start and end dates."@en
   end
@@ -249,7 +247,7 @@ module dcterms is
     @rdf:type = rdfs:Class
     @rdfs:subClassOf = MediaType
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Physical Medium"@en
     @rdfs:comment = "A physical material or carrier."@en
     @description = "Examples include paper, canvas, or DVD."@en
@@ -258,7 +256,7 @@ module dcterms is
   structure PhysicalResource is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Physical Resource"@en
     @rdfs:comment = "A material thing."@en
   end
@@ -266,7 +264,7 @@ module dcterms is
   structure Point is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "DCMI Point"@en
     @rdfs:comment = "The set of points in space defined by their geographic coordinates according to the DCMI Point Encoding Scheme."@en
   end
@@ -274,7 +272,7 @@ module dcterms is
   structure Policy is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Policy"@en
     @rdfs:comment = "A plan or course of action by an authority, intended to influence and determine decisions, actions, and other matters."@en
   end
@@ -282,7 +280,7 @@ module dcterms is
   structure ProvenanceStatement is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Provenance Statement"@en
     @rdfs:comment = "Any changes in ownership and custody of a resource since its creation that are significant for its authenticity, integrity, and interpretation."@en
   end
@@ -290,7 +288,7 @@ module dcterms is
   structure RFC1766 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "RFC 1766"@en
     @rdfs:comment = "The set of tags, constructed according to RFC 1766, for the identification of languages."@en
     @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc1766.txt>
@@ -299,7 +297,7 @@ module dcterms is
   structure RFC3066 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2002-07-13")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "RFC 3066"@en
     @rdfs:comment = "The set of tags constructed according to RFC 3066 for the identification of languages."@en
     @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3066txt>
@@ -309,7 +307,7 @@ module dcterms is
   structure RFC4646 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "RFC 4646"@en
     @rdfs:comment = "The set of tags constructed according to RFC 4646 for the identification of languages."@en
     @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3066txt>
@@ -319,7 +317,7 @@ module dcterms is
   structure RFC5646 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2010-10-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "RFC 5646"@en
     @rdfs:comment = "The set of tags constructed according to RFC 5646 for the identification of languages."@en
     @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3066txt>
@@ -329,7 +327,7 @@ module dcterms is
   structure RightsStatement is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Rights Statement"@en
     @rdfs:comment = "A statement about the intellectual property rights (IPR) held in or over a resource, a legal document giving official permission to do something with a resource, or a statement about access rights."@en
   end
@@ -337,7 +335,7 @@ module dcterms is
   structure SizeOrDuration is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Size or Duration"@en
     @rdfs:comment = "A dimension or extent, or a time taken to play or execute."@en
     @description = "Examples include a number of pages, a specification of length, width, and breadth, or a period in hours, minutes, and seconds."@en
@@ -346,7 +344,7 @@ module dcterms is
   structure Standard is
     @rdf:type = rdfs:Class
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Standard"@en
     @rdfs:comment = "A reference point against which other things can be evaluated or compared."@en
   end
@@ -354,7 +352,7 @@ module dcterms is
   structure TGN is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "TGN"@en
     @rdfs:comment = "The set of places specified by the Getty Thesaurus of Geographic Names."@en
     @rdfs:seeAlso = <http://www.getty.edu/research/tools/vocabulary/tgn/index.html>
@@ -363,7 +361,7 @@ module dcterms is
   structure UDC is
     @rdf:type = dcam:VocabularyEncodingScheme
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "UDC"@en
     @rdfs:comment = "The set of conceptual resources specified by the Universal Decimal Classification."@en
     @rdfs:seeAlso = <http://www.udcc.org/>
@@ -372,7 +370,7 @@ module dcterms is
   structure URI is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "URI"@en
     @rdfs:comment = "The set of identifiers constructed according to the generic syntax for Uniform Resource Identifiers as specified by the Internet Engineering Task Force."@en
     @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3986.txt>
@@ -381,7 +379,7 @@ module dcterms is
   structure WthreeCDTF is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "W3C-DTF"@en
     @rdfs:comment = "The set of dates and times constructed according to the W3C Date and Time Formats Specification."@en
     @rdfs:seeAlso = <http://www.w3.org/TR/NOTE-datetime>
@@ -391,7 +389,7 @@ module dcterms is
     @rdf:type = [ rdf:Property owl:AnnotationProperty ]
     @rdfs:subPropertyOf = [ dc:description description ]
     @issued = xsd:date("2000-01-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Abstract"@en
     @rdfs:comment = "A summary of the resource."@en
   end
@@ -403,7 +401,7 @@ module dcterms is
     @rdfs:subPropertyOf = rights
     @dcam:rangeIncludes = RightsStatement
     @issued = xsd:date("2003-02-15")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Access Rights"@en
     @rdfs:comment = "Information about who access the resource or an indication of its security status."@en
     @description = "Access Rights may include information regarding access or restrictions based on privacy, security, or other policies."@en
@@ -414,7 +412,7 @@ module dcterms is
     @rdfs:domain = dcmi:Collection
     @dcam:rangeIncludes = MethodOfAccrual
     @issued = xsd:date("2005-06-13")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Accrual Method"@en
     @rdfs:comment = "The method by which items are added to a collection."@en
     @description = "Recommended practice is to use a value from the Collection Description Accrual Method Vocabulary [[DCMI-ACCRUALMETHOD](https://dublincore.org/groups/collections/accrual-method/)]."@en
@@ -425,7 +423,7 @@ module dcterms is
     @rdfs:domain = dcmi:Collection
     @dcam:rangeIncludes = Frequency
     @issued = xsd:date("2005-06-13")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Accrual Periodicity"@en
     @rdfs:comment = "The frequency with which items are added to a collection."@en
     @description = "Recommended practice is to use a value from the Collection Description Frequency Vocabulary [[DCMI-COLLFREQ](https://dublincore.org/groups/collections/frequency/)]."@en
@@ -436,7 +434,7 @@ module dcterms is
     @rdfs:domain = dcmi:Collection
     @dcam:rangeIncludes = Policy
     @issued = xsd:date("2005-06-13")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Accrual Policy"@en
     @rdfs:comment = "The policy governing the addition of items to a collection."@en
     @description = "Recommended practice is to use a value from the Collection Description Accrual Policy Vocabulary [[DCMI-ACCRUALPOLICY](https://dublincore.org/groups/collections/accrual-policy/)]."@en
@@ -447,7 +445,7 @@ module dcterms is
     @rdfs:subPropertyOf = [ dc:title title ]
     @rdfs:range = rdfs:Literal
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Alternative Title"@en
     @rdfs:comment = "An alternative name for the resource."@en
     @description = "The distinction between titles and alternative titles is application-specific."@en
@@ -457,7 +455,7 @@ module dcterms is
     @rdf:type = [ rdf:Property owl:AnnotationProperty ]
     @dcam:rangeIncludes = AgentClass
     @issued = xsd:date("2001-05-21")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Audience"@en
     @rdfs:comment = "A class of agents for whom the resource is intended or useful."@en
     @description = "Recommended practice is to use this property with non-literal values from a vocabulary of audience types."@en
@@ -468,7 +466,7 @@ module dcterms is
     @rdfs:subPropertyOf = [ dc:date date ]
     @rdfs:range = rdfs:Literal
     @issued = xsd:date("2000-07-11")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Date Available"@en
     @rdfs:comment = "Date that the resource became or will become available."@en
     @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
@@ -479,7 +477,7 @@ module dcterms is
     @rdfs:subPropertyOf = [ dc:identifier identifier ]
     @rdfs:range = rdfs:Literal
     @issued = xsd:date("2003-02-15")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Bibliographic Citation"@en
     @rdfs:comment = "A bibliographic reference for the resource."@en
     @description = "Recommended practice is to include sufficient bibliographic detail to identify the resource as unambiguously as possible."@en
@@ -490,7 +488,7 @@ module dcterms is
     @rdfs:subPropertyOf = [ dc:relation relation ]
     @dcam:rangeIncludes = Standard
     @issued = xsd:date("2003-02-15")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Conforms To"@en
     @rdfs:comment = "An established standard to which the described resource conforms."@en
     @description = "Recommended practice is to include sufficient bibliographic detail to identify the resource as unambiguously as possible."@en
@@ -523,7 +521,7 @@ module dcterms is
     @rdfs:subPropertyOf = [ dc:date date ]
     ;; owl:equivalentProperty <http://xmlns.com/foaf/0.1/maker>
     @issued = xsd:date("2008-01-14")
-    @rdfs:isDefinedBy = <http://purl.org/dc/terms/>
+    @rdfs:isDefinedBy = dcterms
     @rdfs:label = "Creator"@en
     @rdfs:comment = "An entity responsible for making the resource."@en
     @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
