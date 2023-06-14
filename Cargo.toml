@@ -1,7 +1,7 @@
 [package]
 name = "sdml"
 description = "Rust CLI for Simple Domain Modeling Language (SDML)"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license = "MIT"
@@ -36,7 +36,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter" ] }
 tree-sitter = "0.20.10"
 tree-sitter-highlight = "0.20.1"
-tree-sitter-sdml = { version = "0.1.12", path = "../../tree-sitter-sdml" }
+tree-sitter-sdml = { version = "0.1.14", path = "../../tree-sitter-sdml" }
 url = { version = "2.4.0", features = ["serde"] }
 
 [dev-dependencies]
