@@ -1,14 +1,15 @@
-module rentals is
+module rentals base <https://example.org/v/rentals> is
+
+  import [ dc skos ]
 
   ;; This is actually a US VIN
   import cids:VehicleIdentificationNumber
 
-  import xml
-
-  @xml:base = <https://example.org/v/rentals>
   @dc:version = 2
 
-  entity Class
+  datatype UniqueId <- xsd:string is
+    @xsd:pattern = "[A-Za-z0-9_-]{22}"
+  end
 
   union RentalClass of
     Compact
@@ -16,11 +17,18 @@ module rentals is
     Luxury
   end
 
+  enum CustomerLevel of
+    Basic = 1
+    Silver = 2
+    Gold = 3
+  end
+
   entity Vehicle is
     @skos:prefLabel = "Vehicle"@en
 
     identity vin -> VehicleIdentificationNumber
 
+    information -> VehicleInformation
     ref rentalClass -> {1} Class
   end
 
@@ -35,17 +43,32 @@ module rentals is
 
   entity Location
 
-  entity Customer
+  entity Customer is
+    identity id -> UniqueId
+  end
 
   entity Booking is
     identity bookingCode -> unknown
 
+    ref customer -> {1} Customer
+
     group
+      @skos:prefLabel = "Rental Period"@en
+      pickup_date -> xsd:date
+      ref pickup_location -> Location
+      dropoff_date -> xsd:date
+      ref dropoff_location -> Location
+    end
+
+    group
+      @skos:prefLabel = "Requested"@en
       ref bookingClass -> {1} Class
       ref vehicle -> {0..1} Vehicle
-      ref from -> Location
     end
-    ref customer -> {1} Customer
+  end
+
+  event VehicleAssigned source Booking is
+    vehicle -> VehicleIdentificationNumber
   end
 
 end

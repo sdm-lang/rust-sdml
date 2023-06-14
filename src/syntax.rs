@@ -85,3 +85,14 @@ pub(crate) const FIELD_NAME_TARGET: &str = "target";
 pub(crate) const FIELD_NAME_TARGET_CARDINALITY: &str = "target_cardinality";
 
 pub(crate) const FIELD_NAME_VALUE: &str = "value";
+
+// ------------------------------------------------------------------------------------------------
+// Simple Type Keywords
+// ------------------------------------------------------------------------------------------------
+
+pub(crate) const KW_TYPE_STRING: &str = "string";
+pub(crate) const KW_TYPE_DOUBLE: &str = "double";
+pub(crate) const KW_TYPE_DECIMAL: &str = "decimal";
+pub(crate) const KW_TYPE_INTEGER: &str = "integer";
+pub(crate) const KW_TYPE_BOOLEAN: &str = "boolean";
+pub(crate) const KW_TYPE_IRI: &str = "iri";

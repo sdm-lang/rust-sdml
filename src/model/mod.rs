@@ -77,6 +77,7 @@ pub struct Module {
     span: Option<Span>,
     comments: Vec<Comment>,
     name: Identifier,
+    base: Option<Url>,
     body: ModuleBody,
 }
 
@@ -962,12 +963,26 @@ impl Module {
             span: None,
             comments: Default::default(),
             name,
+            base: None,
+            body,
+        }
+    }
+    pub fn new_with_base(name: Identifier, base: Url, body: ModuleBody) -> Self {
+        Self {
+            span: None,
+            comments: Default::default(),
+            name,
+            base: Some(base),
             body,
         }
     }
 
     pub fn name(&self) -> &Identifier {
         &self.name
+    }
+
+    pub fn base(&self) -> Option<&Url> {
+        self.base.as_ref()
     }
 
     pub fn body(&self) -> &ModuleBody {
