@@ -4,7 +4,7 @@ module dc base <http://purl.org/dc/elements/1.1/> is
 
   @dcterms:modified = xsd:date("2012-06-14")
   @dcterms:publisher = <http://purl.org/dc/aboutdcmi#DCMI>
-  @dcterms:title = "Dublin Core Metadata Element Set, Version 1.1"@en .
+  @dcterms:title = "Dublin Core Metadata Element Set, Version 1.1"@en
 
   @rdfs:seeAlso = <https://www.iso.org/standard/71339.html>
   @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.nt>

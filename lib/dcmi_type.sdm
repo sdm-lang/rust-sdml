@@ -1,10 +1,10 @@
 module dcmi_type base <http://purl.org/dc/dcmitype/> is
 
-  import [ dcam dcterms owl rdf rdfs ]
+  import [ dcam dcterms owl rdf rdfs xsd ]
 
   @dcterms:modified = xsd:date("2012-06-14")
   @dcterms:publisher = <http://purl.org/dc/aboutdcmi#DCMI>
-  @dcterms:title = "DCMI Type Vocabulary"@en .
+  @dcterms:title = "DCMI Type Vocabulary"@en
 
   @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_type.ttl>
 

@@ -2343,9 +2343,9 @@ impl Span {
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-pub mod check;
+mod parse;
 
-pub mod parse;
+pub mod load;
 
 pub mod resolve;
 

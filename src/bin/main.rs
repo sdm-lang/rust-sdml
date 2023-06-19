@@ -1,6 +1,7 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml::error::{tracing_filter_error, tracing_subscriber_error};
+use sdml::model::load::ModuleLoader;
 use sdml::model::resolve::ModuleResolver;
 use sdml::model::Identifier;
 use std::fmt::Display;
@@ -198,12 +199,12 @@ impl Execute for Commands {
 // ------------------------------------------------------------------------------------------------
 
 impl FileArgs {
-    fn resolver(&self) -> ModuleResolver {
+    fn loader(&self) -> ModuleLoader {
         let mut resolver = ModuleResolver::default();
         if let Some(base) = &self.base_path {
             resolver.prepend_to_search_path(base.clone())
         }
-        resolver
+        ModuleLoader::new(resolver)
     }
 
     fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {
@@ -221,9 +222,10 @@ impl FileArgs {
 
 impl Execute for Highlight {
     fn execute(&self) -> Result<(), MainError> {
-        let resolver = self.files.resolver();
+        let loader = self.files.loader();
+        let resolver = loader.resolver();
         let source = if let Some(module_name) = &self.files.module {
-            resolver.resolve_module_source(module_name)?
+            std::fs::read_to_string(resolver.name_to_path(module_name)?)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
@@ -256,14 +258,13 @@ impl Execute for Highlight {
 
 impl Execute for Tags {
     fn execute(&self) -> Result<(), MainError> {
-        let resolver = self.files.resolver();
+        let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
-            let file_name = resolver.resolve_module_path(module_name)?;
-            sdml::model::parse::parse_file(file_name)?
+            loader.load(module_name)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
-            sdml::model::parse::parse_from(&mut handle)?
+            loader.load_from_reader(&mut handle)?
         };
 
         info!(
@@ -286,14 +287,13 @@ impl Execute for Tags {
 
 impl Execute for Convert {
     fn execute(&self) -> Result<(), MainError> {
-        let resolver = self.files.resolver();
+        let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
-            let file_name = resolver.resolve_module_path(module_name)?;
-            sdml::model::parse::parse_file(file_name)?
+            loader.load(module_name)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
-            sdml::model::parse::parse_from(&mut handle)?
+            loader.load_from_reader(&mut handle)?
         };
 
         info!(
@@ -326,14 +326,13 @@ impl Execute for Convert {
 
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
-        let resolver = self.files.resolver();
+        let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
-            let file_name = resolver.resolve_module_path(module_name)?;
-            sdml::model::parse::parse_file(file_name)?
+            loader.load(module_name)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
-            sdml::model::parse::parse_from(&mut handle)?
+            loader.load_from_reader(&mut handle)?
         };
 
         info!(

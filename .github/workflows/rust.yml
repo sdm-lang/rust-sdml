@@ -263,4 +263,4 @@ jobs:
     - uses: actions-rs/clippy-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        args: --project rust-sdml --no-deps --all-features --all-targets -- -D warnings --no-deps
+        args: --workspace --no-deps --all-features --all-targets -- -D warnings --no-deps

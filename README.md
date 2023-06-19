@@ -56,6 +56,16 @@ Finally, if no module name is specified the tool will read from `stdin`.
 
 # Changes
 
+**Version: 0.1.4**
+
+* Support the latest grammar
+* UML Class Diagram (initial)
+* Modeling Library modules
+
+**Version: 0.1.3**
+
+* Support the latest grammar
+
 **Version: 0.1.2**
 
 * Syntax highlighting supported

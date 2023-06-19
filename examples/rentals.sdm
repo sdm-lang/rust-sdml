@@ -1,13 +1,13 @@
 module rentals base <https://example.org/v/rentals> is
 
-  import [ dc skos ]
+  import [ dc skos xsd ]
 
   ;; This is actually a US VIN
   import cids:VehicleIdentificationNumber
 
   @dc:version = 2
 
-  datatype UniqueId <- xsd:string is
+  datatype UniqueId <- string is
     @xsd:pattern = "[A-Za-z0-9_-]{22}"
   end
 
@@ -33,9 +33,9 @@ module rentals base <https://example.org/v/rentals> is
   end
 
   structure VehicleInformation is
-    make -> xsd:string
-    model -> xsd:string
-    year -> xsd:integer is
+    make -> string
+    model -> string
+    year -> integer is
       @xsd:minValue = 2000
       @xsd:maxValue = 3000
     end

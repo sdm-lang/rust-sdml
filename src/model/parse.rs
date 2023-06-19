@@ -37,11 +37,7 @@ use crate::syntax::{
 };
 use ariadne::Source;
 use rust_decimal::Decimal;
-use std::borrow::Cow;
 use std::collections::HashSet;
-use std::fs::read_to_string;
-use std::io::Read;
-use std::path::Path;
 use std::str::FromStr;
 use tracing::{error, trace};
 use tree_sitter::Parser;
@@ -61,22 +57,27 @@ use url::Url;
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn parse_file<P>(path: P) -> Result<Module, Error>
-where
-    P: AsRef<Path>,
-{
-    let source = read_to_string(path)?;
-    parse_str_inner(&Cow::Owned(source))
-}
+// This should only be called by `ModuleLoader`
+pub(crate) fn parse_str(source: &str) -> Result<(Module, Option<Source>), Error> {
+    let mut parser = Parser::new();
+    parser
+        .set_language(language())
+        .expect("Error loading SDML grammar");
+    let tree = parser.parse(source, None).unwrap();
 
-pub fn parse_str(source: &str) -> Result<Module, Error> {
-    parse_str_inner(&Cow::Borrowed(source))
-}
-
-pub fn parse_from<R: Read>(handle: &mut R) -> Result<Module, Error> {
-    let mut source = String::new();
-    handle.read_to_string(&mut source)?;
-    parse_str_inner(&Cow::Owned(source))
+    let node = tree.root_node();
+    if node.kind() == NODE_KIND_MODULE {
+        let mut context = ParseContext::new(source);
+        let mut cursor = tree.walk();
+        let module = parse_module(&mut context, &mut cursor)?;
+        Ok((module, context.ariadne))
+    } else {
+        Err(unexpected_node_kind(
+            "parse_str_inner",
+            NODE_KIND_MODULE,
+            node.kind(),
+        ))
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -189,27 +190,6 @@ impl<'a> ParseContext<'a> {
 // ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------
-
-fn parse_str_inner(source: &str) -> Result<Module, Error> {
-    let mut parser = Parser::new();
-    parser
-        .set_language(language())
-        .expect("Error loading SDML grammar");
-    let tree = parser.parse(source, None).unwrap();
-
-    let node = tree.root_node();
-    if node.kind() == NODE_KIND_MODULE {
-        let mut context = ParseContext::new(source);
-        let mut cursor = tree.walk();
-        parse_module(&mut context, &mut cursor)
-    } else {
-        Err(unexpected_node_kind(
-            "parse_str_inner",
-            NODE_KIND_MODULE,
-            node.kind(),
-        ))
-    }
-}
 
 fn parse_module<'a>(
     context: &mut ParseContext<'a>,

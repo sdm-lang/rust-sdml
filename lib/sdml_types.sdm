@@ -42,7 +42,7 @@ module sdml_types base <https://sdml.io/sdml-types.ttl> is
   structure IriReference is
     @rdf:type = rdfs:Datatype
     @owl:equivalentClass = xsd:anyURI
-    @rdfs:label = "irireference"@en
+    @rdfs:label = "iri"@en
     @rdfs:comment = ""@en
   end
 

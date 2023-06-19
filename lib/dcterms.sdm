@@ -95,7 +95,7 @@ module dcterms base <http://purl.org/dc/terms/> is
     @rdfs:seeAlso = <https://www.iso.org/obp/ui/#search>
   end
 
-  structure ISO639-2 is
+  structure ISO639_2 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2000-07-11")
     @rdfs:isDefinedBy = dcterms
@@ -104,7 +104,7 @@ module dcterms base <http://purl.org/dc/terms/> is
     @rdfs:seeAlso = <http://lcweb.loc.gov/standards/iso639-2/langhome.html>
   end
 
-  structure ISO639-3 is
+  structure ISO639_3 is
     @rdf:type = rdfs:Datatype
     @issued = xsd:date("2008-01-14")
     @rdfs:isDefinedBy = dcterms
