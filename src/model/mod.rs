@@ -575,7 +575,7 @@ macro_rules! has_owned_members {
                 })
                 .collect()
         }
-     };
+    };
 }
 
 macro_rules! delegate_referenced_types {
@@ -587,8 +587,7 @@ macro_rules! delegate_referenced_types {
                 .unwrap_or_default()
         }
     };
-    () => {
-   };
+    () => {};
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1103,7 +1102,7 @@ impl ModuleBody {
     }
 
     pub fn is_complete(&self) -> bool {
-        self.definitions().all(|d|d.is_complete())
+        self.definitions().all(|d| d.is_complete())
     }
 
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
@@ -1222,7 +1221,6 @@ enum_display_impl!(Import => Module, Member);
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Annotations
 // ------------------------------------------------------------------------------------------------
-
 
 impl Annotation {
     pub fn new(name: IdentifierReference, value: Value) -> Self {
@@ -1407,7 +1405,6 @@ impl From<&str> for LanguageString {
     }
 }
 
-
 impl PartialEq for LanguageString {
     fn eq(&self, other: &Self) -> bool {
         self.value == other.value && self.language == other.language
@@ -1553,7 +1550,6 @@ impl From<IdentifierReference> for ListMember {
 
 // ------------------------------------------------------------------------------------------------
 
-
 impl ValueConstructor {
     pub fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
         Self {
@@ -1664,13 +1660,8 @@ impl TypeDefinition {
 // Public Types ❱ Type Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
 
-
 impl DatatypeDef {
-    type_definition_impl!(
-        AnnotationOnlyBody,
-        base_type,
-        IdentifierReference
-    );
+    type_definition_impl!(AnnotationOnlyBody, base_type, IdentifierReference);
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body
@@ -1698,9 +1689,7 @@ impl AnnotationOnlyBody {
     has_owned_annotations!();
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.annotations()
-            .map(|a| a.name())
-            .collect()
+        self.annotations().map(|a| a.name()).collect()
     }
 }
 
@@ -1744,7 +1733,7 @@ impl EntityBody {
     has_owned_annotations!();
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-       todo!()
+        todo!()
     }
 
     has_owned_members!(EntityMember);
@@ -1801,7 +1790,6 @@ impl EntityMember {
 
 // ------------------------------------------------------------------------------------------------
 
-
 impl EntityGroup {
     has_owned_ts_span!();
 
@@ -1841,7 +1829,6 @@ impl EnumDef {
 
 // ------------------------------------------------------------------------------------------------
 
-
 impl EnumBody {
     has_owned_ts_span!();
 
@@ -1850,10 +1837,12 @@ impl EnumBody {
     has_owned_annotations!();
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        let mut body: HashSet<&IdentifierReference> = self.annotations()
-            .map(|a| a.name())
+        let mut body: HashSet<&IdentifierReference> =
+            self.annotations().map(|a| a.name()).collect();
+        let variants: HashSet<&IdentifierReference> = self
+            .variants()
+            .flat_map(|v| v.referenced_annotations())
             .collect();
-        let variants: HashSet<&IdentifierReference> = self.variants().flat_map(|v|v.referenced_annotations()).collect();
         body.extend(variants);
         body
     }
@@ -1883,7 +1872,6 @@ impl EnumBody {
 }
 
 // ------------------------------------------------------------------------------------------------
-
 
 impl EnumVariant {
     pub fn new(name: Identifier, value: u32) -> Self {
@@ -1935,7 +1923,6 @@ impl EnumVariant {
 impl EventDef {
     type_definition_impl!(StructureBody, event_source, IdentifierReference);
 
-
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body
             .as_ref()
@@ -1955,7 +1942,6 @@ impl EventDef {
 impl StructureDef {
     type_definition_impl!(StructureBody);
 
-
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body
             .as_ref()
@@ -1969,7 +1955,6 @@ impl StructureDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-
 
 impl StructureBody {
     has_owned_ts_span!();
@@ -2129,9 +2114,7 @@ impl TypeVariant {
 // ------------------------------------------------------------------------------------------------
 
 impl IdentityMember {
-
     member_impl!();
-
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body
@@ -2148,9 +2131,7 @@ impl IdentityMember {
 // ------------------------------------------------------------------------------------------------
 
 impl ByValueMember {
-
     member_impl!(target_cardinality, Cardinality);
-
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body
@@ -2177,7 +2158,6 @@ impl ByReferenceMember {
         target_cardinality,
         Cardinality
     );
-
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         self.body
