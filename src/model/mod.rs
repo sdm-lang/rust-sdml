@@ -798,6 +798,29 @@ impl Comment {
 // Implementations ❱ Identifiers
 // ------------------------------------------------------------------------------------------------
 
+const RESERVED_KEYWORDS: [&str; 18] = [
+    "as",
+    "base",
+    "datatype",
+    "end",
+    "entity",
+    "enum",
+    "event",
+    "group",
+    "identity",
+    "import",
+    "is",
+    "module",
+    "of",
+    "ref",
+    "source",
+    "structure",
+    "union",
+    "unknown",
+];
+const RESERVED_TYPES: [&str; 6] = ["string", "double", "decimal", "integer", "boolean", "iri"];
+const RESERVED_MODULES: [&str; 6] = ["owl", "rdf", "rdfs", "sdml", "xml", "xsd"];
+
 impl FromStr for Identifier {
     type Err = crate::error::Error;
 
@@ -849,10 +872,22 @@ impl Identifier {
         QualifiedIdentifier::new(self.clone(), member)
     }
 
+    #[inline(always)]
     pub fn is_valid(s: &str) -> bool {
-        IDENTIFIER.is_match(s)
+        IDENTIFIER.is_match(s) && !Self::is_keyword(s) && !Self::is_type_name(s)
     }
 
+    #[inline(always)]
+    pub fn is_keyword(s: &str) -> bool {
+        RESERVED_KEYWORDS.contains(&s)
+    }
+
+    #[inline(always)]
+    pub fn is_type_name(s: &str) -> bool {
+        RESERVED_TYPES.contains(&s)
+    }
+
+    #[inline(always)]
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
     }
@@ -2005,6 +2040,24 @@ impl ByReferenceMember {
 }
 
 // ------------------------------------------------------------------------------------------------
+
+impl From<Identifier> for TypeReference {
+    fn from(value: Identifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl From<QualifiedIdentifier> for TypeReference {
+    fn from(value: QualifiedIdentifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl From<IdentifierReference> for TypeReference {
+    fn from(value: IdentifierReference) -> Self {
+        Self::Reference(value)
+    }
+}
 
 impl TypeReference {
     pub fn is_complete(&self) -> bool {

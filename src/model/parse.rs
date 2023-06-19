@@ -32,7 +32,7 @@ use crate::syntax::{
     NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING, NODE_KIND_SIMPLE_VALUE,
     NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP, NODE_KIND_TYPE_DEF,
     NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED,
-    NODE_KIND_VALUE_CONSTRUCTOR,
+    NODE_KIND_VALUE_CONSTRUCTOR, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
 };
 use ariadne::Source;
 use rust_decimal::Decimal;
@@ -750,19 +750,60 @@ fn parse_data_type_def<'a>(
 
     let child = node.child_by_field_name(FIELD_NAME_BASE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let base_type = parse_identifier_reference(context, &mut child.walk())?;
+    let base_type = parse_data_type_base(context, &mut child.walk())?;
 
     context.start_type(&name);
     let mut data_type = DatatypeDef::new(name, base_type).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
-        let body = parse_annotation_only_body(context, cursor)?;
+        let body = parse_annotation_only_body(context, &mut child.walk())?;
         data_type.add_body(body);
     }
 
     context.end_type();
     Ok(data_type)
+}
+
+fn parse_data_type_base<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<IdentifierReference, Error> {
+    rule_fn!("parse_data_type_base", cursor.node());
+    let mut has_next = cursor.goto_first_child();
+    while has_next {
+        let node = cursor.node();
+        context.check_if_error(&node, RULE_NAME)?;
+        if node.is_named() {
+            match node.kind() {
+                NODE_KIND_IDENTIFIER_REFERENCE => {
+                    return parse_identifier_reference(context, &mut node.walk());
+                }
+                NODE_KIND_BUILTIN_SIMPLE_TYPE => {
+                    let module = Identifier::new_unchecked(NAME_SDML);
+                    let member = Identifier::new_unchecked(context.node_source(&node)?);
+                    return Ok(IdentifierReference::QualifiedIdentifier(QualifiedIdentifier::new(module, member).into()))
+                }
+                NODE_KIND_LINE_COMMENT => {
+                    trace!("no comments here"); //check_and_add_comment!(context, node, import);
+                }
+                _ => {
+                    return Err(unexpected_node_kind(
+                        RULE_NAME,
+                        [
+                            NODE_KIND_IDENTIFIER_REFERENCE,
+                            NODE_KIND_BUILTIN_SIMPLE_TYPE,
+                            NODE_KIND_LINE_COMMENT,
+                        ]
+                        .join("|"),
+                        node.kind(),
+                    ));
+                }
+            }
+        }
+        has_next = cursor.goto_next_sibling();
+    }
+    unreachable!()
 }
 
 fn parse_annotation_only_body<'a>(
@@ -1011,7 +1052,7 @@ fn parse_event_def<'a>(
 
     let child = node.child_by_field_name(FIELD_NAME_SOURCE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let event_source = parse_identifier_reference(context, cursor)?;
+    let event_source = parse_identifier_reference(context, &mut child.walk())?;
 
     context.start_type(&name);
     let mut event = EventDef::new(name, event_source).with_ts_span(node.into());
@@ -1314,7 +1355,6 @@ fn parse_type_reference<'a>(
     let mut has_next = cursor.goto_first_child();
     while has_next {
         let node = cursor.node();
-        trace!("node {:?} {}", node, node.is_named());
         context.check_if_error(&node, RULE_NAME)?;
         if node.is_named() {
             match node.kind() {
@@ -1325,6 +1365,11 @@ fn parse_type_reference<'a>(
                     let reference = parse_identifier_reference(context, &mut node.walk())?;
                     return Ok(TypeReference::Reference(reference));
                 }
+                NODE_KIND_BUILTIN_SIMPLE_TYPE => {
+                    let module = Identifier::new_unchecked(NAME_SDML);
+                    let member = Identifier::new_unchecked(context.node_source(&node)?);
+                    return Ok(TypeReference::Reference(QualifiedIdentifier::new(module, member).into()))
+                }
                 NODE_KIND_LINE_COMMENT => {
                     trace!("no comments here"); //check_and_add_comment!(context, node, import);
                 }
@@ -1334,6 +1379,7 @@ fn parse_type_reference<'a>(
                         [
                             NODE_KIND_UNKNOWN_TYPE,
                             NODE_KIND_IDENTIFIER_REFERENCE,
+                            NODE_KIND_BUILTIN_SIMPLE_TYPE,
                             NODE_KIND_LINE_COMMENT,
                         ]
                         .join("|"),

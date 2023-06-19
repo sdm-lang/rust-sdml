@@ -15,6 +15,7 @@ Module {
         ),
         value: "campaign",
     },
+    base: None,
     body: ModuleBody {
         span: Some(
             Span {
@@ -48,11 +49,11 @@ Module {
                         Identifier {
                             span: Some(
                                 Span {
-                                    start: 46,
-                                    end: 57,
+                                    start: 65,
+                                    end: 73,
                                 },
                             ),
-                            value: "NameChanged",
+                            value: "Campaign",
                         },
                     ),
                     body: None,

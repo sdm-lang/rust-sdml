@@ -6,6 +6,8 @@ pub(crate) const NODE_KIND_ANNOTATION: &str = "annotation";
 pub(crate) const NODE_KIND_ANNOTATION_ONLY_BODY: &str = "annotation_only_body";
 
 pub(crate) const NODE_KIND_BOOLEAN: &str = "boolean";
+pub(crate) const NODE_KIND_BUILTIN_SIMPLE_TYPE: &str = "builtin_simple_type";
+
 pub(crate) const NODE_KIND_CARDINALITY_EXPRESSION: &str = "cardinality_expression";
 
 pub(crate) const NODE_KIND_DATA_TYPE_DEF: &str = "data_type_def";
@@ -72,7 +74,7 @@ pub(crate) const FIELD_NAME_LANGUAGE: &str = "language";
 pub(crate) const FIELD_NAME_MEMBER: &str = "member";
 pub(crate) const FIELD_NAME_MAX: &str = "max";
 pub(crate) const FIELD_NAME_MIN: &str = "min";
-pub(crate) const FIELD_NAME_MODULE: &str = "module";
+pub(crate) const FIELD_NAME_MODULE: &str = NODE_KIND_MODULE;
 
 pub(crate) const FIELD_NAME_NAME: &str = "name";
 
@@ -90,9 +92,11 @@ pub(crate) const FIELD_NAME_VALUE: &str = "value";
 // Simple Type Keywords
 // ------------------------------------------------------------------------------------------------
 
-pub(crate) const KW_TYPE_STRING: &str = "string";
-pub(crate) const KW_TYPE_DOUBLE: &str = "double";
-pub(crate) const KW_TYPE_DECIMAL: &str = "decimal";
-pub(crate) const KW_TYPE_INTEGER: &str = "integer";
-pub(crate) const KW_TYPE_BOOLEAN: &str = "boolean";
+pub(crate) const KW_TYPE_STRING: &str = NODE_KIND_STRING;
+pub(crate) const KW_TYPE_DOUBLE: &str = NODE_KIND_DOUBLE;
+pub(crate) const KW_TYPE_DECIMAL: &str = NODE_KIND_DECIMAL;
+pub(crate) const KW_TYPE_INTEGER: &str = NODE_KIND_INTEGER;
+pub(crate) const KW_TYPE_BOOLEAN: &str = NODE_KIND_BOOLEAN;
 pub(crate) const KW_TYPE_IRI: &str = "iri";
+
+pub(crate) const NAME_SDML: &str = "sdml";

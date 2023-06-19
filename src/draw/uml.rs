@@ -11,7 +11,10 @@ YYYYY
 
 use crate::draw::OutputFormat;
 use crate::error::Error;
-use crate::model::{Module, TypeDefinition, DatatypeDef, EntityDef, EnumDef, EventDef, StructureDef, UnionDef, Identifier, ByValueMember, TypeReference, IdentityMember, ByReferenceMember, EntityMember};
+use crate::model::{
+    ByReferenceMember, ByValueMember, DatatypeDef, EntityDef, EntityMember, EnumDef, EventDef,
+    Identifier, IdentityMember, Module, StructureDef, TypeDefinition, TypeReference, UnionDef,
+};
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -39,8 +42,14 @@ pub fn write_uml_diagram<W: Write>(
 
     for other in module.imported_modules() {
         w.write_all(format!("package \"{}\" as s_{} {{\n", other, other).as_bytes())?;
-        for imported in module.imported_types().iter().filter(|qi|qi.module() == other) {
-            w.write_all(format!("  class \"{}\" as s_{}\n", imported.member(), imported).as_bytes())?;
+        for imported in module
+            .imported_types()
+            .iter()
+            .filter(|qi| qi.module() == other)
+        {
+            w.write_all(
+                format!("  class \"{}\" as s_{}\n", imported.member(), imported).as_bytes(),
+            )?;
         }
         w.write_all(b"}\n")?;
         w.write_all(format!("s_{} ..> s_{}\n\n", module.name(), other).as_bytes())?;
@@ -96,9 +105,7 @@ fn write_start_type<W: Write>(
     type_name: &Identifier,
     w: &mut W,
 ) -> Result<(), Error> {
-    w.write_all(format!(
-        "  {} \"{}\" as s_{} {{\n",
-        type_class, type_name, type_name).as_bytes())?;
+    w.write_all(format!("  {} \"{}\" as s_{} {{\n", type_class, type_name, type_name).as_bytes())?;
     Ok(())
 }
 
@@ -108,9 +115,13 @@ fn write_start_type_with_sterotype<W: Write>(
     stereo_name: &str,
     w: &mut W,
 ) -> Result<(), Error> {
-    w.write_all(format!(
-        "  {} \"{}\" as s_{} << (D, orchid) {} >> {{\n",
-        type_class, type_name, type_name, stereo_name).as_bytes())?;
+    w.write_all(
+        format!(
+            "  {} \"{}\" as s_{} << (D, orchid) {} >> {{\n",
+            type_class, type_name, type_name, stereo_name
+        )
+        .as_bytes(),
+    )?;
     Ok(())
 }
 
@@ -120,33 +131,23 @@ fn write_end_type<W: Write>(
     w: &mut W,
 ) -> Result<(), Error> {
     if !has_body {
-        w.write_all(format!(
-            "  }}\n  hide s_{} members\n\n",
-            type_name).as_bytes())?;
+        w.write_all(format!("  }}\n  hide s_{} members\n\n", type_name).as_bytes())?;
     } else {
         w.write_all(b"  }\n\n")?;
     }
     Ok(())
 }
 
-fn write_uml_datatype<W: Write>(
-    me: &DatatypeDef,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_uml_datatype<W: Write>(me: &DatatypeDef, w: &mut W) -> Result<(), Error> {
     let name = me.name();
     write_start_type_with_sterotype("class", name, "datatype", w)?;
     write_end_type(name, me.has_body(), w)?;
-    w.write_all(format!(
-        "  s_{} ..|> s_{}\n",
-        me.name(), me.base_type()).as_bytes())?;
+    w.write_all(format!("  s_{} ..|> s_{}\n", me.name(), me.base_type()).as_bytes())?;
 
     Ok(())
 }
 
-fn write_uml_entity<W: Write>(
-    me: &EntityDef,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_uml_entity<W: Write>(me: &EntityDef, w: &mut W) -> Result<(), Error> {
     let name = me.name();
     write_start_type("entity", name, w)?;
     if let Some(body) = me.body() {
@@ -176,10 +177,7 @@ fn write_uml_entity<W: Write>(
     Ok(())
 }
 
-fn write_uml_enum<W: Write>(
-    me: &EnumDef,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_uml_enum<W: Write>(me: &EnumDef, w: &mut W) -> Result<(), Error> {
     let name = me.name();
     write_start_type("enum", name, w)?;
     if let Some(body) = me.body() {
@@ -192,10 +190,7 @@ fn write_uml_enum<W: Write>(
     Ok(())
 }
 
-fn write_uml_event<W: Write>(
-    me: &EventDef,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_uml_event<W: Write>(me: &EventDef, w: &mut W) -> Result<(), Error> {
     let name = me.name();
     write_start_type_with_sterotype("class", name, "event", w)?;
     if let Some(body) = me.body() {
@@ -210,17 +205,12 @@ fn write_uml_event<W: Write>(
         }
     }
     write_end_type(name, me.has_body(), w)?;
-    w.write_all(format!(
-        "  s_{} o--> s_{}\n",
-        me.name(), me.event_source()).as_bytes())?;
+    w.write_all(format!("  s_{} o--> s_{}\n", me.name(), me.event_source()).as_bytes())?;
 
     Ok(())
 }
 
-fn write_uml_structure<W: Write>(
-    me: &StructureDef,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_uml_structure<W: Write>(me: &StructureDef, w: &mut W) -> Result<(), Error> {
     let name = me.name();
     write_start_type("class", name, w)?;
     if let Some(body) = me.body() {
@@ -239,61 +229,37 @@ fn write_uml_structure<W: Write>(
     Ok(())
 }
 
-fn write_identity_member<W: Write>(
-    me: &IdentityMember,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all(format!(
-        "    {}",
-        me.name()).as_bytes())?;
+fn write_identity_member<W: Write>(me: &IdentityMember, w: &mut W) -> Result<(), Error> {
+    w.write_all(format!("    {}", me.name()).as_bytes())?;
     if let TypeReference::Reference(target_type) = me.target_type() {
-        w.write_all(format!(
-            ": {}\n",
-            target_type).as_bytes())?;
+        w.write_all(format!(": {}\n", target_type).as_bytes())?;
     } else {
         w.write_all(b"\n")?;
     }
     Ok(())
 }
 
-fn write_by_value_member<W: Write>(
-    me: &ByValueMember,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all(format!(
-        "    {}",
-        me.name()).as_bytes())?;
+fn write_by_value_member<W: Write>(me: &ByValueMember, w: &mut W) -> Result<(), Error> {
+    w.write_all(format!("    {}", me.name()).as_bytes())?;
     if let TypeReference::Reference(target_type) = me.target_type() {
-        w.write_all(format!(
-            ": {}\n",
-            target_type).as_bytes())?;
+        w.write_all(format!(": {}\n", target_type).as_bytes())?;
     } else {
         w.write_all(b"\n")?;
     }
     Ok(())
 }
 
-fn write_by_reference_member<W: Write>(
-    me: &ByReferenceMember,
-    w: &mut W,
-) -> Result<(), Error> {
-    w.write_all(format!(
-        "    {}",
-        me.name()).as_bytes())?;
+fn write_by_reference_member<W: Write>(me: &ByReferenceMember, w: &mut W) -> Result<(), Error> {
+    w.write_all(format!("    {}", me.name()).as_bytes())?;
     if let TypeReference::Reference(target_type) = me.target_type() {
-        w.write_all(format!(
-            ": {}\n",
-            target_type).as_bytes())?;
+        w.write_all(format!(": {}\n", target_type).as_bytes())?;
     } else {
         w.write_all(b"\n")?;
     }
     Ok(())
 }
 
-fn write_uml_union<W: Write>(
-    me: &UnionDef,
-    w: &mut W,
-) -> Result<(), Error> {
+fn write_uml_union<W: Write>(me: &UnionDef, w: &mut W) -> Result<(), Error> {
     let name = me.name();
     write_start_type_with_sterotype("enum", name, "union", w)?;
     if let Some(body) = me.body() {
@@ -309,7 +275,6 @@ fn write_uml_union<W: Write>(
 
     Ok(())
 }
-
 
 // ------------------------------------------------------------------------------------------------
 // Modules

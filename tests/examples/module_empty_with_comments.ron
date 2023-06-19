@@ -15,6 +15,7 @@ Module {
         ),
         value: "campaign",
     },
+    base: None,
     body: ModuleBody {
         span: Some(
             Span {
