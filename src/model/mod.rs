@@ -400,7 +400,19 @@ pub struct Cardinality {
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-// Private Macros
+// Private Macros ❱ Basic Get/Set
+// ------------------------------------------------------------------------------------------------
+
+macro_rules! delegate {
+    ($fnname: ident, $fntype: ty, $fieldname: ident $(, $paramname: ident => $paramtype: ty)* ) => {
+        pub fn $fnname(&self $(, $paramname: $paramtype)*) -> $fntype {
+            self.$fieldname.$fnname($($paramname: $paramtype),*)
+        }
+    };
+}
+
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ impl Display
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! simple_display_impl {
@@ -427,6 +439,10 @@ macro_rules! enum_display_impl {
     };
 }
 
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ impl Into/AsRef String
+// ------------------------------------------------------------------------------------------------
+
 macro_rules! into_string_impl {
     ($tyname: ty, $field: ident) => {
         impl From<$tyname> for String {
@@ -447,289 +463,281 @@ macro_rules! as_str_impl {
     };
 }
 
-macro_rules! has_span_impl {
-    ($tyname: ty) => {
-        has_span_impl!($tyname, span);
-    };
-    ($tyname: ty, $field: ident) => {
-        impl $tyname {
-            pub fn with_ts_span(self, span: Span) -> Self {
-                let mut self_mut = self;
-                self_mut.$field = Some(span);
-                self_mut
-            }
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ has Spans
+// ------------------------------------------------------------------------------------------------
 
-            pub fn has_ts_span(&self) -> bool {
-                self.$field.is_some()
-            }
+macro_rules! has_owned_ts_span {
+    () => {
+        pub fn with_ts_span(self, span: Span) -> Self {
+            let mut self_mut = self;
+            self_mut.span = Some(span);
+            self_mut
+        }
 
-            pub fn ts_span(&self) -> Option<&Span> {
-                self.$field.as_ref()
-            }
+        pub fn has_ts_span(&self) -> bool {
+            self.span.is_some()
+        }
+
+        pub fn ts_span(&self) -> Option<&Span> {
+            self.span.as_ref()
         }
     };
 }
 
-macro_rules! has_annotations_impl {
-    ($tyname: ty) => {
-        impl $tyname {
-            pub fn add_annotation(&mut self, add: Annotation) {
-                self.annotations.push(add);
-            }
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ has Comments
+// ------------------------------------------------------------------------------------------------
 
-            pub fn extend_annotations<I>(&mut self, extend: I)
-            where
-                I: IntoIterator<Item = Annotation>,
-            {
-                self.annotations.extend(extend);
-            }
+macro_rules! has_owned_comments {
+    () => {
+        pub fn add_comment(&mut self, add: Comment) {
+            self.comments.push(add);
+        }
 
-            pub fn has_annotations(&self) -> bool {
-                !self.annotations.is_empty()
-            }
+        pub fn extend_comments<I>(&mut self, extend: I)
+        where
+            I: IntoIterator<Item = Comment>,
+        {
+            self.comments.extend(extend);
+        }
 
-            pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
-                self.annotations.iter()
-            }
+        pub fn has_comments(&self) -> bool {
+            !self.comments.is_empty()
+        }
+
+        pub fn comments(&self) -> impl Iterator<Item = &Comment> {
+            self.comments.iter()
         }
     };
 }
 
-macro_rules! has_comments_impl {
-    ($tyname: ty) => {
-        impl $tyname {
-            pub fn add_comment(&mut self, add: Comment) {
-                self.comments.push(add);
-            }
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ has Annotations
+// ------------------------------------------------------------------------------------------------
 
-            pub fn extend_comments<I>(&mut self, extend: I)
-            where
-                I: IntoIterator<Item = Comment>,
-            {
-                self.comments.extend(extend);
-            }
+macro_rules! has_owned_annotations {
+    () => {
+        pub fn add_annotation(&mut self, add: Annotation) {
+            self.annotations.push(add);
+        }
 
-            pub fn has_comments(&self) -> bool {
-                !self.comments.is_empty()
-            }
+        pub fn extend_annotations<I>(&mut self, extend: I)
+        where
+            I: IntoIterator<Item = Annotation>,
+        {
+            self.annotations.extend(extend);
+        }
 
-            pub fn comments(&self) -> impl Iterator<Item = &Comment> {
-                self.comments.iter()
-            }
+        pub fn has_annotations(&self) -> bool {
+            !self.annotations.is_empty()
+        }
+
+        pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+            self.annotations.iter()
         }
     };
 }
 
-macro_rules! has_members_impl {
-    ($tyname: ty, $tymember: ty) => {
-        impl $tyname {
-            pub fn add_member(&mut self, add: $tymember) {
-                self.members.push(add);
-            }
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ has Members
+// ------------------------------------------------------------------------------------------------
 
-            pub fn extend_members<I>(&mut self, extend: I)
-            where
-                I: IntoIterator<Item = $tymember>,
-            {
-                self.members.extend(extend);
-            }
+macro_rules! has_owned_members {
+    ($tymember: ty) => {
+        pub fn add_member(&mut self, add: $tymember) {
+            self.members.push(add);
+        }
 
-            pub fn has_members(&self) -> bool {
-                !self.members.is_empty()
-            }
+        pub fn extend_members<I>(&mut self, extend: I)
+        where
+            I: IntoIterator<Item = $tymember>,
+        {
+            self.members.extend(extend);
+        }
 
-            pub fn members(&self) -> impl Iterator<Item = &$tymember> {
-                self.members.iter()
-            }
+        pub fn has_members(&self) -> bool {
+            !self.members.is_empty()
+        }
+
+        pub fn members(&self) -> impl Iterator<Item = &$tymember> {
+            self.members.iter()
+        }
+
+        pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+            self.members()
+                .filter_map(|m| {
+                    if let TypeReference::Reference(ty) = m.target_type() {
+                        Some(ty)
+                    } else {
+                        None
+                    }
+                })
+                .collect()
+        }
+     };
+}
+
+macro_rules! delegate_referenced_types {
+    ($field: ident) => {
+        pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+            self.$field
+                .as_ref()
+                .map(|b| b.referenced_types())
+                .unwrap_or_default()
+        }
+    };
+    () => {
+   };
+}
+
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ has Groups
+// ------------------------------------------------------------------------------------------------
+
+macro_rules! has_owned_groups {
+    ($grouptype: ty) => {
+        pub fn add_group(&mut self, add: $grouptype) {
+            self.groups.push(add);
+        }
+
+        pub fn extend_groups<I>(&mut self, extend: I)
+        where
+            I: IntoIterator<Item = $grouptype>,
+        {
+            self.groups.extend(extend);
+        }
+
+        pub fn has_groups(&self) -> bool {
+            !self.groups.is_empty()
+        }
+
+        pub fn groups(&self) -> impl Iterator<Item = &$grouptype> {
+            self.groups.iter()
         }
     };
 }
 
-macro_rules! has_groups_impl {
-    ($tyname: ty, $grouptype: ty) => {
-        impl $tyname {
-            pub fn add_group(&mut self, add: $grouptype) {
-                self.groups.push(add);
-            }
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ has Body (Optional)
+// ------------------------------------------------------------------------------------------------
 
-            pub fn extend_groups<I>(&mut self, extend: I)
-            where
-                I: IntoIterator<Item = $grouptype>,
-            {
-                self.groups.extend(extend);
-            }
+macro_rules! has_optional_body {
+    ($bodytype: ty) => {
+        pub fn add_body(&mut self, body: $bodytype) {
+            self.body = Some(body);
+        }
 
-            pub fn has_groups(&self) -> bool {
-                !self.groups.is_empty()
-            }
+        pub fn has_body(&self) -> bool {
+            self.body.is_some()
+        }
 
-            pub fn groups(&self) -> impl Iterator<Item = &$grouptype> {
-                self.groups.iter()
-            }
+        pub fn body(&self) -> Option<&$bodytype> {
+            self.body.as_ref()
         }
     };
 }
 
-macro_rules! has_body_impl {
-    ($tyname: ty, $bodytype: ty) => {
-        has_body_impl!($tyname, $bodytype, body);
-    };
-    ($tyname: ty, $bodytype: ty, $field: ident) => {
-        impl $tyname {
-            pub fn add_body(&mut self, body: $bodytype) {
-                self.$field = Some(body);
-            }
-
-            pub fn has_body(&self) -> bool {
-                self.$field.is_some()
-            }
-
-            pub fn body(&self) -> Option<&$bodytype> {
-                self.$field.as_ref()
-            }
-        }
-    };
-}
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ isa Type Definition
+// ------------------------------------------------------------------------------------------------
 
 macro_rules! type_definition_impl {
-    ($tyname: ty, $bodytype: ty $(, $flname: ident, $fltype: ty )*) => {
-        impl $tyname {
-            pub fn new(name: Identifier $(, $flname: $fltype )*) -> Self {
-                Self {
-                    span: None,
-                    comments: Default::default(),
-                    name,
-                    $(
-                        $flname,
-                    ),*
+    ($bodytype: ty $(, $flname: ident, $fltype: ty )*) => {
+        pub fn new(name: Identifier $(, $flname: $fltype )*) -> Self {
+            Self {
+                span: None,
+                comments: Default::default(),
+                name,
+                $(
+                    $flname,
+                ),*
                     body: None,
-                }
             }
-
-            pub fn name(&self) -> &Identifier {
-                &self.name
-            }
-
-            $(
-                pub fn $flname(&self) -> &$fltype {
-                    &self.$flname
-                }
-            )*
         }
-        has_span_impl!($tyname);
-        has_comments_impl!($tyname);
-        has_body_impl!($tyname, $bodytype);
+
+        pub fn name(&self) -> &Identifier {
+            &self.name
+        }
+
+        $(
+            pub fn $flname(&self) -> &$fltype {
+                &self.$flname
+            }
+        )*
+
+        has_owned_ts_span!();
+
+        has_owned_comments!();
+
+        has_optional_body!($bodytype);
     };
 }
+
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ isa Member
+// ------------------------------------------------------------------------------------------------
 
 macro_rules! member_impl {
-    ($tyname: ty $(, $optional: ident, $opttype: ty )*) => {
-        impl $tyname {
-            pub fn new(name: Identifier, target_type: TypeReference) -> Self {
-                Self {
-                    span: None,
-                    comments: Default::default(),
-                    name,
-                    target_type,
-                    body: None
+    ($($optional: ident, $opttype: ty ),*) => {
+        pub fn new(name: Identifier, target_type: TypeReference) -> Self {
+            Self {
+                span: None,
+                comments: Default::default(),
+                name,
+                target_type,
+                body: None
                     $(,
-                        $optional: None
+                      $optional: None
                     )*
-                }
             }
-
-            pub fn new_unknown(name: Identifier) -> Self {
-                Self::new(name, TypeReference::Unknown)
-            }
-
-
-            pub fn name(&self) -> &Identifier {
-                &self.name
-            }
-
-            pub fn target_type(&self) -> &TypeReference {
-                &self.target_type
-            }
-
-            $(
-                pub fn $optional(&self) -> Option<&$opttype> {
-                    self.$optional.as_ref()
-                }
-            )*
         }
-        has_span_impl!($tyname);
-       has_comments_impl!($tyname);
-        has_body_impl!($tyname, AnnotationOnlyBody);
+
+        pub fn new_unknown(name: Identifier) -> Self {
+            Self::new(name, TypeReference::Unknown)
+        }
+
+
+        pub fn name(&self) -> &Identifier {
+            &self.name
+        }
+
+        pub fn target_type(&self) -> &TypeReference {
+            &self.target_type
+        }
+
+        $(
+            pub fn $optional(&self) -> Option<&$opttype> {
+                self.$optional.as_ref()
+            }
+        )*
+
+        has_owned_ts_span!();
+
+        has_owned_comments!();
+
+        has_optional_body!(AnnotationOnlyBody);
     };
 }
 
-macro_rules! referenced_types_impl {
-    ($tyname: ty => $field: ident) => {
-        impl $tyname {
-            pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-                self.$field
-                    .as_ref()
-                    .map(|b| b.referenced_types())
-                    .unwrap_or_default()
-            }
-        }
-    };
-    ($tyname: ty) => {
-        impl $tyname {
-            pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-                self.members()
-                    .filter_map(|m| {
-                        if let TypeReference::Reference(ty) = m.target_type() {
-                            Some(ty)
-                        } else {
-                            None
-                        }
-                    })
-                    .collect()
-            }
+// ------------------------------------------------------------------------------------------------
+// Private Macros ❱ is_complete
+// ------------------------------------------------------------------------------------------------
+
+macro_rules! is_body_complete_fn {
+    () => {
+        pub fn is_complete(&self) -> bool {
+            self.body
+                .as_ref()
+                .map(|b| b.is_complete())
+                .unwrap_or_default()
         }
     };
 }
 
-macro_rules! referenced_annotations_impl {
-    ($tyname: ty => $field: ident) => {
-        impl $tyname {
-            pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-                self.$field
-                    .as_ref()
-                    .map(|b| b.referenced_annotations())
-                    .unwrap_or_default()
-            }
-        }
-    };
-    ($tyname: ty) => {
-        impl $tyname {
-            pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-                self.annotations().map(|a| a.name()).collect()
-            }
-        }
-    };
-}
-
-macro_rules! is_complete_impl {
-    ($tyname: ty => $field: ident) => {
-        impl $tyname {
-            pub fn is_complete(&self) -> bool {
-                self.$field
-                    .as_ref()
-                    .map(|b| b.is_complete())
-                    .unwrap_or_default()
-            }
-        }
-    };
-    ($tyname: ty ; $field: ident) => {
-        impl $tyname {
-            pub fn is_complete(&self) -> bool {
-                self.$field.is_some()
-            }
-        }
-    };
-}
+// ------------------------------------------------------------------------------------------------
+// Private Macros
+// ------------------------------------------------------------------------------------------------
 
 macro_rules! check_and_add_comment {
     ($context: ident, $node: ident, $parent: ident) => {
@@ -771,7 +779,6 @@ impl From<&str> for Comment {
 simple_display_impl!(Comment, value);
 as_str_impl!(Comment, value);
 into_string_impl!(Comment, value);
-has_span_impl!(Comment);
 
 impl PartialEq for Comment {
     fn eq(&self, other: &Self) -> bool {
@@ -788,6 +795,8 @@ impl Comment {
             value: s.to_string(),
         }
     }
+
+    has_owned_ts_span!();
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
@@ -839,7 +848,6 @@ impl FromStr for Identifier {
 simple_display_impl!(Identifier, value);
 as_str_impl!(Identifier, value);
 into_string_impl!(Identifier, value);
-has_span_impl!(Identifier);
 
 impl PartialEq for Identifier {
     fn eq(&self, other: &Self) -> bool {
@@ -871,6 +879,8 @@ impl Identifier {
     pub fn with_member(&self, member: Identifier) -> QualifiedIdentifier {
         QualifiedIdentifier::new(self.clone(), member)
     }
+
+    has_owned_ts_span!();
 
     #[inline(always)]
     pub fn is_valid(s: &str) -> bool {
@@ -906,8 +916,6 @@ impl Display for QualifiedIdentifier {
     }
 }
 
-has_span_impl!(QualifiedIdentifier);
-
 impl PartialEq for QualifiedIdentifier {
     fn eq(&self, other: &Self) -> bool {
         self.module == other.module && self.member == other.member
@@ -932,6 +940,8 @@ impl QualifiedIdentifier {
             member,
         }
     }
+
+    has_owned_ts_span!();
 
     pub fn module(&self) -> &Identifier {
         &self.module
@@ -994,9 +1004,6 @@ impl IdentifierReference {
 // Implementations ❱ Modules
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(Module);
-has_comments_impl!(Module);
-
 impl Module {
     pub fn new(name: Identifier, body: ModuleBody) -> Self {
         Self {
@@ -1017,6 +1024,10 @@ impl Module {
         }
     }
 
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
     pub fn name(&self) -> &Identifier {
         &self.name
     }
@@ -1029,38 +1040,30 @@ impl Module {
         &self.body
     }
 
-    pub fn imported_modules(&self) -> HashSet<&Identifier> {
-        self.body.imported_modules()
-    }
+    delegate!(imported_modules, HashSet<&Identifier>, body);
 
-    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
-        self.body.imported_types()
-    }
+    delegate!(imported_types, HashSet<&QualifiedIdentifier>, body);
 
-    pub fn declared_types(&self) -> HashSet<&Identifier> {
-        self.body.declared_types()
-    }
+    delegate!(declared_types, HashSet<&Identifier>, body);
 
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        self.body.referenced_types()
-    }
+    delegate!(referenced_types, HashSet<&IdentifierReference>, body);
 
-    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.body.referenced_annotations()
-    }
+    delegate!(referenced_annotations, HashSet<&IdentifierReference>, body);
 
     pub fn is_complete(&self) -> bool {
-        self.body.definitions().all(|def| def.is_complete())
+        self.body.is_complete()
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(ModuleBody);
-has_comments_impl!(ModuleBody);
-has_annotations_impl!(ModuleBody);
-
 impl ModuleBody {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
     pub fn has_imports(&self) -> bool {
         !self.imports.is_empty()
     }
@@ -1097,6 +1100,10 @@ impl ModuleBody {
 
     pub fn definitions(&self) -> impl Iterator<Item = &TypeDefinition> {
         self.definitions.iter()
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.definitions().all(|d|d.is_complete())
     }
 
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
@@ -1138,9 +1145,6 @@ impl FromIterator<Import> for ImportStatement {
     }
 }
 
-has_span_impl!(ImportStatement);
-has_comments_impl!(ImportStatement);
-
 impl ImportStatement {
     pub fn new(imported: Vec<Import>) -> Self {
         Self {
@@ -1149,6 +1153,10 @@ impl ImportStatement {
             imported,
         }
     }
+
+    has_owned_ts_span!();
+
+    has_owned_comments!();
 
     pub fn has_imports(&self) -> bool {
         !self.imported.is_empty()
@@ -1215,8 +1223,6 @@ enum_display_impl!(Import => Module, Member);
 // Implementations ❱ Annotations
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(Annotation);
-has_comments_impl!(Annotation);
 
 impl Annotation {
     pub fn new(name: IdentifierReference, value: Value) -> Self {
@@ -1227,6 +1233,10 @@ impl Annotation {
             value,
         }
     }
+
+    has_owned_ts_span!();
+
+    has_owned_comments!();
 
     pub fn name(&self) -> &IdentifierReference {
         &self.name
@@ -1397,7 +1407,6 @@ impl From<&str> for LanguageString {
     }
 }
 
-has_span_impl!(LanguageString);
 
 impl PartialEq for LanguageString {
     fn eq(&self, other: &Self) -> bool {
@@ -1415,6 +1424,8 @@ impl LanguageString {
             language,
         }
     }
+
+    has_owned_ts_span!();
 
     pub fn value(&self) -> &String {
         &self.value
@@ -1452,7 +1463,6 @@ impl FromStr for LanguageTag {
     }
 }
 
-has_span_impl!(LanguageTag);
 into_string_impl!(LanguageTag, value);
 as_str_impl!(LanguageTag, value);
 
@@ -1472,6 +1482,8 @@ impl LanguageTag {
             value: s.to_string(),
         }
     }
+
+    has_owned_ts_span!();
 
     pub fn is_valid(s: &str) -> bool {
         LANGUAGE_TAG.is_match(s)
@@ -1496,9 +1508,9 @@ impl FromIterator<ListMember> for ListOfValues {
     }
 }
 
-has_span_impl!(ListOfValues);
-
 impl ListOfValues {
+    has_owned_ts_span!();
+
     pub fn add_value(&mut self, add: ListMember) {
         self.values.push(add);
     }
@@ -1541,7 +1553,6 @@ impl From<IdentifierReference> for ListMember {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(ValueConstructor);
 
 impl ValueConstructor {
     pub fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
@@ -1551,6 +1562,8 @@ impl ValueConstructor {
             value,
         }
     }
+
+    has_owned_ts_span!();
 
     pub fn type_name(&self) -> &IdentifierReference {
         &self.type_name
@@ -1651,15 +1664,21 @@ impl TypeDefinition {
 // Public Types ❱ Type Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
 
-type_definition_impl!(
-    DatatypeDef,
-    AnnotationOnlyBody,
-    base_type,
-    IdentifierReference
-);
-referenced_annotations_impl!(DatatypeDef => body);
 
 impl DatatypeDef {
+    type_definition_impl!(
+        AnnotationOnlyBody,
+        base_type,
+        IdentifierReference
+    );
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         [self.base_type()].into_iter().collect()
     }
@@ -1671,29 +1690,40 @@ impl DatatypeDef {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(AnnotationOnlyBody);
-has_comments_impl!(AnnotationOnlyBody);
-has_annotations_impl!(AnnotationOnlyBody);
-referenced_annotations_impl!(AnnotationOnlyBody);
+impl AnnotationOnlyBody {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.annotations()
+            .map(|a| a.name())
+            .collect()
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
-type_definition_impl!(EntityDef, EntityBody);
-referenced_annotations_impl!(EntityDef => body);
-referenced_types_impl!(EntityDef => body);
-is_complete_impl!(EntityDef => body);
+impl EntityDef {
+    type_definition_impl!(EntityBody);
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    delegate_referenced_types!(body);
+
+    is_body_complete_fn!();
+}
 
 // ------------------------------------------------------------------------------------------------
-
-has_span_impl!(EntityBody);
-has_comments_impl!(EntityBody);
-has_annotations_impl!(EntityBody);
-has_members_impl!(EntityBody, EntityMember);
-has_groups_impl!(EntityBody, EntityGroup);
-referenced_annotations_impl!(EntityBody);
-referenced_types_impl!(EntityBody);
 
 impl EntityBody {
     pub fn new(identity: IdentityMember) -> Self {
@@ -1706,6 +1736,22 @@ impl EntityBody {
             groups: Default::default(),
         }
     }
+
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+       todo!()
+    }
+
+    has_owned_members!(EntityMember);
+
+    has_owned_groups!(EntityGroup);
+
+    delegate_referenced_types!();
 
     pub fn identity(&self) -> &IdentityMember {
         &self.identity
@@ -1755,12 +1801,16 @@ impl EntityMember {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(EntityGroup);
-has_comments_impl!(EntityGroup);
-has_annotations_impl!(EntityGroup);
-has_members_impl!(EntityGroup, EntityMember);
 
 impl EntityGroup {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    has_owned_members!(EntityMember);
+
     pub fn is_complete(&self) -> bool {
         self.members().all(|m| m.is_complete())
     }
@@ -1770,11 +1820,20 @@ impl EntityGroup {
 // Public Types ❱ Type Definitions ❱ Enumerations
 // ------------------------------------------------------------------------------------------------
 
-type_definition_impl!(EnumDef, EnumBody);
-referenced_annotations_impl!(EnumDef => body);
-is_complete_impl!(EnumDef ; body);
-
 impl EnumDef {
+    type_definition_impl!(EnumBody);
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.body.is_some()
+    }
+
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         Default::default()
     }
@@ -1782,12 +1841,23 @@ impl EnumDef {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(EnumBody);
-has_comments_impl!(EnumBody);
-has_annotations_impl!(EnumBody);
-referenced_annotations_impl!(EnumBody);
 
 impl EnumBody {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        let mut body: HashSet<&IdentifierReference> = self.annotations()
+            .map(|a| a.name())
+            .collect();
+        let variants: HashSet<&IdentifierReference> = self.variants().flat_map(|v|v.referenced_annotations()).collect();
+        body.extend(variants);
+        body
+    }
+
     pub fn has_variants(&self) -> bool {
         !self.variants.is_empty()
     }
@@ -1814,10 +1884,6 @@ impl EnumBody {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(EnumVariant);
-has_comments_impl!(EnumVariant);
-has_body_impl!(EnumVariant, AnnotationOnlyBody);
-referenced_annotations_impl!(EnumVariant => body);
 
 impl EnumVariant {
     pub fn new(name: Identifier, value: u32) -> Self {
@@ -1840,6 +1906,19 @@ impl EnumVariant {
         }
     }
 
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_optional_body!(AnnotationOnlyBody);
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
     pub fn name(&self) -> &Identifier {
         &self.name
     }
@@ -1853,31 +1932,60 @@ impl EnumVariant {
 // Public Types ❱ Type Definitions ❱ Events
 // ------------------------------------------------------------------------------------------------
 
-type_definition_impl!(EventDef, StructureBody, event_source, IdentifierReference);
-referenced_annotations_impl!(EventDef => body);
-referenced_types_impl!(EventDef => body);
-is_complete_impl!(EventDef => body);
+impl EventDef {
+    type_definition_impl!(StructureBody, event_source, IdentifierReference);
+
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    delegate_referenced_types!(body);
+
+    is_body_complete_fn!();
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
-type_definition_impl!(StructureDef, StructureBody);
-referenced_annotations_impl!(StructureDef => body);
-referenced_types_impl!(StructureDef => body);
-is_complete_impl!(StructureDef => body);
+impl StructureDef {
+    type_definition_impl!(StructureBody);
+
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    delegate_referenced_types!(body);
+
+    is_body_complete_fn!();
+}
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(StructureBody);
-has_comments_impl!(StructureBody);
-has_annotations_impl!(StructureBody);
-has_members_impl!(StructureBody, ByValueMember);
-has_groups_impl!(StructureBody, StructureGroup);
-referenced_annotations_impl!(StructureBody);
-referenced_types_impl!(StructureBody);
 
 impl StructureBody {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    has_owned_members!(ByValueMember);
+
+    has_owned_groups!(StructureGroup);
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        todo!()
+    }
+
     pub fn is_complete(&self) -> bool {
         self.members().all(|m| m.is_complete()) && self.groups().all(|m| m.is_complete())
     }
@@ -1885,12 +1993,15 @@ impl StructureBody {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(StructureGroup);
-has_comments_impl!(StructureGroup);
-has_annotations_impl!(StructureGroup);
-has_members_impl!(StructureGroup, ByValueMember);
-
 impl StructureGroup {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    has_owned_members!(ByValueMember);
+
     pub fn is_complete(&self) -> bool {
         self.members().all(|m| m.is_complete())
     }
@@ -1900,11 +2011,20 @@ impl StructureGroup {
 // Public Types ❱ Type Definitions ❱ Unions
 // ------------------------------------------------------------------------------------------------
 
-type_definition_impl!(UnionDef, UnionBody);
-referenced_annotations_impl!(UnionDef => body);
-is_complete_impl!(UnionDef ; body);
-
 impl UnionDef {
+    type_definition_impl!(UnionBody);
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.body.is_some()
+    }
+
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         self.body()
             .map(|b| b.referenced_types())
@@ -1914,12 +2034,17 @@ impl UnionDef {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(UnionBody);
-has_comments_impl!(UnionBody);
-has_annotations_impl!(UnionBody);
-referenced_annotations_impl!(UnionBody);
-
 impl UnionBody {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_owned_annotations!();
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        todo!()
+    }
+
     pub fn has_variants(&self) -> bool {
         !self.variants.is_empty()
     }
@@ -1946,12 +2071,20 @@ impl UnionBody {
 
 // ------------------------------------------------------------------------------------------------
 
-has_span_impl!(TypeVariant);
-has_comments_impl!(TypeVariant);
-has_body_impl!(TypeVariant, AnnotationOnlyBody);
-referenced_annotations_impl!(TypeVariant => body);
-
 impl TypeVariant {
+    has_owned_ts_span!();
+
+    has_owned_comments!();
+
+    has_optional_body!(AnnotationOnlyBody);
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
     pub fn new(name: IdentifierReference) -> Self {
         Self {
             span: None,
@@ -1995,10 +2128,18 @@ impl TypeVariant {
 // Implementations ❱ Members
 // ------------------------------------------------------------------------------------------------
 
-member_impl!(IdentityMember);
-referenced_annotations_impl!(IdentityMember => body);
-
 impl IdentityMember {
+
+    member_impl!();
+
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
     pub fn is_complete(&self) -> bool {
         self.target_type().is_complete()
     }
@@ -2006,10 +2147,18 @@ impl IdentityMember {
 
 // ------------------------------------------------------------------------------------------------
 
-member_impl!(ByValueMember, target_cardinality, Cardinality);
-referenced_annotations_impl!(ByValueMember => body);
-
 impl ByValueMember {
+
+    member_impl!(target_cardinality, Cardinality);
+
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
     pub fn set_target_cardinality(&mut self, cardinality: Cardinality) {
         self.target_cardinality = Some(cardinality);
     }
@@ -2021,16 +2170,22 @@ impl ByValueMember {
 
 // ------------------------------------------------------------------------------------------------
 
-member_impl!(
-    ByReferenceMember,
-    source_cardinality,
-    Cardinality,
-    target_cardinality,
-    Cardinality
-);
-referenced_annotations_impl!(ByReferenceMember => body);
-
 impl ByReferenceMember {
+    member_impl!(
+        source_cardinality,
+        Cardinality,
+        target_cardinality,
+        Cardinality
+    );
+
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
     pub fn set_source_cardinality(&mut self, cardinality: Cardinality) {
         self.source_cardinality = Some(cardinality);
     }
@@ -2073,8 +2228,6 @@ impl TypeReference {
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Cardinality
 // ------------------------------------------------------------------------------------------------
-
-has_span_impl!(Cardinality);
 
 impl Cardinality {
     pub fn new_range(min: u32, max: u32) -> Self {
@@ -2123,6 +2276,8 @@ impl Cardinality {
             max: Some(1),
         }
     }
+
+    has_owned_ts_span!();
 
     pub fn min_occurs(&self) -> u32 {
         self.min

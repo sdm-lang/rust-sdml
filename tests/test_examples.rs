@@ -82,6 +82,7 @@ test_example!(test_import_multiple_mixed, "import_multiple_mixed");
 test_example!(test_import_multiple_modules, "import_multiple_modules");
 
 test_example!(test_datatype_empty, "datatype_empty");
+test_example!(test_datatype_from_string, "datatype_from_string");
 
 test_example!(test_entity_empty, "entity_empty");
 test_example!(test_entity_with_diff_members, "entity_with_diff_members");

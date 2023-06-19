@@ -782,7 +782,7 @@ fn parse_data_type_base<'a>(
                 }
                 NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                     let module = Identifier::new_unchecked(NAME_SDML);
-                    let member = Identifier::new_unchecked(context.node_source(&node)?);
+                    let member = Identifier::new_unchecked(context.node_source(&node)?).with_ts_span(node.into());
                     return Ok(IdentifierReference::QualifiedIdentifier(
                         QualifiedIdentifier::new(module, member),
                     ));
@@ -1370,7 +1370,7 @@ fn parse_type_reference<'a>(
                 }
                 NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                     let module = Identifier::new_unchecked(NAME_SDML);
-                    let member = Identifier::new_unchecked(context.node_source(&node)?);
+                    let member = Identifier::new_unchecked(context.node_source(&node)?).with_ts_span(node.into());
                     return Ok(TypeReference::Reference(
                         QualifiedIdentifier::new(module, member).into(),
                     ));
