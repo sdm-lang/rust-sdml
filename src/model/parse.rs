@@ -22,17 +22,18 @@ use crate::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_MAX, FIELD_NAME_MEMBER,
     FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_RENAME, FIELD_NAME_SOURCE,
     FIELD_NAME_SOURCE_CARDINALITY, FIELD_NAME_TARGET, FIELD_NAME_TARGET_CARDINALITY,
-    FIELD_NAME_VALUE, NODE_KIND_ANNOTATION, NODE_KIND_BOOLEAN, NODE_KIND_DATA_TYPE_DEF,
-    NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP,
-    NODE_KIND_ENUM_DEF, NODE_KIND_ENUM_VARIANT, NODE_KIND_EVENT_DEF, NODE_KIND_IDENTIFIER,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT,
-    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INTEGER, NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_LIST_OF_VALUES, NODE_KIND_MEMBER_BY_REFERENCE,
-    NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT,
+    FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION, NODE_KIND_BOOLEAN,
+    NODE_KIND_BUILTIN_SIMPLE_TYPE, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE,
+    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF, NODE_KIND_ENUM_VARIANT,
+    NODE_KIND_EVENT_DEF, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
+    NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT, NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INTEGER,
+    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_LIST_OF_VALUES, NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE,
+    NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT,
     NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING, NODE_KIND_SIMPLE_VALUE,
     NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP, NODE_KIND_TYPE_DEF,
     NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED,
-    NODE_KIND_VALUE_CONSTRUCTOR, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
+    NODE_KIND_VALUE_CONSTRUCTOR,
 };
 use ariadne::Source;
 use rust_decimal::Decimal;
@@ -782,7 +783,9 @@ fn parse_data_type_base<'a>(
                 NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                     let module = Identifier::new_unchecked(NAME_SDML);
                     let member = Identifier::new_unchecked(context.node_source(&node)?);
-                    return Ok(IdentifierReference::QualifiedIdentifier(QualifiedIdentifier::new(module, member).into()))
+                    return Ok(IdentifierReference::QualifiedIdentifier(
+                        QualifiedIdentifier::new(module, member),
+                    ));
                 }
                 NODE_KIND_LINE_COMMENT => {
                     trace!("no comments here"); //check_and_add_comment!(context, node, import);
@@ -1368,7 +1371,9 @@ fn parse_type_reference<'a>(
                 NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                     let module = Identifier::new_unchecked(NAME_SDML);
                     let member = Identifier::new_unchecked(context.node_source(&node)?);
-                    return Ok(TypeReference::Reference(QualifiedIdentifier::new(module, member).into()))
+                    return Ok(TypeReference::Reference(
+                        QualifiedIdentifier::new(module, member).into(),
+                    ));
                 }
                 NODE_KIND_LINE_COMMENT => {
                     trace!("no comments here"); //check_and_add_comment!(context, node, import);

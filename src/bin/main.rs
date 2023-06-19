@@ -259,7 +259,7 @@ impl Execute for Tags {
         let resolver = self.files.resolver();
         let model = if let Some(module_name) = &self.files.module {
             let file_name = resolver.resolve_module_path(module_name)?;
-            sdml::model::parse::parse_file(&file_name)?
+            sdml::model::parse::parse_file(file_name)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
@@ -289,7 +289,7 @@ impl Execute for Convert {
         let resolver = self.files.resolver();
         let model = if let Some(module_name) = &self.files.module {
             let file_name = resolver.resolve_module_path(module_name)?;
-            sdml::model::parse::parse_file(&file_name)?
+            sdml::model::parse::parse_file(file_name)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
@@ -329,7 +329,7 @@ impl Execute for Draw {
         let resolver = self.files.resolver();
         let model = if let Some(module_name) = &self.files.module {
             let file_name = resolver.resolve_module_path(module_name)?;
-            sdml::model::parse::parse_file(&file_name)?
+            sdml::model::parse::parse_file(file_name)?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();

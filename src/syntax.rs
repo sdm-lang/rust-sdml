@@ -92,11 +92,11 @@ pub(crate) const FIELD_NAME_VALUE: &str = "value";
 // Simple Type Keywords
 // ------------------------------------------------------------------------------------------------
 
-pub(crate) const KW_TYPE_STRING: &str = NODE_KIND_STRING;
-pub(crate) const KW_TYPE_DOUBLE: &str = NODE_KIND_DOUBLE;
-pub(crate) const KW_TYPE_DECIMAL: &str = NODE_KIND_DECIMAL;
-pub(crate) const KW_TYPE_INTEGER: &str = NODE_KIND_INTEGER;
-pub(crate) const KW_TYPE_BOOLEAN: &str = NODE_KIND_BOOLEAN;
-pub(crate) const KW_TYPE_IRI: &str = "iri";
+// pub(crate) const KW_TYPE_STRING: &str = NODE_KIND_STRING;
+// pub(crate) const KW_TYPE_DOUBLE: &str = NODE_KIND_DOUBLE;
+// pub(crate) const KW_TYPE_DECIMAL: &str = NODE_KIND_DECIMAL;
+// pub(crate) const KW_TYPE_INTEGER: &str = NODE_KIND_INTEGER;
+// pub(crate) const KW_TYPE_BOOLEAN: &str = NODE_KIND_BOOLEAN;
+// pub(crate) const KW_TYPE_IRI: &str = "iri";
 
 pub(crate) const NAME_SDML: &str = "sdml";

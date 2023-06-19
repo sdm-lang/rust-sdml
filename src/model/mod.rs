@@ -888,6 +888,11 @@ impl Identifier {
     }
 
     #[inline(always)]
+    pub fn is_reserved_module_name(s: &str) -> bool {
+        RESERVED_MODULES.contains(&s)
+    }
+
+    #[inline(always)]
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
     }
