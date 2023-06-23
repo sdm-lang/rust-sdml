@@ -7,6 +7,8 @@ functions.
 use std::fmt::{Debug, Display};
 use tracing::error;
 
+use crate::model::Span;
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -48,6 +50,7 @@ pub enum Error {
         rule: String,
         expected: String,
         got: String,
+        span: Span,
     },
     MissingNodeKind {
         rule: String,
@@ -63,53 +66,60 @@ pub enum Error {
     ModuleParseError {
         rule: Option<String>,
         node_name: String,
-        start: usize,
-        end: usize,
+        span: Span,
     },
+    // DuplicateImportError {
+    //     name: String,
+    //     at: Span,
+    //     previously: Span,
+    // },
 }
 
 ///
 /// A Result type that specifically uses this crate's Error.
 ///
-pub type Result<T> = std::result::Result<Error, T>;
+pub type Result<T> = std::result::Result<T, Error>;
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+macro_rules! report_and_return {
+    ($err: expr) => {
+        let err = $err;
+        error!("{}", err);
+        return err;
+    };
+}
+
 /// Construct an Error from the provided source.
 #[inline]
 pub fn io_error(source: std::io::Error) -> Error {
-    error!("Wrapping error: {}", source);
-    Error::IoError { source }
+    report_and_return!(Error::IoError { source });
 }
 
 /// Construct an Error from the provided source.
 #[inline]
 pub fn utf8_error(source: core::str::Utf8Error) -> Error {
-    error!("Wrapping error: {}", source);
-    Error::Utf8Error { source }
+    report_and_return!(Error::Utf8Error { source });
 }
 
 /// Construct an Error from the provided source.
 #[inline]
 pub fn from_utf8_error(source: std::string::FromUtf8Error) -> Error {
-    error!("Wrapping error: {}", source);
-    Error::FromUtf8Error { source }
+    report_and_return!(Error::FromUtf8Error { source });
 }
 
 /// Construct an Error from the provided source.
 #[inline]
 pub fn tracing_filter_error(source: tracing_subscriber::filter::ParseError) -> Error {
-    error!("Wrapping error: {}", source);
-    Error::TracingFilterError { source }
+    report_and_return!(Error::TracingFilterError { source });
 }
 
 /// Construct an Error from the provided source.
 #[inline]
 pub fn tracing_subscriber_error(source: tracing::subscriber::SetGlobalDefaultError) -> Error {
-    error!("Wrapping error: {}", source);
-    Error::TracingSubscriberError { source }
+    report_and_return!(Error::TracingSubscriberError { source });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -118,9 +128,9 @@ pub fn invalid_identifier_error<S>(input: S) -> Error
 where
     S: Into<String>,
 {
-    let input = input.into();
-    error!("Invalid Identifier input: {}", input);
-    Error::InvalidIdentifierError { input }
+    report_and_return!(Error::InvalidIdentifierError {
+        input: input.into()
+    });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -129,9 +139,9 @@ pub fn invalid_language_tag_error<S>(input: S) -> Error
 where
     S: Into<String>,
 {
-    let input = input.into();
-    error!("Invalid LanguageTag input: {}", input);
-    Error::InvalidLanguageTagError { input }
+    report_and_return!(Error::InvalidLanguageTagError {
+        input: input.into()
+    });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -141,32 +151,26 @@ where
     S1: Into<String>,
     S2: Into<String>,
 {
-    let rule = rule.into();
-    let got = got.into();
-    error!("Unexpected node kind; got: {}, in rule: {}", got, rule);
-    Error::InvalidNodeKind { rule, got }
+    report_and_return!(Error::InvalidNodeKind {
+        rule: rule.into(),
+        got: got.into()
+    });
 }
 
 /// Construct an invalid value Error from the provided input.
 #[inline]
-pub fn unexpected_node_kind<S1, S2, S3>(rule: S1, expected: S2, got: S3) -> Error
+pub fn unexpected_node_kind<S1, S2, S3>(rule: S1, expected: S2, got: S3, span: Span) -> Error
 where
     S1: Into<String>,
     S2: Into<String>,
     S3: Into<String>,
 {
-    let rule = rule.into();
-    let expected = expected.into();
-    let got = got.into();
-    error!(
-        "Invalid node kind; expecting: {}, got: {}, in rule: {}",
-        expected, got, rule
-    );
-    Error::UnexpectedNodeKind {
-        rule,
-        expected,
-        got,
-    }
+    report_and_return!(Error::UnexpectedNodeKind {
+        rule: rule.into(),
+        expected: expected.into(),
+        got: got.into(),
+        span,
+    });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -176,13 +180,10 @@ where
     S1: Into<String>,
     S2: Into<String>,
 {
-    let rule = rule.into();
-    let expected = expected.into();
-    error!(
-        "Missing node kind; expecting: {}, in rule: {}",
-        expected, rule
-    );
-    Error::MissingNodeKind { rule, expected }
+    report_and_return!(Error::MissingNodeKind {
+        rule: rule.into(),
+        expected: expected.into()
+    });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -192,13 +193,10 @@ where
     S1: Into<String>,
     S2: Into<String>,
 {
-    let value = value.into();
-    let type_name = type_name.into();
-    error!(
-        "Invalid value for type; value: {}, type: {}",
-        value, type_name
-    );
-    Error::InvalidValueForType { value, type_name }
+    report_and_return!(Error::InvalidValueForType {
+        value: value.into(),
+        type_name: type_name.into()
+    });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -207,46 +205,39 @@ pub fn module_file_not_found<S>(name: S) -> Error
 where
     S: Into<String>,
 {
-    let name = name.into();
-    error!("Could not resolve module name to a file; name: {}", name);
-    Error::ModuleFileNotFound { name }
+    report_and_return!(Error::ModuleFileNotFound { name: name.into() });
 }
 
 /// Construct an invalid value Error from the provided input.
 #[inline]
-pub fn module_parse_error<S1, S2>(
-    node_name: S1,
-    start: usize,
-    end: usize,
-    rule: Option<S2>,
-) -> Error
+pub fn module_parse_error<S1, S2>(node_name: S1, span: Span, rule: Option<S2>) -> Error
 where
     S1: Into<String>,
     S2: Into<String>,
 {
-    let node_name = node_name.into();
-    let rule = rule.map(|s| s.into());
-    error!(
-        "Error reported parsing module; node name: {} range: {}..{}{}",
-        node_name,
-        start,
-        end,
-        if let Some(rule) = &rule {
-            format!(", in rule: {}", rule)
-        } else {
-            String::new()
-        }
-    );
-    Error::ModuleParseError {
-        rule,
-        node_name,
-        start,
-        end,
-    }
+    report_and_return!(Error::ModuleParseError {
+        rule: rule.map(|s| s.into()),
+        node_name: node_name.into(),
+        span,
+    });
 }
+
+/// Construct an invalid value Error from the provided input.
+// #[inline]
+// pub fn duplicate_import_error<S1>(name: S1, at: Span, previously: Span) -> Error
+// where
+//     S1: Into<String>,
+// {
+//     report_and_return!(Error::DuplicateImportError {
+//         name: name.into(),
+//         at,
+//         previously,
+//     });
+// }
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
+// ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
 impl Display for Error {
@@ -255,57 +246,40 @@ impl Display for Error {
             f,
             "{}",
             match self {
-                Self::IoError { source } => format!("An I/O error occurred; source: {}", source),
+                Self::IoError { source } => format!("An I/O error occurred; source: {source}"),
                 Self::Utf8Error { source } =>
-                    format!("A UTF-8 conversion error occurred; source: {}", source),
+                    format!("A UTF-8 conversion error occurred; source: {source}"),
                 Self::FromUtf8Error { source } =>
-                    format!("A UTF-8 conversion error occurred; source: {}", source),
+                    format!("A UTF-8 conversion error occurred; source: {source}"),
                 Self::TracingFilterError { source } => format!(
-                    "A error occurred parsing a tracing filter; source: {}",
-                    source
-                ),
+                    "A error occurred parsing a tracing filter; source: {source}"),
                 Self::TracingSubscriberError { source } => format!(
-                    "A error occurred setting the tracing subscriber; source: {}",
-                    source
-                ),
+                    "A error occurred setting the tracing subscriber; source: {source}"),
                 Self::InvalidIdentifierError { input } => format!(
-                    "Provided input is not a valid identifier; input: {:?}",
-                    input
-                ),
+                    "Provided input is not a valid identifier; input: {input:?}"),
                 Self::InvalidLanguageTagError { input } => format!(
-                    "Provided input is not a valid language tag; input: {:?}",
-                    input
-                ),
+                    "Provided input is not a valid language tag; input: {input:?}"),
                 Self::InvalidNodeKind { rule, got } =>
-                    format!("Unexpected node kind; got: {}, in rule: {}", got, rule),
+                    format!("Unexpected node kind; got: {got}, in rule: {rule}"),
                 Self::UnexpectedNodeKind {
                     rule,
                     expected,
                     got,
+                    span,
                 } => format!(
-                    "Invalid node kind; expecting: {}, got: {}, in rule: {}",
-                    expected, got, rule
-                ),
+                    "Invalid node kind; expecting: {expected}, got: {got}, in rule: {rule}, span: {span}"),
                 Self::InvalidValueForType { value, type_name } => format!(
-                    "Invalid value for type; value: {}, type: {}",
-                    value, type_name
-                ),
+                    "Invalid value for type; value: {value}, type: {type_name}"),
                 Self::MissingNodeKind { rule, expected } => format!(
-                    "Missing node kind; expecting: {}, in rule: {}",
-                    expected, rule
-                ),
+                    "Missing node kind; expecting: {expected}, in rule: {rule}"),
                 Self::ModuleFileNotFound { name } =>
-                    format!("Could not resolve module name to a file; name: {}", name),
+                    format!("Could not resolve module name to a file; name: {name}"),
                 Self::ModuleParseError {
                     rule,
                     node_name,
-                    start,
-                    end,
+                    span,
                 } => format!(
-                    "Error reported parsing module; node name: {} range: {}..{}{}",
-                    node_name,
-                    start,
-                    end,
+                    "Error reported parsing module; node name: {node_name} span: {span}{}",
                     if let Some(rule) = rule {
                         format!(", in rule: {}", rule)
                     } else {
@@ -324,6 +298,12 @@ impl std::error::Error for Error {
             Error::IoError { source } => Some(source),
             _ => None,
         }
+    }
+}
+
+impl<T> From<Error> for Result<T> {
+    fn from(value: Error) -> Self {
+        Err(value)
     }
 }
 

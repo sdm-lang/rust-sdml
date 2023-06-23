@@ -21,6 +21,30 @@ YYYYY
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+pub fn validate_module(module: &Module, loader: &mut ModuleLoader) -> Result<(), Error> {
+    // Check for unused imported types:
+    // imported-types ∖ referenced-types
+
+    // Check for unused imported modules:
+    // imported-modules ∖ referenced-modules
+
+    // Check for unknown, referenced modules:
+    // referenced-modules ∖ imported-modules
+
+    // Import modules:
+    // imported-types = imported-types ∪ ∀(referenced-modules ∋ mod): import-all(mod)
+
+    // Check for unknown, referenced types:
+    // referenced-types ∖ imported-types
+
+    todo!()
+}
+
+pub fn validate_module_named(name: &Identifier, loader: &mut ModuleLoader) -> Result<(), Error> {
+    let module = loader.load_module(name)?;
+    check_module(module, loader)
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Macros
 // ------------------------------------------------------------------------------------------------

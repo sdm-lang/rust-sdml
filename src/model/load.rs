@@ -9,11 +9,10 @@ YYYYY
 
  */
 
-use super::parse::parse_str;
 use crate::error::Error;
+use crate::model::parse::parse_str;
 use crate::model::resolve::ModuleResolver;
 use crate::model::{Identifier, Module};
-use ariadne::Source;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
@@ -49,7 +48,6 @@ pub struct ModuleLoader {
 struct LoadedModule {
     path: Option<PathBuf>,
     original: String,
-    reporter_source: Option<ariadne::Source>,
     module: Module,
 }
 
@@ -84,12 +82,11 @@ impl ModuleLoader {
     {
         let mut original = String::new();
         reader.read_to_string(&mut original)?;
-        let (module, reporter_source) = parse_str(&original)?;
+        let module = parse_str(&original, path.as_ref().map(|p|p.to_string_lossy().into_owned()), true)?;
         let name = module.name().clone();
         let loaded = LoadedModule {
             path,
             original,
-            reporter_source,
             module,
         };
         let _ = self.insert(name.clone(), loaded);
@@ -112,10 +109,6 @@ impl ModuleLoader {
         self.modules.get(name).map(|m| m.original_source())
     }
 
-    pub fn get_loaded_module_reporter_source(&mut self, name: &Identifier) -> Option<&Source> {
-        self.modules.get_mut(name).map(|m| m.reporter_source())
-    }
-
     pub fn get_loaded_module(&self, name: &Identifier) -> Option<&Module> {
         self.modules.get(name).map(|m| m.module())
     }
@@ -134,13 +127,6 @@ impl LoadedModule {
 
     fn original_source(&self) -> &String {
         &self.original
-    }
-
-    fn reporter_source(&mut self) -> &Source {
-        if self.reporter_source.is_none() {
-            self.reporter_source = Some(Source::from(&self.original));
-        }
-        self.reporter_source.as_ref().unwrap()
     }
 
     fn module(&self) -> &Module {

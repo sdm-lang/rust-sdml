@@ -26,14 +26,18 @@ use url::Url;
 // Public Types ❱ Tree Reference
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Span {
-    start: usize,
-    end: usize,
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct Point {
+    byte: usize,
+    line: usize,
+    column: usize,
 }
 
-pub type ByteSpan = Span;
-pub type CharSpan = Span;
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct Span {
+    start: Point,
+    end: Point,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Comments
@@ -990,6 +994,20 @@ impl Hash for IdentifierReference {
 }
 
 impl IdentifierReference {
+    pub fn has_ts_span(&self) -> bool {
+        match self {
+            Self::Identifier(v) => v.has_ts_span(),
+            Self::QualifiedIdentifier(v) => v.has_ts_span(),
+        }
+    }
+
+    pub fn ts_span(&self) -> Option<&Span> {
+        match self {
+            Self::Identifier(v) => v.ts_span(),
+            Self::QualifiedIdentifier(v) => v.ts_span(),
+        }
+    }
+
     pub fn eq_with_span(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Identifier(l0), Self::Identifier(r0)) => l0.eq_with_span(r0),
@@ -1217,6 +1235,22 @@ impl From<QualifiedIdentifier> for Import {
 }
 
 enum_display_impl!(Import => Module, Member);
+
+impl Import {
+    pub fn has_ts_span(&self) -> bool {
+        match self {
+            Self::Module(v) => v.has_ts_span(),
+            Self::Member(v) => v.has_ts_span(),
+        }
+    }
+
+    pub fn ts_span(&self) -> Option<&Span> {
+        match self {
+            Self::Module(v) => v.ts_span(),
+            Self::Member(v) => v.ts_span(),
+        }
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Annotations
@@ -1613,45 +1647,67 @@ impl From<UnionDef> for TypeDefinition {
 impl TypeDefinition {
     pub fn name(&self) -> &Identifier {
         match self {
-            TypeDefinition::Datatype(v) => v.name(),
-            TypeDefinition::Entity(v) => v.name(),
-            TypeDefinition::Enum(v) => v.name(),
-            TypeDefinition::Event(v) => v.name(),
-            TypeDefinition::Structure(v) => v.name(),
-            TypeDefinition::Union(v) => v.name(),
+            Self::Datatype(v) => v.name(),
+            Self::Entity(v) => v.name(),
+            Self::Enum(v) => v.name(),
+            Self::Event(v) => v.name(),
+            Self::Structure(v) => v.name(),
+            Self::Union(v) => v.name(),
         }
     }
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         match self {
-            TypeDefinition::Datatype(v) => v.referenced_types(),
-            TypeDefinition::Entity(v) => v.referenced_types(),
-            TypeDefinition::Enum(v) => v.referenced_types(),
-            TypeDefinition::Event(v) => v.referenced_types(),
-            TypeDefinition::Structure(v) => v.referenced_types(),
-            TypeDefinition::Union(v) => v.referenced_types(),
+            Self::Datatype(v) => v.referenced_types(),
+            Self::Entity(v) => v.referenced_types(),
+            Self::Enum(v) => v.referenced_types(),
+            Self::Event(v) => v.referenced_types(),
+            Self::Structure(v) => v.referenced_types(),
+            Self::Union(v) => v.referenced_types(),
         }
     }
 
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         match self {
-            TypeDefinition::Datatype(v) => v.referenced_annotations(),
-            TypeDefinition::Entity(v) => v.referenced_annotations(),
-            TypeDefinition::Enum(v) => v.referenced_annotations(),
-            TypeDefinition::Event(v) => v.referenced_annotations(),
-            TypeDefinition::Structure(v) => v.referenced_annotations(),
-            TypeDefinition::Union(v) => v.referenced_annotations(),
+            Self::Datatype(v) => v.referenced_annotations(),
+            Self::Entity(v) => v.referenced_annotations(),
+            Self::Enum(v) => v.referenced_annotations(),
+            Self::Event(v) => v.referenced_annotations(),
+            Self::Structure(v) => v.referenced_annotations(),
+            Self::Union(v) => v.referenced_annotations(),
         }
     }
 
     pub fn is_complete(&self) -> bool {
         match self {
-            TypeDefinition::Datatype(v) => v.is_complete(),
-            TypeDefinition::Entity(v) => v.is_complete(),
-            TypeDefinition::Enum(v) => v.is_complete(),
-            TypeDefinition::Event(v) => v.is_complete(),
-            TypeDefinition::Structure(v) => v.is_complete(),
-            TypeDefinition::Union(v) => v.is_complete(),
+            Self::Datatype(v) => v.is_complete(),
+            Self::Entity(v) => v.is_complete(),
+            Self::Enum(v) => v.is_complete(),
+            Self::Event(v) => v.is_complete(),
+            Self::Structure(v) => v.is_complete(),
+            Self::Union(v) => v.is_complete(),
+        }
+    }
+
+    pub fn has_ts_span(&self) -> bool {
+        match self {
+            Self::Datatype(v) => v.has_ts_span(),
+            Self::Entity(v) => v.has_ts_span(),
+            Self::Enum(v) => v.has_ts_span(),
+            Self::Event(v) => v.has_ts_span(),
+            Self::Structure(v) => v.has_ts_span(),
+            Self::Union(v) => v.has_ts_span(),
+        }
+    }
+
+    pub fn ts_span(&self) -> Option<&Span> {
+        match self {
+            Self::Datatype(v) => v.ts_span(),
+            Self::Entity(v) => v.ts_span(),
+            Self::Enum(v) => v.ts_span(),
+            Self::Event(v) => v.ts_span(),
+            Self::Structure(v) => v.ts_span(),
+            Self::Union(v) => v.ts_span(),
         }
     }
 }
@@ -2290,48 +2346,72 @@ impl Cardinality {
 // Implementations ❱ Source Ranges
 // ------------------------------------------------------------------------------------------------
 
+impl Display for Point {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.line, self.column)
+    }
+}
+
+impl Point {
+    pub fn new(byte: usize, line: usize, column: usize) -> Self {
+        Self { byte, line, column }
+    }
+
+    pub fn byte(&self) -> usize {
+        self.byte
+    }
+
+    pub fn line(&self) -> usize {
+        self.line
+    }
+
+    pub fn column(&self) -> usize {
+        self.column
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl From<&Node<'_>> for Span {
     fn from(node: &Node<'_>) -> Self {
         Self {
-            start: node.start_byte(),
-            end: node.end_byte(),
+            start: Point::new(
+                node.start_byte(),
+                node.start_position().row,
+                node.start_position().column,
+            ),
+            end: Point::new(
+                node.end_byte(),
+                node.end_position().row,
+                node.end_position().column,
+            ),
         }
     }
 }
 
 impl From<Node<'_>> for Span {
     fn from(node: Node<'_>) -> Self {
-        Self {
-            start: node.start_byte(),
-            end: node.end_byte(),
-        }
+        Self::from(&node)
+    }
+}
+
+impl Display for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}..{}", self.start, self.end)
     }
 }
 
 impl Span {
-    pub fn start(&self) -> usize {
-        self.start
-    }
-    pub fn end(&self) -> usize {
-        self.end
-    }
-    pub fn byte_span_to_char_span(source: &str, byte_span: ByteSpan) -> CharSpan {
-        let start = source[..byte_span.start].chars().count();
-        let size = source[byte_span.start..byte_span.end].chars().count();
-        Span {
-            start,
-            end: start + size,
-        }
+    pub fn new(start: Point, end: Point) -> Self {
+        Self { start, end }
     }
 
-    pub fn char_span_to_byte_span(source: &str, char_span: CharSpan) -> ByteSpan {
-        let mut iter = source.char_indices();
-        let start = iter.nth(char_span.start).map(|(i, _)| i).unwrap_or(0);
-        let end = iter
-            .nth(char_span.end - char_span.start - 1)
-            .map(|(i, _)| i)
-            .unwrap_or(source.len());
-        Span { start, end }
+    pub fn start(&self) -> Point {
+        self.start
+    }
+
+    pub fn end(&self) -> Point {
+        self.end
     }
 }
 
@@ -2344,6 +2424,8 @@ impl Span {
 // ------------------------------------------------------------------------------------------------
 
 mod parse;
+
+mod error;
 
 pub mod load;
 

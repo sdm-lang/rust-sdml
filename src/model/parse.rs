@@ -10,6 +10,10 @@ YYYYY
 */
 
 use crate::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
+use crate::model::error::{
+    message_expecting_node, message_expecting_one_of_node, message_found_node,
+    Error as LanguageError, ErrorId,
+};
 use crate::model::{
     Annotation, AnnotationOnlyBody, ByReferenceMember, ByValueMember, Cardinality, Comment,
     DatatypeDef, EntityBody, EntityDef, EntityGroup, EnumBody, EnumDef, EnumVariant, EventDef,
@@ -35,7 +39,6 @@ use crate::syntax::{
     NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED,
     NODE_KIND_VALUE_CONSTRUCTOR,
 };
-use ariadne::Source;
 use rust_decimal::Decimal;
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -44,6 +47,8 @@ use tree_sitter::Parser;
 use tree_sitter::{Node, TreeCursor};
 use tree_sitter_sdml::language;
 use url::Url;
+
+use super::error::MoreInformation;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -58,7 +63,7 @@ use url::Url;
 // ------------------------------------------------------------------------------------------------
 
 // This should only be called by `ModuleLoader`
-pub(crate) fn parse_str(source: &str) -> Result<(Module, Option<Source>), Error> {
+pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool) -> Result<Module, Error> {
     let mut parser = Parser::new();
     parser
         .set_language(language())
@@ -67,15 +72,21 @@ pub(crate) fn parse_str(source: &str) -> Result<(Module, Option<Source>), Error>
 
     let node = tree.root_node();
     if node.kind() == NODE_KIND_MODULE {
-        let mut context = ParseContext::new(source);
+        let mut context = ParseContext::new(source, file_name, use_color);
         let mut cursor = tree.walk();
         let module = parse_module(&mut context, &mut cursor)?;
-        Ok((module, context.ariadne))
+        Ok(module)
     } else {
+        LanguageError::error(ErrorId::UnexpectedNodeKind)
+            .at_node_location(&node)
+            .additional_message(message_expecting_node(NODE_KIND_MODULE))
+            .additional_message(message_found_node(node.kind()))
+            .report(use_color);
         Err(unexpected_node_kind(
-            "parse_str_inner",
+            "parse_str",
             NODE_KIND_MODULE,
             node.kind(),
+            node.into(),
         ))
     }
 }
@@ -97,13 +108,14 @@ macro_rules! rule_fn {
 
 #[derive(Debug)]
 struct ParseContext<'a> {
+    file_name: Option<String>,
+    use_color: bool,
     source: &'a str,
-    #[allow(dead_code)]
-    ariadne: Option<Source>,
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
     save_comments: bool,
+    errors_reported: bool,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -111,27 +123,21 @@ struct ParseContext<'a> {
 // ------------------------------------------------------------------------------------------------
 
 impl<'a> ParseContext<'a> {
-    fn new(source: &'a str) -> Self {
+    fn new(source: &'a str, file_name: Option<String>, use_color: bool) -> Self {
         Self {
+            file_name,
+            use_color,
             source,
-            ariadne: Default::default(),
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
             save_comments: Default::default(),
+            errors_reported: Default::default(),
         }
     }
 
     fn source(&self) -> &[u8] {
         self.source.as_bytes()
-    }
-
-    #[allow(dead_code)]
-    fn error_source(&mut self) -> &Source {
-        if self.ariadne.is_none() {
-            self.ariadne = Some(Source::from(self.source));
-        }
-        self.ariadne.as_ref().unwrap()
     }
 
     fn node_source(&'a self, node: &'a Node<'a>) -> Result<&'a str, Error> {
@@ -140,23 +146,26 @@ impl<'a> ParseContext<'a> {
 
     fn check_if_error(&self, node: &Node<'a>, rule: &str) -> Result<(), Error> {
         if node.is_error() {
-            //ariadne::Report::build(ariadne::ReportKind::Error, (), 1)
-            //    .finish()
-            //    .print(self.error_source())?;
-            Err(module_parse_error(
-                node.kind(),
-                node.start_byte(),
-                node.end_byte(),
-                Some(rule),
-            ))
+            Err(module_parse_error(node.kind(), node.into(), Some(rule)))
         } else {
             Ok(())
         }
     }
 
     fn add_import(&mut self, import: &Import) {
-        if self.imports.contains(import) {
-            error!("Duplicate import: {}", import);
+        if let Some(previous) = self.imports.get(import) {
+            LanguageError::warning(if matches!(previous, Import::Module(_)) {
+                ErrorId::ModuleAlreadyImported
+            } else {
+                ErrorId::MemberAlreadyImported
+            })
+            .in_file_or_stdin(self.file_name.clone())
+            .at_location(import.ts_span().unwrap().clone())
+            .add(
+                MoreInformation::note("Initially imported here")
+                    .at_location(previous.ts_span().unwrap().clone()),
+            )
+            .report(self.use_color);
         } else {
             self.imports.insert(import.clone());
         }
@@ -236,6 +245,17 @@ fn parse_module_body<'a>(
                         check_and_add_comment!(context, node, body);
                     }
                     _ => {
+                        LanguageError::error(ErrorId::UnexpectedNodeKind)
+                            .in_file_or_stdin(context.file_name.clone())
+                            .at_node_location(&node)
+                            .additional_message(message_expecting_one_of_node(&[
+                                NODE_KIND_IMPORT_STATEMENT,
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_TYPE_DEF,
+                                NODE_KIND_LINE_COMMENT,
+                            ]))
+                            .additional_message(message_found_node(node.kind()))
+                            .report(context.use_color);
                         return Err(unexpected_node_kind(
                             RULE_NAME,
                             [
@@ -246,6 +266,7 @@ fn parse_module_body<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -279,10 +300,20 @@ fn parse_import_statement<'a>(
                         check_and_add_comment!(context, node, import);
                     }
                     _ => {
+                        LanguageError::error(ErrorId::UnexpectedNodeKind)
+                            .in_file_or_stdin(context.file_name.clone())
+                            .at_node_location(&node)
+                            .additional_message(message_expecting_one_of_node(&[
+                                NODE_KIND_IMPORT,
+                                NODE_KIND_LINE_COMMENT,
+                            ]))
+                            .additional_message(message_found_node(node.kind()))
+                            .report(context.use_color);
                         return Err(unexpected_node_kind(
                             RULE_NAME,
                             [NODE_KIND_IMPORT, NODE_KIND_LINE_COMMENT].join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -322,6 +353,16 @@ fn parse_import<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
+                        LanguageError::error(ErrorId::UnexpectedNodeKind)
+                            .in_file_or_stdin(context.file_name.clone())
+                            .at_node_location(&node)
+                            .additional_message(message_expecting_one_of_node(&[
+                                NODE_KIND_MODULE_IMPORT,
+                                NODE_KIND_MEMBER_IMPORT,
+                                NODE_KIND_LINE_COMMENT,
+                            ]))
+                            .additional_message(message_found_node(node.kind()))
+                            .report(context.use_color);
                         return Err(unexpected_node_kind(
                             RULE_NAME,
                             [
@@ -331,6 +372,7 @@ fn parse_import<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -388,6 +430,16 @@ fn parse_identifier_reference<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
+                        LanguageError::error(ErrorId::UnexpectedNodeKind)
+                            .in_file_or_stdin(context.file_name.clone())
+                            .at_node_location(&node)
+                            .additional_message(message_expecting_one_of_node(&[
+                                NODE_KIND_IDENTIFIER,
+                                NODE_KIND_QUALIFIED_IDENTIFIER,
+                                NODE_KIND_LINE_COMMENT,
+                            ]))
+                            .additional_message(message_found_node(node.kind()))
+                            .report(context.use_color);
                         return Err(unexpected_node_kind(
                             RULE_NAME,
                             [
@@ -397,6 +449,7 @@ fn parse_identifier_reference<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -465,6 +518,7 @@ fn parse_value<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -534,6 +588,7 @@ fn parse_simple_value<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -581,6 +636,7 @@ fn parse_string<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -649,6 +705,7 @@ fn parse_list_of_values<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -707,6 +764,7 @@ fn parse_type_definition<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -781,6 +839,7 @@ fn parse_data_type_base<'a>(
                         ]
                         .join("|"),
                         node.kind(),
+                        node.into(),
                     ));
                 }
             }
@@ -814,6 +873,7 @@ fn parse_annotation_only_body<'a>(
                             RULE_NAME,
                             [NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT].join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -898,6 +958,7 @@ fn parse_entity_body<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -945,6 +1006,7 @@ fn parse_entity_group<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -1012,6 +1074,7 @@ fn parse_enum_body<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -1087,6 +1150,7 @@ fn parse_structure_body<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -1130,6 +1194,7 @@ fn parse_structure_group<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -1221,6 +1286,7 @@ fn parse_union_body<'a>(
                             ]
                             .join("|"),
                             node.kind(),
+                            node.into(),
                         ));
                     }
                 }
@@ -1371,6 +1437,7 @@ fn parse_type_reference<'a>(
                         ]
                         .join("|"),
                         node.kind(),
+                        node.into(),
                     ));
                 }
             }
@@ -1419,14 +1486,15 @@ fn parse_type_variant<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier_reference(context, &mut child.walk())?;
 
-    // FIX: context.start_member(&name);
     let type_variant = TypeVariant::new(name).with_ts_span(node.into());
 
     let mut type_variant = if let Some(child) = node.child_by_field_name(FIELD_NAME_RENAME) {
         context.check_if_error(&child, RULE_NAME)?;
         let rename = parse_identifier(context, &child)?;
+        context.start_member(&rename);
         type_variant.with_rename(rename)
     } else {
+        // FIX: context.start_member(type_variant.name());
         type_variant
     };
 
