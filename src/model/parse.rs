@@ -11,7 +11,6 @@ YYYYY
 
 use crate::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
 use crate::model::error::{
-    message_expecting_node, message_expecting_one_of_node, message_found_node,
     Error as LanguageError, ErrorId,
 };
 use crate::model::{
@@ -39,6 +38,7 @@ use crate::syntax::{
     NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED,
     NODE_KIND_VALUE_CONSTRUCTOR,
 };
+use lineindex::IndexedString;
 use rust_decimal::Decimal;
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -47,8 +47,6 @@ use tree_sitter::Parser;
 use tree_sitter::{Node, TreeCursor};
 use tree_sitter_sdml::language;
 use url::Url;
-
-use super::error::MoreInformation;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -62,6 +60,57 @@ use super::error::MoreInformation;
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+macro_rules! unexpected_node {
+    ($context: expr, $rule: expr, $node: expr, [ $($expected: expr, )+ ]) => {
+        LanguageError::error(ErrorId::UnexpectedNodeKind)
+            .in_file($context.file_name.clone())
+            .at_node_location(&$node)
+            .add_advice(
+                LanguageError::note_message(
+                    message_expecting_one_of_node(&[
+                        $($expected, )+
+                    ])
+                )
+            )
+            .add_advice(
+                LanguageError::note_message(
+                    message_found_node($node.kind())
+                )
+            )
+            .report($context.use_color, &$context.source);
+        return Err(unexpected_node_kind(
+            $rule,
+            [
+                $($expected, )+
+            ].join("|"),
+            $node.kind(),
+            $node.into(),
+        ))
+    };
+    ($context: expr, $rule: expr, $node: expr, $expected: expr) => {
+        LanguageError::error(ErrorId::UnexpectedNodeKind)
+            .in_file($context.file_name.clone())
+            .at_node_location(&$node)
+            .add_advice(
+                LanguageError::note_message(
+                    message_expecting_node($expected)
+                )
+            )
+            .add_advice(
+                LanguageError::note_message(
+                    message_found_node($node.kind())
+                )
+            )
+            .report($context.use_color, &$context.source);
+        return Err(unexpected_node_kind(
+            $rule,
+            $expected,
+            $node.kind(),
+            $node.into(),
+        ))
+    };
+}
+
 // This should only be called by `ModuleLoader`
 pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool) -> Result<Module, Error> {
     let mut parser = Parser::new();
@@ -71,23 +120,18 @@ pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool
     let tree = parser.parse(source, None).unwrap();
 
     let node = tree.root_node();
+    let mut context = ParseContext::new(source, file_name, use_color);
     if node.kind() == NODE_KIND_MODULE {
-        let mut context = ParseContext::new(source, file_name, use_color);
         let mut cursor = tree.walk();
         let module = parse_module(&mut context, &mut cursor)?;
         Ok(module)
     } else {
-        LanguageError::error(ErrorId::UnexpectedNodeKind)
-            .at_node_location(&node)
-            .additional_message(message_expecting_node(NODE_KIND_MODULE))
-            .additional_message(message_found_node(node.kind()))
-            .report(use_color);
-        Err(unexpected_node_kind(
+        unexpected_node!(
+            context,
             "parse_str",
-            NODE_KIND_MODULE,
-            node.kind(),
-            node.into(),
-        ))
+            node,
+            NODE_KIND_MODULE
+        );
     }
 }
 
@@ -110,7 +154,7 @@ macro_rules! rule_fn {
 struct ParseContext<'a> {
     file_name: Option<String>,
     use_color: bool,
-    source: &'a str,
+    source: IndexedString<'a>,
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
@@ -127,7 +171,7 @@ impl<'a> ParseContext<'a> {
         Self {
             file_name,
             use_color,
-            source,
+            source: IndexedString::from(source),
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
@@ -159,29 +203,43 @@ impl<'a> ParseContext<'a> {
             } else {
                 ErrorId::MemberAlreadyImported
             })
-            .in_file_or_stdin(self.file_name.clone())
-            .at_location(import.ts_span().unwrap().clone())
-            .add(
-                MoreInformation::note("Initially imported here")
-                    .at_location(previous.ts_span().unwrap().clone()),
-            )
-            .report(self.use_color);
+                .in_file(self.file_name.clone())
+                .at_location(import.ts_span().unwrap().clone())
+                .add_advice(
+                    LanguageError::note_message("Initially imported here")
+                        .at_location(previous.ts_span().unwrap().clone())
+                )
+            .report(self.use_color, &self.source);
         } else {
             self.imports.insert(import.clone());
         }
     }
 
     fn start_type(&mut self, name: &Identifier) {
-        if self.type_names.contains(name) {
-            error!("Duplicate type: {}", name);
+        if let Some(type_defn) = self.type_names.get(name) {
+            LanguageError::warning(ErrorId::TypeDefinitionNameUsed)
+                .in_file(self.file_name.clone())
+                .at_location(name.ts_span().unwrap().clone())
+                .add_advice(
+                    LanguageError::note_message("Initially defined here")
+                        .at_location(type_defn.ts_span().unwrap().clone())
+                )
+            .report(self.use_color, &self.source);
         } else {
             self.type_names.insert(name.clone());
         }
     }
 
     fn start_member(&mut self, name: &Identifier) {
-        if self.member_names.contains(name) {
-            error!("Duplicate member: {}", name);
+        if let Some(member) = self.member_names.get(name) {
+            LanguageError::warning(ErrorId::MemberNameUsed)
+                .in_file(self.file_name.clone())
+                .at_location(name.ts_span().unwrap().clone())
+                .add_advice(
+                    LanguageError::note_message("Initially defined here")
+                        .at_location(member.ts_span().unwrap().clone())
+                )
+            .report(self.use_color, &self.source);
         } else {
             self.member_names.insert(name.clone());
         }
@@ -245,29 +303,17 @@ fn parse_module_body<'a>(
                         check_and_add_comment!(context, node, body);
                     }
                     _ => {
-                        LanguageError::error(ErrorId::UnexpectedNodeKind)
-                            .in_file_or_stdin(context.file_name.clone())
-                            .at_node_location(&node)
-                            .additional_message(message_expecting_one_of_node(&[
-                                NODE_KIND_IMPORT_STATEMENT,
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_TYPE_DEF,
-                                NODE_KIND_LINE_COMMENT,
-                            ]))
-                            .additional_message(message_found_node(node.kind()))
-                            .report(context.use_color);
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_IMPORT_STATEMENT,
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_TYPE_DEF,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -300,21 +346,15 @@ fn parse_import_statement<'a>(
                         check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        LanguageError::error(ErrorId::UnexpectedNodeKind)
-                            .in_file_or_stdin(context.file_name.clone())
-                            .at_node_location(&node)
-                            .additional_message(message_expecting_one_of_node(&[
+                        unexpected_node!(
+                            context,
+                            RULE_NAME,
+                            node,
+                            [
                                 NODE_KIND_IMPORT,
                                 NODE_KIND_LINE_COMMENT,
-                            ]))
-                            .additional_message(message_found_node(node.kind()))
-                            .report(context.use_color);
-                        return Err(unexpected_node_kind(
-                            RULE_NAME,
-                            [NODE_KIND_IMPORT, NODE_KIND_LINE_COMMENT].join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                            ]
+                        );
                     }
                 }
             }
@@ -353,27 +393,16 @@ fn parse_import<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        LanguageError::error(ErrorId::UnexpectedNodeKind)
-                            .in_file_or_stdin(context.file_name.clone())
-                            .at_node_location(&node)
-                            .additional_message(message_expecting_one_of_node(&[
-                                NODE_KIND_MODULE_IMPORT,
-                                NODE_KIND_MEMBER_IMPORT,
-                                NODE_KIND_LINE_COMMENT,
-                            ]))
-                            .additional_message(message_found_node(node.kind()))
-                            .report(context.use_color);
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_MODULE_IMPORT,
                                 NODE_KIND_MEMBER_IMPORT,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -430,27 +459,16 @@ fn parse_identifier_reference<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        LanguageError::error(ErrorId::UnexpectedNodeKind)
-                            .in_file_or_stdin(context.file_name.clone())
-                            .at_node_location(&node)
-                            .additional_message(message_expecting_one_of_node(&[
-                                NODE_KIND_IDENTIFIER,
-                                NODE_KIND_QUALIFIED_IDENTIFIER,
-                                NODE_KIND_LINE_COMMENT,
-                            ]))
-                            .additional_message(message_found_node(node.kind()))
-                            .report(context.use_color);
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_IDENTIFIER,
                                 NODE_KIND_QUALIFIED_IDENTIFIER,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -507,8 +525,10 @@ fn parse_value<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_SIMPLE_VALUE,
                                 NODE_KIND_VALUE_CONSTRUCTOR,
@@ -516,10 +536,7 @@ fn parse_value<'a>(
                                 NODE_KIND_LIST_OF_VALUES,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -575,8 +592,10 @@ fn parse_simple_value<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_STRING,
                                 NODE_KIND_DOUBLE,
@@ -586,10 +605,7 @@ fn parse_simple_value<'a>(
                                 NODE_KIND_IRI_REFERENCE,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -627,17 +643,16 @@ fn parse_string<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_QUOTED_STRING,
                                 NODE_KIND_LANGUAGE_TAG,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -695,18 +710,17 @@ fn parse_list_of_values<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_SIMPLE_VALUE,
                                 NODE_KIND_VALUE_CONSTRUCTOR,
                                 NODE_KIND_IDENTIFIER_REFERENCE,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -751,8 +765,10 @@ fn parse_type_definition<'a>(
                         trace!("no comments here"); //check_and_add_comment!(context, node, import);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_DATA_TYPE_DEF,
                                 NODE_KIND_ENTITY_DEF,
@@ -762,10 +778,7 @@ fn parse_type_definition<'a>(
                                 NODE_KIND_UNION_DEF,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -830,17 +843,16 @@ fn parse_data_type_base<'a>(
                     trace!("no comments here"); //check_and_add_comment!(context, node, import);
                 }
                 _ => {
-                    return Err(unexpected_node_kind(
+                    unexpected_node!(
+                        context,
                         RULE_NAME,
+                        node,
                         [
                             NODE_KIND_IDENTIFIER_REFERENCE,
                             NODE_KIND_BUILTIN_SIMPLE_TYPE,
                             NODE_KIND_LINE_COMMENT,
                         ]
-                        .join("|"),
-                        node.kind(),
-                        node.into(),
-                    ));
+                    );
                 }
             }
         }
@@ -869,12 +881,15 @@ fn parse_annotation_only_body<'a>(
                         check_and_add_comment!(context, node, body);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
-                            [NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT].join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                            node,
+                            [
+                                NODE_KIND_ANNOTATION,
+                                NODE_KIND_LINE_COMMENT,
+                            ]
+                        );
                     }
                 }
             }
@@ -947,8 +962,10 @@ fn parse_entity_body<'a>(
                     }
                     NODE_KIND_IDENTITY_MEMBER => (),
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_MEMBER_BY_VALUE,
@@ -956,10 +973,7 @@ fn parse_entity_body<'a>(
                                 NODE_KIND_ENTITY_GROUP,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -996,18 +1010,17 @@ fn parse_entity_group<'a>(
                         check_and_add_comment!(context, node, group);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_MEMBER_BY_VALUE,
                                 NODE_KIND_MEMBER_BY_REFERENCE,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -1065,17 +1078,16 @@ fn parse_enum_body<'a>(
                         check_and_add_comment!(context, node, body);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_ENUM_VARIANT,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -1140,18 +1152,17 @@ fn parse_structure_body<'a>(
                         check_and_add_comment!(context, node, body);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_MEMBER_BY_VALUE,
                                 NODE_KIND_STRUCTURE_GROUP,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -1185,17 +1196,16 @@ fn parse_structure_group<'a>(
                         check_and_add_comment!(context, node, group);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_MEMBER_BY_VALUE,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -1277,17 +1287,16 @@ fn parse_union_body<'a>(
                         check_and_add_comment!(context, node, body);
                     }
                     _ => {
-                        return Err(unexpected_node_kind(
+                        unexpected_node!(
+                            context,
                             RULE_NAME,
+                            node,
                             [
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_TYPE_VARIANT,
                                 NODE_KIND_LINE_COMMENT,
                             ]
-                            .join("|"),
-                            node.kind(),
-                            node.into(),
-                        ));
+                        );
                     }
                 }
             }
@@ -1427,18 +1436,17 @@ fn parse_type_reference<'a>(
                     trace!("no comments here"); //check_and_add_comment!(context, node, import);
                 }
                 _ => {
-                    return Err(unexpected_node_kind(
+                    unexpected_node!(
+                        context,
                         RULE_NAME,
+                        node,
                         [
                             NODE_KIND_UNKNOWN_TYPE,
                             NODE_KIND_IDENTIFIER_REFERENCE,
                             NODE_KIND_BUILTIN_SIMPLE_TYPE,
                             NODE_KIND_LINE_COMMENT,
                         ]
-                        .join("|"),
-                        node.kind(),
-                        node.into(),
-                    ));
+                    );
                 }
             }
         }
@@ -1530,6 +1538,26 @@ fn parse_cardinality<'a>(
     } else {
         Ok(Cardinality::new_single(min).with_ts_span(node.into()))
     }
+}
+
+
+fn message_found_node(found: &str) -> String {
+    format!("found `{found}`")
+}
+
+fn message_expecting_node(expecting: &str) -> String {
+    format!("expecting: `{expecting}`")
+}
+
+fn message_expecting_one_of_node(expecting: &[&str]) -> String {
+    format!(
+        "expecting on of: {}",
+        expecting
+            .iter()
+            .map(|s| format!("`{s}`"))
+            .collect::<Vec<String>>()
+            .join("|")
+    )
 }
 
 // ------------------------------------------------------------------------------------------------
