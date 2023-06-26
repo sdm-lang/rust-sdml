@@ -246,6 +246,8 @@ jobs:
   clippy:
     name: clippy
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -263,4 +265,4 @@ jobs:
     - uses: actions-rs/clippy-check@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        args: --workspace --no-deps --all-features --all-targets -- -D warnings --no-deps
+        args: --workspace --no-deps --all-features --all-targets -- -D warnings
