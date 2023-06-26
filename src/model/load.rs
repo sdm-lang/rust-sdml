@@ -82,7 +82,9 @@ impl ModuleLoader {
     {
         let mut original = String::new();
         reader.read_to_string(&mut original)?;
-        let module = parse_str(&original, path.as_ref().map(|p|p.to_string_lossy().into_owned()), true)?;
+        let module_but = parse_str(&original, path.as_ref().map(|p|p.to_string_lossy().into_owned()), true)?;
+        let counts = module_but.counts();
+        let module = module_but.into();
         let name = module.name().clone();
         let loaded = LoadedModule {
             path,
@@ -90,6 +92,7 @@ impl ModuleLoader {
             module,
         };
         let _ = self.insert(name.clone(), loaded);
+
         Ok(self.get_loaded_module(&name).unwrap())
     }
 

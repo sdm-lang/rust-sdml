@@ -20,6 +20,7 @@ path = "src/bin/main.rs"
 
 [dependencies]
 ansi_term = "0.12.1"
+atty = "0.2.14"
 clap = { version = "4.3.5", features = ["derive", "env", "wrap_help"] }
 clap-verbosity-flag = "2.0.1"
 graphviz-rust = "0.6.2"
@@ -34,7 +35,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [ "env-filter" ] }
 tree-sitter = "0.20.10"
 tree-sitter-highlight = "0.20.1"
-tree-sitter-sdml = { version = "0.1.14", path = "../../tree-sitter-sdml" }
+tree-sitter-sdml = "0.1.14"
 url = "2.4.0"
 
 [dev-dependencies]

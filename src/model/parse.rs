@@ -42,11 +42,13 @@ use lineindex::IndexedString;
 use rust_decimal::Decimal;
 use std::collections::HashSet;
 use std::str::FromStr;
-use tracing::{error, trace};
+use tracing::trace;
 use tree_sitter::Parser;
 use tree_sitter::{Node, TreeCursor};
 use tree_sitter_sdml::language;
 use url::Url;
+
+use super::error::{ErrorCounters, OkBut};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -61,7 +63,7 @@ use url::Url;
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! unexpected_node {
-    ($context: expr, $rule: expr, $node: expr, [ $($expected: expr, )+ ]) => {
+    ($context: expr, $parse_fn: expr, $node: expr, [ $($expected: expr, )+ ]) => {
         LanguageError::error(ErrorId::UnexpectedNodeKind)
             .in_file($context.file_name.clone())
             .at_node_location(&$node)
@@ -78,8 +80,9 @@ macro_rules! unexpected_node {
                 )
             )
             .report($context.use_color, &$context.source);
+        $context.counts.error();
         return Err(unexpected_node_kind(
-            $rule,
+            $parse_fn,
             [
                 $($expected, )+
             ].join("|"),
@@ -87,7 +90,7 @@ macro_rules! unexpected_node {
             $node.into(),
         ))
     };
-    ($context: expr, $rule: expr, $node: expr, $expected: expr) => {
+    ($context: expr, $parse_fn: expr, $node: expr, $expected: expr) => {
         LanguageError::error(ErrorId::UnexpectedNodeKind)
             .in_file($context.file_name.clone())
             .at_node_location(&$node)
@@ -102,8 +105,9 @@ macro_rules! unexpected_node {
                 )
             )
             .report($context.use_color, &$context.source);
+        $context.counts.error();
         return Err(unexpected_node_kind(
-            $rule,
+            $parse_fn,
             $expected,
             $node.kind(),
             $node.into(),
@@ -112,7 +116,7 @@ macro_rules! unexpected_node {
 }
 
 // This should only be called by `ModuleLoader`
-pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool) -> Result<Module, Error> {
+pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool) -> Result<OkBut<Module>, Error> {
     let mut parser = Parser::new();
     parser
         .set_language(language())
@@ -124,7 +128,7 @@ pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool
     if node.kind() == NODE_KIND_MODULE {
         let mut cursor = tree.walk();
         let module = parse_module(&mut context, &mut cursor)?;
-        Ok(module)
+        Ok(OkBut::new(module, context.counts))
     } else {
         unexpected_node!(
             context,
@@ -159,7 +163,7 @@ struct ParseContext<'a> {
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
     save_comments: bool,
-    errors_reported: bool,
+    counts: ErrorCounters,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -176,7 +180,7 @@ impl<'a> ParseContext<'a> {
             type_names: Default::default(),
             member_names: Default::default(),
             save_comments: Default::default(),
-            errors_reported: Default::default(),
+            counts: Default::default(),
         }
     }
 
@@ -209,7 +213,7 @@ impl<'a> ParseContext<'a> {
                     LanguageError::note_message("Initially imported here")
                         .at_location(previous.ts_span().unwrap().clone())
                 )
-            .report(self.use_color, &self.source);
+            .report(&self.source);
         } else {
             self.imports.insert(import.clone());
         }
@@ -224,7 +228,7 @@ impl<'a> ParseContext<'a> {
                     LanguageError::note_message("Initially defined here")
                         .at_location(type_defn.ts_span().unwrap().clone())
                 )
-            .report(self.use_color, &self.source);
+            .report(&self.source);
         } else {
             self.type_names.insert(name.clone());
         }
@@ -239,7 +243,7 @@ impl<'a> ParseContext<'a> {
                     LanguageError::note_message("Initially defined here")
                         .at_location(member.ts_span().unwrap().clone())
                 )
-            .report(self.use_color, &self.source);
+            .report(&self.source);
         } else {
             self.member_names.insert(name.clone());
         }
