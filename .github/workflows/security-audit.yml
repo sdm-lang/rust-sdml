@@ -17,6 +17,8 @@ on:
 jobs:
   security_audit:
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
