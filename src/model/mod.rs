@@ -14,7 +14,13 @@ use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
 use rust_decimal::Decimal;
-use std::{collections::HashSet, fmt::Display, hash::Hash, str::FromStr};
+use std::{
+    collections::HashSet,
+    fmt::{Debug, Display},
+    hash::Hash,
+    ops::Range,
+    str::FromStr,
+};
 use tree_sitter::Node;
 use url::Url;
 
@@ -26,18 +32,8 @@ use url::Url;
 // Public Types ❱ Tree Reference
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct Point {
-    byte: usize,
-    line: usize,
-    column: usize,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct Span {
-    start: Point,
-    end: Point,
-}
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct Span(Range<usize>);
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Comments
@@ -2346,46 +2342,9 @@ impl Cardinality {
 // Implementations ❱ Source Ranges
 // ------------------------------------------------------------------------------------------------
 
-impl Display for Point {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}", self.line, self.column)
-    }
-}
-
-impl Point {
-    pub fn new(byte: usize, line: usize, column: usize) -> Self {
-        Self { byte, line, column }
-    }
-
-    pub fn byte(&self) -> usize {
-        self.byte
-    }
-
-    pub fn line(&self) -> usize {
-        self.line
-    }
-
-    pub fn column(&self) -> usize {
-        self.column
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-
 impl From<&Node<'_>> for Span {
     fn from(node: &Node<'_>) -> Self {
-        Self {
-            start: Point::new(
-                node.start_byte(),
-                node.start_position().row,
-                node.start_position().column,
-            ),
-            end: Point::new(
-                node.end_byte(),
-                node.end_position().row,
-                node.end_position().column,
-            ),
-        }
+        Self(node.byte_range())
     }
 }
 
@@ -2395,23 +2354,41 @@ impl From<Node<'_>> for Span {
     }
 }
 
+impl Debug for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Span")
+            .field("start", &self.0.start)
+            .field("end", &self.0.end)
+            .finish()
+    }
+}
+
 impl Display for Span {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}..{}", self.start, self.end)
+        write!(f, "{}..{}", self.0.start, self.0.end)
     }
 }
 
 impl Span {
-    pub fn new(start: Point, end: Point) -> Self {
-        Self { start, end }
+    #[inline(always)]
+    pub fn new(start: usize, end: usize) -> Self {
+        assert!(start <= end);
+        Self(start..end)
     }
 
-    pub fn start(&self) -> Point {
-        self.start
+    #[inline(always)]
+    pub fn start(&self) -> usize {
+        self.0.start
     }
 
-    pub fn end(&self) -> Point {
-        self.end
+    #[inline(always)]
+    pub fn end(&self) -> usize {
+        self.0.end
+    }
+
+    #[inline(always)]
+    pub fn byte_range(&self) -> Range<usize> {
+        self.0.clone()
     }
 }
 
@@ -2425,10 +2402,8 @@ impl Span {
 
 mod parse;
 
-mod error;
+pub mod error;
 
 pub mod load;
-
-pub mod resolve;
 
 pub mod walk;

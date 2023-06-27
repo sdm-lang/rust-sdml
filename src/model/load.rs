@@ -9,14 +9,15 @@ YYYYY
 
  */
 
-use crate::error::Error;
+use crate::error::{module_file_not_found, Error};
 use crate::model::parse::parse_str;
-use crate::model::resolve::ModuleResolver;
 use crate::model::{Identifier, Module};
+use codespan_reporting::files::SimpleFiles;
+use search_path::SearchPath;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -26,10 +27,23 @@ use std::path::PathBuf;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
+pub struct ModuleResolver {
+    search_path: SearchPath,
+}
+
+pub const SDML_RESOLVER_PATH_VARIABLE: &str = "SDML_PATH";
+
+pub const SDML_FILE_EXTENSION: &str = "sdm";
+pub const SDML_FILE_EXTENSION_LONG: &str = "sdml";
+
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
 pub struct ModuleLoader {
     resolver: ModuleResolver,
-    modules: HashMap<Identifier, LoadedModule>,
+    modules: HashMap<Identifier, (Module, usize)>,
+    module_files: SimpleFiles<String, String>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -44,29 +58,90 @@ pub struct ModuleLoader {
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug)]
-struct LoadedModule {
-    path: Option<PathBuf>,
-    original: String,
-    module: Module,
-}
-
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl ModuleLoader {
-    pub fn new(resolver: ModuleResolver) -> Self {
+impl Default for ModuleResolver {
+    fn default() -> Self {
+        let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
+        search_path.prepend_cwd();
+        Self { search_path }
+    }
+}
+
+impl ModuleResolver {
+    pub fn prepend_to_search_path<P>(&mut self, path: P)
+    where
+        P: AsRef<Path>,
+    {
+        self.search_path.prepend(PathBuf::from(path.as_ref()));
+    }
+
+    pub fn append_to_search_path<P>(&mut self, path: P)
+    where
+        P: AsRef<Path>,
+    {
+        self.search_path.append(PathBuf::from(path.as_ref()));
+    }
+
+    pub fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
+        self.search_path
+            .find(format!("{}.{}", name, SDML_FILE_EXTENSION).as_ref())
+            .or_else(|| {
+                self.search_path
+                    .find(format!("{}/{}.{}", name, name, SDML_FILE_EXTENSION).as_ref())
+                    .or_else(|| {
+                        self.search_path
+                            .find(format!("{}.{}", name, SDML_FILE_EXTENSION_LONG).as_ref())
+                            .or_else(|| {
+                                self.search_path.find(
+                                    format!("{}/{}.{}", name, name, SDML_FILE_EXTENSION_LONG)
+                                        .as_ref(),
+                                )
+                            })
+                    })
+            })
+            .ok_or_else(|| module_file_not_found(name.clone()))
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl From<ModuleResolver> for ModuleLoader {
+    fn from(resolver: ModuleResolver) -> Self {
         Self {
             resolver,
             modules: Default::default(),
+            module_files: SimpleFiles::new(),
+        }
+    }
+}
+
+impl Default for ModuleLoader {
+    fn default() -> Self {
+        Self {
+            resolver: Default::default(),
+            modules: Default::default(),
+            module_files: SimpleFiles::new(),
+        }
+    }
+}
+
+impl ModuleLoader {
+    pub fn load(&mut self, name: &Identifier) -> Result<&Module, Error> {
+        let exists = self.modules.contains_key(name);
+        if exists {
+            Ok(self.get(name).unwrap())
+        } else {
+            let file = self.resolver.name_to_path(name)?;
+            self.load_from_file(file)
         }
     }
 
-    pub fn load(&mut self, name: &Identifier) -> Result<&Module, Error> {
-        let path = self.resolver.name_to_path(name)?;
-        let mut file = File::open(&path)?;
-        self.load_inner(&mut file, Some(path))
+    pub fn load_from_file(&mut self, file: PathBuf) -> Result<&Module, Error> {
+        let mut reader = File::open(&file)?;
+        self.load_inner(&mut reader, Some(file))
     }
 
     pub fn load_from_reader<R>(&mut self, reader: &mut R) -> Result<&Module, Error>
@@ -76,64 +151,40 @@ impl ModuleLoader {
         self.load_inner(reader, None)
     }
 
-    fn load_inner<R>(&mut self, reader: &mut R, path: Option<PathBuf>) -> Result<&Module, Error>
+    fn load_inner<R>(&mut self, reader: &mut R, file: Option<PathBuf>) -> Result<&Module, Error>
     where
         R: Read,
     {
-        let mut original = String::new();
-        reader.read_to_string(&mut original)?;
-        let module_but = parse_str(&original, path.as_ref().map(|p|p.to_string_lossy().into_owned()), true)?;
-        let counts = module_but.counts();
-        let module = module_but.into();
+        let mut source = String::new();
+        reader.read_to_string(&mut source)?;
+        let file_name: String = file
+            .map(|p| p.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let file_id = self.module_files.add(file_name, source);
+
+        let (module, counters) = parse_str(file_id, self)?.into_inner();
+
         let name = module.name().clone();
-        let loaded = LoadedModule {
-            path,
-            original,
-            module,
-        };
-        let _ = self.insert(name.clone(), loaded);
+        counters.display(&name)?;
 
-        Ok(self.get_loaded_module(&name).unwrap())
+        let _ = self.modules.insert(name.clone(), (module, file_id));
+        Ok(self.get(&name).unwrap())
     }
 
-    fn insert(&mut self, name: Identifier, module: LoadedModule) -> Option<LoadedModule> {
-        self.modules.insert(name, module)
-    }
-
-    pub fn is_module_loaded(&self, name: &Identifier) -> bool {
+    pub fn contains(&self, name: &Identifier) -> bool {
         self.modules.contains_key(name)
     }
 
-    pub fn get_loaded_module_path(&self, name: &Identifier) -> Option<&PathBuf> {
-        self.modules.get(name).map(|m| m.path()).unwrap_or_default()
-    }
-
-    pub fn get_loaded_module_source(&self, name: &Identifier) -> Option<&String> {
-        self.modules.get(name).map(|m| m.original_source())
-    }
-
-    pub fn get_loaded_module(&self, name: &Identifier) -> Option<&Module> {
-        self.modules.get(name).map(|m| m.module())
+    pub fn get(&self, name: &Identifier) -> Option<&Module> {
+        self.modules.get(name).map(|m| &m.0)
     }
 
     pub fn resolver(&self) -> &ModuleResolver {
         &self.resolver
     }
-}
 
-// ------------------------------------------------------------------------------------------------
-
-impl LoadedModule {
-    fn path(&self) -> Option<&PathBuf> {
-        self.path.as_ref()
-    }
-
-    fn original_source(&self) -> &String {
-        &self.original
-    }
-
-    fn module(&self) -> &Module {
-        &self.module
+    pub(crate) fn files(&self) -> &SimpleFiles<String, String> {
+        &self.module_files
     }
 }
 

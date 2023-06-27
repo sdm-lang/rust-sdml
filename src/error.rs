@@ -36,6 +36,9 @@ pub enum Error {
     TracingSubscriberError {
         source: tracing::subscriber::SetGlobalDefaultError,
     },
+    CodespanReportingError {
+        source: codespan_reporting::files::Error,
+    },
     InvalidIdentifierError {
         input: String,
     },
@@ -68,11 +71,6 @@ pub enum Error {
         node_name: String,
         span: Span,
     },
-    // DuplicateImportError {
-    //     name: String,
-    //     at: Span,
-    //     previously: Span,
-    // },
 }
 
 ///
@@ -120,6 +118,12 @@ pub fn tracing_filter_error(source: tracing_subscriber::filter::ParseError) -> E
 #[inline]
 pub fn tracing_subscriber_error(source: tracing::subscriber::SetGlobalDefaultError) -> Error {
     report_and_return!(Error::TracingSubscriberError { source });
+}
+
+/// Construct an Error from the provided source.
+#[inline]
+pub fn codespan_reporting_error(source: codespan_reporting::files::Error) -> Error {
+    report_and_return!(Error::CodespanReportingError { source });
 }
 
 /// Construct an invalid value Error from the provided input.
@@ -222,19 +226,6 @@ where
     });
 }
 
-/// Construct an invalid value Error from the provided input.
-// #[inline]
-// pub fn duplicate_import_error<S1>(name: S1, at: Span, previously: Span) -> Error
-// where
-//     S1: Into<String>,
-// {
-//     report_and_return!(Error::DuplicateImportError {
-//         name: name.into(),
-//         at,
-//         previously,
-//     });
-// }
-
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
@@ -255,6 +246,8 @@ impl Display for Error {
                     "A error occurred parsing a tracing filter; source: {source}"),
                 Self::TracingSubscriberError { source } => format!(
                     "A error occurred setting the tracing subscriber; source: {source}"),
+                Self::CodespanReportingError { source } => format!(
+                    "An error occurred formatting codespan reports; source: {source}"),
                 Self::InvalidIdentifierError { input } => format!(
                     "Provided input is not a valid identifier; input: {input:?}"),
                 Self::InvalidLanguageTagError { input } => format!(
@@ -334,5 +327,11 @@ impl From<tracing_subscriber::filter::ParseError> for Error {
 impl From<tracing::subscriber::SetGlobalDefaultError> for Error {
     fn from(source: tracing::subscriber::SetGlobalDefaultError) -> Self {
         tracing_subscriber_error(source)
+    }
+}
+
+impl From<codespan_reporting::files::Error> for Error {
+    fn from(source: codespan_reporting::files::Error) -> Self {
+        codespan_reporting_error(source)
     }
 }

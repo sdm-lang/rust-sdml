@@ -1,8 +1,7 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml::error::{tracing_filter_error, tracing_subscriber_error};
-use sdml::model::load::ModuleLoader;
-use sdml::model::resolve::ModuleResolver;
+use sdml::model::load::{ModuleLoader, ModuleResolver};
 use sdml::model::Identifier;
 use std::fmt::Display;
 use std::io::Read;
@@ -83,6 +82,14 @@ struct Tags {
 
 #[derive(Args, Debug)]
 struct Convert {
+    //> /// Configure the coloring of output
+    //> #[structopt(
+    //>     long = "color",
+    //>     default_value = "auto",
+    //>     possible_values = ColorArg::VARIANTS,
+    //>     case_insensitive = true,
+    //> )]
+    //> pub color: ColorArg,
     /// Format to convert into (org, rdf, sexpr)
     #[arg(short = 'f', long)]
     #[arg(value_enum)]
@@ -104,6 +111,14 @@ enum ConvertFormat {
 
 #[derive(Args, Debug)]
 struct Draw {
+    //> /// Configure the coloring of output
+    //> #[arg(
+    //>     long = "color",
+    //>     default_value = "auto",
+    //>     possible_values = ColorArg::VARIANTS,
+    //>     case_insensitive = true,
+    //> )]
+    //> pub color: ColorArg,
     /// Diagram to draw
     #[arg(short, long)]
     #[arg(value_enum)]
@@ -204,7 +219,7 @@ impl FileArgs {
         if let Some(base) = &self.base_path {
             resolver.prepend_to_search_path(base.clone())
         }
-        ModuleLoader::new(resolver)
+        ModuleLoader::from(resolver)
     }
 
     fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {
@@ -275,7 +290,7 @@ impl Execute for Tags {
 
         let mut writer = self.files.output_writer()?;
 
-        sdml::actions::tags::write_tags(&model, &mut writer)?;
+        sdml::actions::tags::write_tags(model, &mut writer)?;
 
         Ok(())
     }
@@ -306,13 +321,13 @@ impl Execute for Convert {
 
         match self.output_format {
             ConvertFormat::Org => {
-                sdml::convert::org::write_as_org(&model, &mut writer)?;
+                sdml::convert::org::write_as_org(model, &mut writer)?;
             }
             ConvertFormat::Rdf => {
-                sdml::convert::rdf::write_as_rdf(&model, &mut writer)?;
+                sdml::convert::rdf::write_as_rdf(model, &mut writer)?;
             }
             ConvertFormat::SExpr => {
-                sdml::convert::sexpr::write_as_sexpr(&model, &mut writer)?;
+                sdml::convert::sexpr::write_as_sexpr(model, &mut writer)?;
             }
         }
 
@@ -346,23 +361,23 @@ impl Execute for Draw {
         match self.diagram {
             DrawDiagram::Concepts => {
                 if let Some(path) = &self.files.output_file {
-                    sdml::draw::concepts::concept_diagram_to_file(&model, path, format)?;
+                    sdml::draw::concepts::concept_diagram_to_file(model, path, format)?;
                 } else {
-                    sdml::draw::concepts::print_concept_diagram(&model, format)?;
+                    sdml::draw::concepts::print_concept_diagram(model, format)?;
                 }
             }
             DrawDiagram::EntityRelationship => {
                 if let Some(path) = &self.files.output_file {
-                    sdml::draw::erd::erd_diagram_to_file(&model, path, format)?;
+                    sdml::draw::erd::erd_diagram_to_file(model, path, format)?;
                 } else {
-                    sdml::draw::erd::print_erd_diagram(&model, format)?;
+                    sdml::draw::erd::print_erd_diagram(model, format)?;
                 }
             }
             DrawDiagram::UmlClass => {
                 if let Some(path) = &self.files.output_file {
-                    sdml::draw::uml::uml_diagram_to_file(&model, path, format)?;
+                    sdml::draw::uml::uml_diagram_to_file(model, path, format)?;
                 } else {
-                    sdml::draw::uml::print_uml_diagram(&model, format)?;
+                    sdml::draw::uml::print_uml_diagram(model, format)?;
                 }
             }
         }

@@ -1,12 +1,13 @@
-use sdml::model::{
-    parse::parse_str, Annotation, ImportStatement, ListMember, SimpleValue, TypeDefinition, Value,
-};
+use sdml::model::load::ModuleLoader;
+use sdml::model::{Annotation, ImportStatement, ListMember, SimpleValue, TypeDefinition, Value};
+use std::io::Cursor;
 use std::str::FromStr;
 use url::Url;
 
 #[test]
 fn test_parse_empty_module() {
-    let module = parse_str("module foo is end");
+    let mut loader = ModuleLoader::default();
+    let module = loader.load_from_reader(&mut Cursor::new(b"module foo is end"));
     println!("{:#?}", module);
     assert!(module.is_ok());
 
@@ -17,7 +18,8 @@ fn test_parse_empty_module() {
 
 #[test]
 fn test_parse_module_with_imports() {
-    let module = parse_str(
+    let mut loader = ModuleLoader::default();
+    let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
 
   import foo
@@ -25,8 +27,9 @@ fn test_parse_module_with_imports() {
   import foo:bar
 
   import [ goo goo:poo ]
-end"#,
-    );
+end"#
+            .as_bytes(),
+    ));
     println!("{:#?}", module);
     assert!(module.is_ok());
 
@@ -43,7 +46,8 @@ end"#,
 
 #[test]
 fn test_parse_module_with_annotations() {
-    let module = parse_str(
+    let mut loader = ModuleLoader::default();
+    let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
 
   @xml:base = <https://example.org/>
@@ -55,8 +59,9 @@ fn test_parse_module_with_annotations() {
     "bb"
   ]
 
-end"#,
-    );
+end"#
+            .as_bytes(),
+    ));
     println!("{:#?}", module);
     assert!(module.is_ok());
 
@@ -111,13 +116,15 @@ end"#,
 
 #[test]
 fn test_parse_datatype() {
-    let module = parse_str(
+    let mut loader = ModuleLoader::default();
+    let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
 
   datatype Name <- xsd:string
 
-end"#,
-    );
+end"#
+            .as_bytes(),
+    ));
     println!("{:#?}", module);
     assert!(module.is_ok());
 

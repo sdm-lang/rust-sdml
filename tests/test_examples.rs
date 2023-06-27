@@ -1,13 +1,15 @@
-use sdml::model::parse::parse_file;
+use sdml::model::load::ModuleLoader;
 use std::fs::read_to_string;
+use std::path::PathBuf;
 
 macro_rules! test_example {
     ($fnname: ident, $exname: literal) => {
         #[test]
         fn $fnname() {
-            let input = format!("tests/examples/{}.sdm", $exname);
+            let input = PathBuf::from(format!("tests/examples/{}.sdm", $exname));
 
-            let module = parse_file(input);
+            let mut loader = ModuleLoader::default();
+            let module = loader.load_from_file(input);
             if let Err(e) = module {
                 panic!("parse error: {}", e);
             }

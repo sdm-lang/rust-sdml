@@ -10,9 +10,11 @@ YYYYY
 */
 
 use crate::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
+use crate::model::error::{ErrorCounters, FileId, MEMBER_NAME_USED, UNEXPECTED_NODE_KIND};
 use crate::model::error::{
-    Error as LanguageError, ErrorId,
+    MEMBER_ALREADY_IMPORTED, MODULE_ALREADY_IMPORTED, TYPE_DEFINITION_NAME_USED,
 };
+use crate::model::load::ModuleLoader;
 use crate::model::{
     Annotation, AnnotationOnlyBody, ByReferenceMember, ByValueMember, Cardinality, Comment,
     DatatypeDef, EntityBody, EntityDef, EntityGroup, EnumBody, EnumDef, EnumVariant, EventDef,
@@ -38,7 +40,10 @@ use crate::syntax::{
     NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED,
     NODE_KIND_VALUE_CONSTRUCTOR,
 };
-use lineindex::IndexedString;
+use codespan_reporting::diagnostic::Label;
+use codespan_reporting::term;
+use codespan_reporting::term::termcolor::{ColorChoice, StandardStream};
+use codespan_reporting::term::Chars;
 use rust_decimal::Decimal;
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -48,8 +53,6 @@ use tree_sitter::{Node, TreeCursor};
 use tree_sitter_sdml::language;
 use url::Url;
 
-use super::error::{ErrorCounters, OkBut};
-
 // ------------------------------------------------------------------------------------------------
 // Public Macros
 // ------------------------------------------------------------------------------------------------
@@ -58,29 +61,52 @@ use super::error::{ErrorCounters, OkBut};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+#[derive(Clone, Debug)]
+pub(crate) struct Parsed {
+    module: Module,
+    counters: ErrorCounters,
+}
+
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+macro_rules! emit_diagnostic {
+    ($files: expr, $diagnostic: expr) => {
+        // TODO: parameterize this ---------vvvvvvvvvvvvvvvvvvv
+        let writer = StandardStream::stderr(ColorChoice::Always);
+        let mut config = codespan_reporting::term::Config::default();
+        config.chars = Chars::box_drawing();
+        emit_diagnostic!($files, $diagnostic, &config => writer);
+    };
+    // ($files: expr, $diagnostic: expr => $writer: expr) => {
+    //     let config = codespan_reporting::term::Config::default();
+    //     emit_diagnostic!($files, $diagnostic, &config => $writer);
+    // };
+    // ($files: expr, $diagnostic: expr, $config: expr) => {
+    //     let writer = StandardStream::stderr(ColorChoice::Always);
+    //     emit_diagnostic!($files, $diagnostic, $config => writer);
+    // };
+    ($files: expr, $diagnostic: expr, $config: expr => $writer: expr) => {
+        term::emit(&mut $writer.lock(), &$config, $files, &$diagnostic)?
+    };
+}
+
 macro_rules! unexpected_node {
     ($context: expr, $parse_fn: expr, $node: expr, [ $($expected: expr, )+ ]) => {
-        LanguageError::error(ErrorId::UnexpectedNodeKind)
-            .in_file($context.file_name.clone())
-            .at_node_location(&$node)
-            .add_advice(
-                LanguageError::note_message(
-                    message_expecting_one_of_node(&[
+        let diagnostic = UNEXPECTED_NODE_KIND.into_diagnostic()
+            .with_labels(vec![
+                Label::primary($context.file_id, $node.start_byte()..$node.end_byte())
+                    .with_message(message_expecting_one_of_node(&[
                         $($expected, )+
-                    ])
-                )
-            )
-            .add_advice(
-                LanguageError::note_message(
-                    message_found_node($node.kind())
-                )
-            )
-            .report($context.use_color, &$context.source);
-        $context.counts.error();
+                    ])),
+                Label::secondary($context.file_id, $node.start_byte()..$node.end_byte())
+                    .with_message(message_found_node($node.kind())),
+                ]);
+
+        $context.counts.report(diagnostic.severity);
+        emit_diagnostic!($context.loader.files(), diagnostic);
+
         return Err(unexpected_node_kind(
             $parse_fn,
             [
@@ -91,21 +117,17 @@ macro_rules! unexpected_node {
         ))
     };
     ($context: expr, $parse_fn: expr, $node: expr, $expected: expr) => {
-        LanguageError::error(ErrorId::UnexpectedNodeKind)
-            .in_file($context.file_name.clone())
-            .at_node_location(&$node)
-            .add_advice(
-                LanguageError::note_message(
-                    message_expecting_node($expected)
-                )
-            )
-            .add_advice(
-                LanguageError::note_message(
-                    message_found_node($node.kind())
-                )
-            )
-            .report($context.use_color, &$context.source);
-        $context.counts.error();
+        let diagnostic = UNEXPECTED_NODE_KIND.into_diagnostic()
+            .with_labels(vec![
+                Label::primary($context.file_id, $node.start_byte()..$node.end_byte())
+                    .with_message(message_expecting_node($expected)),
+                Label::secondary($context.file_id, $node.start_byte()..$node.end_byte())
+                    .with_message(message_found_node($node.kind())),
+                ]);
+
+        $context.counts.report(diagnostic.severity);
+        emit_diagnostic!($context.loader.files(), diagnostic);
+
         return Err(unexpected_node_kind(
             $parse_fn,
             $expected,
@@ -116,7 +138,8 @@ macro_rules! unexpected_node {
 }
 
 // This should only be called by `ModuleLoader`
-pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool) -> Result<OkBut<Module>, Error> {
+pub(crate) fn parse_str(file_id: FileId, loader: &mut ModuleLoader) -> Result<Parsed, Error> {
+    let source = loader.files().get(file_id).unwrap().source();
     let mut parser = Parser::new();
     parser
         .set_language(language())
@@ -124,18 +147,17 @@ pub(crate) fn parse_str(source: &str, file_name: Option<String>, use_color: bool
     let tree = parser.parse(source, None).unwrap();
 
     let node = tree.root_node();
-    let mut context = ParseContext::new(source, file_name, use_color);
+    let mut context = ParseContext::new(file_id, loader);
+
     if node.kind() == NODE_KIND_MODULE {
         let mut cursor = tree.walk();
         let module = parse_module(&mut context, &mut cursor)?;
-        Ok(OkBut::new(module, context.counts))
+        Ok(Parsed {
+            module,
+            counters: context.counts,
+        })
     } else {
-        unexpected_node!(
-            context,
-            "parse_str",
-            node,
-            NODE_KIND_MODULE
-        );
+        unexpected_node!(context, "parse_str", node, NODE_KIND_MODULE);
     }
 }
 
@@ -156,9 +178,8 @@ macro_rules! rule_fn {
 
 #[derive(Debug)]
 struct ParseContext<'a> {
-    file_name: Option<String>,
-    use_color: bool,
-    source: IndexedString<'a>,
+    loader: &'a ModuleLoader,
+    file_id: FileId,
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
@@ -170,12 +191,19 @@ struct ParseContext<'a> {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
+impl Parsed {
+    pub(crate) fn into_inner(self) -> (Module, ErrorCounters) {
+        (self.module, self.counters)
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl<'a> ParseContext<'a> {
-    fn new(source: &'a str, file_name: Option<String>, use_color: bool) -> Self {
+    fn new(file_id: FileId, loader: &'a ModuleLoader) -> Self {
         Self {
-            file_name,
-            use_color,
-            source: IndexedString::from(source),
+            file_id,
+            loader,
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
@@ -185,7 +213,12 @@ impl<'a> ParseContext<'a> {
     }
 
     fn source(&self) -> &[u8] {
-        self.source.as_bytes()
+        self.loader
+            .files()
+            .get(self.file_id)
+            .unwrap()
+            .source()
+            .as_bytes()
     }
 
     fn node_source(&'a self, node: &'a Node<'a>) -> Result<&'a str, Error> {
@@ -200,53 +233,63 @@ impl<'a> ParseContext<'a> {
         }
     }
 
-    fn add_import(&mut self, import: &Import) {
+    fn add_import(&mut self, import: &Import) -> Result<(), Error> {
         if let Some(previous) = self.imports.get(import) {
-            LanguageError::warning(if matches!(previous, Import::Module(_)) {
-                ErrorId::ModuleAlreadyImported
+            let diagnostic = if matches!(previous, Import::Module(_)) {
+                MEMBER_ALREADY_IMPORTED
             } else {
-                ErrorId::MemberAlreadyImported
-            })
-                .in_file(self.file_name.clone())
-                .at_location(import.ts_span().unwrap().clone())
-                .add_advice(
-                    LanguageError::note_message("Initially imported here")
-                        .at_location(previous.ts_span().unwrap().clone())
-                )
-            .report(&self.source);
+                MODULE_ALREADY_IMPORTED
+            }
+            .into_diagnostic()
+            .with_labels(vec![
+                Label::primary(self.file_id, import.ts_span().unwrap().byte_range())
+                    .with_message("this module"),
+                Label::secondary(self.file_id, previous.ts_span().unwrap().byte_range())
+                    .with_message("was initially imported here"),
+            ]);
+
+            self.counts.report(diagnostic.severity);
+            emit_diagnostic!(self.loader.files(), diagnostic);
         } else {
             self.imports.insert(import.clone());
         }
+        Ok(())
     }
 
-    fn start_type(&mut self, name: &Identifier) {
+    fn start_type(&mut self, name: &Identifier) -> Result<(), Error> {
         if let Some(type_defn) = self.type_names.get(name) {
-            LanguageError::warning(ErrorId::TypeDefinitionNameUsed)
-                .in_file(self.file_name.clone())
-                .at_location(name.ts_span().unwrap().clone())
-                .add_advice(
-                    LanguageError::note_message("Initially defined here")
-                        .at_location(type_defn.ts_span().unwrap().clone())
-                )
-            .report(&self.source);
+            let diagnostic = TYPE_DEFINITION_NAME_USED
+                .into_diagnostic()
+                .with_labels(vec![
+                    Label::primary(self.file_id, name.ts_span().unwrap().byte_range())
+                        .with_message("this type name"),
+                    Label::secondary(self.file_id, type_defn.ts_span().unwrap().byte_range())
+                        .with_message("was previously defined here"),
+                ]);
+
+            self.counts.report(diagnostic.severity);
+            emit_diagnostic!(self.loader.files(), diagnostic);
         } else {
             self.type_names.insert(name.clone());
         }
+        Ok(())
     }
 
-    fn start_member(&mut self, name: &Identifier) {
+    fn start_member(&mut self, name: &Identifier) -> Result<(), Error> {
         if let Some(member) = self.member_names.get(name) {
-            LanguageError::warning(ErrorId::MemberNameUsed)
-                .in_file(self.file_name.clone())
-                .at_location(name.ts_span().unwrap().clone())
-                .add_advice(
-                    LanguageError::note_message("Initially defined here")
-                        .at_location(member.ts_span().unwrap().clone())
-                )
-            .report(&self.source);
+            let diagnostic = MEMBER_NAME_USED.into_diagnostic().with_labels(vec![
+                Label::primary(self.file_id, name.ts_span().unwrap().byte_range())
+                    .with_message("this member name"),
+                Label::secondary(self.file_id, member.ts_span().unwrap().byte_range())
+                    .with_message("was previously defined here"),
+            ]);
+
+            self.counts.report(diagnostic.severity);
+            emit_diagnostic!(self.loader.files(), diagnostic);
         } else {
             self.member_names.insert(name.clone());
         }
+        Ok(())
     }
 
     fn end_type(&mut self) {
@@ -343,7 +386,7 @@ fn parse_import_statement<'a>(
                 match node.kind() {
                     NODE_KIND_IMPORT => {
                         let imported = parse_import(context, &mut node.walk())?;
-                        context.add_import(&imported);
+                        let _ = context.add_import(&imported);
                         import.add_import(imported);
                     }
                     NODE_KIND_LINE_COMMENT => {
@@ -354,10 +397,7 @@ fn parse_import_statement<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_IMPORT,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_IMPORT, NODE_KIND_LINE_COMMENT,]
                         );
                     }
                 }
@@ -808,7 +848,7 @@ fn parse_data_type_def<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let base_type = parse_data_type_base(context, &mut child.walk())?;
 
-    context.start_type(&name);
+    context.start_type(&name)?;
     let mut data_type = DatatypeDef::new(name, base_type).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -889,10 +929,7 @@ fn parse_annotation_only_body<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT,]
                         );
                     }
                 }
@@ -915,7 +952,7 @@ fn parse_entity_def<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    context.start_type(&name);
+    context.start_type(&name)?;
     let mut entity = EntityDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1046,7 +1083,7 @@ fn parse_enum_def<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    context.start_type(&name);
+    context.start_type(&name)?;
     let mut new_enum = EnumDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1117,7 +1154,7 @@ fn parse_event_def<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let event_source = parse_identifier_reference(context, &mut child.walk())?;
 
-    context.start_type(&name);
+    context.start_type(&name)?;
     let mut event = EventDef::new(name, event_source).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1231,7 +1268,7 @@ fn parse_structure_def<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    context.start_type(&name);
+    context.start_type(&name)?;
     let mut structure = StructureDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1255,7 +1292,7 @@ fn parse_union_def<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    context.start_type(&name);
+    context.start_type(&name)?;
     let mut new_enum = UnionDef::new(name).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1326,7 +1363,7 @@ fn parse_identity_member<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let type_reference = parse_type_reference(context, &mut child.walk())?;
 
-    context.start_member(&name);
+    context.start_member(&name)?;
     let mut member = IdentityMember::new(name, type_reference).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1353,7 +1390,7 @@ fn parse_by_value_member<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let type_reference = parse_type_reference(context, &mut child.walk())?;
 
-    context.start_member(&name);
+    context.start_member(&name)?;
     let mut member = ByValueMember::new(name, type_reference).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET_CARDINALITY) {
@@ -1386,7 +1423,7 @@ fn parse_by_reference_member<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let type_reference = parse_type_reference(context, &mut child.walk())?;
 
-    context.start_member(&name);
+    context.start_member(&name)?;
     let mut member = ByReferenceMember::new(name, type_reference).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_SOURCE_CARDINALITY) {
@@ -1475,7 +1512,7 @@ fn parse_enum_variant<'a>(
     let text = context.node_source(&child)?;
     let value = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
 
-    context.start_member(&name);
+    context.start_member(&name)?;
     let mut enum_variant = EnumVariant::new(name, value).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
@@ -1503,7 +1540,7 @@ fn parse_type_variant<'a>(
     let mut type_variant = if let Some(child) = node.child_by_field_name(FIELD_NAME_RENAME) {
         context.check_if_error(&child, RULE_NAME)?;
         let rename = parse_identifier(context, &child)?;
-        context.start_member(&rename);
+        context.start_member(&rename)?;
         type_variant.with_rename(rename)
     } else {
         // FIX: context.start_member(type_variant.name());
@@ -1543,7 +1580,6 @@ fn parse_cardinality<'a>(
         Ok(Cardinality::new_single(min).with_ts_span(node.into()))
     }
 }
-
 
 fn message_found_node(found: &str) -> String {
     format!("found `{found}`")
