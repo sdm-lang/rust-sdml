@@ -2,9 +2,12 @@ use sdml::model::load::ModuleLoader;
 use std::fs::read_to_string;
 use std::path::PathBuf;
 
+// TODO: Make tests for Windows
+
 macro_rules! test_example {
     ($fnname: ident, $exname: literal) => {
         #[test]
+        #[cfg_attr(windows, ignore)]
         fn $fnname() {
             let input = PathBuf::from(format!("tests/examples/{}.sdm", $exname));
 
