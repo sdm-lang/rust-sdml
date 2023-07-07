@@ -1,0 +1,20 @@
+module Campaign is
+
+  entity Campaign is
+
+    identity a -> CampaignId
+
+    b -> xsd:string is
+      assert not_null = "self is not null"
+    end
+
+    ref c -> Target is
+      assert is
+        ∀ self (contains(self.tags "foo"))
+      end
+
+    end
+
+  end
+
+end

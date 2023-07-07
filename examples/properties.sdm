@@ -1,0 +1,23 @@
+module properties is
+
+  import [ account skos ]
+
+  property accountId is
+
+    identifier -> {1} account:AccountId is
+      @skos:definition = "a"@en
+    end
+
+    reference ref {1} -> {1} account:AccountId
+
+  end
+
+  structure Account is
+
+    accountId as identitifer
+
+    name -> string
+
+  end
+
+end
