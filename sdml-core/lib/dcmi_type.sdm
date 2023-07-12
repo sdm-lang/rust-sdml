@@ -129,3 +129,5 @@ module dcmi_type base <http://purl.org/dc/dcmitype/> is
     @rdfs:comment = "A resource consisting primarily of words for reading."@en
     @dcterms:description = "Examples include books, letters, dissertations, poems, newspapers, articles, archives of mailing lists. Note that facsimiles or images of texts are still of the genre Text."@en
   end
+
+end

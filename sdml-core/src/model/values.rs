@@ -14,6 +14,7 @@ use url::Url;
 // Public Types ❱ Values
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `value`.
 #[derive(Clone, Debug)]
 pub enum Value {
     Simple(SimpleValue),
@@ -22,35 +23,47 @@ pub enum Value {
     List(ListOfValues),
 }
 
+/// Corresponds to the grammar rule `simple_value`.
 #[derive(Clone, Debug)]
 pub enum SimpleValue {
+    /// Corresponds to the grammar rule `string`.
     String(LanguageString),
+    /// Corresponds to the grammar rule `double`.
     Double(OrderedFloat<f64>),
+    /// Corresponds to the grammar rule `decimal`.
     Decimal(Decimal),
+    /// Corresponds to the grammar rule `integer`.
     Integer(i64),
+    /// Corresponds to the grammar rule `boolean`.
     Boolean(bool),
+    /// Corresponds to the grammar rule `iri_reference`.
     IriReference(Url),
 }
 
+/// Corresponds to the grammar rule `string`.
 #[derive(Clone, Debug)]
 pub struct LanguageString {
     span: Option<Span>,
+    /// Corresponds to the grammar rule `quoted_string`.
     value: String,
     language: Option<LanguageTag>,
 }
 
+/// Corresponds to the grammar rule `language_tag`.
 #[derive(Clone, Debug)]
 pub struct LanguageTag {
     span: Option<Span>,
     value: String,
 }
 
+/// Corresponds to the grammar rule `list_of_values`.
 #[derive(Clone, Debug, Default)]
 pub struct ListOfValues {
     span: Option<Span>,
     values: Vec<ListMember>,
 }
 
+/// Corresponds to the grammar rule `name`.
 #[derive(Clone, Debug)]
 pub enum ListMember {
     Simple(SimpleValue),
@@ -58,6 +71,7 @@ pub enum ListMember {
     Reference(IdentifierReference),
 }
 
+/// Corresponds to the grammar rule `value_constructor`.
 #[derive(Clone, Debug)]
 pub struct ValueConstructor {
     span: Option<Span>,

@@ -9,15 +9,15 @@ YYYYY
 
 */
 
+use sdml_core::generate::GenerateToFile;
 use crate::draw::OutputFormat;
-use crate::exec::{exec_with_input, CommandArg};
+use crate::exec::{exec_with_temp_input, CommandArg};
 use sdml_core::error::Error;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
     ByReferenceMemberInner, ByValueMemberInner, Cardinality, Identifier, IdentifierReference,
     IdentityMemberInner, Module, Span, TypeReference, Value,
 };
-use std::io::Write;
 use std::path::Path;
 use tracing::debug;
 
@@ -29,80 +29,18 @@ use tracing::debug;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub const UML_PROGRAM: &str = "plantuml";
+#[derive(Debug, Default)]
+pub struct UmlDiagramGenerator {
+    buffer: String,
+    imports: String,
+    output: Option<DiagramOutput>,
+    assoc_src: Option<String>,
+    refs: Option<String>,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
-
-pub fn write_uml_diagram<W: Write>(
-    module: &Module,
-    w: &mut W,
-    format: OutputFormat,
-) -> Result<(), Error> {
-    let mut state = DiagramState::new_with_imports(make_imports(module));
-    walk_module(module, &mut state)?;
-
-    if format == OutputFormat::Source {
-        w.write_all(state.buffer.as_bytes())?;
-    } else {
-        match exec_with_input(
-            UML_PROGRAM,
-            vec![
-                CommandArg::new(format!("-o{}", default_output_path())),
-                format_to_arg(format),
-            ],
-            state.buffer,
-        ) {
-            Ok(result) => {
-                w.write_all(result.as_bytes())?;
-            }
-            Err(e) => {
-                panic!("exec_with_input failed: {:?}", e);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-pub fn uml_diagram_to_file<P>(module: &Module, path: P, format: OutputFormat) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-{
-    let mut state = DiagramState {
-        output: Some(path_to_output(&path, module.name())),
-        ..Default::default()
-    };
-
-    walk_module(module, &mut state)?;
-
-    if format == OutputFormat::Source {
-        std::fs::write(path.as_ref(), state.buffer)?;
-    } else {
-        match exec_with_input(
-            UML_PROGRAM,
-            vec![
-                CommandArg::new(format!("-o{}", state.output.unwrap().output_dir)),
-                format.into(),
-            ],
-            state.buffer,
-        ) {
-            Ok(result) => {
-                debug!("Response from command: {:?}", result);
-            }
-            Err(e) => {
-                panic!("exec_with_input failed: {:?}", e);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-write_to_string!(uml_diagram_to_string, write_uml_diagram, OutputFormat);
-
-print_to_stdout!(print_uml_diagram, write_uml_diagram, OutputFormat);
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros
@@ -111,15 +49,6 @@ print_to_stdout!(print_uml_diagram, write_uml_diagram, OutputFormat);
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
-
-#[derive(Debug, Default)]
-struct DiagramState {
-    buffer: String,
-    imports: String,
-    output: Option<DiagramOutput>,
-    //entity: Option<String>,
-    //has_unknown: bool,
-}
 
 #[derive(Debug, Default)]
 struct DiagramOutput {
@@ -131,17 +60,40 @@ struct DiagramOutput {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl DiagramState {
-    fn new_with_imports(imports: String) -> Self {
-        Self {
-            buffer: Default::default(),
-            imports,
-            output: None,
+pub const UML_PROGRAM: &str = "plantuml";
+
+impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
+    fn write_to_file_in_format(&mut self, module: &Module, path: &Path, format: OutputFormat) -> Result<(), Error> {
+        self.imports = make_imports(module);
+        self.output = Some(path_to_output(&path, module.name()));
+
+        walk_module(module, self)?;
+
+        if format == OutputFormat::Source {
+            std::fs::write(path, &self.buffer)?;
+        } else {
+            match exec_with_temp_input(
+                UML_PROGRAM,
+                vec![
+                    CommandArg::new(format!("-o{}", self.output.as_ref().map(|o| &o.output_dir).unwrap())),
+                    format_to_arg(format),
+                ],
+                &self.buffer,
+            ) {
+                Ok(result) => {
+                    debug!("Response from command: {:?}", result);
+                }
+                Err(e) => {
+                    panic!("exec_with_input failed: {:?}", e);
+                }
+            }
         }
+
+        Ok(())
     }
 }
 
-impl ModuleWalker for DiagramState {
+impl ModuleWalker for UmlDiagramGenerator {
     fn start_module(
         &mut self,
         name: &Identifier,
@@ -154,19 +106,17 @@ hide methods
 hide circle
 
 show << datatype >> circle
+show << entity >> circle
+show enum circle
 show << event >> circle
 show << union >> circle
 
-title "Module {name}"
-
-{}
-package "{name}" as s_{name} {{
+package "{name}" as s_{name} <<module>> {{
 "#,
             self.output
                 .as_ref()
                 .map(|o| o.file_name.to_string())
                 .unwrap_or_else(|| name.to_string()),
-            self.imports
         ));
 
         Ok(())
@@ -216,7 +166,8 @@ package "{name}" as s_{name} {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&start_type("entity", name));
+        self.buffer.push_str(&start_type_with_sterotype("class", name, "entity"));
+        self.assoc_src = Some(name.to_string());
         Ok(())
     }
 
@@ -226,23 +177,20 @@ package "{name}" as s_{name} {{
         inner: &IdentityMemberInner,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str("    __identity__\n");
-
-        self.buffer.push_str(&format!("    {name}"));
+        self.buffer.push_str(&format!("    <<identity>> {name}"));
         match inner {
             IdentityMemberInner::PropertyRole(role) => {
-                self.buffer.push_str(&format!("{{role = {role}}}"));
+                self.buffer.push_str(&format!(" {{role = {role}}}\n"));
             }
             IdentityMemberInner::Defined(def) => {
                 if let TypeReference::Reference(target_type) = def.target_type() {
                     self.buffer.push_str(&format!(": {target_type}\n"));
                 } else {
-                    self.buffer.push('\n');
+                    self.buffer.push_str(": ?\n");
                 }
             }
         }
-
-        self.buffer.push_str("    ..\n");
+        self.buffer.push_str("    --\n");
 
         Ok(())
     }
@@ -253,17 +201,17 @@ package "{name}" as s_{name} {{
         inner: &ByValueMemberInner,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    {name}"));
-
-        match inner {
+         self.buffer.push_str(&format!("    {name}"));
+         match inner {
             ByValueMemberInner::PropertyRole(role) => {
-                self.buffer.push_str(&format!("{{role = {role}}}"));
+                self.buffer.push_str(&format!(" {{role = {role}}}\n"));
             }
-            ByValueMemberInner::Defined(def) => {
+             ByValueMemberInner::Defined(def) => {
+                 let card_string = def.target_cardinality().map(|c|format!("{{{}}} ", c.to_uml_string())).unwrap_or_default();
                 if let TypeReference::Reference(target_type) = def.target_type() {
-                    self.buffer.push_str(&format!(": {target_type}\n"));
+                    self.buffer.push_str(&format!(": {card_string}{target_type}\n"));
                 } else {
-                    self.buffer.push('\n');
+                    self.buffer.push_str(": ?\n");
                 }
             }
         }
@@ -277,17 +225,21 @@ package "{name}" as s_{name} {{
         inner: &ByReferenceMemberInner,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    {name}"));
-
         match inner {
             ByReferenceMemberInner::PropertyRole(role) => {
-                self.buffer.push_str(&format!("{{role = {role}}}"));
+                self.buffer.push_str(&format!("    {name} {{role = {role}}}\n"));
             }
             ByReferenceMemberInner::Defined(def) => {
                 if let TypeReference::Reference(target_type) = def.target_type() {
-                    self.buffer.push_str(&format!(": {target_type}\n"));
+                 let from_card = def.source_cardinality().map(|c|format!("\"{{{}}}\" ", c.to_uml_string())).unwrap_or_default();
+                 let to_card = def.target_cardinality().map(|c|format!("{{{}}}\\n", c.to_uml_string())).unwrap_or_default();
+                    let reference = format!(
+                        "  s_{} {from_card}o--> \"{to_card}{name}\" s_{target_type}\n",
+                        self.assoc_src.as_ref().unwrap(),
+                    );
+                    self.refs = Some(self.refs.clone().map(|r| format!("{r}{reference}")).unwrap_or(reference));
                 } else {
-                    self.buffer.push('\n');
+                    self.buffer.push_str(&format!("    {name}: ?\n"));
                 }
             }
         }
@@ -301,6 +253,7 @@ package "{name}" as s_{name} {{
 
     fn end_entity(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
         self.buffer.push_str(&end_type(name, had_body));
+        self.assoc_src = None;
         Ok(())
     }
 
@@ -337,8 +290,8 @@ package "{name}" as s_{name} {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&format!("  s_{name} o--> s_{source}\n"));
+        let reference = format!("  s_{name} o--> s_{source}\n");
+        self.refs = Some(self.refs.clone().map(|r| format!("{r}{reference}")).unwrap_or(reference));
         self.buffer
             .push_str(&start_type_with_sterotype("class", name, "event"));
         Ok(())
@@ -448,7 +401,11 @@ package "{name}" as s_{name} {{
     }
 
     fn end_module(&mut self, _name: &Identifier) -> Result<(), Error> {
+        if let Some(refs) = &self.refs {
+            self.buffer.push_str(refs);
+        }
         self.buffer.push_str("}\n");
+        self.buffer.push_str(&format!("{}", self.imports));
         self.buffer.push_str("@enduml\n");
         Ok(())
     }
@@ -468,8 +425,8 @@ fn start_type_with_sterotype(
     stereo_name: &str,
 ) -> String {
     format!(
-        "  {} \"{}\" as s_{} << (D, orchid) {} >> {{\n",
-        type_class, type_name, type_name, stereo_name
+        "  {} \"{}\" as s_{} << ({}, orchid) {} >> {{\n",
+        type_class, type_name, type_name, stereo_name.chars().next().unwrap().to_uppercase(), stereo_name
     )
 }
 
@@ -484,7 +441,7 @@ fn end_type(type_name: &Identifier, has_body: bool) -> String {
 fn make_imports(module: &Module) -> String {
     let mut imports = String::new();
     for other in module.imported_modules() {
-        imports.push_str(&format!("package \"{}\" as s_{} {{\n", other, other));
+        imports.push_str(&format!("package \"{}\" as s_{} <<module>> #white {{\n", other, other));
         for imported in module
             .imported_types()
             .iter()
@@ -497,7 +454,7 @@ fn make_imports(module: &Module) -> String {
             ));
         }
         imports.push_str("}\n");
-        imports.push_str(&format!("s_{} ..> s_{}\n\n", module.name(), other));
+        imports.push_str(&format!("s_{} ..> s_{}: <<import>>\n\n", module.name(), other));
     }
     imports
 }

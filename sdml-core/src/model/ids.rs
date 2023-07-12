@@ -17,12 +17,18 @@ pub trait Named {
     fn set_name(&mut self, name: &Identifier);
 }
 
+///
+/// Corresponds the grammar rule `identifier`.
+///
 #[derive(Clone, Debug)]
 pub struct Identifier {
     span: Option<Span>,
     value: String,
 }
 
+///
+/// Corresponds the grammar rule `qualified_identifier`.
+///
 #[derive(Clone, Debug)]
 pub struct QualifiedIdentifier {
     span: Option<Span>,
@@ -30,6 +36,9 @@ pub struct QualifiedIdentifier {
     member: Identifier,
 }
 
+///
+/// Corresponds the grammar rule `identifier_reference`.
+///
 #[derive(Clone, Debug)]
 pub enum IdentifierReference {
     Identifier(Identifier),

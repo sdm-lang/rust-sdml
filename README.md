@@ -1,6 +1,6 @@
-# Crate sdml
+# Project SDML 
 
-Rust CLI for Simple Domain Modeling Language (SDML).
+Rust Library and Tools for the Simple Domain Modeling Language (SDML).
 
 ![MIT License](https://img.shields.io/badge/license-mit-118811.svg)
 [![Rust](https://github.com/johnstonskj/rust-sdml/actions/workflows/rust.yml/badge.svg)](https://github.com/johnstonskj/rust-sdml/actions/workflows/rust.yml)
@@ -55,6 +55,9 @@ Finally, if no module name is specified the tool will read from `stdin`.
 | check     |                     | Not started  |
 
 # Changes
+
+After version 0.1.4 the single crate has been replaced with the four `sdml_core`, `sdml_parse`, `sdml_generate`, and `sdml_cli`.
+Each will have it's own version history starting with **0.1.5**.
 
 **Version: 0.1.4**
 

@@ -8,6 +8,9 @@ use url::Url;
 // Public Types ❱ Modules
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Corresponds the grammar rule `module`.
+///
 #[derive(Clone, Debug)]
 pub struct Module {
     span: Option<Span>,
@@ -17,6 +20,9 @@ pub struct Module {
     body: ModuleBody,
 }
 
+///
+/// Corresponds the grammar rule `module_body`.
+///
 #[derive(Clone, Debug, Default)]
 pub struct ModuleBody {
     span: Option<Span>,
@@ -30,6 +36,9 @@ pub struct ModuleBody {
 // Public Types ❱ Modules ❱ Imports
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Corresponds the grammar rule `import_statement`.
+///
 #[derive(Clone, Debug, Default)]
 pub struct ImportStatement {
     span: Option<Span>,
@@ -37,9 +46,14 @@ pub struct ImportStatement {
     imports: Vec<Import>,
 }
 
+///
+/// Corresponds the grammar rule `import`.
+///
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Import {
+    /// Corresponds to the grammar rule `module_import`.
     Module(Identifier),
+    /// Corresponds to the grammar rule `member_import`.
     Member(QualifiedIdentifier),
 }
 

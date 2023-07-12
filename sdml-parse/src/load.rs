@@ -13,6 +13,7 @@ use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::error::{module_file_not_found, Error};
 use sdml_core::model::{Identifier, Module};
+use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait};
 use search_path::SearchPath;
 use std::collections::HashMap;
 use std::fs::File;
@@ -70,22 +71,18 @@ impl Default for ModuleResolver {
     }
 }
 
-impl ModuleResolver {
-    pub fn prepend_to_search_path<P>(&mut self, path: P)
-    where
-        P: AsRef<Path>,
+impl ResolverTrait for ModuleResolver {
+    fn prepend_to_search_path(&mut self, path: &Path)
     {
-        self.search_path.prepend(PathBuf::from(path.as_ref()));
+        self.search_path.prepend(PathBuf::from(path));
     }
 
-    pub fn append_to_search_path<P>(&mut self, path: P)
-    where
-        P: AsRef<Path>,
-    {
-        self.search_path.append(PathBuf::from(path.as_ref()));
+    fn append_to_search_path(&mut self, path: &Path)
+   {
+        self.search_path.append(PathBuf::from(path));
     }
 
-    pub fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
+    fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
         self.search_path
             .find(format!("{}.{}", name, SDML_FILE_EXTENSION).as_ref())
             .or_else(|| {
@@ -128,8 +125,8 @@ impl Default for ModuleLoader {
     }
 }
 
-impl ModuleLoader {
-    pub fn load(&mut self, name: &Identifier) -> Result<&Module, Error> {
+impl LoaderTrait for ModuleLoader {
+    fn load(&mut self, name: &Identifier) -> Result<&Module, Error> {
         let exists = self.modules.contains_key(name);
         if exists {
             Ok(self.get(name).unwrap())
@@ -139,27 +136,47 @@ impl ModuleLoader {
         }
     }
 
-    pub fn load_from_file(&mut self, file: PathBuf) -> Result<&Module, Error> {
+    fn load_from_file(&mut self, file: PathBuf) -> Result<&Module, Error> {
         let mut reader = File::open(&file)?;
         self.load_inner(&mut reader, Some(file))
     }
 
-    pub fn load_from_reader<R>(&mut self, reader: &mut R) -> Result<&Module, Error>
-    where
-        R: Read,
+    fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<&Module, Error>
     {
         self.load_inner(reader, None)
     }
 
-    fn load_inner<R>(&mut self, reader: &mut R, file: Option<PathBuf>) -> Result<&Module, Error>
-    where
-        R: Read,
+
+    fn contains(&self, name: &Identifier) -> bool {
+        self.modules.contains_key(name)
+    }
+
+    fn get(&self, name: &Identifier) -> Option<&Module> {
+        self.modules.get(name).map(|m| &m.0)
+    }
+
+    fn get_source(&self, name: &Identifier) -> Option<&String> {
+        if let Some(module) = self.modules.get(name) {
+            Some(self.module_files.get(module.1).unwrap().source())
+        } else {
+            None
+        }
+    }
+
+    fn resolver(&self) -> &dyn ResolverTrait {
+        &self.resolver
+    }
+}
+
+impl ModuleLoader {
+    fn load_inner(&mut self, reader: &mut dyn Read, file: Option<PathBuf>) -> Result<&Module, Error>
     {
         let mut source = String::new();
         reader.read_to_string(&mut source)?;
         let file_name: String = file
             .map(|p| p.to_string_lossy().into_owned())
             .unwrap_or_default();
+        // Insert into the codespan cache
         let file_id = self.module_files.add(file_name, source);
 
         let (module, counters) = parse_str(file_id, self)?.into_inner();
@@ -167,20 +184,9 @@ impl ModuleLoader {
         let name = module.name().clone();
         counters.display(&name)?;
 
+        // save codespan file ID with module
         let _ = self.modules.insert(name.clone(), (module, file_id));
         Ok(self.get(&name).unwrap())
-    }
-
-    pub fn contains(&self, name: &Identifier) -> bool {
-        self.modules.contains_key(name)
-    }
-
-    pub fn get(&self, name: &Identifier) -> Option<&Module> {
-        self.modules.get(name).map(|m| &m.0)
-    }
-
-    pub fn resolver(&self) -> &ModuleResolver {
-        &self.resolver
     }
 
     pub(crate) fn files(&self) -> &SimpleFiles<String, String> {

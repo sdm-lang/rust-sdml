@@ -8,6 +8,7 @@ use std::{collections::HashSet, fmt::Debug};
 // Public Types ❱ Type Definitions
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `type_def`.
 #[derive(Clone, Debug)]
 pub enum TypeDefinition {
     Datatype(DatatypeDef),
@@ -23,15 +24,18 @@ pub enum TypeDefinition {
 // Public Types ❱ Type Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `data_type_def`.
 #[derive(Clone, Debug)]
 pub struct DatatypeDef {
     span: Option<Span>,
     comments: Vec<Comment>,
     name: Identifier,
+    /// Corresponds to the grammar rule `data_type_base`.
     base_type: IdentifierReference,
     body: Option<AnnotationOnlyBody>,
 }
 
+/// Corresponds to the grammar rule `annotation_only_body`.
 #[derive(Clone, Debug, Default)]
 pub struct AnnotationOnlyBody {
     span: Option<Span>,
@@ -43,6 +47,7 @@ pub struct AnnotationOnlyBody {
 // Public Types ❱ Type Definitions ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `entity_def`.
 #[derive(Clone, Debug)]
 pub struct EntityDef {
     span: Option<Span>,
@@ -51,6 +56,7 @@ pub struct EntityDef {
     body: Option<EntityBody>,
 }
 
+/// Corresponds to the grammar rule `entity_body`.
 #[derive(Clone, Debug)]
 pub struct EntityBody {
     span: Option<Span>,
@@ -61,12 +67,14 @@ pub struct EntityBody {
     groups: Vec<EntityGroup>,
 }
 
+/// Corresponds to the inner part of the grammar rule `entity_group`.
 #[derive(Clone, Debug)]
 pub enum EntityMember {
     ByValue(ByValueMember),
     ByReference(ByReferenceMember),
 }
 
+/// Corresponds to the grammar rule `entity_group`.
 #[derive(Clone, Debug, Default)]
 pub struct EntityGroup {
     span: Option<Span>,
@@ -79,6 +87,7 @@ pub struct EntityGroup {
 // Public Types ❱ Type Definitions ❱ Enumerations
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `enum_def`.
 #[derive(Clone, Debug)]
 pub struct EnumDef {
     span: Option<Span>,
@@ -87,6 +96,7 @@ pub struct EnumDef {
     body: Option<EnumBody>,
 }
 
+/// Corresponds to the grammar rule `enum_body`.
 #[derive(Clone, Debug, Default)]
 pub struct EnumBody {
     span: Option<Span>,
@@ -95,6 +105,7 @@ pub struct EnumBody {
     variants: Vec<EnumVariant>, // assert!(!variants.is_empty());
 }
 
+/// Corresponds to the grammar rule `enum_variant`.
 #[derive(Clone, Debug)]
 pub struct EnumVariant {
     span: Option<Span>,
@@ -108,6 +119,7 @@ pub struct EnumVariant {
 // Public Types ❱ Type Definitions ❱ Events
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `event_def`.
 #[derive(Clone, Debug)]
 pub struct EventDef {
     span: Option<Span>,
@@ -121,6 +133,7 @@ pub struct EventDef {
 // Public Types ❱ Type Definitions ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `structure_def`.
 #[derive(Clone, Debug)]
 pub struct StructureDef {
     span: Option<Span>,
@@ -129,6 +142,7 @@ pub struct StructureDef {
     body: Option<StructureBody>,
 }
 
+/// Corresponds to the grammar rule `structure_body`.
 #[derive(Clone, Debug, Default)]
 pub struct StructureBody {
     span: Option<Span>,
@@ -138,6 +152,7 @@ pub struct StructureBody {
     groups: Vec<StructureGroup>,
 }
 
+/// Corresponds to the grammar rule `structure_group`.
 #[derive(Clone, Debug, Default)]
 pub struct StructureGroup {
     span: Option<Span>,
@@ -150,6 +165,7 @@ pub struct StructureGroup {
 // Public Types ❱ Type Definitions ❱ Unions
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `union_def`.
 #[derive(Clone, Debug)]
 pub struct UnionDef {
     span: Option<Span>,
@@ -158,6 +174,7 @@ pub struct UnionDef {
     body: Option<UnionBody>,
 }
 
+/// Corresponds to the grammar rule `union_body`.
 #[derive(Clone, Debug, Default)]
 pub struct UnionBody {
     span: Option<Span>,
@@ -166,6 +183,7 @@ pub struct UnionBody {
     variants: Vec<TypeVariant>, // assert!(!variants.is_empty());
 }
 
+/// Corresponds to the grammar rule `type_variant`.
 #[derive(Clone, Debug)]
 pub struct TypeVariant {
     span: Option<Span>,
@@ -179,6 +197,7 @@ pub struct TypeVariant {
 // Public Types ❱ Type Definitions ❱ Properties
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `property_def`.
 #[derive(Clone, Debug)]
 pub struct PropertyDef {
     span: Option<Span>,
@@ -187,6 +206,7 @@ pub struct PropertyDef {
     body: Option<PropertyBody>,
 }
 
+/// Corresponds to the grammar rule `property_body`.
 #[derive(Clone, Debug, Default)]
 pub struct PropertyBody {
     span: Option<Span>,
@@ -195,6 +215,7 @@ pub struct PropertyBody {
     roles: Vec<PropertyRole>, // assert!(!roles.is_empty());
 }
 
+/// Corresponds to the grammar rule `property_role`.
 #[derive(Clone, Debug)]
 pub struct PropertyRole {
     span: Option<Span>,

@@ -1,14 +1,8 @@
 /*!
-Simple Domain Modeling Language.
+Provides the core in-memory implementation of the *Simple Domain Modeling Language* (SDML).
 
-More detailed description, with
-
-# Example
-
-YYYYY
-
-# Features
-
+This package also includes the traits used to describe module loading as well as artifact
+generators.
 */
 
 #![warn(
@@ -67,8 +61,12 @@ YYYYY
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-pub mod syntax;
-
 pub mod error;
 
+pub mod generate;
+
+pub mod load;
+
 pub mod model;
+
+pub mod syntax;

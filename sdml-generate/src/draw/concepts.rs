@@ -9,16 +9,15 @@ YYYYY
 
 */
 
+use sdml_core::generate::GenerateToWriter;
 use crate::draw::OutputFormat;
-use crate::exec::{exec_with_input, CommandArg};
+use crate::exec::exec_with_temp_input;
 use sdml_core::error::Error;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
     ByReferenceMemberInner, Cardinality, Identifier, Module, Span, TypeReference,
 };
 use std::io::Write;
-use std::path::Path;
-use tracing::debug;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -28,74 +27,16 @@ use tracing::debug;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub const DOT_PROGRAM: &str = "dot";
+#[derive(Debug, Default)]
+pub struct ConceptDiagramGenerator {
+    buffer: String,
+    entity: Option<String>,
+    has_unknown: bool,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
-
-pub fn write_concept_diagram<W: Write>(
-    module: &Module,
-    w: &mut W,
-    format: OutputFormat,
-) -> Result<(), Error> {
-    let mut state = DiagramState::default();
-    walk_module(module, &mut state)?;
-
-    if format == OutputFormat::Source {
-        w.write_all(state.buffer.as_bytes())?;
-    } else {
-        match exec_with_input(DOT_PROGRAM, vec![format.into()], state.buffer) {
-            Ok(result) => {
-                w.write_all(result.as_bytes())?;
-            }
-            Err(e) => {
-                panic!("exec_with_input failed: {:?}", e);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-pub fn concept_diagram_to_file<P>(
-    module: &Module,
-    path: P,
-    format: OutputFormat,
-) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-{
-    let mut state = DiagramState::default();
-    walk_module(module, &mut state)?;
-
-    if format == OutputFormat::Source {
-        std::fs::write(path.as_ref(), state.buffer)?;
-    } else {
-        match exec_with_input(
-            DOT_PROGRAM,
-            vec![CommandArg::from_path_option("-o", path), format.into()],
-            state.buffer,
-        ) {
-            Ok(result) => {
-                debug!("Response from command: {:?}", result);
-            }
-            Err(e) => {
-                panic!("exec_with_input failed: {:?}", e);
-            }
-        }
-    }
-
-    Ok(())
-}
-
-write_to_string!(
-    concept_diagram_to_string,
-    write_concept_diagram,
-    OutputFormat
-);
-
-print_to_stdout!(print_concept_diagram, write_concept_diagram, OutputFormat);
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros
@@ -105,32 +46,44 @@ print_to_stdout!(print_concept_diagram, write_concept_diagram, OutputFormat);
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Default)]
-struct DiagramState {
-    buffer: String,
-    entity: Option<String>,
-    has_unknown: bool,
-}
-
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl ModuleWalker for DiagramState {
-    fn start_module(&mut self, name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
-        self.buffer.push_str(&format!(
-            r#"digraph G {{
+pub const DOT_PROGRAM: &str = "dot";
+
+impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
+    fn write_in_format(&mut self, module: &Module, writer: &mut dyn Write, format: OutputFormat) -> Result<(), Error> {
+        walk_module(module, self)?;
+
+        if format == OutputFormat::Source {
+            writer.write_all(self.buffer.as_bytes())?;
+        } else {
+            match exec_with_temp_input(DOT_PROGRAM, vec![format.into()], &self.buffer) {
+                Ok(result) => {
+                    writer.write_all(result.as_bytes())?;
+                }
+                Err(e) => {
+                    panic!("exec_with_input failed: {:?}", e);
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl ModuleWalker for ConceptDiagramGenerator {
+    fn start_module(&mut self, _name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
+        self.buffer.push_str(r#"digraph G {
   bgcolor="transparent";
   rankdir="TB";
   fontname="Helvetica,Arial,sans-serif";
   node [fontname="Helvetica,Arial,sans-serif"; fontsize=10];
   edge [fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
         labelfontcolor="blue"; labeldistance=2.0];
-  label="module {}";
 
-"#,
-            name
-        ));
+"#);
         Ok(())
     }
 

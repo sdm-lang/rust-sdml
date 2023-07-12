@@ -6,120 +6,127 @@ use std::{collections::HashSet, fmt::Debug};
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! member_types {
-    ($outer: ident, $inner: ident, $def: ident $(, $addname: ident, $addtype: ty )*) => {
-        #[derive(Clone, Debug)]
-        pub struct $outer {
-            span: Option<Span>,
-            comments: Vec<Comment>,
-            name: Identifier,
-            inner: $inner,
-        }
+    ($prefix: ident, $rule: literal $(, $addname: ident, $addtype: ty )*) => {
+        paste::paste! {
+            #[doc = "Corresponds to the grammar rule `" $rule "_member`."]
+            #[derive(Clone, Debug)]
+            pub struct [< $prefix Member >] {
+                span: Option<Span>,
+                comments: Vec<Comment>,
+                name: Identifier,
+                inner: [< $prefix MemberInner >],
+            }
 
-        #[derive(Clone, Debug)]
-        pub enum $inner {
-            PropertyRole(Identifier),
-            Defined($def),
-        }
+            #[doc = "Corresponds to the choice component within grammar rule `" $rule "_member`."]
+            #[derive(Clone, Debug)]
+            pub enum [< $prefix MemberInner >] {
+                PropertyRole(Identifier),
+                Defined([< $prefix MemberDef >]),
+            }
 
-        #[derive(Clone, Debug)]
-        pub struct $def {
-            target_type: TypeReference,
-            $(
-                $addname: Option<$addtype>,
-            )*
-            body: Option<AnnotationOnlyBody>,
+            #[doc = "Corresponds to the definition component within grammar rule `" $rule "_member`."]
+            #[derive(Clone, Debug)]
+            pub struct [< $prefix MemberDef >] {
+                target_type: TypeReference,
+                $(
+                    $addname: Option<$addtype>,
+                )*
+                    body: Option<AnnotationOnlyBody>,
+            }
         }
     };
 }
 
 macro_rules! member_impl {
-    ($outer: ident, $inner: ident, $def: ident $(, $addname: ident, $addtype: ty )*) => {
-        impl $outer {
-            pub fn new_with_role(name: Identifier, role: Identifier) -> Self {
-                Self {
-                    span: None,
-                    comments: Default::default(),
-                    name,
-                    inner: role.into(),
+    ($prefix: ident $(, $addname: ident, $addtype: ty )*) => {
+        paste::paste! {
+            impl [< $prefix Member >] {
+                pub fn new_with_role(name: Identifier, role: Identifier) -> Self {
+                    Self {
+                        span: None,
+                        comments: Default::default(),
+                        name,
+                        inner: role.into(),
+                    }
+                }
+
+                pub fn new_with_definition(name: Identifier, def: [< $prefix MemberDef >]) -> Self {
+                    Self {
+                        span: None,
+                        comments: Default::default(),
+                        name,
+                        inner: def.into(),
+                    }
+                }
+
+                with!(pub span (ts_span) => option Span);
+                get_and_mutate!(pub span (ts_span) => option Span);
+
+                get_and_mutate_collection_of!(pub comments => Vec, Comment);
+
+                get_and_mutate!(pub name => Identifier);
+
+                get_and_mutate!(pub inner => [< $prefix MemberInner >]);
+
+                delegate_is_as_variant!(pub property_role, inner => [< $prefix MemberInner >], PropertyRole, Identifier);
+
+                delegate_is_as_variant!(pub defined, inner => [< $prefix MemberInner >], Defined, [< $prefix MemberDef >]);
+
+                pub fn is_complete(&self) -> bool {
+                    self.inner.is_complete()
                 }
             }
 
-            pub fn new_with_definition(name: Identifier, def: $def) -> Self {
-                Self {
-                    span: None,
-                    comments: Default::default(),
-                    name,
-                    inner: def.into(),
+            impl From<Identifier> for [< $prefix MemberInner >] {
+                fn from(value: Identifier) -> Self {
+                    Self::PropertyRole(value)
                 }
             }
 
-            with!(pub span (ts_span) => option Span);
-            get_and_mutate!(pub span (ts_span) => option Span);
-
-            get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
-            get_and_mutate!(pub name => Identifier);
-
-            get_and_mutate!(pub inner => $inner);
-
-            delegate_is_as_variant!(pub property_role, inner => $inner, PropertyRole, Identifier);
-
-            delegate_is_as_variant!(pub defined, inner => $inner, Defined, $def);
-
-            pub fn is_complete(&self) -> bool {
-                self.inner.is_complete()
-            }
-        }
-
-        impl From<Identifier> for $inner {
-            fn from(value: Identifier) -> Self {
-                Self::PropertyRole(value)
-            }
-        }
-
-        impl From<$def> for $inner {
-            fn from(value: $def) -> Self {
-                Self::Defined(value)
-            }
-        }
-
-        impl $inner {
-            is_as_variant!(pub property_role => PropertyRole, Identifier);
-            is_as_variant!(pub defined => Defined, $def);
-
-            pub fn is_complete(&self) -> bool {
-                if let Self::Defined(defined) = self {
-                   defined.is_complete()
-                } else {
-                    true
-                }
-            }
-        }
-
-        impl $def {
-            pub fn new(target_type: TypeReference) -> Self {
-                Self {
-                    target_type,
-                    body: None,
-                    $(
-                        $addname: Default::default(),
-                    )*
+            impl From<[< $prefix MemberDef >]> for [< $prefix MemberInner >] {
+                fn from(value: [< $prefix MemberDef >]) -> Self {
+                    Self::Defined(value)
                 }
             }
 
-            get_and_mutate!(pub target_type => TypeReference);
+            impl [< $prefix MemberInner >] {
+                is_as_variant!(pub property_role => PropertyRole, Identifier);
+                is_as_variant!(pub defined => Defined, [< $prefix MemberDef >]);
 
-            $(
-                with!(pub $addname => option $addtype);
-                get_and_mutate!(pub $addname => option $addtype);
-            )*
+                pub fn is_complete(&self) -> bool {
+                    if let Self::Defined(defined) = self {
+                        defined.is_complete()
+                    } else {
+                        true
+                    }
+                }
+            }
 
-            get_and_mutate!(pub body => option AnnotationOnlyBody);
+            impl [< $prefix MemberDef >] {
+                pub fn new(target_type: TypeReference) -> Self {
+                    Self {
+                        target_type,
+                        body: None,
+                        $(
+                            $addname: Default::default(),
+                        )*
+                    }
+                }
 
-            referenced_optional_body_annotations!();
+                get_and_mutate!(pub target_type => TypeReference);
 
-            pub fn is_complete(&self) -> bool {
-                self.target_type().is_complete()
+                $(
+                    with!(pub $addname => option $addtype);
+                    get_and_mutate!(pub $addname => option $addtype);
+                )*
+
+                    get_and_mutate!(pub body => option AnnotationOnlyBody);
+
+                referenced_optional_body_annotations!();
+
+                pub fn is_complete(&self) -> bool {
+                    self.target_type().is_complete()
+                }
             }
         }
     };
@@ -132,26 +139,25 @@ macro_rules! member_impl {
 // Public Types ❱ Members
 // ------------------------------------------------------------------------------------------------
 
-member_types!(IdentityMember, IdentityMemberInner, IdentityMemberDef);
+member_types!(Identity, "identity");
 
 member_types!(
-    ByValueMember,
-    ByValueMemberInner,
-    ByValueMemberDef,
+    ByValue,
+    "by_value",
     target_cardinality,
     Cardinality
 );
 
 member_types!(
-    ByReferenceMember,
-    ByReferenceMemberInner,
-    ByReferenceMemberDef,
+    ByReference,
+    "by_reference",
     source_cardinality,
     Cardinality,
     target_cardinality,
     Cardinality
 );
 
+/// Corresponds to the grammar rule `type_reference`.
 #[derive(Clone, Debug)]
 pub enum TypeReference {
     Reference(IdentifierReference),
@@ -162,6 +168,7 @@ pub enum TypeReference {
 // Public Types ❱ Members ❱ Cardinality
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `cardinality`.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Cardinality {
     span: Option<Span>,
@@ -185,20 +192,16 @@ pub struct Cardinality {
 // Implementations ❱ Members
 // ------------------------------------------------------------------------------------------------
 
-member_impl!(IdentityMember, IdentityMemberInner, IdentityMemberDef);
+member_impl!(Identity);
 
 member_impl!(
-    ByValueMember,
-    ByValueMemberInner,
-    ByValueMemberDef,
+    ByValue,
     target_cardinality,
     Cardinality
 );
 
 member_impl!(
-    ByReferenceMember,
-    ByReferenceMemberInner,
-    ByReferenceMemberDef,
+    ByReference,
     source_cardinality,
     Cardinality,
     target_cardinality,
@@ -273,7 +276,7 @@ impl Cardinality {
     }
 
     pub fn is_range(&self) -> bool {
-        self.max.map(|i| i != self.min).unwrap_or_default()
+        self.max.map(|i| i != self.min).unwrap_or(true)
     }
 
     pub fn to_uml_string(&self) -> String {

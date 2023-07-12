@@ -35,29 +35,30 @@ pub(crate) struct CommandArg {
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub(crate) fn exec_with_input<S>(
-    executable: S,
+pub(crate) fn exec_with_temp_input<S1, S2>(
+    program: S1,
     args: Vec<CommandArg>,
-    input: String,
+    temp_file_contents: S2,
 ) -> io::Result<String>
 where
-    S: Into<String> + std::fmt::Debug,
+    S1: Into<String> + std::fmt::Debug,
+    S2: Into<String>,
 {
-    trace!("exec_with_input({:?}, {:?}, ...)", executable, args);
-    write_to_temp_file(input).and_then(|f| {
+    trace!("exec_with_input({:?}, {:?}, ...)", program, args);
+    write_to_temp_file(temp_file_contents.into()).and_then(|f| {
         let mut args_mut = args;
         args_mut.push(CommandArg::from_path(f.path()));
-        exec(executable, args_mut)
+        exec(program, args_mut)
     })
 }
 
-pub(crate) fn exec<S>(executable: S, args: Vec<CommandArg>) -> io::Result<String>
+pub(crate) fn exec<S>(program: S, args: Vec<CommandArg>) -> io::Result<String>
 where
     S: Into<String> + std::fmt::Debug,
 {
-    trace!("exec({:?}, {:?})", executable, args);
+    trace!("exec({:?}, {:?})", program, args);
     let args = args.into_iter().flat_map(|a| a.into_args()).collect();
-    exec_inner(executable, args).and_then(|o| {
+    exec_inner(program, args).and_then(|o| {
         if o.status.code().map(|c| c != 0).unwrap_or(true) {
             error!("command execution failed; error: {:?}", o.status);
             let mes = String::from_utf8_lossy(&o.stderr).to_string();
@@ -121,14 +122,6 @@ impl CommandArg {
         P: AsRef<Path>,
     {
         Self::new(path.as_ref().to_string_lossy().to_string())
-    }
-
-    pub(crate) fn from_path_option<S, P>(option: S, path: P) -> Self
-    where
-        S: Into<String>,
-        P: AsRef<Path>,
-    {
-        Self::new_option(option, path.as_ref().to_string_lossy().to_string())
     }
 
     pub(crate) fn into_args(self) -> Vec<String> {

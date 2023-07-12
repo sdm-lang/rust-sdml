@@ -5,12 +5,14 @@ use std::{collections::HashSet, fmt::Debug};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+/// Corresponds to the grammar rule `line_comment`.
 #[derive(Clone, Debug)]
 pub struct Comment {
     span: Option<Span>,
     value: String,
 }
 
+/// Corresponds to the grammar rule `annotation`.
 #[derive(Clone, Debug)]
 #[allow(clippy::large_enum_variant)] // TODO: why is this reported as an issue?
 pub enum Annotation {
@@ -18,6 +20,7 @@ pub enum Annotation {
     Constraint(Constraint),
 }
 
+/// Corresponds to the grammar rule `annotation_property`.
 #[derive(Clone, Debug)]
 pub struct AnnotationProperty {
     span: Option<Span>,
@@ -26,6 +29,7 @@ pub struct AnnotationProperty {
     value: Value,
 }
 
+/// Corresponds to the grammar rule `constraint`.
 #[derive(Clone, Debug)]
 pub struct Constraint {
     span: Option<Span>,

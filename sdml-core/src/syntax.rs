@@ -1,3 +1,9 @@
+/*!
+Contains only string constants for the tree-sitter node types and field names.
+ */
+
+pub const NAME_SDML: &str = "sdml";
+
 // ------------------------------------------------------------------------------------------------
 // Grammar Node kinds
 // ------------------------------------------------------------------------------------------------
@@ -110,5 +116,3 @@ pub const FIELD_NAME_VALUE: &str = "value";
 // pub const KW_TYPE_INTEGER: &str = NODE_KIND_INTEGER;
 // pub const KW_TYPE_BOOLEAN: &str = NODE_KIND_BOOLEAN;
 // pub const KW_TYPE_IRI: &str = "iri";
-
-pub const NAME_SDML: &str = "sdml";

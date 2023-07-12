@@ -43,6 +43,12 @@ pub enum OutputFormat {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
+impl Default for OutputFormat {
+    fn default() -> Self {
+        Self::ImageSvg
+    }
+}
+
 impl From<OutputFormat> for CommandArg {
     fn from(value: OutputFormat) -> Self {
         CommandArg::new_option(

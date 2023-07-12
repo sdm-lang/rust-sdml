@@ -1,11 +1,40 @@
 /*!
-Rust types that model the SDML Grammar.
+Provide the Rust types that implement an in-memory representation of the the SDML Grammar.
 
-More detailed description, with
+The following.
 
-# Example
+ * **Identifiers**
+   * [`Identifier`], [`IdentifierReference`], [`Named`], [`QualifiedIdentifier`]
 
-YYYYY
+ * **Modules and Imports**
+   * [`Import`], [`ImportStatement`], [`Module`], [`ModuleBody`]
+
+ * **Annotations & Comments**
+   * [`Annotation`], [`AnnotationProperty`], [`Comment`]
+
+ * **Constraints**
+   * [`AtomicSentence`], [`BinaryOperation`], [`Binding`], [`BooleanSentence`], [`BoundSentence`],
+     [`Constraint`], [`ConstraintBody`], [`ConstraintSentence`], [`FunctionalTerm`], [`Name`],
+     [`NamePath`], [`PredicateValue`], [`QuantifiedSentence`], [`SimpleSentence`], [`Term`],
+     [`UnaryOperation`]
+
+ * **Type Definitions**
+     * [`AnnotationOnlyBody`], [`DatatypeDef`], [`EntityBody`], [`EntityDef`], [`EntityGroup`],
+       [`EntityMember`], [`EnumBody`], [`EnumDef`], [`EnumVariant`], [`EventDef`],
+       [`StructureBody`], [`StructureDef`], [`StructureGroup`], [`TypeDefinition`],
+       [`TypeVariant`], [`UnionBody`], [`UnionDef`]
+
+ * **Property Definitions**
+   * [`PropertyBody`], [`PropertyDef`], [`PropertyRole`]
+
+ * **Member Definitions**
+   * [`ByReferenceMember`], [`ByReferenceMemberDef`], [`ByReferenceMemberInner`], [`ByValueMember`],
+     [`ByValueMemberDef`], [`ByValueMemberInner`], [`Cardinality`], [`IdentityMember`],
+     [`IdentityMemberDef`], [`IdentityMemberInner`], [`TypeReference`]
+
+ * **Values**
+   * [`LanguageString`], [`LanguageTag`], [`ListMember`], [`ListOfValues`], [`SimpleValue`],
+     [`Value`], [`ValueConstructor`]
 
 */
 
@@ -20,16 +49,11 @@ use tree_sitter::Node;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// The source location information from the tree-sitter [`Node`] type.
+///
 #[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Span(Range<usize>);
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -86,10 +110,6 @@ impl Span {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
 
@@ -108,8 +128,8 @@ pub use annotations::{Annotation, AnnotationProperty, Comment, Constraint};
 mod constraints;
 pub use constraints::{
     AtomicSentence, BinaryOperation, Binding, BooleanSentence, BoundSentence, ConstraintBody,
-    ConstraintSentence, FunctionalTerm, PredicateValue, QuantifiedSentence, SimpleSentence, Term,
-    UnaryOperation,
+    ConstraintSentence, FunctionalTerm, Name, NamePath, PredicateValue, QuantifiedSentence,
+    SimpleSentence, Term, UnaryOperation,
 };
 
 mod values;

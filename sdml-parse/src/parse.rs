@@ -1844,14 +1844,16 @@ fn parse_cardinality<'a>(
     let text = context.node_source(&child)?;
     let min = u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
 
-    // TODO: check for range
-
-    if let Some(child) = node.child_by_field_name(FIELD_NAME_MAX) {
-        context.check_if_error(&child, RULE_NAME)?;
-        let text = context.node_source(&child)?;
-        let max =
-            u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
-        Ok(Cardinality::new_range(min, max).with_ts_span(node.into()))
+    if let Some(child) = node.child_by_field_name("range") {
+        if let Some(child) = child.child_by_field_name(FIELD_NAME_MAX) {
+            context.check_if_error(&child, RULE_NAME)?;
+            let text = context.node_source(&child)?;
+            let max =
+                u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
+            Ok(Cardinality::new_range(min, max).with_ts_span(node.into()))
+        } else {
+            Ok(Cardinality::new_unbounded(min).with_ts_span(node.into()))
+        }
     } else {
         Ok(Cardinality::new_single(min).with_ts_span(node.into()))
     }
