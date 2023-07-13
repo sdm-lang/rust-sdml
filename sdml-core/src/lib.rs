@@ -69,4 +69,6 @@ pub mod load;
 
 pub mod model;
 
+pub mod stdlib;
+
 pub mod syntax;
