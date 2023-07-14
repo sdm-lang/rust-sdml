@@ -8,6 +8,9 @@ use std::{
     str::FromStr,
 };
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -21,6 +24,7 @@ pub trait Named {
 /// Corresponds the grammar rule `identifier`.
 ///
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Identifier {
     span: Option<Span>,
     value: String,
@@ -30,6 +34,7 @@ pub struct Identifier {
 /// Corresponds the grammar rule `qualified_identifier`.
 ///
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QualifiedIdentifier {
     span: Option<Span>,
     module: Identifier,
@@ -40,6 +45,7 @@ pub struct QualifiedIdentifier {
 /// Corresponds the grammar rule `identifier_reference`.
 ///
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum IdentifierReference {
     Identifier(Identifier),
     QualifiedIdentifier(QualifiedIdentifier),

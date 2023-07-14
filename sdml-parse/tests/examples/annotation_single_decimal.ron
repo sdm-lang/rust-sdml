@@ -26,43 +26,45 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 54,
-                        end: 72,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 55,
-                                    end: 57,
-                                },
-                            ),
-                            value: "dc",
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 54,
+                            end: 72,
                         },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 58,
-                                    end: 62,
-                                },
-                            ),
-                            value: "some",
-                        },
-                    },
-                ),
-                value: Simple(
-                    Decimal(
-                        102.201,
                     ),
-                ),
-            },
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 55,
+                                        end: 57,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 58,
+                                        end: 62,
+                                    },
+                                ),
+                                value: "some",
+                            },
+                        },
+                    ),
+                    value: Simple(
+                        Decimal(
+                            102.201,
+                        ),
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

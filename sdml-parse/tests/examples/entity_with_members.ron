@@ -71,32 +71,36 @@ Module {
                                     ),
                                     value: "id",
                                 },
-                                target_type: Reference(
-                                    QualifiedIdentifier(
-                                        QualifiedIdentifier {
-                                            span: None,
-                                            module: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 87,
-                                                        end: 89,
+                                inner: Defined(
+                                    IdentityMemberDef {
+                                        target_type: Reference(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: None,
+                                                    module: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 87,
+                                                                end: 89,
+                                                            },
+                                                        ),
+                                                        value: "xs",
                                                     },
-                                                ),
-                                                value: "xs",
-                                            },
-                                            member: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 90,
-                                                        end: 96,
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 90,
+                                                                end: 96,
+                                                            },
+                                                        ),
+                                                        value: "string",
                                                     },
-                                                ),
-                                                value: "string",
-                                            },
-                                        },
-                                    ),
+                                                },
+                                            ),
+                                        ),
+                                        body: None,
+                                    },
                                 ),
-                                body: None,
                             },
                             annotations: [],
                             members: [
@@ -118,33 +122,37 @@ Module {
                                             ),
                                             value: "a",
                                         },
-                                        target_type: Reference(
-                                            QualifiedIdentifier(
-                                                QualifiedIdentifier {
-                                                    span: None,
-                                                    module: Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 107,
-                                                                end: 110,
+                                        inner: Defined(
+                                            ByValueMemberDef {
+                                                target_type: Reference(
+                                                    QualifiedIdentifier(
+                                                        QualifiedIdentifier {
+                                                            span: None,
+                                                            module: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 107,
+                                                                        end: 110,
+                                                                    },
+                                                                ),
+                                                                value: "xsd",
                                                             },
-                                                        ),
-                                                        value: "xsd",
-                                                    },
-                                                    member: Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 111,
-                                                                end: 117,
+                                                            member: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 111,
+                                                                        end: 117,
+                                                                    },
+                                                                ),
+                                                                value: "string",
                                                             },
-                                                        ),
-                                                        value: "string",
-                                                    },
-                                                },
-                                            ),
+                                                        },
+                                                    ),
+                                                ),
+                                                target_cardinality: None,
+                                                body: None,
+                                            },
                                         ),
-                                        target_cardinality: None,
-                                        body: None,
                                     },
                                 ),
                                 ByValue(
@@ -165,33 +173,37 @@ Module {
                                             ),
                                             value: "b",
                                         },
-                                        target_type: Reference(
-                                            QualifiedIdentifier(
-                                                QualifiedIdentifier {
-                                                    span: None,
-                                                    module: Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 127,
-                                                                end: 130,
+                                        inner: Defined(
+                                            ByValueMemberDef {
+                                                target_type: Reference(
+                                                    QualifiedIdentifier(
+                                                        QualifiedIdentifier {
+                                                            span: None,
+                                                            module: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 127,
+                                                                        end: 130,
+                                                                    },
+                                                                ),
+                                                                value: "xsd",
                                                             },
-                                                        ),
-                                                        value: "xsd",
-                                                    },
-                                                    member: Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 131,
-                                                                end: 138,
+                                                            member: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 131,
+                                                                        end: 138,
+                                                                    },
+                                                                ),
+                                                                value: "integer",
                                                             },
-                                                        ),
-                                                        value: "integer",
-                                                    },
-                                                },
-                                            ),
+                                                        },
+                                                    ),
+                                                ),
+                                                target_cardinality: None,
+                                                body: None,
+                                            },
                                         ),
-                                        target_cardinality: None,
-                                        body: None,
                                     },
                                 ),
                             ],

@@ -74,6 +74,8 @@ mod macros;
 
 mod parse;
 
+pub use sdml_core::load::{ModuleLoader, ModuleLoaderRef, ModuleResolver};
+
 pub mod error;
 
 pub mod load;

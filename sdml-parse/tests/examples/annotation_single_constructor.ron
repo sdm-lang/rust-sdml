@@ -26,74 +26,76 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 58,
-                        end: 93,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 58,
+                            end: 93,
+                        },
+                    ),
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 59,
+                                        end: 61,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 62,
+                                        end: 68,
+                                    },
+                                ),
+                                value: "author",
+                            },
+                        },
+                    ),
+                    value: ValueConstructor(
+                        ValueConstructor {
                             span: Some(
                                 Span {
-                                    start: 59,
-                                    end: 61,
+                                    start: 71,
+                                    end: 93,
                                 },
                             ),
-                            value: "dc",
-                        },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 62,
-                                    end: 68,
+                            type_name: QualifiedIdentifier(
+                                QualifiedIdentifier {
+                                    span: None,
+                                    module: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 71,
+                                                end: 74,
+                                            },
+                                        ),
+                                        value: "xsd",
+                                    },
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 75,
+                                                end: 90,
+                                            },
+                                        ),
+                                        value: "positiveInteger",
+                                    },
                                 },
                             ),
-                            value: "author",
+                            value: Integer(
+                                1,
+                            ),
                         },
-                    },
-                ),
-                value: ValueConstructor(
-                    ValueConstructor {
-                        span: Some(
-                            Span {
-                                start: 71,
-                                end: 93,
-                            },
-                        ),
-                        type_name: QualifiedIdentifier(
-                            QualifiedIdentifier {
-                                span: None,
-                                module: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 71,
-                                            end: 74,
-                                        },
-                                    ),
-                                    value: "xsd",
-                                },
-                                member: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 75,
-                                            end: 90,
-                                        },
-                                    ),
-                                    value: "positiveInteger",
-                                },
-                            },
-                        ),
-                        value: Integer(
-                            1,
-                        ),
-                    },
-                ),
-            },
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

@@ -9,10 +9,10 @@ YYYYY
 
 */
 
-use sdml_core::generate::GenerateToFile;
 use crate::draw::OutputFormat;
 use crate::exec::{exec_with_temp_input, CommandArg};
 use sdml_core::error::Error;
+use sdml_core::generate::GenerateToFile;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
     ByReferenceMemberInner, ByValueMemberInner, Cardinality, Identifier, IdentifierReference,
@@ -63,9 +63,14 @@ struct DiagramOutput {
 pub const UML_PROGRAM: &str = "plantuml";
 
 impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
-    fn write_to_file_in_format(&mut self, module: &Module, path: &Path, format: OutputFormat) -> Result<(), Error> {
+    fn write_to_file_in_format(
+        &mut self,
+        module: &Module,
+        path: &Path,
+        format: OutputFormat,
+    ) -> Result<(), Error> {
         self.imports = make_imports(module);
-        self.output = Some(path_to_output(&path, module.name()));
+        self.output = Some(path_to_output(path, module.name()));
 
         walk_module(module, self)?;
 
@@ -75,7 +80,10 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
             match exec_with_temp_input(
                 UML_PROGRAM,
                 vec![
-                    CommandArg::new(format!("-o{}", self.output.as_ref().map(|o| &o.output_dir).unwrap())),
+                    CommandArg::new(format!(
+                        "-o{}",
+                        self.output.as_ref().map(|o| &o.output_dir).unwrap()
+                    )),
                     format_to_arg(format),
                 ],
                 &self.buffer,
@@ -166,7 +174,8 @@ package "{name}" as s_{name} <<module>> {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&start_type_with_sterotype("class", name, "entity"));
+        self.buffer
+            .push_str(&start_type_with_sterotype("class", name, "entity"));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }
@@ -201,15 +210,19 @@ package "{name}" as s_{name} <<module>> {{
         inner: &ByValueMemberInner,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-         self.buffer.push_str(&format!("    {name}"));
-         match inner {
+        self.buffer.push_str(&format!("    {name}"));
+        match inner {
             ByValueMemberInner::PropertyRole(role) => {
                 self.buffer.push_str(&format!(" {{role = {role}}}\n"));
             }
-             ByValueMemberInner::Defined(def) => {
-                 let card_string = def.target_cardinality().map(|c|format!("{{{}}} ", c.to_uml_string())).unwrap_or_default();
+            ByValueMemberInner::Defined(def) => {
+                let card_string = def
+                    .target_cardinality()
+                    .map(|c| format!("{{{}}} ", c.to_uml_string()))
+                    .unwrap_or_default();
                 if let TypeReference::Reference(target_type) = def.target_type() {
-                    self.buffer.push_str(&format!(": {card_string}{target_type}\n"));
+                    self.buffer
+                        .push_str(&format!(": {card_string}{target_type}\n"));
                 } else {
                     self.buffer.push_str(": ?\n");
                 }
@@ -227,17 +240,29 @@ package "{name}" as s_{name} <<module>> {{
     ) -> Result<(), Error> {
         match inner {
             ByReferenceMemberInner::PropertyRole(role) => {
-                self.buffer.push_str(&format!("    {name} {{role = {role}}}\n"));
+                self.buffer
+                    .push_str(&format!("    {name} {{role = {role}}}\n"));
             }
             ByReferenceMemberInner::Defined(def) => {
                 if let TypeReference::Reference(target_type) = def.target_type() {
-                 let from_card = def.source_cardinality().map(|c|format!("\"{{{}}}\" ", c.to_uml_string())).unwrap_or_default();
-                 let to_card = def.target_cardinality().map(|c|format!("{{{}}}\\n", c.to_uml_string())).unwrap_or_default();
+                    let from_card = def
+                        .source_cardinality()
+                        .map(|c| format!("\"{{{}}}\" ", c.to_uml_string()))
+                        .unwrap_or_default();
+                    let to_card = def
+                        .target_cardinality()
+                        .map(|c| format!("{{{}}}\\n", c.to_uml_string()))
+                        .unwrap_or_default();
                     let reference = format!(
                         "  s_{} {from_card}o--> \"{to_card}{name}\" s_{target_type}\n",
                         self.assoc_src.as_ref().unwrap(),
                     );
-                    self.refs = Some(self.refs.clone().map(|r| format!("{r}{reference}")).unwrap_or(reference));
+                    self.refs = Some(
+                        self.refs
+                            .clone()
+                            .map(|r| format!("{r}{reference}"))
+                            .unwrap_or(reference),
+                    );
                 } else {
                     self.buffer.push_str(&format!("    {name}: ?\n"));
                 }
@@ -267,7 +292,7 @@ package "{name}" as s_{name} <<module>> {{
         Ok(())
     }
 
-    fn start_enum_variant(
+    fn start_value_variant(
         &mut self,
         name: &Identifier,
         value: u32,
@@ -291,7 +316,12 @@ package "{name}" as s_{name} <<module>> {{
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         let reference = format!("  s_{name} o--> s_{source}\n");
-        self.refs = Some(self.refs.clone().map(|r| format!("{r}{reference}")).unwrap_or(reference));
+        self.refs = Some(
+            self.refs
+                .clone()
+                .map(|r| format!("{r}{reference}"))
+                .unwrap_or(reference),
+        );
         self.buffer
             .push_str(&start_type_with_sterotype("class", name, "event"));
         Ok(())
@@ -405,7 +435,7 @@ package "{name}" as s_{name} <<module>> {{
             self.buffer.push_str(refs);
         }
         self.buffer.push_str("}\n");
-        self.buffer.push_str(&format!("{}", self.imports));
+        self.buffer.push_str(&self.imports.to_string());
         self.buffer.push_str("@enduml\n");
         Ok(())
     }
@@ -426,7 +456,11 @@ fn start_type_with_sterotype(
 ) -> String {
     format!(
         "  {} \"{}\" as s_{} << ({}, orchid) {} >> {{\n",
-        type_class, type_name, type_name, stereo_name.chars().next().unwrap().to_uppercase(), stereo_name
+        type_class,
+        type_name,
+        type_name,
+        stereo_name.chars().next().unwrap().to_uppercase(),
+        stereo_name
     )
 }
 
@@ -441,7 +475,10 @@ fn end_type(type_name: &Identifier, has_body: bool) -> String {
 fn make_imports(module: &Module) -> String {
     let mut imports = String::new();
     for other in module.imported_modules() {
-        imports.push_str(&format!("package \"{}\" as s_{} <<module>> #white {{\n", other, other));
+        imports.push_str(&format!(
+            "package \"{}\" as s_{} <<module>> #white {{\n",
+            other, other
+        ));
         for imported in module
             .imported_types()
             .iter()
@@ -454,7 +491,11 @@ fn make_imports(module: &Module) -> String {
             ));
         }
         imports.push_str("}\n");
-        imports.push_str(&format!("s_{} ..> s_{}: <<import>>\n\n", module.name(), other));
+        imports.push_str(&format!(
+            "s_{} ..> s_{}: <<import>>\n\n",
+            module.name(),
+            other
+        ));
     }
     imports
 }

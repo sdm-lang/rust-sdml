@@ -4,13 +4,17 @@ use super::{
 };
 use std::{collections::HashSet, fmt::Debug};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `type_def`.
 #[derive(Clone, Debug)]
-pub enum TypeDefinition {
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum Definition {
     Datatype(DatatypeDef),
     Entity(EntityDef),
     Enum(EnumDef),
@@ -26,6 +30,7 @@ pub enum TypeDefinition {
 
 /// Corresponds to the grammar rule `data_type_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct DatatypeDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -37,6 +42,7 @@ pub struct DatatypeDef {
 
 /// Corresponds to the grammar rule `annotation_only_body`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationOnlyBody {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -49,6 +55,7 @@ pub struct AnnotationOnlyBody {
 
 /// Corresponds to the grammar rule `entity_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -58,6 +65,7 @@ pub struct EntityDef {
 
 /// Corresponds to the grammar rule `entity_body`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityBody {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -69,6 +77,7 @@ pub struct EntityBody {
 
 /// Corresponds to the inner part of the grammar rule `entity_group`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum EntityMember {
     ByValue(ByValueMember),
     ByReference(ByReferenceMember),
@@ -76,6 +85,7 @@ pub enum EntityMember {
 
 /// Corresponds to the grammar rule `entity_group`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityGroup {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -89,6 +99,7 @@ pub struct EntityGroup {
 
 /// Corresponds to the grammar rule `enum_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EnumDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -98,16 +109,18 @@ pub struct EnumDef {
 
 /// Corresponds to the grammar rule `enum_body`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EnumBody {
     span: Option<Span>,
     comments: Vec<Comment>,
     annotations: Vec<Annotation>,
-    variants: Vec<EnumVariant>, // assert!(!variants.is_empty());
+    variants: Vec<ValueVariant>, // assert!(!variants.is_empty());
 }
 
 /// Corresponds to the grammar rule `enum_variant`.
 #[derive(Clone, Debug)]
-pub struct EnumVariant {
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ValueVariant {
     span: Option<Span>,
     comments: Vec<Comment>,
     name: Identifier,
@@ -121,6 +134,7 @@ pub struct EnumVariant {
 
 /// Corresponds to the grammar rule `event_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EventDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -135,6 +149,7 @@ pub struct EventDef {
 
 /// Corresponds to the grammar rule `structure_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -144,6 +159,7 @@ pub struct StructureDef {
 
 /// Corresponds to the grammar rule `structure_body`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureBody {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -154,6 +170,7 @@ pub struct StructureBody {
 
 /// Corresponds to the grammar rule `structure_group`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureGroup {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -167,6 +184,7 @@ pub struct StructureGroup {
 
 /// Corresponds to the grammar rule `union_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -176,6 +194,7 @@ pub struct UnionDef {
 
 /// Corresponds to the grammar rule `union_body`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionBody {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -185,6 +204,7 @@ pub struct UnionBody {
 
 /// Corresponds to the grammar rule `type_variant`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeVariant {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -199,6 +219,7 @@ pub struct TypeVariant {
 
 /// Corresponds to the grammar rule `property_def`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct PropertyDef {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -208,6 +229,7 @@ pub struct PropertyDef {
 
 /// Corresponds to the grammar rule `property_body`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct PropertyBody {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -217,6 +239,7 @@ pub struct PropertyBody {
 
 /// Corresponds to the grammar rule `property_role`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct PropertyRole {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -243,21 +266,21 @@ pub struct PropertyRole {
 // Implementations ❱ Type Definitions
 // ------------------------------------------------------------------------------------------------
 
-impl_from_for_variant!(TypeDefinition, Datatype, DatatypeDef);
+impl_from_for_variant!(Definition, Datatype, DatatypeDef);
 
-impl_from_for_variant!(TypeDefinition, Entity, EntityDef);
+impl_from_for_variant!(Definition, Entity, EntityDef);
 
-impl_from_for_variant!(TypeDefinition, Enum, EnumDef);
+impl_from_for_variant!(Definition, Enum, EnumDef);
 
-impl_from_for_variant!(TypeDefinition, Event, EventDef);
+impl_from_for_variant!(Definition, Event, EventDef);
 
-impl_from_for_variant!(TypeDefinition, Structure, StructureDef);
+impl_from_for_variant!(Definition, Structure, StructureDef);
 
-impl_from_for_variant!(TypeDefinition, Union, UnionDef);
+impl_from_for_variant!(Definition, Union, UnionDef);
 
-impl_from_for_variant!(TypeDefinition, Property, PropertyDef);
+impl_from_for_variant!(Definition, Property, PropertyDef);
 
-impl TypeDefinition {
+impl Definition {
     pub fn name(&self) -> &Identifier {
         match self {
             Self::Datatype(v) => v.name(),
@@ -498,7 +521,7 @@ impl EnumBody {
 
     // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub variants => Vec, EnumVariant);
+    get_and_mutate_collection_of!(pub variants => Vec, ValueVariant);
 
     // --------------------------------------------------------------------------------------------
 
@@ -528,7 +551,7 @@ impl EnumBody {
 
 // ------------------------------------------------------------------------------------------------
 
-impl EnumVariant {
+impl ValueVariant {
     pub fn new(name: Identifier, value: u32) -> Self {
         Self {
             span: None,

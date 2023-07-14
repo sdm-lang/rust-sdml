@@ -9,10 +9,10 @@ YYYYY
 
 */
 
-use sdml_core::generate::GenerateToWriter;
 use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
 use sdml_core::error::Error;
+use sdml_core::generate::GenerateToWriter;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
     ByReferenceMemberInner, Cardinality, Identifier, Module, Span, TypeReference,
@@ -53,7 +53,12 @@ pub struct ConceptDiagramGenerator {
 pub const DOT_PROGRAM: &str = "dot";
 
 impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
-    fn write_in_format(&mut self, module: &Module, writer: &mut dyn Write, format: OutputFormat) -> Result<(), Error> {
+    fn write_in_format(
+        &mut self,
+        module: &Module,
+        writer: &mut dyn Write,
+        format: OutputFormat,
+    ) -> Result<(), Error> {
         walk_module(module, self)?;
 
         if format == OutputFormat::Source {
@@ -75,7 +80,8 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
 
 impl ModuleWalker for ConceptDiagramGenerator {
     fn start_module(&mut self, _name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
-        self.buffer.push_str(r#"digraph G {
+        self.buffer.push_str(
+            r#"digraph G {
   bgcolor="transparent";
   rankdir="TB";
   fontname="Helvetica,Arial,sans-serif";
@@ -83,7 +89,8 @@ impl ModuleWalker for ConceptDiagramGenerator {
   edge [fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
         labelfontcolor="blue"; labeldistance=2.0];
 
-"#);
+"#,
+        );
         Ok(())
     }
 

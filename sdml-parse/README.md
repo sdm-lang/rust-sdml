@@ -7,6 +7,11 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.5**
+
+* Created a `stdlib` module and moved all the SDML and relevant RDF files into it.
+* Updated `tree-sitter-sdml` to version `0.1.21` with updated constraints.
+
 **Version 0.1.4**
 
 Previously part of a single crate [sdml](https://crates.io/crates/sdml).

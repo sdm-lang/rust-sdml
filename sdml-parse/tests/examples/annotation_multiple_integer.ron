@@ -26,60 +26,62 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 57,
-                        end: 80,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 58,
-                                    end: 60,
-                                },
-                            ),
-                            value: "dc",
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 57,
+                            end: 80,
                         },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 61,
-                                    end: 68,
-                                },
-                            ),
-                            value: "version",
+                    ),
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 58,
+                                        end: 60,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 61,
+                                        end: 68,
+                                    },
+                                ),
+                                value: "version",
+                            },
                         },
-                    },
-                ),
-                value: List(
-                    ListOfValues {
-                        span: None,
-                        values: [
-                            Simple(
-                                Integer(
-                                    1,
+                    ),
+                    value: List(
+                        ListOfValues {
+                            span: None,
+                            values: [
+                                Simple(
+                                    Integer(
+                                        1,
+                                    ),
                                 ),
-                            ),
-                            Simple(
-                                Integer(
-                                    2,
+                                Simple(
+                                    Integer(
+                                        2,
+                                    ),
                                 ),
-                            ),
-                            Simple(
-                                Integer(
-                                    3,
+                                Simple(
+                                    Integer(
+                                        3,
+                                    ),
                                 ),
-                            ),
-                        ],
-                    },
-                ),
-            },
+                            ],
+                        },
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

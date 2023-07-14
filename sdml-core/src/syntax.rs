@@ -20,6 +20,7 @@ pub const NODE_KIND_CONSTRAINT: &str = "constraint";
 
 pub const NODE_KIND_DATA_TYPE_DEF: &str = "data_type_def";
 pub const NODE_KIND_DECIMAL: &str = "decimal";
+pub const NODE_KIND_DEFINITION: &str = "definition";
 pub const NODE_KIND_DOUBLE: &str = "double";
 
 pub const NODE_KIND_ENTITY_BODY: &str = "entity_body";
@@ -27,7 +28,6 @@ pub const NODE_KIND_ENTITY_DEF: &str = "entity_def";
 pub const NODE_KIND_ENTITY_GROUP: &str = "entity_group";
 pub const NODE_KIND_ENUM_BODY: &str = "enum_body";
 pub const NODE_KIND_ENUM_DEF: &str = "enum_def";
-pub const NODE_KIND_ENUM_VARIANT: &str = "enum_variant";
 pub const NODE_KIND_EVENT_DEF: &str = "event_def";
 
 pub const NODE_KIND_FORMAL_CONSTRAINT: &str = "formal_constraint";
@@ -67,7 +67,6 @@ pub const NODE_KIND_STRUCTURE_DEF: &str = "structure_def";
 pub const NODE_KIND_STRUCTURE_GROUP: &str = "structure_group";
 pub const NODE_KIND_STRUCTURE_MEMBER: &str = "structure_member";
 
-pub const NODE_KIND_TYPE_DEF: &str = "type_def";
 pub const NODE_KIND_TYPE_VARIANT: &str = "type_variant";
 
 pub const NODE_KIND_UNION_BODY: &str = "union_body";
@@ -76,6 +75,7 @@ pub const NODE_KIND_UNKNOWN_TYPE: &str = "unknown_type";
 pub const NODE_KIND_UNSIGNED: &str = "unsigned";
 
 pub const NODE_KIND_VALUE_CONSTRUCTOR: &str = "value_constructor";
+pub const NODE_KIND_VALUE_VARIANT: &str = "value_variant";
 
 // ------------------------------------------------------------------------------------------------
 // Grammar Node field names

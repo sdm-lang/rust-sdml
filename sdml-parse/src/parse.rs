@@ -23,10 +23,10 @@ use sdml_core::error::{invalid_value_for_type, module_parse_error, unexpected_no
 use sdml_core::model::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, ByReferenceMember, ByReferenceMemberDef,
     ByValueMember, ByValueMemberDef, Cardinality, Constraint, DatatypeDef, EntityBody, EntityDef,
-    EntityGroup, EnumBody, EnumDef, EnumVariant, EventDef, Identifier, IdentifierReference,
+    EntityGroup, EnumBody, EnumDef, ValueVariant, EventDef, Identifier, IdentifierReference,
     IdentityMember, IdentityMemberDef, Import, ImportStatement, LanguageString, LanguageTag,
     ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole, QualifiedIdentifier,
-    SimpleValue, StructureBody, StructureDef, StructureGroup, TypeDefinition, TypeReference,
+    SimpleValue, StructureBody, StructureDef, StructureGroup, Definition, TypeReference,
     TypeVariant, UnionBody, UnionDef, Value, ValueConstructor,
 };
 use sdml_core::syntax::{
@@ -36,7 +36,7 @@ use sdml_core::syntax::{
     FIELD_NAME_TARGET_CARDINALITY, FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION,
     NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_BOOLEAN, NODE_KIND_BUILTIN_SIMPLE_TYPE,
     NODE_KIND_CONSTRAINT, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE,
-    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF, NODE_KIND_ENUM_VARIANT,
+    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF, NODE_KIND_VALUE_VARIANT,
     NODE_KIND_EVENT_DEF, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT,
     NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
@@ -45,12 +45,12 @@ use sdml_core::syntax::{
     NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_DEF,
     NODE_KIND_PROPERTY_ROLE, NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING,
     NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
-    NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_TYPE_DEF, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF,
+    NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_DEFINITION, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF,
     NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
 };
 use std::collections::HashSet;
 use std::str::FromStr;
-use tracing::trace;
+use tracing::{error,trace};
 use tree_sitter::Parser;
 use tree_sitter::{Node, TreeCursor};
 use tree_sitter_sdml::language;
@@ -358,7 +358,7 @@ fn parse_module_body<'a>(
                     NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?)
                     }
-                    NODE_KIND_TYPE_DEF => {
+                    NODE_KIND_DEFINITION => {
                         body.add_to_definitions(parse_type_definition(context, &mut node.walk())?)
                     }
                     NODE_KIND_LINE_COMMENT => {
@@ -372,7 +372,7 @@ fn parse_module_body<'a>(
                             [
                                 NODE_KIND_IMPORT_STATEMENT,
                                 NODE_KIND_ANNOTATION,
-                                NODE_KIND_TYPE_DEF,
+                                NODE_KIND_DEFINITION,
                                 NODE_KIND_LINE_COMMENT,
                             ]
                         );
@@ -909,7 +909,7 @@ fn parse_list_of_values<'a>(
 fn parse_type_definition<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
-) -> Result<TypeDefinition, Error> {
+) -> Result<Definition, Error> {
     rule_fn!("parse_type_definition", cursor.node());
     let mut has_next = cursor.goto_first_child();
     if has_next {
@@ -1248,7 +1248,7 @@ fn parse_enum_body<'a>(
                     NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    NODE_KIND_ENUM_VARIANT => {
+                    NODE_KIND_VALUE_VARIANT => {
                         body.add_to_variants(parse_enum_variant(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
@@ -1261,7 +1261,7 @@ fn parse_enum_body<'a>(
                             node,
                             [
                                 NODE_KIND_ANNOTATION,
-                                NODE_KIND_ENUM_VARIANT,
+                                NODE_KIND_VALUE_VARIANT,
                                 NODE_KIND_LINE_COMMENT,
                             ]
                         );
@@ -1602,6 +1602,7 @@ fn parse_by_value_member<'a>(
     let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
+    trace!("name: {:?}", name);
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET) {
         context.start_member(&name)?;
@@ -1631,6 +1632,7 @@ fn parse_by_value_member<'a>(
 
         Ok(ByValueMember::new_with_role(name, role).with_ts_span(node.into()))
     } else {
+        error!("Not expecting {:?}", node);
         unreachable!();
     }
 }
@@ -1775,7 +1777,7 @@ fn parse_type_reference<'a>(
 fn parse_enum_variant<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
-) -> Result<EnumVariant, Error> {
+) -> Result<ValueVariant, Error> {
     let node = cursor.node();
     rule_fn!("parse_enum_variant", node);
 
@@ -1789,7 +1791,7 @@ fn parse_enum_variant<'a>(
     let value = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
 
     context.start_member(&name)?;
-    let mut enum_variant = EnumVariant::new(name, value).with_ts_span(node.into());
+    let mut enum_variant = ValueVariant::new(name, value).with_ts_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;

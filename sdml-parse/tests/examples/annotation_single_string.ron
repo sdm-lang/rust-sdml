@@ -26,52 +26,54 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 53,
-                        end: 70,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 54,
-                                    end: 56,
-                                },
-                            ),
-                            value: "dc",
-                        },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 57,
-                                    end: 63,
-                                },
-                            ),
-                            value: "author",
-                        },
-                    },
-                ),
-                value: Simple(
-                    String(
-                        LanguageString {
-                            span: Some(
-                                Span {
-                                    start: 66,
-                                    end: 70,
-                                },
-                            ),
-                            value: "me",
-                            language: None,
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 53,
+                            end: 70,
                         },
                     ),
-                ),
-            },
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 54,
+                                        end: 56,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 57,
+                                        end: 63,
+                                    },
+                                ),
+                                value: "author",
+                            },
+                        },
+                    ),
+                    value: Simple(
+                        String(
+                            LanguageString {
+                                span: Some(
+                                    Span {
+                                        start: 66,
+                                        end: 70,
+                                    },
+                                ),
+                                value: "me",
+                                language: None,
+                            },
+                        ),
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

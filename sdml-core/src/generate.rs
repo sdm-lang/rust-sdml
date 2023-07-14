@@ -3,8 +3,8 @@ Provides the traits used to define *generators*, types that convert one or more 
 other artifacts.
 */
 
-use crate::{error::Error, load::ModuleLoader, model::Module};
-use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path, rc::Rc};
+use crate::{error::Error, model::Module};
+use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -25,13 +25,6 @@ pub trait GenerateToFile<F: Default>: Debug {
         path: &Path,
         format: F,
     ) -> Result<(), Error>;
-
-    fn with_loader(self, _loader: Rc<dyn ModuleLoader>) -> Self
-    where
-        Self: Sized,
-    {
-        self
-    }
 }
 
 pub trait GenerateToWriter<F: Default>: Debug {
@@ -65,13 +58,6 @@ pub trait GenerateToWriter<F: Default>: Debug {
         let mut file = File::create(path)?;
         self.write_in_format(module, &mut file, format)?;
         Ok(())
-    }
-
-    fn with_loader(self, _loader: Rc<dyn ModuleLoader>) -> Self
-    where
-        Self: Sized,
-    {
-        self
     }
 }
 

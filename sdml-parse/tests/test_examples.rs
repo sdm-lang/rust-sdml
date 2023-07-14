@@ -1,4 +1,5 @@
-use sdml_parse::model::load::ModuleLoader;
+use sdml_core::load::ModuleLoader as LoaderTrait;
+use sdml_parse::load::ModuleLoader;
 use std::fs::read_to_string;
 use std::path::PathBuf;
 

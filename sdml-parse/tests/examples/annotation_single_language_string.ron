@@ -26,57 +26,59 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 69,
-                        end: 95,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 70,
-                                    end: 72,
-                                },
-                            ),
-                            value: "dc",
-                        },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 73,
-                                    end: 78,
-                                },
-                            ),
-                            value: "title",
-                        },
-                    },
-                ),
-                value: Simple(
-                    String(
-                        LanguageString {
-                            span: Some(
-                                Span {
-                                    start: 81,
-                                    end: 95,
-                                },
-                            ),
-                            value: "a test",
-                            language: Some(
-                                LanguageTag {
-                                    span: None,
-                                    value: "en-US",
-                                },
-                            ),
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 69,
+                            end: 95,
                         },
                     ),
-                ),
-            },
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 70,
+                                        end: 72,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 73,
+                                        end: 78,
+                                    },
+                                ),
+                                value: "title",
+                            },
+                        },
+                    ),
+                    value: Simple(
+                        String(
+                            LanguageString {
+                                span: Some(
+                                    Span {
+                                        start: 81,
+                                        end: 95,
+                                    },
+                                ),
+                                value: "a test",
+                                language: Some(
+                                    LanguageTag {
+                                        span: None,
+                                        value: "en-US",
+                                    },
+                                ),
+                            },
+                        ),
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

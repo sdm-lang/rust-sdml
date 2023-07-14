@@ -1,0 +1,11 @@
+{
+  "base": "https://example.org/schema/",
+  "entries": {
+    "rentals": {
+      "item": {
+        "relative_url": "rentals/v1/",
+        "relative_path": "examples/rentals.sdm"
+      }
+    }
+  }
+}

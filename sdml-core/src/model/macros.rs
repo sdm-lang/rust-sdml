@@ -10,12 +10,13 @@ YYYYY
 */
 
 // ------------------------------------------------------------------------------------------------
-// Private Macros ❱ Basic Get/Set
+// Public Macros ❱ Basic Get/Set
 // ------------------------------------------------------------------------------------------------
 
+#[macro_export]
 macro_rules! get {
     ($vis: vis $name: ident => $type: ty) => {
-        get!($vis $name ($name) => $type);
+        $crate::get!($vis $name ($name) => $type);
     };
     ($vis: vis $name: ident ($fn_name: ident) => $type: ty) => {
         $vis fn $fn_name(&self) -> &$type {
@@ -46,6 +47,7 @@ macro_rules! get {
     };
 }
 
+#[macro_export]
 macro_rules! mutate {
     //($vis: vis $name: ident => $type: ty) => {
     //    mutate!($vis $name ($name) => $type);
@@ -80,34 +82,36 @@ macro_rules! mutate {
     };
 }
 
+#[macro_export]
 macro_rules! get_and_mutate {
     ($vis: vis $name: ident => $type: ty) => {
-        get_and_mutate!($vis $name ($name) => $type);
+        $crate::get_and_mutate!($vis $name ($name) => $type);
     };
     ($vis: vis $name: ident ($fn_name: ident) => $type: ty) => {
-        get!($vis $name ($fn_name) => $type);
-        mutate!($vis $name ($fn_name) => $type);
+        $crate::get!($vis $name ($fn_name) => $type);
+        $crate::mutate!($vis $name ($fn_name) => $type);
     };
     ($vis: vis $name: ident => copy $type: ty) => {
-        get_and_mutate!($vis $name ($name) => copy $type);
+        $crate::get_and_mutate!($vis $name ($name) => copy $type);
     };
     ($vis: vis $name: ident($fn_name: ident) => copy $type: ty) => {
-        get!($vis $name ($fn_name) => copy $type);
-        mutate!($vis $name ($fn_name) => $type);
+        $crate::get!($vis $name ($fn_name) => copy $type);
+        $crate::mutate!($vis $name ($fn_name) => $type);
     };
     ($vis: vis $name: ident => option $type: ty) => {
-        get_and_mutate!($vis $name ($name) => option $type);
+        $crate::get_and_mutate!($vis $name ($name) => option $type);
     };
     ($vis: vis $name: ident ($fn_name: ident) => option $type: ty) => {
-        get!($vis $name ($fn_name) => option $type);
-        mutate!($vis $name ($fn_name) => option $type);
+        $crate::get!($vis $name ($fn_name) => option $type);
+        $crate::mutate!($vis $name ($fn_name) => option $type);
     };
     ($vis: vis $name: ident => boxed $type: ty) => {
-        get!($vis $name => $type);
-        mutate!($vis $name => boxed $type);
+        $crate::get!($vis $name => $type);
+        $crate::mutate!($vis $name => boxed $type);
     };
 }
 
+#[macro_export]
 macro_rules! with {
     //($vis: vis $name: ident => $type: ty) => {
     //    with!($vis $name ($name) => $type);
@@ -122,7 +126,7 @@ macro_rules! with {
     //    }
     //};
     ($vis: vis $name: ident => option $type: ty) => {
-        with!($vis $name ($name) => option $type);
+        $crate::with!($vis $name ($name) => option $type);
     };
     ($vis: vis $name: ident ($fn_name: ident) => option $type: ty) => {
         paste::paste! {
@@ -135,6 +139,11 @@ macro_rules! with {
     };
 }
 
+// ------------------------------------------------------------------------------------------------
+// Public Macros ❱ Collections
+// ------------------------------------------------------------------------------------------------
+
+#[macro_export]
 macro_rules! get_collection_of {
     ($vis: vis $name: ident => $itype: ty) => {
         paste::paste! {
@@ -149,6 +158,7 @@ macro_rules! get_collection_of {
     };
 }
 
+#[macro_export]
 macro_rules! mutate_collection_of {
     //($vis: vis $name: ident => $ctype: ty, $itype: ty) => {
     //    add_to_collection_of($vis $name, push = $ctype, $itype);
@@ -173,18 +183,97 @@ macro_rules! mutate_collection_of {
     };
 }
 
+#[macro_export]
 macro_rules! get_and_mutate_collection_of {
     ($vis: vis $name: ident => $ctype: ty, $itype: ty) => {
-        get_and_mutate_collection_of!($vis $name, push => $ctype, $itype);
+        $crate::get_and_mutate_collection_of!($vis $name, push => $ctype, $itype);
     };
     ($vis: vis $name: ident, $add_fn: ident => $ctype: ty, $itype: ty) => {
         paste::paste! {
-            get_collection_of!($vis $name => $itype);
-            mutate_collection_of!($vis $name, $add_fn => $ctype, $itype);
+            $crate::get_collection_of!($vis $name => $itype);
+            $crate::mutate_collection_of!($vis $name, $add_fn => $ctype, $itype);
         }
     };
 }
 
+// ------------------------------------------------------------------------------------------------
+// Public Macros ❱ Maps
+// ------------------------------------------------------------------------------------------------
+
+#[macro_export]
+macro_rules! get_map_of {
+    ($vis: vis $name: ident => $ktype: ty, $vtype: ty) => {
+        paste::paste! {
+            pub fn [< has_ $name >](&self) -> bool {
+                !self.$name.is_empty()
+            }
+
+            pub fn [< get_from_ $name >](&self, key: &$ktype) -> Option<&$vtype> {
+                self.$name.get(key)
+            }
+
+            pub fn [< $name _contains_key >](&self, key: &$ktype) -> bool {
+                self.$name.contains_key(key)
+            }
+
+            pub fn $name(&self) -> impl Iterator<Item = (&$ktype, &$vtype)> {
+                self.$name.iter()
+            }
+
+            pub fn [< $name _keys >](&self) -> impl Iterator<Item = &$ktype> {
+                self.$name.keys()
+            }
+
+            pub fn [< $name _values >](&self) -> impl Iterator<Item = &$vtype> {
+                self.$name.values()
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! mutate_map_of {
+    ($vis: vis $name: ident => $ctype: ty, $ktype: ty, $vtype: ty) => {
+        add_to_collection_of($vis $name, insert = $ctype, $ktype, $vtype);
+    };
+    ($vis: vis $name: ident, $add_fn: ident => $ctype: ty, $ktype: ty, $vtype: ty) => {
+        paste::paste! {
+            pub fn [< set_ $name >](&mut self, map: $ctype<$ktype, $vtype>) {
+                self.$name = map;
+            }
+
+            pub fn [< add_to_ $name >](&mut self, key: $ktype, value: $vtype) {
+                self.$name.$add_fn(key, value);
+            }
+
+            pub fn [< extend_ $name >]<I>(&mut self, extension: I)
+            where
+                I: IntoIterator<Item = ($ktype, $vtype)>,
+            {
+                self.$name.extend(extension);
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! get_and_mutate_map_of {
+    ($vis: vis $name: ident => $ctype: ty, $ktype: ty, $vtype: ty) => {
+        $crate::get_and_mutate_map_of!($vis $name, insert => $ctype, $ktype, $vtype);
+    };
+    ($vis: vis $name: ident, $add_fn: ident => $ctype: ty, $ktype: ty, $vtype: ty) => {
+        paste::paste! {
+            $crate::get_map_of!($vis $name => $ktype, $vtype);
+            $crate::mutate_map_of!($vis $name, $add_fn => $ctype, $ktype, $vtype);
+        }
+    };
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Macros ❱ Delegate
+// ------------------------------------------------------------------------------------------------
+
+#[macro_export]
 macro_rules! delegate {
     ($fnname: ident, $fntype: ty, $fieldname: ident $(, $paramname: ident => $paramtype: ty)* ) => {
         pub fn $fnname(&self $(, $paramname: $paramtype)*) -> $fntype {
@@ -193,6 +282,11 @@ macro_rules! delegate {
     };
 }
 
+// ------------------------------------------------------------------------------------------------
+// Public Macros ❱ Enums
+// ------------------------------------------------------------------------------------------------
+
+#[macro_export]
 macro_rules! is_variant {
     //($vis: vis $fn_name: ident => empty $varname: ident) => {
     //    paste::paste! {
@@ -210,6 +304,7 @@ macro_rules! is_variant {
     };
 }
 
+#[macro_export]
 macro_rules! as_variant {
     ($vis: vis $fn_name: ident => $varname: ident, $vartype: ty) => {
         paste::paste! {
@@ -224,13 +319,15 @@ macro_rules! as_variant {
     };
 }
 
+#[macro_export]
 macro_rules! is_as_variant {
     ($vis: vis $fn_name: ident => $varname: ident, $vartype: ty) => {
-        is_variant!($vis $fn_name => $varname);
-        as_variant!($vis $fn_name => $varname, $vartype);
+        $crate::is_variant!($vis $fn_name => $varname);
+        $crate::as_variant!($vis $fn_name => $varname, $vartype);
     };
 }
 
+#[macro_export]
 macro_rules! delegate_is_variant {
     //($vis: vis $fn_name: ident, $inner: expr => empty $enumtype: ty, $varname: ident) => {
     //    paste::paste! {
@@ -248,6 +345,7 @@ macro_rules! delegate_is_variant {
     };
 }
 
+#[macro_export]
 macro_rules! delegate_as_variant {
     ($vis: vis $fn_name: ident, $inner: expr => $enumtype: ty, $varname: ident, $vartype: ty) => {
         paste::paste! {
@@ -258,13 +356,15 @@ macro_rules! delegate_as_variant {
     };
 }
 
+#[macro_export]
 macro_rules! delegate_is_as_variant {
     ($vis: vis $fn_name: ident, $inner: expr => $enumtype: ty, $varname: ident, $vartype: ty) => {
-        delegate_is_variant!($vis $fn_name, $inner => $enumtype, $varname);
-        delegate_as_variant!($vis $fn_name, $inner => $enumtype, $varname, $vartype);
+        $crate::delegate_is_variant!($vis $fn_name, $inner => $enumtype, $varname);
+        $crate::delegate_as_variant!($vis $fn_name, $inner => $enumtype, $varname, $vartype);
     };
 }
 
+#[macro_export]
 macro_rules! impl_from_for_variant {
     //($tyname: ty, $varname: ident) => {
     //    impl From<$vartype> for $varname {

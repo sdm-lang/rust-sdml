@@ -2,17 +2,17 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml_core::error::{tracing_filter_error, tracing_subscriber_error};
 use sdml_core::model::Identifier;
+use sdml_generate::convert::org::OrgFileGenerator;
+use sdml_generate::{GenerateToFile, GenerateToWriter};
 use sdml_parse::load::{ModuleLoader, ModuleResolver};
-use std::borrow::BorrowMut;
+use sdml_parse::{ModuleLoader as LoaderTrait, ModuleLoaderRef, ModuleResolver as ResolverTrait};
 use std::fmt::Display;
 use std::io::Read;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::str::FromStr;
 use tracing::info;
 use tracing_subscriber::filter::EnvFilter;
 use tracing_subscriber::FmtSubscriber;
-use sdml_generate::{GenerateToWriter, GenerateToFile};
 
 // ------------------------------------------------------------------------------------------------
 // Command-Line Arguments
@@ -226,12 +226,12 @@ impl Execute for Commands {
 // ------------------------------------------------------------------------------------------------
 
 impl FileArgs {
-    fn loader(&self) -> Rc<ModuleLoader> {
+    fn loader(&self) -> ModuleLoaderRef<ModuleLoader> {
         let mut resolver = ModuleResolver::default();
         if let Some(base) = &self.base_path {
-            resolver.prepend_to_search_path(base.clone())
+            resolver.prepend_to_search_path(base)
         }
-        Rc::new(ModuleLoader::from(resolver))
+        ModuleLoader::from(resolver).into()
     }
 
     fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {
@@ -250,7 +250,8 @@ impl FileArgs {
 impl Execute for Highlight {
     fn execute(&self) -> Result<(), MainError> {
         let loader = self.files.loader();
-        let resolver = loader.resolver();
+        let loader_ref = loader.borrow();
+        let resolver = loader_ref.resolver();
         let source = if let Some(module_name) = &self.files.module {
             std::fs::read_to_string(resolver.name_to_path(module_name)?)?
         } else if let Some(module_file) = &self.files.input_file {
@@ -294,14 +295,15 @@ impl Execute for Highlight {
 impl Execute for Tags {
     fn execute(&self) -> Result<(), MainError> {
         let mut loader = self.files.loader();
+        let mut loader_mut = loader.borrow_mut();
         let model = if let Some(module_name) = &self.files.module {
-            loader.load(module_name)?
+            loader_mut.load(module_name)?
         } else if let Some(module_file) = &self.files.input_file {
-            loader.load_from_file(module_file.clone())?
+            loader_mut.load_from_file(module_file.clone())?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
-            loader.load_from_reader(&mut handle)?
+            loader_mut.load_from_reader(&mut handle)?
         };
 
         info!(
@@ -325,7 +327,7 @@ impl Execute for Tags {
 impl Execute for Convert {
     fn execute(&self) -> Result<(), MainError> {
         let mut loader = self.files.loader();
-        let loader_mut = loader.borrow_mut();
+        let mut loader_mut = loader.borrow_mut();
         let model = if let Some(module_name) = &self.files.module {
             loader_mut.load(module_name)?
         } else if let Some(module_file) = &self.files.input_file {
@@ -347,10 +349,12 @@ impl Execute for Convert {
         match self.output_format {
             ConvertFormat::Org => {
                 if let Some(path) = &self.files.output_file {
-                    let mut generator = sdml_generate::convert::org::OrgFileGenerator::default();
+                    let mut generator: OrgFileGenerator<ModuleLoader> =
+                        sdml_generate::convert::org::OrgFileGenerator::default();
                     generator.write_to_file_in_format(model, path, Default::default())?;
                 } else {
-                    let mut generator = sdml_generate::convert::org::OrgFileGenerator::default();
+                    let mut generator: OrgFileGenerator<ModuleLoader> =
+                        sdml_generate::convert::org::OrgFileGenerator::default();
                     generator.write_in_format(model, &mut std::io::stdout(), Default::default())?;
                 }
             }
@@ -373,14 +377,15 @@ impl Execute for Convert {
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
         let mut loader = self.files.loader();
+        let mut loader_mut = loader.borrow_mut();
         let model = if let Some(module_name) = &self.files.module {
-            loader.load(module_name)?
+            loader_mut.load(module_name)?
         } else if let Some(module_file) = &self.files.input_file {
-            loader.load_from_file(module_file.clone())?
+            loader_mut.load_from_file(module_file.clone())?
         } else {
             let stdin = std::io::stdin();
             let mut handle = stdin.lock();
-            loader.load_from_reader(&mut handle)?
+            loader_mut.load_from_reader(&mut handle)?
         };
 
         info!(
@@ -396,10 +401,12 @@ impl Execute for Draw {
         match self.diagram {
             DrawDiagram::Concepts => {
                 if let Some(path) = &self.files.output_file {
-                    let mut generator = sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
+                    let mut generator =
+                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
                     generator.write_to_file_in_format(model, path, format)?;
                 } else {
-                    let mut generator = sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
+                    let mut generator =
+                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
                     generator.write_in_format(model, &mut std::io::stdout(), format)?;
                 }
             }

@@ -10,12 +10,16 @@ use std::{
 };
 use url::Url;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Values
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `value`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Value {
     Simple(SimpleValue),
     ValueConstructor(ValueConstructor),
@@ -25,6 +29,7 @@ pub enum Value {
 
 /// Corresponds to the grammar rule `simple_value`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum SimpleValue {
     /// Corresponds to the grammar rule `string`.
     String(LanguageString),
@@ -42,6 +47,7 @@ pub enum SimpleValue {
 
 /// Corresponds to the grammar rule `string`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LanguageString {
     span: Option<Span>,
     /// Corresponds to the grammar rule `quoted_string`.
@@ -51,6 +57,7 @@ pub struct LanguageString {
 
 /// Corresponds to the grammar rule `language_tag`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LanguageTag {
     span: Option<Span>,
     value: String,
@@ -58,6 +65,7 @@ pub struct LanguageTag {
 
 /// Corresponds to the grammar rule `list_of_values`.
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ListOfValues {
     span: Option<Span>,
     values: Vec<ListMember>,
@@ -65,6 +73,7 @@ pub struct ListOfValues {
 
 /// Corresponds to the grammar rule `name`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum ListMember {
     Simple(SimpleValue),
     ValueConstructor(ValueConstructor),
@@ -73,6 +82,7 @@ pub enum ListMember {
 
 /// Corresponds to the grammar rule `value_constructor`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ValueConstructor {
     span: Option<Span>,
     type_name: IdentifierReference,

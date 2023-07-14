@@ -1,5 +1,8 @@
 use crate::model::{Identifier, IdentifierReference, SimpleValue};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -12,6 +15,7 @@ use crate::model::{Identifier, IdentifierReference, SimpleValue};
 /// module and the set of modules transitively imported by it.
 ///
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum ConstraintBody {
     /// Corresponds to the grammar rule `informal_constraint`.
     Informal(String),
@@ -21,6 +25,7 @@ pub enum ConstraintBody {
 
 /// Corresponds to the grammar rule `constraint_sentence`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum ConstraintSentence {
     Simple(SimpleSentence),
     Boolean(BooleanSentence),
@@ -29,6 +34,7 @@ pub enum ConstraintSentence {
 
 /// Corresponds to the grammar rule `simple_sentence`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum SimpleSentence {
     Atomic(AtomicSentence),
     /// Corresponds to the grammar rule `equation`.
@@ -37,6 +43,7 @@ pub enum SimpleSentence {
 
 /// Corresponds to the grammar rule `atomic_sentence`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AtomicSentence {
     predicate: Term,
     arguments: Vec<Term>,
@@ -44,6 +51,7 @@ pub struct AtomicSentence {
 
 /// Corresponds to the grammar rule `boolean_sentence`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum BooleanSentence {
     /// Corresponds to the grammar rule `negation`. Uses the prefix keyword **`not`**
     /// or the operator $\lnot$.
@@ -68,6 +76,7 @@ pub enum BooleanSentence {
 
 /// Used to model the rule `negation`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnaryOperation {
     operand: Box<ConstraintSentence>,
 }
@@ -75,6 +84,7 @@ pub struct UnaryOperation {
 /// Used to capture the commonality in rules `conjunction`, `disjunction`, `implication`,
 /// and `biconditional`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct BinaryOperation {
     left_operand: Box<ConstraintSentence>,
     right_operand: Box<ConstraintSentence>,
@@ -82,6 +92,7 @@ pub struct BinaryOperation {
 
 /// Corresponds to the grammar rule `quantified_sentence`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum QuantifiedSentence {
     /// Corresponds to the grammar rule `universal`. Introduced with the keyword **`forall`**
     /// or the operator $\forall$.
@@ -94,6 +105,7 @@ pub enum QuantifiedSentence {
 /// Corresponds to the inner part of the grammar rule `quantified_sentence`,
 /// and the rule `quantified_body`).
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct BoundSentence {
     bindings: Vec<Binding>,
     body: Box<ConstraintSentence>,
@@ -101,6 +113,7 @@ pub struct BoundSentence {
 
 /// Corresponds to the grammar rule `quantifier_binding`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Binding {
     name: Identifier,
     /// Corresponds to the grammar rule `binding_type_reference`.
@@ -109,6 +122,7 @@ pub struct Binding {
 
 /// Corresponds to the grammar rule `term`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Term {
     Name(NamePath),
     Value(PredicateValue),
@@ -129,10 +143,12 @@ pub enum Term {
 /// `self.name.length` becomes `length(name(self))`
 ///
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct NamePath(Vec<Name>);
 
 /// Corresponds to the grammar rule `name`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Name {
     /// Corresponds to the grammar rule `reserved_self`, or the keyword **`self`**.
     ReservedSelf,
@@ -143,6 +159,7 @@ pub enum Name {
 
 /// Corresponds to the grammar rule `predicate_value`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum PredicateValue {
     Simple(SimpleValue),
     /// Corresponds to the grammar rule `tautology`, or the symbol $\top$
@@ -154,6 +171,7 @@ pub enum PredicateValue {
 
 /// Corresponds to the grammar rule `functional_term`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionalTerm {
     function: Term,
     arguments: Vec<Term>,

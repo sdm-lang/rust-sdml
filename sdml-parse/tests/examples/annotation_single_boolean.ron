@@ -26,43 +26,45 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 54,
-                        end: 75,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 55,
-                                    end: 57,
-                                },
-                            ),
-                            value: "dc",
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 54,
+                            end: 75,
                         },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 58,
-                                    end: 67,
-                                },
-                            ),
-                            value: "published",
-                        },
-                    },
-                ),
-                value: Simple(
-                    Boolean(
-                        false,
                     ),
-                ),
-            },
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 55,
+                                        end: 57,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 58,
+                                        end: 67,
+                                    },
+                                ),
+                                value: "published",
+                            },
+                        },
+                    ),
+                    value: Simple(
+                        Boolean(
+                            false,
+                        ),
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

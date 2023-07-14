@@ -26,83 +26,85 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 72,
-                        end: 129,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 73,
-                                    end: 75,
-                                },
-                            ),
-                            value: "dc",
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 72,
+                            end: 129,
                         },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 76,
-                                    end: 81,
-                                },
-                            ),
-                            value: "title",
-                        },
-                    },
-                ),
-                value: List(
-                    ListOfValues {
-                        span: None,
-                        values: [
-                            Simple(
-                                String(
-                                    LanguageString {
-                                        span: Some(
-                                            Span {
-                                                start: 86,
-                                                end: 112,
-                                            },
-                                        ),
-                                        value: "a rather good test",
-                                        language: Some(
-                                            LanguageTag {
-                                                span: None,
-                                                value: "en-GB",
-                                            },
-                                        ),
+                    ),
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 73,
+                                        end: 75,
                                     },
                                 ),
-                            ),
-                            Simple(
-                                String(
-                                    LanguageString {
-                                        span: Some(
-                                            Span {
-                                                start: 113,
-                                                end: 127,
-                                            },
-                                        ),
-                                        value: "a test",
-                                        language: Some(
-                                            LanguageTag {
-                                                span: None,
-                                                value: "en-US",
-                                            },
-                                        ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 76,
+                                        end: 81,
                                     },
                                 ),
-                            ),
-                        ],
-                    },
-                ),
-            },
+                                value: "title",
+                            },
+                        },
+                    ),
+                    value: List(
+                        ListOfValues {
+                            span: None,
+                            values: [
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 86,
+                                                    end: 112,
+                                                },
+                                            ),
+                                            value: "a rather good test",
+                                            language: Some(
+                                                LanguageTag {
+                                                    span: None,
+                                                    value: "en-GB",
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                ),
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 113,
+                                                    end: 127,
+                                                },
+                                            ),
+                                            value: "a test",
+                                            language: Some(
+                                                LanguageTag {
+                                                    span: None,
+                                                    value: "en-US",
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            ],
+                        },
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

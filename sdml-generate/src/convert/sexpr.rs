@@ -12,12 +12,12 @@ YYYYY
 use sdml_core::error::Error;
 use sdml_core::model::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, ByReferenceMember, ByReferenceMemberInner,
-    ByValueMember, ByValueMemberInner, Cardinality, DatatypeDef, EntityBody, EntityDef,
-    EntityGroup, EntityMember, EnumBody, EnumDef, EnumVariant, EventDef, Identifier,
-    IdentifierReference, IdentityMember, IdentityMemberInner, Import, ImportStatement, LanguageTag,
-    ListMember, ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole,
-    QualifiedIdentifier, SimpleValue, Span, StructureBody, StructureDef, StructureGroup,
-    TypeDefinition, TypeReference, TypeVariant, UnionBody, UnionDef, Value, ValueConstructor,
+    ByValueMember, ByValueMemberInner, Cardinality, DatatypeDef, Definition, EntityBody, EntityDef,
+    EntityGroup, EntityMember, EnumBody, EnumDef, EventDef, Identifier, IdentifierReference,
+    IdentityMember, IdentityMemberInner, Import, ImportStatement, LanguageTag, ListMember,
+    ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole, QualifiedIdentifier,
+    SimpleValue, Span, StructureBody, StructureDef, StructureGroup, TypeReference, TypeVariant,
+    UnionBody, UnionDef, Value, ValueConstructor, ValueVariant,
 };
 use sdml_core::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_LANGUAGE, FIELD_NAME_MAX,
@@ -27,15 +27,14 @@ use sdml_core::syntax::{
     NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_BOOLEAN, NODE_KIND_CARDINALITY_EXPRESSION,
     NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_BODY,
     NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_BODY, NODE_KIND_ENUM_DEF,
-    NODE_KIND_ENUM_VARIANT, NODE_KIND_EVENT_DEF, NODE_KIND_IDENTIFIER,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT, NODE_KIND_INTEGER,
-    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LIST_OF_VALUES,
-    NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT,
-    NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_BODY,
-    NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING, NODE_KIND_STRING,
-    NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
-    NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE,
-    NODE_KIND_VALUE_CONSTRUCTOR,
+    NODE_KIND_EVENT_DEF, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
+    NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT, NODE_KIND_INTEGER, NODE_KIND_IRI_REFERENCE,
+    NODE_KIND_LANGUAGE_TAG, NODE_KIND_LIST_OF_VALUES, NODE_KIND_MEMBER_BY_REFERENCE,
+    NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_BODY,
+    NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_BODY, NODE_KIND_QUALIFIED_IDENTIFIER,
+    NODE_KIND_QUOTED_STRING, NODE_KIND_STRING, NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF,
+    NODE_KIND_STRUCTURE_GROUP, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
+    NODE_KIND_UNKNOWN_TYPE, NODE_KIND_VALUE_CONSTRUCTOR, NODE_KIND_VALUE_VARIANT,
 };
 use std::fmt::Display;
 use std::io::Write;
@@ -491,15 +490,15 @@ fn write_value_constructor<W: Write>(
     Ok(())
 }
 
-fn write_type_definition<W: Write>(me: &TypeDefinition, w: &mut Writer<W>) -> Result<(), Error> {
+fn write_type_definition<W: Write>(me: &Definition, w: &mut Writer<W>) -> Result<(), Error> {
     match me {
-        TypeDefinition::Datatype(v) => write_data_type_def(v, w)?,
-        TypeDefinition::Entity(v) => write_entity_def(v, w)?,
-        TypeDefinition::Enum(v) => write_enum_def(v, w)?,
-        TypeDefinition::Event(v) => write_event_def(v, w)?,
-        TypeDefinition::Structure(v) => write_structure_def(v, w)?,
-        TypeDefinition::Union(v) => write_union_def(v, w)?,
-        TypeDefinition::Property(v) => write_property_def(v, w)?,
+        Definition::Datatype(v) => write_data_type_def(v, w)?,
+        Definition::Entity(v) => write_entity_def(v, w)?,
+        Definition::Enum(v) => write_enum_def(v, w)?,
+        Definition::Event(v) => write_event_def(v, w)?,
+        Definition::Structure(v) => write_structure_def(v, w)?,
+        Definition::Union(v) => write_union_def(v, w)?,
+        Definition::Property(v) => write_property_def(v, w)?,
     }
 
     Ok(())
@@ -667,8 +666,8 @@ fn write_enum_body<W: Write>(me: &EnumBody, w: &mut Writer<W>) -> Result<(), Err
     Ok(())
 }
 
-fn write_enum_variant<W: Write>(me: &EnumVariant, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_ENUM_VARIANT)?;
+fn write_enum_variant<W: Write>(me: &ValueVariant, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_VALUE_VARIANT)?;
     w.indent();
 
     write_span!(me, w);

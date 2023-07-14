@@ -26,7 +26,7 @@ use crate::model::{
     Annotation, ByReferenceMember, ByReferenceMemberInner, ByValueMember, ByValueMemberInner,
     Cardinality, ConstraintBody, DatatypeDef, EntityDef, EntityGroup, EntityMember, EnumDef,
     EventDef, Identifier, IdentifierReference, IdentityMember, IdentityMemberInner, Import, Module,
-    PropertyDef, Span, StructureDef, StructureGroup, TypeDefinition, TypeReference, UnionDef,
+    PropertyDef, Span, StructureDef, StructureGroup, Definition, TypeReference, UnionDef,
     Value,
 };
 
@@ -135,7 +135,7 @@ pub trait ModuleWalker {
         Ok(())
     }
 
-    fn start_enum_variant(
+    fn start_value_variant(
         &mut self,
         _identifier: &Identifier,
         _value: u32,
@@ -145,7 +145,7 @@ pub trait ModuleWalker {
         Ok(())
     }
 
-    fn end_enum_variant(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    fn end_value_variant(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
@@ -294,13 +294,13 @@ pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<()
 
     for type_def in body.definitions() {
         match &type_def {
-            TypeDefinition::Datatype(def) => walk_datatype_def(def, walker)?,
-            TypeDefinition::Entity(def) => walk_entity_def(def, walker)?,
-            TypeDefinition::Enum(def) => walk_enum_def(def, walker)?,
-            TypeDefinition::Event(def) => walk_event_def(def, walker)?,
-            TypeDefinition::Structure(def) => walk_structure_def(def, walker)?,
-            TypeDefinition::Union(def) => walk_union_def(def, walker)?,
-            TypeDefinition::Property(def) => walk_property_def(def, walker)?,
+            Definition::Datatype(def) => walk_datatype_def(def, walker)?,
+            Definition::Entity(def) => walk_entity_def(def, walker)?,
+            Definition::Enum(def) => walk_enum_def(def, walker)?,
+            Definition::Event(def) => walk_event_def(def, walker)?,
+            Definition::Structure(def) => walk_structure_def(def, walker)?,
+            Definition::Union(def) => walk_union_def(def, walker)?,
+            Definition::Property(def) => walk_property_def(def, walker)?,
         }
     }
 
@@ -377,7 +377,7 @@ fn walk_enum_def(def: &EnumDef, walker: &mut impl ModuleWalker) -> Result<(), Er
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
         for variant in body.variants() {
-            walker.start_enum_variant(
+            walker.start_value_variant(
                 variant.name(),
                 variant.value(),
                 variant.has_body(),
@@ -386,7 +386,7 @@ fn walk_enum_def(def: &EnumDef, walker: &mut impl ModuleWalker) -> Result<(), Er
             if let Some(body) = variant.body() {
                 walk_annotations!(walker, body.annotations());
             }
-            walker.end_enum_variant(variant.name(), def.has_body())?;
+            walker.end_value_variant(variant.name(), def.has_body())?;
         }
     }
 

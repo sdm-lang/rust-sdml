@@ -45,6 +45,9 @@ use std::{
 };
 use tree_sitter::Node;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -53,6 +56,7 @@ use tree_sitter::Node;
 /// The source location information from the tree-sitter [`Node`] type.
 ///
 #[derive(Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Span(Range<usize>);
 
 // ------------------------------------------------------------------------------------------------
@@ -140,8 +144,8 @@ pub use values::{
 mod types;
 pub use types::{
     AnnotationOnlyBody, DatatypeDef, EntityBody, EntityDef, EntityGroup, EntityMember, EnumBody,
-    EnumDef, EnumVariant, EventDef, PropertyBody, PropertyDef, PropertyRole, StructureBody,
-    StructureDef, StructureGroup, TypeDefinition, TypeVariant, UnionBody, UnionDef,
+    EnumDef, ValueVariant, EventDef, PropertyBody, PropertyDef, PropertyRole, StructureBody,
+    StructureDef, StructureGroup, Definition, TypeVariant, UnionBody, UnionDef,
 };
 
 mod members;

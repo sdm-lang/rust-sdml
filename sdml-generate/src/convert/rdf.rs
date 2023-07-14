@@ -11,8 +11,8 @@ YYYYY
 
 use sdml_core::error::Error;
 use sdml_core::model::{
-    Annotation, AnnotationProperty, Constraint, DatatypeDef, EntityDef, EnumDef, EventDef,
-    IdentifierReference, Import, Module, PropertyDef, StructureDef, TypeDefinition, UnionDef,
+    Annotation, AnnotationProperty, Constraint, DatatypeDef, Definition, EntityDef, EnumDef,
+    EventDef, IdentifierReference, Import, Module, PropertyDef, StructureDef, UnionDef,
 };
 use std::io::Write;
 
@@ -81,13 +81,13 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
 
     for definition in body.definitions() {
         match &definition {
-            TypeDefinition::Datatype(v) => write_datatype(v, w)?,
-            TypeDefinition::Entity(v) => write_entity(v, w)?,
-            TypeDefinition::Enum(v) => write_enumeration(v, w)?,
-            TypeDefinition::Event(v) => write_event(v, w)?,
-            TypeDefinition::Structure(v) => write_structure(v, w)?,
-            TypeDefinition::Union(v) => write_union(v, w)?,
-            TypeDefinition::Property(v) => write_property(v, w)?,
+            Definition::Datatype(v) => write_datatype(v, w)?,
+            Definition::Entity(v) => write_entity(v, w)?,
+            Definition::Enum(v) => write_enumeration(v, w)?,
+            Definition::Event(v) => write_event(v, w)?,
+            Definition::Structure(v) => write_structure(v, w)?,
+            Definition::Union(v) => write_union(v, w)?,
+            Definition::Property(v) => write_property(v, w)?,
         }
     }
 

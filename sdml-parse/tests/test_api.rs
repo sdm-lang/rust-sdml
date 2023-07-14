@@ -1,5 +1,6 @@
+use sdml_core::load::ModuleLoader as LoaderTrait;
 use sdml_parse::load::ModuleLoader;
-use sdml_core::model::{Annotation, ImportStatement, ListMember, SimpleValue, TypeDefinition, Value};
+use sdml_core::model::{ImportStatement, ListMember, SimpleValue, Definition, Value, AnnotationProperty};
 use std::io::Cursor;
 use std::str::FromStr;
 use url::Url;
@@ -68,7 +69,7 @@ end"#
     let module = module.unwrap();
     let body = module.body();
 
-    let annotations: Vec<&Annotation> = body.annotations().collect();
+    let annotations: Vec<&AnnotationProperty> = body.annotation_properties().collect();
     assert_eq!(annotations.len(), 3);
 
     let annotation = annotations.get(0).unwrap();

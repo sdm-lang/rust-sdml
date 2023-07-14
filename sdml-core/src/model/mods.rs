@@ -1,8 +1,11 @@
 use super::{
-    Annotation, Comment, Identifier, IdentifierReference, QualifiedIdentifier, Span, TypeDefinition,
+    Annotation, Comment, Identifier, IdentifierReference, QualifiedIdentifier, Span, Definition,
 };
 use std::{collections::HashSet, fmt::Debug, hash::Hash};
 use url::Url;
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Modules
@@ -12,6 +15,7 @@ use url::Url;
 /// Corresponds the grammar rule `module`.
 ///
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Module {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -24,12 +28,13 @@ pub struct Module {
 /// Corresponds the grammar rule `module_body`.
 ///
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ModuleBody {
     span: Option<Span>,
     comments: Vec<Comment>,
     imports: Vec<ImportStatement>,
     annotations: Vec<Annotation>,
-    definitions: Vec<TypeDefinition>,
+    definitions: Vec<Definition>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -40,6 +45,7 @@ pub struct ModuleBody {
 /// Corresponds the grammar rule `import_statement`.
 ///
 #[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ImportStatement {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -50,6 +56,7 @@ pub struct ImportStatement {
 /// Corresponds the grammar rule `import`.
 ///
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Import {
     /// Corresponds to the grammar rule `module_import`.
     Module(Identifier),
@@ -114,7 +121,7 @@ impl Module {
 
     delegate!(imported_types, HashSet<&QualifiedIdentifier>, body);
 
-    delegate!(declared_types, HashSet<&Identifier>, body);
+    delegate!(defined_names, HashSet<&Identifier>, body);
 
     delegate!(referenced_types, HashSet<&IdentifierReference>, body);
 
@@ -133,7 +140,7 @@ impl ModuleBody {
 
     get_and_mutate_collection_of!(pub imports => Vec, ImportStatement);
 
-    get_and_mutate_collection_of!(pub definitions => Vec, TypeDefinition);
+    get_and_mutate_collection_of!(pub definitions => Vec, Definition);
 
     // --------------------------------------------------------------------------------------------
 
@@ -155,7 +162,7 @@ impl ModuleBody {
             .collect()
     }
 
-    pub fn declared_types(&self) -> HashSet<&Identifier> {
+    pub fn defined_names(&self) -> HashSet<&Identifier> {
         self.definitions().map(|def| def.name()).collect()
     }
 

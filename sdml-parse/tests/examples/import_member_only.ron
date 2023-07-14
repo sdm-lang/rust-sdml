@@ -33,7 +33,7 @@ Module {
                     },
                 ),
                 comments: [],
-                imported: [
+                imports: [
                     Member(
                         QualifiedIdentifier {
                             span: None,

@@ -51,7 +51,6 @@ YYYYY
     dyn_drop,
 )]
 
-
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -72,6 +71,8 @@ YYYYY
 mod macros;
 
 mod exec;
+
+pub use sdml_core::generate::{GenerateToFile, GenerateToWriter, NoFormatOptions};
 
 pub mod actions;
 

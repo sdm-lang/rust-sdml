@@ -1,12 +1,16 @@
 use super::{ConstraintBody, Identifier, IdentifierReference, Span, Value};
 use std::{collections::HashSet, fmt::Debug};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `line_comment`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Comment {
     span: Option<Span>,
     value: String,
@@ -15,6 +19,7 @@ pub struct Comment {
 /// Corresponds to the grammar rule `annotation`.
 #[derive(Clone, Debug)]
 #[allow(clippy::large_enum_variant)] // TODO: why is this reported as an issue?
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Annotation {
     Property(AnnotationProperty),
     Constraint(Constraint),
@@ -22,6 +27,7 @@ pub enum Annotation {
 
 /// Corresponds to the grammar rule `annotation_property`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationProperty {
     span: Option<Span>,
     comments: Vec<Comment>,
@@ -31,6 +37,7 @@ pub struct AnnotationProperty {
 
 /// Corresponds to the grammar rule `constraint`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Constraint {
     span: Option<Span>,
     comments: Vec<Comment>,

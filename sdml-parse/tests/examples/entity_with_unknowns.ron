@@ -71,8 +71,12 @@ Module {
                                     ),
                                     value: "id",
                                 },
-                                target_type: Unknown,
-                                body: None,
+                                inner: Defined(
+                                    IdentityMemberDef {
+                                        target_type: Unknown,
+                                        body: None,
+                                    },
+                                ),
                             },
                             annotations: [],
                             members: [
@@ -94,9 +98,13 @@ Module {
                                             ),
                                             value: "a",
                                         },
-                                        target_type: Unknown,
-                                        target_cardinality: None,
-                                        body: None,
+                                        inner: Defined(
+                                            ByValueMemberDef {
+                                                target_type: Unknown,
+                                                target_cardinality: None,
+                                                body: None,
+                                            },
+                                        ),
                                     },
                                 ),
                             ],
@@ -129,9 +137,13 @@ Module {
                                                     ),
                                                     value: "b",
                                                 },
-                                                target_type: Unknown,
-                                                target_cardinality: None,
-                                                body: None,
+                                                inner: Defined(
+                                                    ByValueMemberDef {
+                                                        target_type: Unknown,
+                                                        target_cardinality: None,
+                                                        body: None,
+                                                    },
+                                                ),
                                             },
                                         ),
                                     ],

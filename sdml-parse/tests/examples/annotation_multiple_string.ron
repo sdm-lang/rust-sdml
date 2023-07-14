@@ -26,87 +26,89 @@ Module {
         comments: [],
         imports: [],
         annotations: [
-            Annotation {
-                span: Some(
-                    Span {
-                        start: 56,
-                        end: 89,
-                    },
-                ),
-                comments: [],
-                name: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: None,
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 57,
-                                    end: 59,
-                                },
-                            ),
-                            value: "dc",
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 56,
+                            end: 89,
                         },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 60,
-                                    end: 66,
-                                },
-                            ),
-                            value: "author",
+                    ),
+                    comments: [],
+                    name: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: None,
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 57,
+                                        end: 59,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 60,
+                                        end: 66,
+                                    },
+                                ),
+                                value: "author",
+                            },
                         },
-                    },
-                ),
-                value: List(
-                    ListOfValues {
-                        span: None,
-                        values: [
-                            Simple(
-                                String(
-                                    LanguageString {
-                                        span: Some(
-                                            Span {
-                                                start: 71,
-                                                end: 75,
-                                            },
-                                        ),
-                                        value: "me",
-                                        language: None,
-                                    },
+                    ),
+                    value: List(
+                        ListOfValues {
+                            span: None,
+                            values: [
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 71,
+                                                    end: 75,
+                                                },
+                                            ),
+                                            value: "me",
+                                            language: None,
+                                        },
+                                    ),
                                 ),
-                            ),
-                            Simple(
-                                String(
-                                    LanguageString {
-                                        span: Some(
-                                            Span {
-                                                start: 76,
-                                                end: 81,
-                                            },
-                                        ),
-                                        value: "and",
-                                        language: None,
-                                    },
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 76,
+                                                    end: 81,
+                                                },
+                                            ),
+                                            value: "and",
+                                            language: None,
+                                        },
+                                    ),
                                 ),
-                            ),
-                            Simple(
-                                String(
-                                    LanguageString {
-                                        span: Some(
-                                            Span {
-                                                start: 82,
-                                                end: 87,
-                                            },
-                                        ),
-                                        value: "you",
-                                        language: None,
-                                    },
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 82,
+                                                    end: 87,
+                                                },
+                                            ),
+                                            value: "you",
+                                            language: None,
+                                        },
+                                    ),
                                 ),
-                            ),
-                        ],
-                    },
-                ),
-            },
+                            ],
+                        },
+                    ),
+                },
+            ),
         ],
         definitions: [],
     },

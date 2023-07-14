@@ -1,6 +1,9 @@
 use super::{AnnotationOnlyBody, Comment, Identifier, IdentifierReference, Span};
 use std::{collections::HashSet, fmt::Debug};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // ------------------------------------------------------------------------------------------------
 // Private Macros
 // ------------------------------------------------------------------------------------------------
@@ -10,6 +13,7 @@ macro_rules! member_types {
         paste::paste! {
             #[doc = "Corresponds to the grammar rule `" $rule "_member`."]
             #[derive(Clone, Debug)]
+            #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
             pub struct [< $prefix Member >] {
                 span: Option<Span>,
                 comments: Vec<Comment>,
@@ -19,6 +23,7 @@ macro_rules! member_types {
 
             #[doc = "Corresponds to the choice component within grammar rule `" $rule "_member`."]
             #[derive(Clone, Debug)]
+            #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
             pub enum [< $prefix MemberInner >] {
                 PropertyRole(Identifier),
                 Defined([< $prefix MemberDef >]),
@@ -26,6 +31,7 @@ macro_rules! member_types {
 
             #[doc = "Corresponds to the definition component within grammar rule `" $rule "_member`."]
             #[derive(Clone, Debug)]
+            #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
             pub struct [< $prefix MemberDef >] {
                 target_type: TypeReference,
                 $(
@@ -159,6 +165,7 @@ member_types!(
 
 /// Corresponds to the grammar rule `type_reference`.
 #[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum TypeReference {
     Reference(IdentifierReference),
     Unknown,
@@ -170,6 +177,7 @@ pub enum TypeReference {
 
 /// Corresponds to the grammar rule `cardinality`.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Cardinality {
     span: Option<Span>,
     min: u32,
