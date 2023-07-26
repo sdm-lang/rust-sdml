@@ -21,6 +21,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use std::rc::Rc;
 use tracing::{error, info, trace, warn};
 use serde::{Deserialize, Serialize};
 
@@ -34,7 +35,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug)]
 pub struct ModuleResolver {
-    catalog: Option<ModuleCatalog>,
+    catalog: Option<Rc<ModuleCatalog>>,
     search_path: SearchPath,
 }
 
@@ -114,7 +115,7 @@ impl Default for ModuleResolver {
         let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
         search_path.prepend_cwd();
         let catalog = ModuleCatalog::load_from_current(true);
-        Self { catalog, search_path }
+        Self { catalog: catalog.map(|c| Rc::new(c)), search_path }
     }
 }
 
@@ -193,27 +194,24 @@ impl LoaderTrait for ModuleLoader {
 
     fn load_from_file(&mut self, file: PathBuf) -> Result<&Module, Error> {
         let mut reader = File::open(&file)?;
-        match self.load_inner(&mut reader, Some(file)) {
-            Ok(mut module) => {
-                if !module.has_base() {
-                    if let Some(catalog) = &self.resolver.catalog {
-                        let name = module.name().to_string();
-                        if let Some(url) = catalog.resolve_uri(&name) {
-                            module.set_base(url);
-                        }
-                    } else {
-                        module.set_base(Url::from_file_path(file).unwrap())
-                    }
+        let catalog = self.resolver.catalog.clone();
+        let module = self.load_inner(&mut reader, Some(file.clone()))?;
+        if !module.has_base() {
+            if let Some(catalog) = catalog {
+                let name = module.name().to_string();
+                if let Some(url) = catalog.resolve_uri(&name) {
+                    module.set_base(url);
                 }
-                Ok(module)
-            },
-            Err(e) => Err(e),
+            } else {
+                module.set_base(Url::from_file_path(file).unwrap())
+            }
         }
+        Ok(module)
     }
 
     fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<&Module, Error>
     {
-        self.load_inner(reader, None)
+        Ok(self.load_inner(reader, None)?)
     }
 
 
@@ -239,7 +237,7 @@ impl LoaderTrait for ModuleLoader {
 }
 
 impl ModuleLoader {
-    fn load_inner(&mut self, reader: &mut dyn Read, file: Option<PathBuf>) -> Result<&Module, Error>
+    fn load_inner(&mut self, reader: &mut dyn Read, file: Option<PathBuf>) -> Result<&mut Module, Error>
     {
         let mut source = String::new();
         reader.read_to_string(&mut source)?;
@@ -256,7 +254,11 @@ impl ModuleLoader {
 
         // save codespan file ID with module
         let _ = self.modules.insert(name.clone(), (module, file_id));
-        Ok(self.get(&name).unwrap())
+        Ok(self.get_mut(&name).unwrap())
+    }
+
+    fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module> {
+        self.modules.get_mut(name).map(|m| &mut m.0)
     }
 
     pub(crate) fn files(&self) -> &SimpleFiles<String, String> {

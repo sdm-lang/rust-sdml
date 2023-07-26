@@ -32,7 +32,7 @@ use tracing::debug;
 #[derive(Debug, Default)]
 pub struct UmlDiagramGenerator {
     buffer: String,
-    imports: String,
+    imports: (String, String),
     output: Option<DiagramOutput>,
     assoc_src: Option<String>,
     refs: Option<String>,
@@ -119,12 +119,14 @@ show enum circle
 show << event >> circle
 show << union >> circle
 
+{}
 package "{name}" as s_{name} <<module>> {{
 "#,
             self.output
                 .as_ref()
                 .map(|o| o.file_name.to_string())
                 .unwrap_or_else(|| name.to_string()),
+            self.imports.0
         ));
 
         Ok(())
@@ -152,19 +154,20 @@ package "{name}" as s_{name} <<module>> {{
         &mut self,
         name: &Identifier,
         base_type: &IdentifierReference,
-        has_body: bool,
+        _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer
             .push_str(&start_type_with_sterotype("class", name, "datatype"));
-        self.buffer.push_str(&end_type(name, has_body));
+        self.buffer.push_str("  }\n");
         self.buffer
-            .push_str(&format!("  s_{} ..|> s_{}\n", name, base_type));
+            .push_str(&format!("  hide s_{name} members\n"));
+        self.buffer
+            .push_str(&format!("  s_{name} ..|> s_{base_type}\n\n"));
         Ok(())
     }
 
-    fn end_datatype(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
+    fn end_datatype(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
@@ -434,9 +437,13 @@ package "{name}" as s_{name} <<module>> {{
         if let Some(refs) = &self.refs {
             self.buffer.push_str(refs);
         }
-        self.buffer.push_str("}\n");
-        self.buffer.push_str(&self.imports.to_string());
-        self.buffer.push_str("@enduml\n");
+        self.buffer.push_str(&format!(r#"}}
+
+{}
+
+@enduml
+"#, &self.imports.1));
+
         Ok(())
     }
 }
@@ -472,10 +479,11 @@ fn end_type(type_name: &Identifier, has_body: bool) -> String {
     }
 }
 
-fn make_imports(module: &Module) -> String {
-    let mut imports = String::new();
+fn make_imports(module: &Module) -> (String, String) {
+    let mut imports_top = String::new();
+    let mut imports_tail = String::new();
     for other in module.imported_modules() {
-        imports.push_str(&format!(
+        imports_top.push_str(&format!(
             "package \"{}\" as s_{} <<module>> #white {{\n",
             other, other
         ));
@@ -484,22 +492,24 @@ fn make_imports(module: &Module) -> String {
             .iter()
             .filter(|qi| qi.module() == other)
         {
-            imports.push_str(&format!(
+            imports_top.push_str(&format!(
                 "  class \"{}\" as s_{}\n",
                 imported.member(),
                 imported
             ));
         }
-        imports.push_str("}\n");
-        imports.push_str(&format!(
-            "s_{} ..> s_{}: <<import>>\n\n",
+        imports_top.push_str("}\n\n");
+
+        imports_tail.push_str(&format!(
+            "s_{} ..> s_{}: <<import>>\n",
             module.name(),
             other
         ));
     }
-    imports
+    (imports_top, imports_tail)
 }
 
+#[inline(always)]
 fn format_to_arg(value: OutputFormat) -> CommandArg {
     CommandArg::new(match value {
         OutputFormat::ImageJpeg => "-tjpg",
@@ -509,28 +519,39 @@ fn format_to_arg(value: OutputFormat) -> CommandArg {
     })
 }
 
+#[inline(always)]
 fn path_to_output<P>(path: P, module_name: &Identifier) -> DiagramOutput
 where
     P: AsRef<Path>,
 {
+    // Note:
+    //  PlantUML does not take output file names, it derives the names from the input file names.
+    //  However, it will take the path of the directory to put output files in, which needs to be
+    //  specified else it is derived from the input path (a temp file name).
+    let output_dir = path
+            .as_ref()
+            .parent()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_default();
     DiagramOutput {
         file_name: path
             .as_ref()
             .file_stem()
             .map(|s| s.to_string_lossy().to_string())
             .unwrap_or_else(|| module_name.to_string()),
-        output_dir: path
-            .as_ref()
-            .parent()
-            .map(|p| p.to_string_lossy().to_string())
-            .unwrap_or_else(default_output_path),
+        output_dir: if output_dir.is_empty() {
+            let default_output = std::env::current_dir()
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default();
+            if default_output.is_empty() {
+                String::from(".")
+            } else {
+                default_output
+            }
+        } else {
+            output_dir
+        },
     }
-}
-
-fn default_output_path() -> String {
-    std::env::current_dir()
-        .map(|p| p.to_string_lossy().to_string())
-        .unwrap_or_else(|_| ".".to_string())
 }
 
 // ------------------------------------------------------------------------------------------------
