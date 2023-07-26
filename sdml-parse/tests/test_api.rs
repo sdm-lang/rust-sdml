@@ -1,6 +1,8 @@
 use sdml_core::load::ModuleLoader as LoaderTrait;
+use sdml_core::model::{
+    AnnotationProperty, Definition, ImportStatement, ListMember, SimpleValue, Value,
+};
 use sdml_parse::load::ModuleLoader;
-use sdml_core::model::{ImportStatement, ListMember, SimpleValue, Definition, Value, AnnotationProperty};
 use std::io::Cursor;
 use std::str::FromStr;
 use url::Url;

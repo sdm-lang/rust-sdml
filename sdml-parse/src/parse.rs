@@ -22,12 +22,12 @@ use rust_decimal::Decimal;
 use sdml_core::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
 use sdml_core::model::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, ByReferenceMember, ByReferenceMemberDef,
-    ByValueMember, ByValueMemberDef, Cardinality, Constraint, DatatypeDef, EntityBody, EntityDef,
-    EntityGroup, EnumBody, EnumDef, ValueVariant, EventDef, Identifier, IdentifierReference,
+    ByValueMember, ByValueMemberDef, Cardinality, Constraint, DatatypeDef, Definition, EntityBody,
+    EntityDef, EntityGroup, EnumBody, EnumDef, EventDef, Identifier, IdentifierReference,
     IdentityMember, IdentityMemberDef, Import, ImportStatement, LanguageString, LanguageTag,
     ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole, QualifiedIdentifier,
-    SimpleValue, StructureBody, StructureDef, StructureGroup, Definition, TypeReference,
-    TypeVariant, UnionBody, UnionDef, Value, ValueConstructor,
+    SimpleValue, StructureBody, StructureDef, StructureGroup, TypeReference, TypeVariant,
+    UnionBody, UnionDef, Value, ValueConstructor, ValueVariant,
 };
 use sdml_core::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_MAX, FIELD_NAME_MEMBER,
@@ -35,8 +35,8 @@ use sdml_core::syntax::{
     FIELD_NAME_SOURCE, FIELD_NAME_SOURCE_CARDINALITY, FIELD_NAME_TARGET,
     FIELD_NAME_TARGET_CARDINALITY, FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION,
     NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_BOOLEAN, NODE_KIND_BUILTIN_SIMPLE_TYPE,
-    NODE_KIND_CONSTRAINT, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE,
-    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF, NODE_KIND_VALUE_VARIANT,
+    NODE_KIND_CONSTRAINT, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DEFINITION,
+    NODE_KIND_DOUBLE, NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF,
     NODE_KIND_EVENT_DEF, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT,
     NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
@@ -45,12 +45,13 @@ use sdml_core::syntax::{
     NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_DEF,
     NODE_KIND_PROPERTY_ROLE, NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING,
     NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
-    NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_DEFINITION, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF,
+    NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF,
     NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
+    NODE_KIND_VALUE_VARIANT,
 };
 use std::collections::HashSet;
 use std::str::FromStr;
-use tracing::{error,trace};
+use tracing::{error, trace};
 use tree_sitter::Parser;
 use tree_sitter::{Node, TreeCursor};
 use tree_sitter_sdml::language;
@@ -1320,9 +1321,7 @@ fn parse_structure_body<'a>(
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_VALUE => {
-                        body.add_to_members(
-                            parse_by_value_member(context, &mut node.walk())?,
-                        );
+                        body.add_to_members(parse_by_value_member(context, &mut node.walk())?);
                     }
                     NODE_KIND_STRUCTURE_GROUP => {
                         body.add_to_groups(parse_structure_group(context, &mut node.walk())?);
@@ -1369,9 +1368,7 @@ fn parse_structure_group<'a>(
                         group.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_VALUE => {
-                        group.add_to_members(
-                            parse_by_value_member(context, &mut node.walk())?,
-                        );
+                        group.add_to_members(parse_by_value_member(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {
                         check_and_add_comment!(context, node, group);
@@ -1850,8 +1847,8 @@ fn parse_cardinality<'a>(
         if let Some(child) = child.child_by_field_name(FIELD_NAME_MAX) {
             context.check_if_error(&child, RULE_NAME)?;
             let text = context.node_source(&child)?;
-            let max =
-                u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
+            let max = u32::from_str(text)
+                .map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
             Ok(Cardinality::new_range(min, max).with_ts_span(node.into()))
         } else {
             Ok(Cardinality::new_unbounded(min).with_ts_span(node.into()))

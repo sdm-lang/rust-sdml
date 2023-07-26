@@ -24,9 +24,9 @@ walk_module(&some_module, &mut MyModuleWalker::default());
 use crate::error::Error;
 use crate::model::{
     Annotation, ByReferenceMember, ByReferenceMemberInner, ByValueMember, ByValueMemberInner,
-    Cardinality, ConstraintBody, DatatypeDef, EntityDef, EntityGroup, EntityMember, EnumDef,
-    EventDef, Identifier, IdentifierReference, IdentityMember, IdentityMemberInner, Import, Module,
-    PropertyDef, Span, StructureDef, StructureGroup, Definition, TypeReference, UnionDef,
+    Cardinality, ConstraintBody, DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember,
+    EnumDef, EventDef, Identifier, IdentifierReference, IdentityMember, IdentityMemberInner,
+    Import, Module, PropertyDef, Span, StructureDef, StructureGroup, TypeReference, UnionDef,
     Value,
 };
 

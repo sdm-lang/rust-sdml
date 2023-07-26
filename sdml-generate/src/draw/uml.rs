@@ -160,8 +160,7 @@ package "{name}" as s_{name} <<module>> {{
         self.buffer
             .push_str(&start_type_with_sterotype("class", name, "datatype"));
         self.buffer.push_str("  }\n");
-        self.buffer
-            .push_str(&format!("  hide s_{name} members\n"));
+        self.buffer.push_str(&format!("  hide s_{name} members\n"));
         self.buffer
             .push_str(&format!("  s_{name} ..|> s_{base_type}\n\n"));
         Ok(())
@@ -437,12 +436,15 @@ package "{name}" as s_{name} <<module>> {{
         if let Some(refs) = &self.refs {
             self.buffer.push_str(refs);
         }
-        self.buffer.push_str(&format!(r#"}}
+        self.buffer.push_str(&format!(
+            r#"}}
 
 {}
 
 @enduml
-"#, &self.imports.1));
+"#,
+            &self.imports.1
+        ));
 
         Ok(())
     }
@@ -529,10 +531,10 @@ where
     //  However, it will take the path of the directory to put output files in, which needs to be
     //  specified else it is derived from the input path (a temp file name).
     let output_dir = path
-            .as_ref()
-            .parent()
-            .map(|p| p.to_string_lossy().to_string())
-            .unwrap_or_default();
+        .as_ref()
+        .parent()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_default();
     DiagramOutput {
         file_name: path
             .as_ref()

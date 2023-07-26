@@ -1,5 +1,5 @@
 use super::{
-    Annotation, Comment, Identifier, IdentifierReference, QualifiedIdentifier, Span, Definition,
+    Annotation, Comment, Definition, Identifier, IdentifierReference, QualifiedIdentifier, Span,
 };
 use std::{collections::HashSet, fmt::Debug, hash::Hash};
 use url::Url;

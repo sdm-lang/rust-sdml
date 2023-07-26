@@ -12,18 +12,18 @@ YYYYY
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::error::{module_file_not_found, Error};
-use sdml_core::{get_and_mutate, is_as_variant, get_and_mutate_map_of, get};
-use sdml_core::model::{Identifier, Module};
 use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait};
+use sdml_core::model::{Identifier, Module};
+use sdml_core::{get, get_and_mutate, get_and_mutate_map_of, is_as_variant};
 use search_path::SearchPath;
-use url::Url;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use tracing::{error, info, trace, warn};
-use serde::{Deserialize, Serialize};
+use url::Url;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -57,8 +57,7 @@ pub struct ModuleLoader {
 
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug)]
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ModuleCatalog {
     base: Url,
@@ -67,16 +66,14 @@ pub struct ModuleCatalog {
     entries: HashMap<String, CatalogEntry>,
 }
 
-#[derive(Clone, Debug)]
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CatalogEntry {
     Group(Group),
     Item(Item),
 }
 
-#[derive(Clone, Debug)]
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Group {
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -86,8 +83,7 @@ pub struct Group {
     entries: HashMap<String, Item>,
 }
 
-#[derive(Clone, Debug)]
-#[derive(Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Item {
     relative_url: String,
@@ -115,18 +111,19 @@ impl Default for ModuleResolver {
         let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
         search_path.prepend_cwd();
         let catalog = ModuleCatalog::load_from_current(true);
-        Self { catalog: catalog.map(|c| Rc::new(c)), search_path }
+        Self {
+            catalog: catalog.map(|c| Rc::new(c)),
+            search_path,
+        }
     }
 }
 
 impl ResolverTrait for ModuleResolver {
-    fn prepend_to_search_path(&mut self, path: &Path)
-    {
+    fn prepend_to_search_path(&mut self, path: &Path) {
         self.search_path.prepend(PathBuf::from(path));
     }
 
-    fn append_to_search_path(&mut self, path: &Path)
-   {
+    fn append_to_search_path(&mut self, path: &Path) {
         self.search_path.append(PathBuf::from(path));
     }
 
@@ -136,7 +133,7 @@ impl ResolverTrait for ModuleResolver {
             let name: String = name.to_string();
             if let Some(path) = catalog.resolve_local_path(&name) {
                 trace!("Found module in catalog, path: {path:?}");
-                return Ok(path)
+                return Ok(path);
             }
         }
         self.search_path
@@ -209,11 +206,9 @@ impl LoaderTrait for ModuleLoader {
         Ok(module)
     }
 
-    fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<&Module, Error>
-    {
+    fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<&Module, Error> {
         Ok(self.load_inner(reader, None)?)
     }
-
 
     fn contains(&self, name: &Identifier) -> bool {
         self.modules.contains_key(name)
@@ -237,8 +232,11 @@ impl LoaderTrait for ModuleLoader {
 }
 
 impl ModuleLoader {
-    fn load_inner(&mut self, reader: &mut dyn Read, file: Option<PathBuf>) -> Result<&mut Module, Error>
-    {
+    fn load_inner(
+        &mut self,
+        reader: &mut dyn Read,
+        file: Option<PathBuf>,
+    ) -> Result<&mut Module, Error> {
         let mut source = String::new();
         reader.read_to_string(&mut source)?;
         let file_name: String = file
@@ -270,7 +268,7 @@ impl ModuleLoader {
 
 impl ModuleCatalog {
     pub fn load_from_current(look_in_parents: bool) -> Option<Self> {
-        let cwd = std::env::current_dir().unwrap_or_else(|_|PathBuf::from("."));
+        let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         Self::load_from(&cwd, look_in_parents)
     }
 
@@ -294,8 +292,8 @@ impl ModuleCatalog {
                 None
             }
         } else {
-                warn!("The provided path was not a file or directory");
-                None
+            warn!("The provided path was not a file or directory");
+            None
         }
     }
 
@@ -306,16 +304,16 @@ impl ModuleCatalog {
                     catalog.loaded_from = file.parent().unwrap().to_path_buf();
                     info!("Loaded catalog, file: {file:?}");
                     Some(catalog)
-                },
+                }
                 Err(e) => {
                     error!("Error parsing catalog, file: {file:?}, error: {e}");
                     None
-                },
+                }
             },
             Err(e) => {
                 error!("Error reading catalog, file: {file:?}, error: {e}");
                 None
-            },
+            }
         }
     }
 
@@ -324,11 +322,23 @@ impl ModuleCatalog {
     get_and_mutate_map_of!(pub entries => HashMap, String, CatalogEntry);
 
     pub fn groups(&self) -> impl Iterator<Item = (&String, &Group)> {
-        self.entries.iter().filter_map(|(k, e)|if let Some(group) = e.as_group() { Some((k, group)) } else { None })
+        self.entries.iter().filter_map(|(k, e)| {
+            if let Some(group) = e.as_group() {
+                Some((k, group))
+            } else {
+                None
+            }
+        })
     }
 
     pub fn items(&self) -> impl Iterator<Item = (&String, &Item)> {
-        self.entries.iter().filter_map(|(k, e)|if let Some(item) = e.as_item() { Some((k, item)) } else { None })
+        self.entries.iter().filter_map(|(k, e)| {
+            if let Some(item) = e.as_item() {
+                Some((k, item))
+            } else {
+                None
+            }
+        })
     }
 
     pub fn resolve_uri(&self, module: &String) -> Option<Url> {
@@ -410,29 +420,30 @@ impl Item {
 
 #[cfg(test)]
 mod tests {
-   use super::*;
+    use super::*;
 
     #[test]
     fn test_generate_catalog() {
         let catalog = ModuleCatalog {
             base: Url::parse("https://example.org/schema/").unwrap(),
             loaded_from: PathBuf::from("."),
-            entries: vec![
-                (
-                    String::from("rentals"),
-                    CatalogEntry::Item(Item {
-                        relative_url: String::from("rentals/v1/"),
-                        relative_path: PathBuf::from("examples/rentals.sdm")
-                    })
-                )
-            ].into_iter().collect(),
+            entries: vec![(
+                String::from("rentals"),
+                CatalogEntry::Item(Item {
+                    relative_url: String::from("rentals/v1/"),
+                    relative_path: PathBuf::from("examples/rentals.sdm"),
+                }),
+            )]
+            .into_iter()
+            .collect(),
         };
         println!("{}", serde_json::to_string_pretty(&catalog).unwrap());
     }
 
     #[test]
     fn test_parse_catalog() {
-        let _: ModuleCatalog = serde_json::from_str(r##"{
+        let _: ModuleCatalog = serde_json::from_str(
+            r##"{
   "base": "https://example.org/rentals/",
   "entries": {
     "vehicle": {
@@ -442,12 +453,15 @@ mod tests {
       }
     }
   }
-}"##).unwrap();
+}"##,
+        )
+        .unwrap();
     }
 
     #[test]
     fn test_parse_catalog_with_group() {
-        let _: ModuleCatalog = serde_json::from_str(r##"{
+        let _: ModuleCatalog = serde_json::from_str(
+            r##"{
   "base": "https://example.org/rentals/",
   "entries": {
     "rentals": {
@@ -463,6 +477,8 @@ mod tests {
       }
     }
   }
-}"##).unwrap();
+}"##,
+        )
+        .unwrap();
     }
 }

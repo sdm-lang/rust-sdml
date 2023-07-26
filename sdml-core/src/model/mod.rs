@@ -143,9 +143,9 @@ pub use values::{
 
 mod types;
 pub use types::{
-    AnnotationOnlyBody, DatatypeDef, EntityBody, EntityDef, EntityGroup, EntityMember, EnumBody,
-    EnumDef, ValueVariant, EventDef, PropertyBody, PropertyDef, PropertyRole, StructureBody,
-    StructureDef, StructureGroup, Definition, TypeVariant, UnionBody, UnionDef,
+    AnnotationOnlyBody, DatatypeDef, Definition, EntityBody, EntityDef, EntityGroup, EntityMember,
+    EnumBody, EnumDef, EventDef, PropertyBody, PropertyDef, PropertyRole, StructureBody,
+    StructureDef, StructureGroup, TypeVariant, UnionBody, UnionDef, ValueVariant,
 };
 
 mod members;

@@ -147,12 +147,7 @@ macro_rules! member_impl {
 
 member_types!(Identity, "identity");
 
-member_types!(
-    ByValue,
-    "by_value",
-    target_cardinality,
-    Cardinality
-);
+member_types!(ByValue, "by_value", target_cardinality, Cardinality);
 
 member_types!(
     ByReference,
@@ -202,11 +197,7 @@ pub struct Cardinality {
 
 member_impl!(Identity);
 
-member_impl!(
-    ByValue,
-    target_cardinality,
-    Cardinality
-);
+member_impl!(ByValue, target_cardinality, Cardinality);
 
 member_impl!(
     ByReference,
