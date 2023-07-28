@@ -245,7 +245,7 @@ pub struct PropertyRole {
     comments: Vec<Comment>,
     name: Identifier,
     target_type: TypeReference,
-    source_cardinality: Option<Option<Cardinality>>,
+    inverse_name: Option<Option<Identifier>>,
     target_cardinality: Option<Cardinality>,
     body: Option<AnnotationOnlyBody>,
 }
@@ -809,7 +809,7 @@ impl PropertyRole {
             comments: Default::default(),
             name,
             target_type,
-            source_cardinality: Default::default(),
+            inverse_name: Default::default(),
             target_cardinality: Default::default(),
             body: None,
         }
@@ -830,7 +830,7 @@ impl PropertyRole {
 
     get_and_mutate!(pub target_type => TypeReference);
 
-    get_and_mutate!(pub source_cardinality => option Option<Cardinality>);
+    get_and_mutate!(pub inverse_name => option Option<Identifier>);
 
     get_and_mutate!(pub target_cardinality(target_cardinality) => option Cardinality);
 

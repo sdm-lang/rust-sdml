@@ -231,7 +231,7 @@ pub trait ModuleWalker {
     fn start_property_role(
         &mut self,
         _name: &Identifier,
-        _source_cardinality: Option<&Option<Cardinality>>,
+        _inverse_name: Option<&Option<Identifier>>,
         _target_cardinality: Option<&Cardinality>,
         _target_type: &TypeReference,
         _has_body: bool,
@@ -479,7 +479,7 @@ fn walk_property_def(def: &PropertyDef, walker: &mut impl ModuleWalker) -> Resul
         for role in body.roles() {
             walker.start_property_role(
                 role.name(),
-                role.source_cardinality(),
+                role.inverse_name(),
                 role.target_cardinality(),
                 role.target_type(),
                 role.has_body(),

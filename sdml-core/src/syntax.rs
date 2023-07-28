@@ -99,7 +99,7 @@ pub const FIELD_NAME_RENAME: &str = "rename";
 pub const FIELD_NAME_ROLE: &str = "role";
 
 pub const FIELD_NAME_SOURCE: &str = "source";
-pub const FIELD_NAME_SOURCE_CARDINALITY: &str = "source_cardinality";
+pub const FIELD_NAME_INVERSE_NAME: &str = "inverse";
 
 pub const FIELD_NAME_TARGET: &str = "target";
 pub const FIELD_NAME_TARGET_CARDINALITY: &str = "target_cardinality";

@@ -1,4 +1,6 @@
-use super::{AnnotationOnlyBody, Comment, Identifier, IdentifierReference, Span};
+use super::{
+    AnnotationOnlyBody, Comment, Identifier, IdentifierReference, QualifiedIdentifier, Span,
+};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
@@ -152,8 +154,8 @@ member_types!(ByValue, "by_value", target_cardinality, Cardinality);
 member_types!(
     ByReference,
     "by_reference",
-    source_cardinality,
-    Cardinality,
+    inverse_name,
+    Identifier,
     target_cardinality,
     Cardinality
 );
@@ -201,11 +203,45 @@ member_impl!(ByValue, target_cardinality, Cardinality);
 
 member_impl!(
     ByReference,
-    source_cardinality,
-    Cardinality,
+    inverse_name,
+    Identifier,
     target_cardinality,
     Cardinality
 );
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ Type Reference
+// ------------------------------------------------------------------------------------------------
+
+impl From<IdentifierReference> for TypeReference {
+    fn from(value: IdentifierReference) -> Self {
+        Self::Reference(value)
+    }
+}
+
+impl From<Identifier> for TypeReference {
+    fn from(value: Identifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl From<QualifiedIdentifier> for TypeReference {
+    fn from(value: QualifiedIdentifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl TypeReference {
+    is_as_variant!(pub reference => Reference, IdentifierReference);
+
+    pub fn is_unknown(&self) -> bool {
+        matches!(self, Self::Unknown)
+    }
+
+    pub fn is_complete(&self) -> bool {
+        !self.is_unknown()
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Cardinality
@@ -290,22 +326,6 @@ impl Cardinality {
         } else {
             self.min.to_string()
         }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members ❱ Type Reference
-// ------------------------------------------------------------------------------------------------
-
-impl TypeReference {
-    is_as_variant!(pub reference => Reference, IdentifierReference);
-
-    pub fn is_unknown(&self) -> bool {
-        matches!(self, Self::Unknown)
-    }
-
-    pub fn is_complete(&self) -> bool {
-        self.is_reference()
     }
 }
 
