@@ -1704,7 +1704,7 @@ fn parse_property_role<'a>(
     if let Some(child) = node.child_by_field_name(FIELD_NAME_INVERSE_NAME) {
         context.check_if_error(&child, RULE_NAME)?;
         let inverse_name = parse_identifier(context, &child)?;
-        member_def.set_inverse_name(inverse_name);
+        member.set_inverse_name(Some(inverse_name));
     }
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET_CARDINALITY) {
