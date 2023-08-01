@@ -112,7 +112,7 @@ impl Default for ModuleResolver {
         search_path.prepend_cwd();
         let catalog = ModuleCatalog::load_from_current(true);
         Self {
-            catalog: catalog.map(|c| Rc::new(c)),
+            catalog: catalog.map(Rc::new),
             search_path,
         }
     }
@@ -322,23 +322,15 @@ impl ModuleCatalog {
     get_and_mutate_map_of!(pub entries => HashMap, String, CatalogEntry);
 
     pub fn groups(&self) -> impl Iterator<Item = (&String, &Group)> {
-        self.entries.iter().filter_map(|(k, e)| {
-            if let Some(group) = e.as_group() {
-                Some((k, group))
-            } else {
-                None
-            }
-        })
+        self.entries
+            .iter()
+            .filter_map(|(k, e)| e.as_group().map(|group| (k, group)))
     }
 
     pub fn items(&self) -> impl Iterator<Item = (&String, &Item)> {
-        self.entries.iter().filter_map(|(k, e)| {
-            if let Some(item) = e.as_item() {
-                Some((k, item))
-            } else {
-                None
-            }
-        })
+        self.entries
+            .iter()
+            .filter_map(|(k, e)| e.as_item().map(|item| (k, item)))
     }
 
     pub fn resolve_uri(&self, module: &String) -> Option<Url> {
@@ -380,11 +372,8 @@ impl Group {
         } else {
             base.clone()
         };
-        if let Some(item) = self.get_from_entries(module) {
-            Some(base.join(item.relative_url().as_str()).unwrap())
-        } else {
-            None
-        }
+        self.get_from_entries(module)
+            .map(|item| base.join(item.relative_url().as_str()).unwrap())
     }
 
     pub fn resolve_local_path(&self, base: &Path, module: &String) -> Option<PathBuf> {
@@ -393,11 +382,8 @@ impl Group {
         } else {
             base.to_path_buf()
         };
-        if let Some(item) = self.get_from_entries(module) {
-            Some(base.join(item.relative_url().as_str()))
-        } else {
-            None
-        }
+        self.get_from_entries(module)
+            .map(|item| base.join(item.relative_url().as_str()))
     }
 }
 
