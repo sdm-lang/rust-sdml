@@ -7,6 +7,10 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 
 ## Changes
 
+**Version 0.1.5**
+
+Updated with a number of model changes from sdml-core.
+
 **Version 0.1.4**
 
 Previously part of a single crate [sdml](https://crates.io/crates/sdml).
