@@ -22,7 +22,7 @@ use sdml_core::model::{
 use sdml_core::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_LANGUAGE, FIELD_NAME_MAX,
     FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_RENAME,
-    FIELD_NAME_ROLE, FIELD_NAME_SOURCE, FIELD_NAME_SOURCE_CARDINALITY, FIELD_NAME_TARGET,
+    FIELD_NAME_ROLE, FIELD_NAME_SOURCE, FIELD_NAME_INVERSE_NAME, FIELD_NAME_TARGET,
     FIELD_NAME_TARGET_CARDINALITY, FIELD_NAME_VALUE, NODE_KIND_ANNOTATION,
     NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_BOOLEAN, NODE_KIND_CARDINALITY_EXPRESSION,
     NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_BODY,
@@ -855,10 +855,10 @@ fn write_property_role<W: Write>(me: &PropertyRole, w: &mut Writer<W>) -> Result
     w.field_name(FIELD_NAME_TARGET)?;
     write_type_reference(me.target_type(), w)?;
 
-    if let Some(Some(card)) = &me.source_cardinality() {
+    if let Some(Some(name)) = &me.inverse_name() {
         w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_SOURCE_CARDINALITY)?;
-        write_cardinality(card, w)?;
+        w.field_name(FIELD_NAME_INVERSE_NAME)?;
+        write_identifier(name, w)?;
     }
 
     if let Some(card) = &me.target_cardinality() {
@@ -1024,10 +1024,10 @@ fn write_by_reference_member<W: Write>(
             w.field_name(FIELD_NAME_TARGET)?;
             write_type_reference(def.target_type(), w)?;
 
-            if let Some(card) = &def.source_cardinality() {
+            if let Some(name) = &def.inverse_name() {
                 w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_SOURCE_CARDINALITY)?;
-                write_cardinality(card, w)?;
+                w.field_name(FIELD_NAME_INVERSE_NAME)?;
+                write_identifier(name, w)?;
             }
 
             if let Some(card) = &def.target_cardinality() {

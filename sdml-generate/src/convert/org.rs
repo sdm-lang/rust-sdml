@@ -316,7 +316,7 @@ where
     fn start_property_role(
         &mut self,
         _name: &sdml_core::model::Identifier,
-        _source_cardinality: Option<&Option<sdml_core::model::Cardinality>>,
+        _inverse_name: Option<&Option<sdml_core::model::Identifier>>,
         _target_cardinality: Option<&sdml_core::model::Cardinality>,
         _target_type: &sdml_core::model::TypeReference,
         _has_body: bool,

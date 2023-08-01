@@ -247,16 +247,12 @@ package "{name}" as s_{name} <<module>> {{
             }
             ByReferenceMemberInner::Defined(def) => {
                 if let TypeReference::Reference(target_type) = def.target_type() {
-                    let from_card = def
-                        .source_cardinality()
-                        .map(|c| format!("\"{{{}}}\" ", c.to_uml_string()))
-                        .unwrap_or_default();
                     let to_card = def
                         .target_cardinality()
                         .map(|c| format!("{{{}}}\\n", c.to_uml_string()))
                         .unwrap_or_default();
                     let reference = format!(
-                        "  s_{} {from_card}o--> \"{to_card}{name}\" s_{target_type}\n",
+                        "  s_{} o--> \"{to_card}{name}\" s_{target_type}\n",
                         self.assoc_src.as_ref().unwrap(),
                     );
                     self.refs = Some(
@@ -408,7 +404,7 @@ package "{name}" as s_{name} <<module>> {{
     fn start_property_role(
         &mut self,
         name: &Identifier,
-        _source_cardinality: Option<&Option<Cardinality>>,
+        _inverse_name: Option<&Option<Identifier>>,
         _target_cardinality: Option<&Cardinality>,
         target_type: &TypeReference,
         _has_body: bool,

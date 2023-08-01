@@ -135,12 +135,8 @@ impl ModuleWalker for ConceptDiagramGenerator {
                 } else {
                     "unknown".to_string()
                 };
-                let from_str = if let Some(source_cardinality) = def.source_cardinality() {
-                    if source_cardinality != &Cardinality::ref_source_default() {
-                        source_cardinality.to_uml_string()
-                    } else {
-                        String::new()
-                    }
+                let from_str = if let Some(name) = def.inverse_name() {
+                    name.to_string()
                 } else {
                     String::new()
                 };

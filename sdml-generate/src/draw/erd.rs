@@ -297,12 +297,6 @@ impl ModuleWalker for ErdDiagramGenerator {
                 } else {
                     "unknown".to_string()
                 };
-                let source_cardinality = if let Some(source_cardinality) = def.source_cardinality()
-                {
-                    arrow_end("tail", source_cardinality)
-                } else {
-                    String::new()
-                };
                 let target_cardinality = if let Some(target_cardinality) = def.target_cardinality()
                 {
                     arrow_end("head", target_cardinality)
@@ -314,7 +308,7 @@ impl ModuleWalker for ErdDiagramGenerator {
                     self.entity.as_deref().unwrap_or_default().to_lowercase(),
                     target_type,
                     name,
-                    source_cardinality,
+                    "", // TODO: add inverse?
                     target_cardinality
                 ));
             }
