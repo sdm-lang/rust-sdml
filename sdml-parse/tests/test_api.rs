@@ -134,10 +134,10 @@ end"#
     let module = module.unwrap();
     let body = module.body();
 
-    let types: Vec<&TypeDefinition> = body.definitions().collect();
+    let types: Vec<&Definition> = body.definitions().collect();
     assert_eq!(types.len(), 1);
 
-    if let Some(TypeDefinition::Datatype(definition)) = types.get(0) {
+    if let Some(Definition::Datatype(definition)) = types.get(0) {
         assert_eq!(definition.name().as_ref(), "Name");
         assert_eq!(definition.base_type().to_string().as_str(), "xsd:string");
     } else {

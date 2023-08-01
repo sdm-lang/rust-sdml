@@ -176,7 +176,7 @@ Module {
                                                         },
                                                     ),
                                                 ),
-                                                source_cardinality: None,
+                                                inverse_name: None,
                                                 target_cardinality: None,
                                                 body: None,
                                             },

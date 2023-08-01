@@ -56,7 +56,7 @@ Module {
                             comments: [],
                             annotations: [],
                             variants: [
-                                EnumVariant {
+                                ValueVariant {
                                     span: Some(
                                         Span {
                                             start: 68,
@@ -76,7 +76,7 @@ Module {
                                     value: 0,
                                     body: None,
                                 },
-                                EnumVariant {
+                                ValueVariant {
                                     span: Some(
                                         Span {
                                             start: 85,
