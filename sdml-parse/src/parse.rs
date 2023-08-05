@@ -22,7 +22,8 @@ use rust_decimal::Decimal;
 use sdml_core::error::{invalid_value_for_type, module_parse_error, unexpected_node_kind, Error};
 use sdml_core::model::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, ByReferenceMember, ByReferenceMemberDef,
-    ByValueMember, ByValueMemberDef, Cardinality, Constraint, DatatypeDef, Definition, EntityBody,
+    ByValueMember, ByValueMemberDef, Cardinality, Constraint, ConstraintSentence,
+    ControlledLanguageString, ControlledLanguageTag, DatatypeDef, Definition, EntityBody,
     EntityDef, EntityGroup, EnumBody, EnumDef, EventDef, Identifier, IdentifierReference,
     IdentityMember, IdentityMemberDef, Import, ImportStatement, LanguageString, LanguageTag,
     ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole, QualifiedIdentifier,
@@ -30,21 +31,21 @@ use sdml_core::model::{
     UnionBody, UnionDef, Value, ValueConstructor, ValueVariant,
 };
 use sdml_core::syntax::{
-    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_INVERSE_NAME, FIELD_NAME_MAX,
-    FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_RENAME,
-    FIELD_NAME_ROLE, FIELD_NAME_SOURCE, FIELD_NAME_TARGET, FIELD_NAME_TARGET_CARDINALITY,
-    FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_PROPERTY,
-    NODE_KIND_BOOLEAN, NODE_KIND_BUILTIN_SIMPLE_TYPE, NODE_KIND_CONSTRAINT,
-    NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DEFINITION, NODE_KIND_DOUBLE,
-    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF, NODE_KIND_EVENT_DEF,
-    NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-    NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT, NODE_KIND_IMPORT_STATEMENT,
-    NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER, NODE_KIND_IRI_REFERENCE,
-    NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT, NODE_KIND_LIST_OF_VALUES,
-    NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT,
-    NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_DEF, NODE_KIND_PROPERTY_ROLE,
-    NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING, NODE_KIND_SIMPLE_VALUE,
-    NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
+    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_INVERSE_NAME,
+    FIELD_NAME_LANGUAGE, FIELD_NAME_MAX, FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE,
+    FIELD_NAME_NAME, FIELD_NAME_RENAME, FIELD_NAME_ROLE, FIELD_NAME_SOURCE, FIELD_NAME_TARGET,
+    FIELD_NAME_TARGET_CARDINALITY, FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION,
+    NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_BOOLEAN, NODE_KIND_BUILTIN_SIMPLE_TYPE,
+    NODE_KIND_CONSTRAINT, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DEFINITION,
+    NODE_KIND_DOUBLE, NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF,
+    NODE_KIND_EVENT_DEF, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT,
+    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
+    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_LIST_OF_VALUES, NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE,
+    NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_DEF,
+    NODE_KIND_PROPERTY_ROLE, NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING,
+    NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
     NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF,
     NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
     NODE_KIND_VALUE_VARIANT,
@@ -140,23 +141,15 @@ macro_rules! unexpected_node {
 macro_rules! rule_fn {
     ($name:literal, $node:expr) => {
         const RULE_NAME: &str = $name;
-        trace!("{}: {:?}", RULE_NAME, $node);
+        let tracing_span = tracing::trace_span!($name);
+        let _enter_span = tracing_span.enter();
+        println!("{}: {:?}", RULE_NAME, $node);
     };
     ($name:literal, $node:expr, $arg: expr) => {
         const RULE_NAME: &str = $name;
-        trace!("{}({:?}): {:?}", RULE_NAME, $arg, $node);
-    };
-}
-
-macro_rules! check_and_add_comment {
-    ($context: ident, $node: ident, $parent: ident) => {
-        if $context.save_comments() {
-            let comment = ::sdml_core::model::Comment::new($context.node_source(&$node)?)
-                .with_ts_span($node.into());
-            $parent.add_to_comments(comment);
-        } else {
-            trace!("not saving comments");
-        }
+        let tracing_span = tracing::trace_span!($name);
+        let _enter_span = tracing_span.enter();
+        println!("{}({:?}): {:?}", RULE_NAME, $arg, $node);
     };
 }
 
@@ -199,7 +192,6 @@ struct ParseContext<'a> {
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
-    save_comments: bool,
     counts: ErrorCounters,
 }
 
@@ -223,7 +215,6 @@ impl<'a> ParseContext<'a> {
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
-            save_comments: Default::default(),
             counts: Default::default(),
         }
     }
@@ -311,10 +302,6 @@ impl<'a> ParseContext<'a> {
     fn end_type(&mut self) {
         self.member_names.clear()
     }
-
-    fn save_comments(&self) -> bool {
-        self.save_comments
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -362,9 +349,7 @@ fn parse_module_body<'a>(
                     NODE_KIND_DEFINITION => {
                         body.add_to_definitions(parse_type_definition(context, &mut node.walk())?)
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -405,9 +390,7 @@ fn parse_import_statement<'a>(
                         let _ = context.add_import(&imported);
                         import.add_to_imports(imported);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -449,9 +432,7 @@ fn parse_import<'a>(
                         let name = parse_qualified_identifier(context, &mut node.walk())?;
                         return Ok(name.into());
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -515,9 +496,7 @@ fn parse_identifier_reference<'a>(
                     NODE_KIND_QUALIFIED_IDENTIFIER => {
                         return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -557,9 +536,7 @@ fn parse_annotation<'a>(
                     NODE_KIND_CONSTRAINT => {
                         return Ok(parse_constraint(context, &mut node.walk())?.into())
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -631,9 +608,7 @@ fn parse_constraint<'a>(
                         )?
                         .into())
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -654,22 +629,6 @@ fn parse_constraint<'a>(
         assert!(cursor.goto_parent());
     }
     unreachable!()
-}
-
-fn parse_informal_constraint<'a>(
-    context: &mut ParseContext<'a>,
-    name: Option<Identifier>,
-    cursor: &mut TreeCursor<'a>,
-) -> Result<String, Error> {
-    let node = cursor.node();
-    rule_fn!("parse_informal_constraint", node, name);
-
-    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
-    let node_value = context.node_source(&node)?;
-    let value = node_value[1..(node_value.len() - 1)].to_string();
-
-    Ok(value)
 }
 
 fn parse_value<'a>(
@@ -696,9 +655,7 @@ fn parse_value<'a>(
                     NODE_KIND_LIST_OF_VALUES => {
                         return Ok(parse_list_of_values(context, cursor)?.into());
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -763,9 +720,7 @@ fn parse_simple_value<'a>(
                             .expect("Invalid value for IriReference");
                         return Ok(SimpleValue::IriReference(value));
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -814,9 +769,7 @@ fn parse_string<'a>(
                         let node_value = context.node_source(&node)?;
                         language = Some(LanguageTag::new_unchecked(&node_value[1..]));
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -882,9 +835,7 @@ fn parse_list_of_values<'a>(
                         list_of_values
                             .add_to_values(parse_identifier_reference(context, cursor)?.into());
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -940,9 +891,7 @@ fn parse_type_definition<'a>(
                     NODE_KIND_PROPERTY_DEF => {
                         return Ok(parse_property_def(context, &mut node.walk())?.into());
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1018,9 +967,7 @@ fn parse_data_type_base<'a>(
                         QualifiedIdentifier::new(module, member),
                     ));
                 }
-                NODE_KIND_LINE_COMMENT => {
-                    trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                }
+                NODE_KIND_LINE_COMMENT => {}
                 _ => {
                     unexpected_node!(
                         context,
@@ -1056,9 +1003,7 @@ fn parse_annotation_only_body<'a>(
                     NODE_KIND_ANNOTATION => {
                         body.add_annotation(parse_annotation(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1135,9 +1080,7 @@ fn parse_entity_body<'a>(
                     NODE_KIND_ENTITY_GROUP => {
                         body.add_to_groups(parse_entity_group(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => (),
                     NODE_KIND_IDENTITY_MEMBER => (),
                     _ => {
                         unexpected_node!(
@@ -1184,9 +1127,7 @@ fn parse_entity_group<'a>(
                     NODE_KIND_MEMBER_BY_REFERENCE => {
                         group.add_to_members(parse_by_reference_member(context, cursor)?.into());
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, group);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1252,9 +1193,7 @@ fn parse_enum_body<'a>(
                     NODE_KIND_VALUE_VARIANT => {
                         body.add_to_variants(parse_enum_variant(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1326,9 +1265,7 @@ fn parse_structure_body<'a>(
                     NODE_KIND_STRUCTURE_GROUP => {
                         body.add_to_groups(parse_structure_group(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1370,9 +1307,7 @@ fn parse_structure_group<'a>(
                     NODE_KIND_MEMBER_BY_VALUE => {
                         group.add_to_members(parse_by_value_member(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, group);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1461,9 +1396,7 @@ fn parse_union_body<'a>(
                     NODE_KIND_TYPE_VARIANT => {
                         body.add_to_variants(parse_type_variant(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1528,9 +1461,7 @@ fn parse_property_body<'a>(
                     NODE_KIND_PROPERTY_ROLE => {
                         body.add_to_roles(parse_property_role(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        check_and_add_comment!(context, node, body);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1748,9 +1679,7 @@ fn parse_type_reference<'a>(
                         QualifiedIdentifier::new(module, member).into(),
                     ));
                 }
-                NODE_KIND_LINE_COMMENT => {
-                    trace!("no comments here"); //check_and_add_comment!(context, node, import);
-                }
+                NODE_KIND_LINE_COMMENT => {}
                 _ => {
                     unexpected_node!(
                         context,
@@ -1872,7 +1801,7 @@ fn message_expecting_node(expecting: &str) -> String {
 
 fn message_expecting_one_of_node(expecting: &[&str]) -> String {
     format!(
-        "expecting on of: {}",
+        "expecting one of: {}",
         expecting
             .iter()
             .map(|s| format!("`{s}`"))
@@ -1885,11 +1814,37 @@ fn message_expecting_one_of_node(expecting: &[&str]) -> String {
 // Constraints
 // ------------------------------------------------------------------------------------------------
 
+fn parse_informal_constraint<'a>(
+    context: &mut ParseContext<'a>,
+    name: Option<Identifier>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<ControlledLanguageString, Error> {
+    let node = cursor.node();
+    rule_fn!("parse_informal_constraint", node, name);
+
+    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let node_value = context.node_source(&node)?;
+    let value = node_value[1..(node_value.len() - 1)].to_string();
+
+    let constraint = if let Some(child) = node.child_by_field_name(FIELD_NAME_LANGUAGE) {
+        context.check_if_error(&child, RULE_NAME)?;
+        let node_value = context.node_source(&node)?;
+        let language = ControlledLanguageTag::new_unchecked(node_value);
+        ControlledLanguageString::new(value, language)
+    } else {
+        ControlledLanguageString::from(value)
+    }
+    .with_ts_span(node.into());
+
+    Ok(constraint)
+}
+
 fn parse_formal_constraint<'a>(
     _context: &mut ParseContext<'a>,
     name: Option<Identifier>,
     cursor: &mut TreeCursor<'a>,
-) -> Result<String, Error> {
+) -> Result<ConstraintSentence, Error> {
     rule_fn!("parse_formal_constraint", cursor.node(), name);
     todo!();
 }

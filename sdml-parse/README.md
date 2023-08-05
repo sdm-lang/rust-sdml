@@ -7,9 +7,14 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.7**
+
+* Updated parser with grammar changes in tree-sitter-sdml v0.1.29.
+* Added all the test cases from core.
+
 **Version 0.1.6**
 
-* Updated parser with grammar changes in tree-sitter-sdml v0.1.26
+* Updated parser with grammar changes in tree-sitter-sdml v0.1.26.
 
 **Version 0.1.5**
 

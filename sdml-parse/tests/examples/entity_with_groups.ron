@@ -5,7 +5,6 @@ Module {
             end: 190,
         },
     ),
-    comments: [],
     name: Identifier {
         span: Some(
             Span {
@@ -23,7 +22,6 @@ Module {
                 end: 189,
             },
         ),
-        comments: [],
         imports: [],
         annotations: [],
         definitions: [
@@ -35,7 +33,6 @@ Module {
                             end: 184,
                         },
                     ),
-                    comments: [],
                     name: Identifier {
                         span: Some(
                             Span {
@@ -53,7 +50,6 @@ Module {
                                     end: 184,
                                 },
                             ),
-                            comments: [],
                             identity: IdentityMember {
                                 span: Some(
                                     Span {
@@ -61,7 +57,6 @@ Module {
                                         end: 94,
                                     },
                                 ),
-                                comments: [],
                                 name: Identifier {
                                     span: Some(
                                         Span {
@@ -112,7 +107,6 @@ Module {
                                             end: 135,
                                         },
                                     ),
-                                    comments: [],
                                     annotations: [],
                                     members: [
                                         ByValue(
@@ -123,7 +117,6 @@ Module {
                                                         end: 127,
                                                     },
                                                 ),
-                                                comments: [],
                                                 name: Identifier {
                                                     span: Some(
                                                         Span {
@@ -175,7 +168,6 @@ Module {
                                             end: 177,
                                         },
                                     ),
-                                    comments: [],
                                     annotations: [],
                                     members: [
                                         ByValue(
@@ -186,7 +178,6 @@ Module {
                                                         end: 169,
                                                     },
                                                 ),
-                                                comments: [],
                                                 name: Identifier {
                                                     span: Some(
                                                         Span {

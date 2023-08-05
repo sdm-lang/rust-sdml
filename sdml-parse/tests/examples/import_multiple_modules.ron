@@ -5,7 +5,6 @@ Module {
             end: 76,
         },
     ),
-    comments: [],
     name: Identifier {
         span: Some(
             Span {
@@ -23,7 +22,6 @@ Module {
                 end: 75,
             },
         ),
-        comments: [],
         imports: [
             ImportStatement {
                 span: Some(
@@ -32,7 +30,6 @@ Module {
                         end: 70,
                     },
                 ),
-                comments: [],
                 imports: [
                     Module(
                         Identifier {
