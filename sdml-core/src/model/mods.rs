@@ -1,6 +1,4 @@
-use super::{
-    Annotation, Comment, Definition, Identifier, IdentifierReference, QualifiedIdentifier, Span,
-};
+use super::{Annotation, Definition, Identifier, IdentifierReference, QualifiedIdentifier, Span};
 use std::{collections::HashSet, fmt::Debug, hash::Hash};
 use url::Url;
 
@@ -18,7 +16,6 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Module {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     base: Option<Url>,
     body: ModuleBody,
@@ -31,7 +28,6 @@ pub struct Module {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ModuleBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     imports: Vec<ImportStatement>,
     annotations: Vec<Annotation>,
     definitions: Vec<Definition>,
@@ -48,7 +44,6 @@ pub struct ModuleBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ImportStatement {
     span: Option<Span>,
-    comments: Vec<Comment>,
     imports: Vec<Import>,
 }
 
@@ -81,21 +76,20 @@ pub enum Import {
 // ------------------------------------------------------------------------------------------------
 
 impl Module {
+    pub fn empty(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            base: None,
+            body: Default::default(),
+        }
+    }
+
     pub fn new(name: Identifier, body: ModuleBody) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             name,
             base: None,
-            body,
-        }
-    }
-    pub fn new_with_base(name: Identifier, base: Url, body: ModuleBody) -> Self {
-        Self {
-            span: None,
-            comments: Default::default(),
-            name,
-            base: Some(base),
             body,
         }
     }
@@ -105,10 +99,9 @@ impl Module {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     get_and_mutate!(pub name => Identifier);
 
+    with!(pub base => option Url);
     get_and_mutate!(pub base => option Url);
 
     get_and_mutate!(pub body => ModuleBody);
@@ -133,8 +126,6 @@ impl Module {
 impl ModuleBody {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     has_owned_annotations!();
 
@@ -193,15 +184,12 @@ impl ImportStatement {
     pub fn new(imports: Vec<Import>) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             imports,
         }
     }
 
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     get_and_mutate_collection_of!(pub imports => Vec, Import);
 

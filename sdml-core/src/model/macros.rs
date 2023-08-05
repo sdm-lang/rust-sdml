@@ -113,18 +113,18 @@ macro_rules! get_and_mutate {
 
 #[macro_export]
 macro_rules! with {
-    //($vis: vis $name: ident => $type: ty) => {
-    //    with!($vis $name ($name) => $type);
-    //};
-    //($vis: vis $name: ident ($fn_name: ident) => $type: ty) => {
-    //    paste::paste! {
-    //        $vis fn [< with_ $fn_name >](self, value: $type) -> Self {
-    //            let mut self_mut = self;
-    //            self_mut.$name = value;
-    //            self_mut
-    //        }
-    //    }
-    //};
+    ($vis: vis $name: ident => $type: ty) => {
+        with!($vis $name ($name) => $type);
+    };
+    ($vis: vis $name: ident ($fn_name: ident) => $type: ty) => {
+        paste::paste! {
+            $vis fn [< with_ $fn_name >](self, value: $type) -> Self {
+                let mut self_mut = self;
+                self_mut.$name = value;
+                self_mut
+            }
+        }
+    };
     ($vis: vis $name: ident => option $type: ty) => {
         $crate::with!($vis $name ($name) => option $type);
     };
@@ -149,6 +149,10 @@ macro_rules! get_collection_of {
         paste::paste! {
             pub fn [< has_ $name >](&self) -> bool {
                 !self.$name.is_empty()
+            }
+
+            pub fn [< $name _len >](&self) -> usize {
+                !self.$name.len()
             }
 
             pub fn $name(&self) -> impl Iterator<Item = &$itype> {
@@ -288,13 +292,13 @@ macro_rules! delegate {
 
 #[macro_export]
 macro_rules! is_variant {
-    //($vis: vis $fn_name: ident => empty $varname: ident) => {
-    //    paste::paste! {
-    //        $vis fn [< is_ $fn_name >](&self) -> bool {
-    //            matches!(self, Self::$varname)
-    //        }
-    //    }
-    //};
+    ($vis: vis $fn_name: ident => empty $varname: ident) => {
+        paste::paste! {
+            $vis fn [< is_ $fn_name >](&self) -> bool {
+                matches!(self, Self::$varname)
+            }
+        }
+    };
     ($vis: vis $fn_name: ident => $varname: ident) => {
         paste::paste! {
             $vis fn [< is_ $fn_name >](&self) -> bool {
@@ -528,7 +532,6 @@ macro_rules! type_definition_impl {
         pub fn new(name: $crate::model::Identifier $(, $flname: $fltype )*) -> Self {
             Self {
                 span: None,
-                comments: Default::default(),
                 name,
                 $(
                     $flname,
@@ -539,8 +542,6 @@ macro_rules! type_definition_impl {
 
         with!(pub span (ts_span) => option $crate::model::Span);
         get_and_mutate!(pub span (ts_span) => option $crate::model::Span);
-
-        get_and_mutate_collection_of!(pub comments => Vec, $crate::model::Comment);
 
         get_and_mutate!(pub body => option $bodytype);
 

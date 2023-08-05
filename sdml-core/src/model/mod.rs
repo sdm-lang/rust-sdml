@@ -10,19 +10,19 @@ The following.
    * [`Import`], [`ImportStatement`], [`Module`], [`ModuleBody`]
 
  * **Annotations & Comments**
-   * [`Annotation`], [`AnnotationProperty`], [`Comment`]
+   * [`Annotation`], [`AnnotationProperty`]
 
  * **Constraints**
    * [`AtomicSentence`], [`BinaryOperation`], [`Binding`], [`BooleanSentence`], [`BoundSentence`],
-     [`Constraint`], [`ConstraintBody`], [`ConstraintSentence`], [`FunctionalTerm`], [`Name`],
-     [`NamePath`], [`PredicateValue`], [`QuantifiedSentence`], [`SimpleSentence`], [`Term`],
-     [`UnaryOperation`]
+     [`Constraint`], [`ConstraintBody`], [`ConstraintSentence`], [`ControlledLanguageString`],
+     [`ControlledLanguageTag`], [`FunctionalTerm`], [`NamePath`], [`PredicateValue`],
+     [`QuantifiedSentence`], [`SimpleSentence`], [`Subject`], [`Term`], [`UnaryOperation`]
 
  * **Type Definitions**
-     * [`AnnotationOnlyBody`], [`DatatypeDef`], [`EntityBody`], [`EntityDef`], [`EntityGroup`],
-       [`EntityMember`], [`EnumBody`], [`EnumDef`], [`EnumVariant`], [`EventDef`],
-       [`StructureBody`], [`StructureDef`], [`StructureGroup`], [`TypeDefinition`],
-       [`TypeVariant`], [`UnionBody`], [`UnionDef`]
+   * [`AnnotationOnlyBody`], [`DatatypeDef`], [`Definition`], [`EntityBody`], [`EntityDef`],
+     [`EntityGroup`], [`EntityMember`], [`EnumBody`], [`EnumDef`], [`EventDef`],
+     [`StructureBody`], [`StructureDef`], [`StructureGroup`], [`TypeVariant`], [`UnionBody`],
+     [`UnionDef`], [`ValueVariant`]
 
  * **Property Definitions**
    * [`PropertyBody`], [`PropertyDef`], [`PropertyRole`]
@@ -127,13 +127,13 @@ mod mods;
 pub use mods::{Import, ImportStatement, Module, ModuleBody};
 
 mod annotations;
-pub use annotations::{Annotation, AnnotationProperty, Comment, Constraint};
+pub use annotations::{Annotation, AnnotationProperty};
 
 mod constraints;
 pub use constraints::{
-    AtomicSentence, BinaryOperation, Binding, BooleanSentence, BoundSentence, ConstraintBody,
-    ConstraintSentence, FunctionalTerm, Name, NamePath, PredicateValue, QuantifiedSentence,
-    SimpleSentence, Term, UnaryOperation,
+    AtomicSentence, BinaryOperation, BooleanSentence, BoundSentence, Constraint, ConstraintBody,
+    ConstraintSentence, ControlledLanguageString, ControlledLanguageTag, FunctionalTerm, NamePath,
+    QuantifiedSentence, SimpleSentence, Subject, Term,
 };
 
 mod values;

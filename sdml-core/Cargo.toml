@@ -1,7 +1,7 @@
 [package]
 name = "sdml-core"
 description = "Core Model for Simple Domain Modeling Language (SDML)"
-version = "0.1.6"
+version = "0.1.7"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license = "MIT"
@@ -15,10 +15,11 @@ all-features = true
 rustdoc-args = [ "--html-in-header", "doc-src/header.html" ]
 
 [features]
-serde = [ "dep:serde" ]
+serde = ["dep:serde"]
 
 [dependencies]
 codespan-reporting = "0.11.1"
+indent_write = "2.2.0"
 lazy_static = "1.4.0"
 ordered-float = { version = "3.7.0", features = [ "serde" ] }
 paste = "1.0.12"

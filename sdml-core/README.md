@@ -9,6 +9,10 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 **Version 0.1.6**
 
+* Updated parser with grammar changes in tree-sitter-sdml v0.1.29
+
+**Version 0.1.6**
+
 * Updated parser with grammar changes in tree-sitter-sdml v0.1.26
 
 **Version 0.1.5**

@@ -1,6 +1,4 @@
-use super::{
-    AnnotationOnlyBody, Comment, Identifier, IdentifierReference, QualifiedIdentifier, Span,
-};
+use super::{AnnotationOnlyBody, Identifier, IdentifierReference, QualifiedIdentifier, Span};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
@@ -18,7 +16,6 @@ macro_rules! member_types {
             #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
             pub struct [< $prefix Member >] {
                 span: Option<Span>,
-                comments: Vec<Comment>,
                 name: Identifier,
                 inner: [< $prefix MemberInner >],
             }
@@ -52,7 +49,6 @@ macro_rules! member_impl {
                 pub fn new_with_role(name: Identifier, role: Identifier) -> Self {
                     Self {
                         span: None,
-                        comments: Default::default(),
                         name,
                         inner: role.into(),
                     }
@@ -61,7 +57,6 @@ macro_rules! member_impl {
                 pub fn new_with_definition(name: Identifier, def: [< $prefix MemberDef >]) -> Self {
                     Self {
                         span: None,
-                        comments: Default::default(),
                         name,
                         inner: def.into(),
                     }
@@ -69,8 +64,6 @@ macro_rules! member_impl {
 
                 with!(pub span (ts_span) => option Span);
                 get_and_mutate!(pub span (ts_span) => option Span);
-
-                get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
                 get_and_mutate!(pub name => Identifier);
 

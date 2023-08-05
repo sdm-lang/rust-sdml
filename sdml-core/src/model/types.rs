@@ -1,6 +1,6 @@
 use super::{
-    Annotation, ByReferenceMember, ByValueMember, Cardinality, Comment, Identifier,
-    IdentifierReference, IdentityMember, Span, TypeReference,
+    Annotation, ByReferenceMember, ByValueMember, Cardinality, Identifier, IdentifierReference,
+    IdentityMember, Span, TypeReference,
 };
 use std::{collections::HashSet, fmt::Debug};
 
@@ -33,7 +33,6 @@ pub enum Definition {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct DatatypeDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     /// Corresponds to the grammar rule `data_type_base`.
     base_type: IdentifierReference,
@@ -45,7 +44,6 @@ pub struct DatatypeDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationOnlyBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>, // assert!(!annotations.is_empty());
 }
 
@@ -58,7 +56,6 @@ pub struct AnnotationOnlyBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     body: Option<EntityBody>,
 }
@@ -68,7 +65,6 @@ pub struct EntityDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     identity: IdentityMember,
     annotations: Vec<Annotation>,
     members: Vec<EntityMember>,
@@ -88,7 +84,6 @@ pub enum EntityMember {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityGroup {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     members: Vec<EntityMember>, // assert!(!members.is_empty());
 }
@@ -102,7 +97,6 @@ pub struct EntityGroup {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EnumDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     body: Option<EnumBody>,
 }
@@ -112,7 +106,6 @@ pub struct EnumDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EnumBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     variants: Vec<ValueVariant>, // assert!(!variants.is_empty());
 }
@@ -122,7 +115,6 @@ pub struct EnumBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ValueVariant {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     value: u32,
     body: Option<AnnotationOnlyBody>,
@@ -137,7 +129,6 @@ pub struct ValueVariant {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EventDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     event_source: IdentifierReference,
     body: Option<StructureBody>,
@@ -152,7 +143,6 @@ pub struct EventDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     body: Option<StructureBody>,
 }
@@ -162,7 +152,6 @@ pub struct StructureDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     members: Vec<ByValueMember>,
     groups: Vec<StructureGroup>,
@@ -173,7 +162,6 @@ pub struct StructureBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureGroup {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     members: Vec<ByValueMember>, // assert!(!members.is_empty());
 }
@@ -187,7 +175,6 @@ pub struct StructureGroup {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     body: Option<UnionBody>,
 }
@@ -197,7 +184,6 @@ pub struct UnionDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     variants: Vec<TypeVariant>, // assert!(!variants.is_empty());
 }
@@ -207,7 +193,6 @@ pub struct UnionBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeVariant {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: IdentifierReference,
     rename: Option<Identifier>,
     body: Option<AnnotationOnlyBody>,
@@ -222,7 +207,6 @@ pub struct TypeVariant {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct PropertyDef {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     body: Option<PropertyBody>,
 }
@@ -232,7 +216,6 @@ pub struct PropertyDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct PropertyBody {
     span: Option<Span>,
-    comments: Vec<Comment>,
     annotations: Vec<Annotation>,
     roles: Vec<PropertyRole>, // assert!(!roles.is_empty());
 }
@@ -242,7 +225,6 @@ pub struct PropertyBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct PropertyRole {
     span: Option<Span>,
-    comments: Vec<Comment>,
     name: Identifier,
     target_type: TypeReference,
     inverse_name: Option<Option<Identifier>>,
@@ -376,8 +358,6 @@ impl AnnotationOnlyBody {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     has_owned_annotations!();
 
     referenced_own_annotations!();
@@ -403,7 +383,6 @@ impl EntityBody {
     pub fn new(identity: IdentityMember) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             identity,
             annotations: Default::default(),
             members: Default::default(),
@@ -415,8 +394,6 @@ impl EntityBody {
 
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     has_owned_annotations!();
 
@@ -474,8 +451,6 @@ impl EntityGroup {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     has_owned_annotations!();
 
     referenced_own_annotations!();
@@ -515,8 +490,6 @@ impl EnumBody {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     has_owned_annotations!();
 
     // --------------------------------------------------------------------------------------------
@@ -555,7 +528,6 @@ impl ValueVariant {
     pub fn new(name: Identifier, value: u32) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             name,
             value,
             body: None,
@@ -565,7 +537,6 @@ impl ValueVariant {
     pub fn new_with(name: Identifier, value: u32, body: AnnotationOnlyBody) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             name,
             value,
             body: Some(body),
@@ -576,8 +547,6 @@ impl ValueVariant {
 
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     get_and_mutate!(pub body => option AnnotationOnlyBody);
 
@@ -622,8 +591,6 @@ impl StructureBody {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     has_owned_annotations!();
 
     get_and_mutate_collection_of!(pub members => Vec, ByValueMember);
@@ -650,8 +617,6 @@ impl StructureBody {
 impl StructureGroup {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     has_owned_annotations!();
 
@@ -696,8 +661,6 @@ impl UnionBody {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     has_owned_annotations!();
 
     get_and_mutate_collection_of!(pub variants => Vec, TypeVariant);
@@ -719,7 +682,6 @@ impl TypeVariant {
     pub fn new(name: IdentifierReference) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             name,
             rename: None,
             body: None,
@@ -729,7 +691,6 @@ impl TypeVariant {
     pub fn new_with(name: IdentifierReference, body: AnnotationOnlyBody) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             name,
             rename: None,
             body: Some(body),
@@ -740,8 +701,6 @@ impl TypeVariant {
 
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     get_and_mutate!(pub body => option AnnotationOnlyBody);
 
@@ -783,8 +742,6 @@ impl PropertyBody {
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
 
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
-
     has_owned_annotations!();
 
     get_and_mutate_collection_of!(pub roles => Vec, PropertyRole);
@@ -806,7 +763,6 @@ impl PropertyRole {
     pub fn new(name: Identifier, target_type: TypeReference) -> Self {
         Self {
             span: None,
-            comments: Default::default(),
             name,
             target_type,
             inverse_name: Default::default(),
@@ -821,8 +777,6 @@ impl PropertyRole {
 
     with!(pub span (ts_span) => option Span);
     get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate_collection_of!(pub comments => Vec, Comment);
 
     get_and_mutate!(pub body => option AnnotationOnlyBody);
 

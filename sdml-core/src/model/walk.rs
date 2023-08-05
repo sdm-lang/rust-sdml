@@ -30,6 +30,8 @@ use crate::model::{
     Value,
 };
 
+use super::ControlledLanguageTag;
+
 // ------------------------------------------------------------------------------------------------
 // Public Macros
 // ------------------------------------------------------------------------------------------------
@@ -63,6 +65,7 @@ pub trait ModuleWalker {
         &mut self,
         _name: Option<&Identifier>,
         _value: &str,
+        _language: Option<&ControlledLanguageTag>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
@@ -266,7 +269,12 @@ macro_rules! walk_annotations {
                 }
                 Annotation::Constraint(cons) => match cons.body() {
                     ConstraintBody::Informal(body) => {
-                        $walker.informal_constraint(cons.name(), body, cons.ts_span())?;
+                        $walker.informal_constraint(
+                            cons.name(),
+                            body.value(),
+                            body.language(),
+                            cons.ts_span(),
+                        )?;
                     }
                     ConstraintBody::Formal(_) => todo!(),
                 },
