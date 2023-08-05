@@ -1,7 +1,7 @@
 [package]
 name = "sdml-generate"
 description = "Simple Domain Modeling Language (SDML) generated Artifacts"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license = "MIT"
@@ -14,7 +14,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 all-features = true
 
 [dependencies]
-sdml-core = { version = "0.1", path = "../sdml-core" }
+sdml-core = { version = "0.1.7", path = "../sdml-core" }
 ansi_term = "0.12.1"
 codespan-reporting = "0.11.1"
 lazy_static = "1.4.0"

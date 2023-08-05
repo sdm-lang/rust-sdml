@@ -15,8 +15,8 @@ use sdml_core::error::Error;
 use sdml_core::generate::GenerateToFile;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
-    ByReferenceMemberInner, ByValueMemberInner, Cardinality, Identifier, IdentifierReference,
-    IdentityMemberInner, Module, Span, TypeReference, Value,
+    ByReferenceMemberInner, ByValueMemberInner, Cardinality, ControlledLanguageTag, Identifier,
+    IdentifierReference, IdentityMemberInner, Module, Span, TypeReference, Value,
 };
 use std::path::Path;
 use tracing::debug;
@@ -145,6 +145,7 @@ package "{name}" as s_{name} <<module>> {{
         &mut self,
         _name: Option<&Identifier>,
         _value: &str,
+        _language: Option<&ControlledLanguageTag>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())

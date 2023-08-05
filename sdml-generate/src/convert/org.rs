@@ -120,6 +120,7 @@ where
         &mut self,
         _name: Option<&sdml_core::model::Identifier>,
         _value: &str,
+        _language: Option<&sdml_core::model::ControlledLanguageTag>,
         _span: Option<&sdml_core::model::Span>,
     ) -> Result<(), Error> {
         Ok(())
