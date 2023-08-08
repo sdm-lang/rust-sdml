@@ -7,6 +7,10 @@ Rust CLI for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.6**
+
+* Updated dependencies
+
 **Version 0.1.5**
 
 Initial stand-alone crate.

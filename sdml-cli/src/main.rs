@@ -1,7 +1,7 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml_core::error::{tracing_filter_error, tracing_subscriber_error};
-use sdml_core::model::Identifier;
+use sdml_core::model::{Identifier, ModelElement};
 use sdml_generate::convert::org::OrgFileGenerator;
 use sdml_generate::{GenerateToFile, GenerateToWriter};
 use sdml_parse::load::{ModuleLoader, ModuleResolver};
@@ -307,7 +307,7 @@ impl Execute for Tags {
         };
 
         info!(
-            "loaded module: {}, is_complete: {}",
+            "Loaded module: {}, is_complete: {}",
             model.name(),
             model.is_complete()
         );
@@ -396,7 +396,7 @@ impl Execute for Draw {
 
         let format = self.output_format.clone().unwrap_or_default().into();
 
-        info!("generating {:?} diagram in {format:?} form.", self.diagram);
+        info!("Generating {:?} diagram in {format:?} form.", self.diagram);
 
         match self.diagram {
             DrawDiagram::Concepts => {
