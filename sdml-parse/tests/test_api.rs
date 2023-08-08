@@ -1,6 +1,6 @@
 use sdml_core::load::ModuleLoader as LoaderTrait;
 use sdml_core::model::{
-    AnnotationProperty, Definition, ImportStatement, ListMember, SimpleValue, Value,
+    AnnotationProperty, Definition, ImportStatement, ListMember, ModelElement, SimpleValue, Value,
 };
 use sdml_parse::load::ModuleLoader;
 use std::io::Cursor;
@@ -94,7 +94,7 @@ end"#
     assert_eq!(annotation.name().to_string().as_str(), "skos:prefLang");
     match annotation.value() {
         Value::List(list) => {
-            let values: Vec<&ListMember> = list.values().collect();
+            let values: Vec<&ListMember> = list.iter().collect();
             assert_eq!(values.len(), 2);
 
             if let Some(ListMember::Simple(SimpleValue::String(value))) = values.get(0) {

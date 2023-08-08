@@ -153,7 +153,13 @@ Module {
                                                                 },
                                                             ),
                                                         ),
-                                                        target_cardinality: None,
+                                                        target_cardinality: Cardinality {
+                                                            span: None,
+                                                            min: 1,
+                                                            max: Some(
+                                                                1,
+                                                            ),
+                                                        },
                                                         body: None,
                                                     },
                                                 ),
@@ -214,7 +220,13 @@ Module {
                                                                 },
                                                             ),
                                                         ),
-                                                        target_cardinality: None,
+                                                        target_cardinality: Cardinality {
+                                                            span: None,
+                                                            min: 1,
+                                                            max: Some(
+                                                                1,
+                                                            ),
+                                                        },
                                                         body: None,
                                                     },
                                                 ),
