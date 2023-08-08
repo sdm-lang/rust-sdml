@@ -10,6 +10,7 @@ YYYYY
 */
 
 use sdml_core::error::Error;
+use sdml_core::model::ModelElement;
 use sdml_core::model::{
     Annotation, AnnotationProperty, Constraint, DatatypeDef, Definition, EntityDef, EnumDef,
     EventDef, IdentifierReference, Import, Module, PropertyDef, StructureDef, UnionDef,

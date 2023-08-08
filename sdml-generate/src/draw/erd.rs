@@ -16,7 +16,8 @@ use sdml_core::generate::GenerateToWriter;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
     ByReferenceMemberInner, ByValueMemberInner, Cardinality, Identifier, IdentifierReference,
-    IdentityMemberInner, Import, Module, Span, TypeReference,
+    IdentityMemberInner, Import, Module, Span, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
+    DEFAULT_BY_VALUE_CARDINALITY,
 };
 use std::io::Write;
 use tracing::trace;
@@ -254,8 +255,8 @@ impl ModuleWalker for ErdDiagramGenerator {
                 } else {
                     "unknown".to_string()
                 };
-                let target_cardinality = if let Some(target_cardinality) = def.target_cardinality()
-                {
+                let target_cardinality = def.target_cardinality();
+                let target_cardinality = if *target_cardinality == DEFAULT_BY_VALUE_CARDINALITY {
                     arrow_end("head", target_cardinality)
                 } else {
                     String::new()
@@ -297,7 +298,8 @@ impl ModuleWalker for ErdDiagramGenerator {
                 } else {
                     "unknown".to_string()
                 };
-                let target_cardinality = if let Some(target_cardinality) = def.target_cardinality()
+                let target_cardinality = def.target_cardinality();
+                let target_cardinality = if *target_cardinality == DEFAULT_BY_REFERENCE_CARDINALITY
                 {
                     arrow_end("head", target_cardinality)
                 } else {

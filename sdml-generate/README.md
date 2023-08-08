@@ -7,6 +7,11 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 
 ## Changes
 
+**Version 0.1.7**
+
+* Update with recent model changes and fixes.
+* Clean-up the UML output.
+
 **Version 0.1.6**
 
 Updated org-mode and UML generators with a number of model changes from sdml-core.

@@ -10,6 +10,7 @@ YYYYY
 */
 
 use sdml_core::error::Error;
+use sdml_core::model::ModelElement;
 use sdml_core::model::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, ByReferenceMember, ByReferenceMemberInner,
     ByValueMember, ByValueMemberInner, Cardinality, DatatypeDef, Definition, EntityBody, EntityDef,
@@ -17,7 +18,8 @@ use sdml_core::model::{
     IdentityMember, IdentityMemberInner, Import, ImportStatement, LanguageTag, ListMember,
     ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole, QualifiedIdentifier,
     SimpleValue, Span, StructureBody, StructureDef, StructureGroup, TypeReference, TypeVariant,
-    UnionBody, UnionDef, Value, ValueConstructor, ValueVariant,
+    UnionBody, UnionDef, Value, ValueConstructor, ValueVariant, DEFAULT_BY_REFERENCE_CARDINALITY,
+    DEFAULT_BY_VALUE_CARDINALITY,
 };
 use sdml_core::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_INVERSE_NAME,
@@ -438,7 +440,7 @@ fn write_list_of_values<W: Write>(me: &ListOfValues, w: &mut Writer<W>) -> Resul
 
     write_span!(me, w);
 
-    for value in me.values() {
+    for value in me.iter() {
         w.newln()?;
         write_list_member(value, w)?;
     }
@@ -980,10 +982,11 @@ fn write_by_value_member<W: Write>(me: &ByValueMember, w: &mut Writer<W>) -> Res
             w.field_name(FIELD_NAME_TARGET)?;
             write_type_reference(def.target_type(), w)?;
 
-            if let Some(card) = &def.target_cardinality() {
+            let target_cardinality = def.target_cardinality();
+            if *target_cardinality == DEFAULT_BY_VALUE_CARDINALITY {
                 w.newln_and_indentation()?;
                 w.field_name(FIELD_NAME_TARGET_CARDINALITY)?;
-                write_cardinality(card, w)?;
+                write_cardinality(target_cardinality, w)?;
             }
 
             if let Some(body) = &def.body() {
@@ -1030,10 +1033,11 @@ fn write_by_reference_member<W: Write>(
                 write_identifier(name, w)?;
             }
 
-            if let Some(card) = &def.target_cardinality() {
+            let target_cardinality = def.target_cardinality();
+            if *target_cardinality == DEFAULT_BY_REFERENCE_CARDINALITY {
                 w.newln_and_indentation()?;
                 w.field_name(FIELD_NAME_TARGET_CARDINALITY)?;
-                write_cardinality(card, w)?;
+                write_cardinality(target_cardinality, w)?;
             }
 
             if let Some(body) = &def.body() {

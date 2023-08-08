@@ -15,7 +15,8 @@ use sdml_core::error::Error;
 use sdml_core::generate::GenerateToWriter;
 use sdml_core::model::walk::{walk_module, ModuleWalker};
 use sdml_core::model::{
-    ByReferenceMemberInner, Cardinality, Identifier, Module, Span, TypeReference,
+    ByReferenceMemberInner, Identifier, Module, Span, TypeReference,
+    DEFAULT_BY_REFERENCE_CARDINALITY,
 };
 use std::io::Write;
 
@@ -140,14 +141,11 @@ impl ModuleWalker for ConceptDiagramGenerator {
                 } else {
                     String::new()
                 };
-                let to_str = if let Some(target_cardinality) = def.target_cardinality() {
-                    if target_cardinality != &Cardinality::ref_target_default() {
-                        target_cardinality.to_uml_string()
-                    } else {
-                        String::new()
-                    }
-                } else {
+                let target_cardinality = def.target_cardinality();
+                let to_str = if *target_cardinality == DEFAULT_BY_REFERENCE_CARDINALITY {
                     String::new()
+                } else {
+                    target_cardinality.to_uml_string()
                 };
                 self.buffer.push_str(&format!(
                     "  {} -> {} [label=\"{}\"; taillabel=\"{}\"; headlabel=\"{}\"];\n",
