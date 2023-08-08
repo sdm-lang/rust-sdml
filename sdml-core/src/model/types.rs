@@ -937,7 +937,7 @@ impl EntityGroup {
         self.members.iter_mut()
     }
     pub fn add_to_members(&mut self, value: EntityMember) {
-        self.members.push(value.into())
+        self.members.push(value)
     }
     pub fn extend_members<I>(&mut self, extension: I)
     where
@@ -1117,7 +1117,7 @@ impl EnumBody {
         self.variants.iter_mut()
     }
     pub fn add_to_variants(&mut self, value: ValueVariant) {
-        self.variants.push(value.into())
+        self.variants.push(value)
     }
     pub fn extend_variants<I>(&mut self, extension: I)
     where
@@ -1483,7 +1483,7 @@ impl StructureBody {
         self.members.iter_mut()
     }
     pub fn add_to_members(&mut self, value: ByValueMember) {
-        self.members.push(value.into())
+        self.members.push(value)
     }
     pub fn extend_members<I>(&mut self, extension: I)
     where
@@ -1507,7 +1507,7 @@ impl StructureBody {
         self.groups.iter_mut()
     }
     pub fn add_to_groups(&mut self, value: StructureGroup) {
-        self.groups.push(value.into())
+        self.groups.push(value)
     }
     pub fn extend_groups<I>(&mut self, extension: I)
     where
@@ -1620,7 +1620,7 @@ impl StructureGroup {
         self.members.iter_mut()
     }
     pub fn add_to_members(&mut self, value: ByValueMember) {
-        self.members.push(value.into())
+        self.members.push(value)
     }
     pub fn extend_members<I>(&mut self, extension: I)
     where
@@ -1804,7 +1804,7 @@ impl UnionBody {
         self.variants.iter_mut()
     }
     pub fn add_to_variants(&mut self, value: TypeVariant) {
-        self.variants.push(value.into())
+        self.variants.push(value)
     }
     pub fn extend_variants<I>(&mut self, extension: I)
     where
@@ -2076,7 +2076,7 @@ impl PropertyBody {
         self.roles.iter_mut()
     }
     pub fn add_to_roles(&mut self, value: PropertyRole) {
-        self.roles.push(value.into())
+        self.roles.push(value)
     }
     pub fn extend_roles<I>(&mut self, extension: I)
     where

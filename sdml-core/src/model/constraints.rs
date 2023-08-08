@@ -790,7 +790,7 @@ impl AtomicSentence {
         self.arguments.iter_mut()
     }
     pub fn add_to_arguments(&mut self, value: Term) {
-        self.arguments.push(value.into())
+        self.arguments.push(value)
     }
     pub fn extend_arguments<I>(&mut self, extension: I)
     where
@@ -1257,7 +1257,7 @@ impl NamePath {
         self.path.iter_mut()
     }
     pub fn add_to_path(&mut self, value: Identifier) {
-        self.path.push(value.into())
+        self.path.push(value)
     }
     pub fn extend_path<I>(&mut self, extension: I)
     where
@@ -1692,7 +1692,7 @@ impl BoundExpression {
         self.bindings.iter_mut()
     }
     pub fn add_to_bindings(&mut self, value: QuantifierBinding) {
-        self.bindings.push(value.into())
+        self.bindings.push(value)
     }
     pub fn extend_bindings<I>(&mut self, extension: I)
     where

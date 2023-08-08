@@ -195,7 +195,7 @@ impl SourceGenerator {
         Ok(())
     }
 
-    fn write_constraint<'a>(
+    fn write_constraint(
         &mut self,
         constraint: &Constraint,
         writer: &mut dyn Write,

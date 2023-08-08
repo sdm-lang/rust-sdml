@@ -244,7 +244,7 @@ impl ModuleBody {
         self.imports.iter_mut()
     }
     pub fn add_to_imports(&mut self, value: ImportStatement) {
-        self.imports.push(value.into())
+        self.imports.push(value)
     }
     pub fn extend_imports<I>(&mut self, extension: I)
     where
@@ -376,7 +376,7 @@ impl ImportStatement {
         self.imports.iter_mut()
     }
     pub fn add_to_imports(&mut self, value: Import) {
-        self.imports.push(value.into())
+        self.imports.push(value)
     }
     pub fn extend_imports<I>(&mut self, extension: I)
     where
