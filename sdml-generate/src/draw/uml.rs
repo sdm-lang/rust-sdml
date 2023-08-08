@@ -478,7 +478,7 @@ fn make_id<S>(id: S) -> String
 where
     S: Into<String>,
 {
-    format!("s_{}", id.into().replace(":", "__"))
+    format!("s_{}", id.into().replace(':', "__"))
 }
 
 #[inline(always)]
