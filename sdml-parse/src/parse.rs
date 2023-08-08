@@ -143,13 +143,7 @@ macro_rules! rule_fn {
         const RULE_NAME: &str = $name;
         let tracing_span = tracing::trace_span!($name);
         let _enter_span = tracing_span.enter();
-        println!("{}: {:?}", RULE_NAME, $node);
-    };
-    ($name:literal, $node:expr, $arg: expr) => {
-        const RULE_NAME: &str = $name;
-        let tracing_span = tracing::trace_span!($name);
-        let _enter_span = tracing_span.enter();
-        println!("{}({:?}): {:?}", RULE_NAME, $arg, $node);
+        trace!("{}: {:?}", RULE_NAME, $node);
     };
 }
 
@@ -344,7 +338,7 @@ fn parse_module_body<'a>(
                         body.add_to_imports(parse_import_statement(context, &mut node.walk())?)
                     }
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?)
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?)
                     }
                     NODE_KIND_DEFINITION => {
                         body.add_to_definitions(parse_type_definition(context, &mut node.walk())?)
@@ -581,32 +575,30 @@ fn parse_constraint<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<Constraint, Error> {
     rule_fn!("parse_constraint", cursor.node());
+
+    let child = cursor.node().child_by_field_name(FIELD_NAME_NAME).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let constraint_name = parse_identifier(context, &child)?;
+
     let mut has_next = cursor.goto_first_child();
-    let mut constraint_name: Option<Identifier> = None;
     if has_next {
         while has_next {
             let node = cursor.node();
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    NODE_KIND_IDENTIFIER => {
-                        constraint_name = Some(parse_identifier(context, &node)?);
-                    }
+                    NODE_KIND_IDENTIFIER => {}
                     NODE_KIND_INFORMAL_CONSTRAINT => {
-                        return Ok(parse_informal_constraint(
-                            context,
+                        return Ok(Constraint::new(
                             constraint_name,
-                            &mut node.walk(),
-                        )?
-                        .into())
+                            parse_informal_constraint(context, &mut node.walk())?,
+                        ))
                     }
                     NODE_KIND_FORMAL_CONSTRAINT => {
-                        return Ok(parse_formal_constraint(
-                            context,
+                        return Ok(Constraint::new(
                             constraint_name,
-                            &mut node.walk(),
-                        )?
-                        .into())
+                            parse_formal_constraint(context, &mut node.walk())?,
+                        ))
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
@@ -824,16 +816,13 @@ fn parse_list_of_values<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_SIMPLE_VALUE => {
-                        list_of_values
-                            .add_to_values(parse_simple_value(context, &mut node.walk())?.into());
+                        list_of_values.push(parse_simple_value(context, &mut node.walk())?);
                     }
                     NODE_KIND_VALUE_CONSTRUCTOR => {
-                        list_of_values
-                            .add_to_values(parse_value_constructor(context, cursor)?.into());
+                        list_of_values.push(parse_value_constructor(context, cursor)?);
                     }
                     NODE_KIND_IDENTIFIER_REFERENCE => {
-                        list_of_values
-                            .add_to_values(parse_identifier_reference(context, cursor)?.into());
+                        list_of_values.push(parse_identifier_reference(context, cursor)?);
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
@@ -1001,7 +990,7 @@ fn parse_annotation_only_body<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
@@ -1065,17 +1054,13 @@ fn parse_entity_body<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_VALUE => {
-                        body.add_to_members(
-                            parse_by_value_member(context, &mut node.walk())?.into(),
-                        );
+                        body.add_to_members(parse_by_value_member(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_REFERENCE => {
-                        body.add_to_members(
-                            parse_by_reference_member(context, &mut node.walk())?.into(),
-                        );
+                        body.add_to_members(parse_by_reference_member(context, &mut node.walk())?);
                     }
                     NODE_KIND_ENTITY_GROUP => {
                         body.add_to_groups(parse_entity_group(context, &mut node.walk())?);
@@ -1119,7 +1104,7 @@ fn parse_entity_group<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        group.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        group.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_VALUE => {
                         group.add_to_members(parse_by_value_member(context, cursor)?.into());
@@ -1188,7 +1173,7 @@ fn parse_enum_body<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_VALUE_VARIANT => {
                         body.add_to_variants(parse_enum_variant(context, &mut node.walk())?);
@@ -1257,7 +1242,7 @@ fn parse_structure_body<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_VALUE => {
                         body.add_to_members(parse_by_value_member(context, &mut node.walk())?);
@@ -1302,7 +1287,7 @@ fn parse_structure_group<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        group.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        group.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_BY_VALUE => {
                         group.add_to_members(parse_by_value_member(context, &mut node.walk())?);
@@ -1391,7 +1376,7 @@ fn parse_union_body<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_TYPE_VARIANT => {
                         body.add_to_variants(parse_type_variant(context, &mut node.walk())?);
@@ -1456,7 +1441,7 @@ fn parse_property_body<'a>(
             if node.is_named() {
                 match node.kind() {
                     NODE_KIND_ANNOTATION => {
-                        body.add_annotation(parse_annotation(context, &mut node.walk())?);
+                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_PROPERTY_ROLE => {
                         body.add_to_roles(parse_property_role(context, &mut node.walk())?);
@@ -1816,11 +1801,10 @@ fn message_expecting_one_of_node(expecting: &[&str]) -> String {
 
 fn parse_informal_constraint<'a>(
     context: &mut ParseContext<'a>,
-    name: Option<Identifier>,
     cursor: &mut TreeCursor<'a>,
 ) -> Result<ControlledLanguageString, Error> {
     let node = cursor.node();
-    rule_fn!("parse_informal_constraint", node, name);
+    rule_fn!("parse_informal_constraint", node);
 
     let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
@@ -1842,9 +1826,8 @@ fn parse_informal_constraint<'a>(
 
 fn parse_formal_constraint<'a>(
     _context: &mut ParseContext<'a>,
-    name: Option<Identifier>,
     cursor: &mut TreeCursor<'a>,
 ) -> Result<ConstraintSentence, Error> {
-    rule_fn!("parse_formal_constraint", cursor.node(), name);
+    rule_fn!("parse_formal_constraint", cursor.node());
     todo!();
 }

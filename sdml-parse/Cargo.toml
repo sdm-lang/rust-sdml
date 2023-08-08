@@ -1,7 +1,7 @@
 [package]
 name = "sdml-parse"
 description = "Parser for Simple Domain Modeling Language (SDML)"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license = "MIT"

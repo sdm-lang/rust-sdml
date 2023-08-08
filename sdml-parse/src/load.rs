@@ -13,8 +13,7 @@ use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::error::{module_file_not_found, Error};
 use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait};
-use sdml_core::model::{Identifier, Module};
-use sdml_core::{get, get_and_mutate, get_and_mutate_map_of, is_as_variant};
+use sdml_core::model::{Identifier, ModelElement, Module};
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -77,7 +76,7 @@ pub enum CatalogEntry {
 #[serde(rename_all = "snake_case")]
 pub struct Group {
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    relative_name: Option<String>,
+    relative_url: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     relative_path: Option<PathBuf>,
     entries: HashMap<String, Item>,
@@ -200,7 +199,11 @@ impl LoaderTrait for ModuleLoader {
                     module.set_base(url);
                 }
             } else {
-                module.set_base(Url::from_file_path(file).unwrap())
+                let file = file.canonicalize()?;
+                match Url::from_file_path(file) {
+                    Ok(base) => module.set_base(base),
+                    Err(_) => warn!("Could not construct a base URI"),
+                }
             }
         }
         Ok(module)
@@ -317,24 +320,65 @@ impl ModuleCatalog {
         }
     }
 
-    get_and_mutate!(pub base => Url);
-    get!(pub loaded_from => PathBuf);
-    get_and_mutate_map_of!(pub entries => HashMap, String, CatalogEntry);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn base(&self) -> &Url {
+        &self.base
+    }
+    pub fn set_base(&mut self, base: Url) {
+        self.base = base;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn loaded_from(&self) -> &PathBuf {
+        &self.loaded_from
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_entries(&self) -> bool {
+        !self.entries.is_empty()
+    }
+
+    pub fn get_entry(&self, key: &String) -> Option<&CatalogEntry> {
+        self.entries.get(key)
+    }
+
+    pub fn entries_contains_key(&self, key: &String) -> bool {
+        self.entries.contains_key(key)
+    }
+
+    pub fn entries(&self) -> impl Iterator<Item = (&String, &CatalogEntry)> {
+        self.entries.iter()
+    }
+
+    pub fn entry_keys(&self) -> impl Iterator<Item = &String> {
+        self.entries.keys()
+    }
+
+    pub fn entry_values(&self) -> impl Iterator<Item = &CatalogEntry> {
+        self.entries.values()
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn groups(&self) -> impl Iterator<Item = (&String, &Group)> {
-        self.entries
-            .iter()
+        self.entries()
             .filter_map(|(k, e)| e.as_group().map(|group| (k, group)))
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn items(&self) -> impl Iterator<Item = (&String, &Item)> {
-        self.entries
-            .iter()
+        self.entries()
             .filter_map(|(k, e)| e.as_item().map(|item| (k, item)))
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn resolve_uri(&self, module: &String) -> Option<Url> {
-        if let Some(CatalogEntry::Item(item)) = self.get_from_entries(module) {
+        if let Some(CatalogEntry::Item(item)) = self.get_entry(module) {
             Some(self.base.join(item.relative_url().as_str()).unwrap())
         } else {
             self.groups()
@@ -345,7 +389,7 @@ impl ModuleCatalog {
     }
 
     pub fn resolve_local_path(&self, module: &String) -> Option<PathBuf> {
-        if let Some(CatalogEntry::Item(item)) = self.get_from_entries(module) {
+        if let Some(CatalogEntry::Item(item)) = self.get_entry(module) {
             Some(self.loaded_from.join(item.relative_path()))
         } else {
             self.groups()
@@ -356,23 +400,100 @@ impl ModuleCatalog {
     }
 }
 
+impl From<Group> for CatalogEntry {
+    fn from(value: Group) -> Self {
+        Self::Group(value)
+    }
+}
+
+impl From<Item> for CatalogEntry {
+    fn from(value: Item) -> Self {
+        Self::Item(value)
+    }
+}
+
 impl CatalogEntry {
-    is_as_variant!(pub group => Group, Group);
-    is_as_variant!(pub item => Item, Item);
+    pub fn is_group(&self) -> bool {
+        matches!(self, Self::Group(_))
+    }
+    pub fn as_group(&self) -> Option<&Group> {
+        match self {
+            Self::Group(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_item(&self) -> bool {
+        matches!(self, Self::Item(_))
+    }
+    pub fn as_item(&self) -> Option<&Item> {
+        match self {
+            Self::Item(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 impl Group {
-    get_and_mutate!(pub relative_name => option String);
-    get_and_mutate!(pub relative_path => option PathBuf);
-    get_and_mutate_map_of!(pub entries => HashMap, String, Item);
+    pub fn relative_path(&self) -> Option<&PathBuf> {
+        self.relative_path.as_ref()
+    }
+    pub fn set_relative_path(&mut self, relative_path: PathBuf) {
+        self.relative_path = Some(relative_path);
+    }
+    pub fn unset_relative_path(&mut self) {
+        self.relative_path = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn relative_url(&self) -> Option<&String> {
+        self.relative_url.as_ref()
+    }
+    pub fn set_relative_url(&mut self, relative_url: String) {
+        self.relative_url = Some(relative_url);
+    }
+    pub fn unset_relative_url(&mut self) {
+        self.relative_url = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_entries(&self) -> bool {
+        !self.entries.is_empty()
+    }
+
+    pub fn get_entry(&self, key: &String) -> Option<&Item> {
+        self.entries.get(key)
+    }
+
+    pub fn entries_contains_key(&self, key: &String) -> bool {
+        self.entries.contains_key(key)
+    }
+
+    pub fn entries(&self) -> impl Iterator<Item = (&String, &Item)> {
+        self.entries.iter()
+    }
+
+    pub fn entry_keys(&self) -> impl Iterator<Item = &String> {
+        self.entries.keys()
+    }
+
+    pub fn entry_values(&self) -> impl Iterator<Item = &Item> {
+        self.entries.values()
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn resolve_uri(&self, base: &Url, module: &String) -> Option<Url> {
-        let base = if let Some(relative_url) = &self.relative_name {
+        let base = if let Some(relative_url) = &self.relative_url {
             base.join(relative_url.as_str()).unwrap()
         } else {
             base.clone()
         };
-        self.get_from_entries(module)
+        self.get_entry(module)
             .map(|item| base.join(item.relative_url().as_str()).unwrap())
     }
 
@@ -382,14 +503,27 @@ impl Group {
         } else {
             base.to_path_buf()
         };
-        self.get_from_entries(module)
+        self.get_entry(module)
             .map(|item| base.join(item.relative_url().as_str()))
     }
 }
 
 impl Item {
-    get_and_mutate!(pub relative_path => PathBuf);
-    get_and_mutate!(pub relative_url => String);
+    pub fn relative_path(&self) -> &PathBuf {
+        &self.relative_path
+    }
+    pub fn set_relative_path(&mut self, relative_path: PathBuf) {
+        self.relative_path = relative_path;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn relative_url(&self) -> &String {
+        &self.relative_url
+    }
+    pub fn set_relative_url(&mut self, relative_url: String) {
+        self.relative_url = relative_url;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
