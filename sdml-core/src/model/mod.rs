@@ -39,6 +39,7 @@ The following.
 */
 
 use std::{
+    collections::HashSet,
     fmt::{Debug, Display},
     hash::Hash,
     ops::Range,
@@ -58,6 +59,23 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Span(Range<usize>);
+
+pub trait ModelElement {
+    fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    fn ts_span(&self) -> Option<&Span>;
+    fn set_ts_span(&mut self, span: Span);
+    fn unset_ts_span(&mut self);
+
+    fn name(&self) -> &Identifier;
+    fn set_name(&mut self, name: Identifier);
+
+    fn is_complete(&self) -> bool;
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference>;
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference>;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -152,7 +170,8 @@ mod members;
 pub use members::{
     ByReferenceMember, ByReferenceMemberDef, ByReferenceMemberInner, ByValueMember,
     ByValueMemberDef, ByValueMemberInner, Cardinality, IdentityMember, IdentityMemberDef,
-    IdentityMemberInner, TypeReference,
+    IdentityMemberInner, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
+    DEFAULT_BY_VALUE_CARDINALITY,
 };
 
 pub mod walk;

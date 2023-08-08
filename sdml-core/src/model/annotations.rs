@@ -55,9 +55,6 @@ impl From<Constraint> for Annotation {
 }
 
 impl Annotation {
-    is_as_variant!(pub annotation_property => Property, AnnotationProperty);
-    is_as_variant!(pub constraint => Constraint, Constraint);
-
     pub fn has_ts_span(&self) -> bool {
         match self {
             Annotation::Property(v) => v.has_ts_span(),
@@ -72,7 +69,30 @@ impl Annotation {
         }
     }
 
+    pub fn is_annotation_property(&self) -> bool {
+        matches!(self, Self::Property(_))
+    }
+
+    pub fn as_annotation_property(&self) -> Option<&AnnotationProperty> {
+        match self {
+            Self::Property(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_constraint(&self) -> bool {
+        matches!(self, Self::Constraint(_))
+    }
+
+    pub fn as_constraint(&self) -> Option<&Constraint> {
+        match self {
+            Self::Constraint(v) => Some(v),
+            _ => None,
+        }
+    }
+
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        // TODO: what about identifiers? or value constructors?
         Default::default()
     }
 }
@@ -90,14 +110,41 @@ impl AnnotationProperty {
         }
     }
 
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate!(pub name => IdentifierReference);
+    pub fn name(&self) -> &IdentifierReference {
+        &self.name
+    }
+    pub fn set_name(&mut self, name: IdentifierReference) {
+        self.name = name;
+    }
 
-    get_and_mutate!(pub value => Value);
+    pub fn value(&self) -> &Value {
+        &self.value
+    }
+    pub fn set_value(&mut self, value: Value) {
+        self.value = value;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

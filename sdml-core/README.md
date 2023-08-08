@@ -7,6 +7,15 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.8**
+
+* Remove most macros from the model.
+* Made the name for constraints required, not `Option`.
+
+**Version 0.1.7**
+
+* Minor fixes
+
 **Version 0.1.6**
 
 * Updated parser with grammar changes in tree-sitter-sdml v0.1.29

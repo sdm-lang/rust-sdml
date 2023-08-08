@@ -26,8 +26,8 @@ use crate::model::{
     Annotation, ByReferenceMember, ByReferenceMemberInner, ByValueMember, ByValueMemberInner,
     Cardinality, ConstraintBody, DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember,
     EnumDef, EventDef, Identifier, IdentifierReference, IdentityMember, IdentityMemberInner,
-    Import, Module, PropertyDef, Span, StructureDef, StructureGroup, TypeReference, UnionDef,
-    Value,
+    Import, ModelElement, Module, PropertyDef, Span, StructureDef, StructureGroup, TypeReference,
+    UnionDef, Value,
 };
 
 use super::ControlledLanguageTag;
@@ -63,7 +63,7 @@ pub trait ModuleWalker {
 
     fn informal_constraint(
         &mut self,
-        _name: Option<&Identifier>,
+        _name: &Identifier,
         _value: &str,
         _language: Option<&ControlledLanguageTag>,
         _span: Option<&Span>,

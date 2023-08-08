@@ -13,8 +13,8 @@ use crate::error::Error;
 use crate::generate::GenerateToWriter;
 use crate::model::{
     Annotation, AnnotationProperty, Constraint, ConstraintBody, DatatypeDef, Definition, EntityDef,
-    EnumDef, EventDef, Module, ModuleBody, PropertyDef, StructureDef, TypeVariant, UnionDef,
-    ValueVariant,
+    EnumDef, EventDef, ModelElement, Module, ModuleBody, PropertyDef, StructureDef, TypeVariant,
+    UnionDef, ValueVariant,
 };
 use std::{fmt::Debug, io::Write};
 
@@ -52,9 +52,9 @@ const MODULE_DEFINITION_INDENT: usize = 1;
 const DEFINITION_ANNOTATION_INDENT: usize = 2;
 const DEFINITION_MEMBER_INDENT: usize = 2;
 const MEMBER_ANNOTATION_INDENT: usize = 3;
-const GROUP_ANNOTATION_INDENT: usize = 4;
-const GROUP_MEMBER_INDENT: usize = 4;
-const GROUP_MEMBER_ANNOTATION_INDENT: usize = 5;
+//const GROUP_ANNOTATION_INDENT: usize = 4;
+//const GROUP_MEMBER_INDENT: usize = 4;
+//const GROUP_MEMBER_ANNOTATION_INDENT: usize = 5;
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -204,9 +204,7 @@ impl SourceGenerator {
     ) -> Result<(), Error> {
         let indentation = options.indentation(indent_level);
         writer.write_all(format!("{indentation}assert ").as_bytes())?;
-        if let Some(name) = constraint.name() {
-            writer.write_all(format!("{name} ").as_bytes())?;
-        }
+        writer.write_all(format!("{} ", constraint.name()).as_bytes())?;
         match constraint.body() {
             ConstraintBody::Informal(v) => {
                 writer.write_all(format!("= {v:?}").as_bytes())?;

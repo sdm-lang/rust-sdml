@@ -1,6 +1,7 @@
+
 use super::{
-    Annotation, ByReferenceMember, ByValueMember, Cardinality, Identifier, IdentifierReference,
-    IdentityMember, Span, TypeReference,
+    Annotation, AnnotationProperty, ByReferenceMember, ByValueMember, Cardinality, Constraint,
+    Identifier, IdentifierReference, IdentityMember, ModelElement, Span, TypeReference,
 };
 use std::{collections::HashSet, fmt::Debug};
 
@@ -262,8 +263,46 @@ impl_from_for_variant!(Definition, Union, UnionDef);
 
 impl_from_for_variant!(Definition, Property, PropertyDef);
 
-impl Definition {
-    pub fn name(&self) -> &Identifier {
+//enum_display_impl!(Definition => Datatype, Entity, Enum, Event, Structure, Union, Property);
+
+impl ModelElement for Definition {
+    fn ts_span(&self) -> Option<&Span> {
+        match self {
+            Self::Datatype(v) => v.ts_span(),
+            Self::Entity(v) => v.ts_span(),
+            Self::Enum(v) => v.ts_span(),
+            Self::Event(v) => v.ts_span(),
+            Self::Structure(v) => v.ts_span(),
+            Self::Union(v) => v.ts_span(),
+            Self::Property(v) => v.ts_span(),
+        }
+    }
+
+    fn set_ts_span(&mut self, span: Span) {
+        match self {
+            Self::Datatype(v) => v.set_ts_span(span),
+            Self::Entity(v) => v.set_ts_span(span),
+            Self::Enum(v) => v.set_ts_span(span),
+            Self::Event(v) => v.set_ts_span(span),
+            Self::Structure(v) => v.set_ts_span(span),
+            Self::Union(v) => v.set_ts_span(span),
+            Self::Property(v) => v.set_ts_span(span),
+        }
+    }
+
+    fn unset_ts_span(&mut self) {
+        match self {
+            Self::Datatype(v) => v.unset_ts_span(),
+            Self::Entity(v) => v.unset_ts_span(),
+            Self::Enum(v) => v.unset_ts_span(),
+            Self::Event(v) => v.unset_ts_span(),
+            Self::Structure(v) => v.unset_ts_span(),
+            Self::Union(v) => v.unset_ts_span(),
+            Self::Property(v) => v.unset_ts_span(),
+        }
+    }
+
+    fn name(&self) -> &Identifier {
         match self {
             Self::Datatype(v) => v.name(),
             Self::Entity(v) => v.name(),
@@ -275,31 +314,19 @@ impl Definition {
         }
     }
 
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+    fn set_name(&mut self, name: Identifier) {
         match self {
-            Self::Datatype(v) => v.referenced_types(),
-            Self::Entity(v) => v.referenced_types(),
-            Self::Enum(v) => v.referenced_types(),
-            Self::Event(v) => v.referenced_types(),
-            Self::Structure(v) => v.referenced_types(),
-            Self::Union(v) => v.referenced_types(),
-            Self::Property(v) => v.referenced_types(),
+            Self::Datatype(v) => v.set_name(name),
+            Self::Entity(v) => v.set_name(name),
+            Self::Enum(v) => v.set_name(name),
+            Self::Event(v) => v.set_name(name),
+            Self::Structure(v) => v.set_name(name),
+            Self::Union(v) => v.set_name(name),
+            Self::Property(v) => v.set_name(name),
         }
     }
 
-    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        match self {
-            Self::Datatype(v) => v.referenced_annotations(),
-            Self::Entity(v) => v.referenced_annotations(),
-            Self::Enum(v) => v.referenced_annotations(),
-            Self::Event(v) => v.referenced_annotations(),
-            Self::Structure(v) => v.referenced_annotations(),
-            Self::Union(v) => v.referenced_annotations(),
-            Self::Property(v) => v.referenced_annotations(),
-        }
-    }
-
-    pub fn is_complete(&self) -> bool {
+    fn is_complete(&self) -> bool {
         match self {
             Self::Datatype(v) => v.is_complete(),
             Self::Entity(v) => v.is_complete(),
@@ -311,27 +338,27 @@ impl Definition {
         }
     }
 
-    pub fn has_ts_span(&self) -> bool {
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         match self {
-            Self::Datatype(v) => v.has_ts_span(),
-            Self::Entity(v) => v.has_ts_span(),
-            Self::Enum(v) => v.has_ts_span(),
-            Self::Event(v) => v.has_ts_span(),
-            Self::Structure(v) => v.has_ts_span(),
-            Self::Union(v) => v.has_ts_span(),
-            Self::Property(v) => v.has_ts_span(),
+            Self::Datatype(v) => v.referenced_types(),
+            Self::Entity(v) => v.referenced_types(),
+            Self::Enum(v) => v.referenced_types(),
+            Self::Event(v) => v.referenced_types(),
+            Self::Structure(v) => v.referenced_types(),
+            Self::Union(v) => v.referenced_types(),
+            Self::Property(v) => v.referenced_types(),
         }
     }
 
-    pub fn ts_span(&self) -> Option<&Span> {
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
         match self {
-            Self::Datatype(v) => v.ts_span(),
-            Self::Entity(v) => v.ts_span(),
-            Self::Enum(v) => v.ts_span(),
-            Self::Event(v) => v.ts_span(),
-            Self::Structure(v) => v.ts_span(),
-            Self::Union(v) => v.ts_span(),
-            Self::Property(v) => v.ts_span(),
+            Self::Datatype(v) => v.referenced_annotations(),
+            Self::Entity(v) => v.referenced_annotations(),
+            Self::Enum(v) => v.referenced_annotations(),
+            Self::Event(v) => v.referenced_annotations(),
+            Self::Structure(v) => v.referenced_annotations(),
+            Self::Union(v) => v.referenced_annotations(),
+            Self::Property(v) => v.referenced_annotations(),
         }
     }
 }
@@ -340,41 +367,262 @@ impl Definition {
 // Public Types ❱ Type Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
 
-impl DatatypeDef {
-    type_definition_impl!(AnnotationOnlyBody, base_type, IdentifierReference);
+impl ModelElement for DatatypeDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    referenced_optional_body_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    is_complete_fn!(true);
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
 
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+    // --------------------------------------------------------------------------------------------
+
+    fn is_complete(&self) -> bool {
+        true
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         [self.base_type()].into_iter().collect()
+    }
+
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+}
+
+impl DatatypeDef {
+    pub fn new(name: Identifier, base_type: IdentifierReference) -> Self {
+        Self {
+            span: None,
+            name,
+            base_type,
+            body: None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn base_type(&self) -> &IdentifierReference {
+        &self.base_type
+    }
+    pub fn set_base_type(&mut self, base_type: IdentifierReference) {
+        self.base_type = base_type;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&AnnotationOnlyBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: AnnotationOnlyBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl AnnotationOnlyBody {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    referenced_own_annotations!();
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.annotation_properties().map(|a| a.name()).collect()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
+impl ModelElement for EntityDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn is_complete(&self) -> bool {
+        self.body.is_some()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_types())
+            .unwrap_or_default()
+    }
+}
+
 impl EntityDef {
-    type_definition_impl!(EntityBody);
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            body: None,
+        }
+    }
 
-    referenced_optional_body_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    is_body_complete_fn!();
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    referenced_optional_body_types!();
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&EntityBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: EntityBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -392,16 +640,133 @@ impl EntityBody {
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub members => Vec, EntityMember);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate_collection_of!(pub groups => Vec, EntityGroup);
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate!(pub identity => IdentityMember);
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn identity(&self) -> &IdentityMember {
+        &self.identity
+    }
+    pub fn set_identity(&mut self, identity: IdentityMember) {
+        self.identity = identity;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_members(&self) -> bool {
+        !self.members.is_empty()
+    }
+    pub fn members_len(&self) -> usize {
+        self.members.len()
+    }
+    pub fn members(&self) -> impl Iterator<Item = &EntityMember> {
+        self.members.iter()
+    }
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut EntityMember> {
+        self.members.iter_mut()
+    }
+    pub fn add_to_members<I>(&mut self, value: I)
+    where
+        I: Into<EntityMember>,
+    {
+        self.members.push(value.into())
+    }
+    pub fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = EntityMember>,
+    {
+        self.members.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_groups(&self) -> bool {
+        !self.groups.is_empty()
+    }
+    pub fn groups_len(&self) -> usize {
+        self.groups.len()
+    }
+    pub fn groups(&self) -> impl Iterator<Item = &EntityGroup> {
+        self.groups.iter()
+    }
+    pub fn groups_mut(&mut self) -> impl Iterator<Item = &mut EntityGroup> {
+        self.groups.iter_mut()
+    }
+    pub fn add_to_groups<I>(&mut self, value: I)
+    where
+        I: Into<EntityGroup>,
+    {
+        self.groups.push(value.into())
+    }
+    pub fn extend_groups<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = EntityGroup>,
+    {
+        self.groups.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn flat_members(&self) -> impl Iterator<Item = &EntityMember> {
+        self.members()
+            .chain(self.groups().flat_map(|g| g.members()))
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -409,29 +774,64 @@ impl EntityBody {
         self.members().all(|m| m.is_complete()) && self.groups().all(|m| m.is_complete())
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        todo!()
+        self.flat_members()
+            .flat_map(|m| m.referenced_annotations())
+            .collect()
     }
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        todo!()
+        self.flat_members()
+            .flat_map(|m| m.referenced_types())
+            .collect()
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl_from_for_variant!(EntityMember, ByValue, ByValueMember);
-
 impl_from_for_variant!(EntityMember, ByReference, ByReferenceMember);
 
 impl EntityMember {
-    is_as_variant!(pub by_value => ByValue, ByValueMember);
-    is_as_variant!(pub by_reference => ByReference, ByReferenceMember);
+    pub fn is_by_value(&self) -> bool {
+        matches!(self, Self::ByValue(_))
+    }
+    pub fn as_by_value(&self) -> Option<&ByValueMember> {
+        match self {
+            Self::ByValue(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_by_reference(&self) -> bool {
+        matches!(self, Self::ByReference(_))
+    }
+    pub fn as_by_reference(&self) -> Option<&ByReferenceMember> {
+        match self {
+            Self::ByReference(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn name(&self) -> &Identifier {
         match self {
             Self::ByValue(v) => v.name(),
             Self::ByReference(v) => v.name(),
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn target_type(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::ByValue(v) => v.target_type(),
+            Self::ByReference(v) => v.target_type(),
         }
     }
 
@@ -443,24 +843,124 @@ impl EntityMember {
             Self::ByReference(v) => v.is_complete(),
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        match self {
+            Self::ByValue(v) => v.referenced_annotations(),
+            Self::ByReference(v) => v.referenced_annotations(),
+        }
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        match self {
+            Self::ByValue(v) => v.referenced_types(),
+            Self::ByReference(v) => v.referenced_types(),
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl EntityGroup {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    referenced_own_annotations!();
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate_collection_of!(pub members => Vec, EntityMember);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_members(&self) -> bool {
+        !self.members.is_empty()
+    }
+    pub fn members_len(&self) -> usize {
+        self.members.len()
+    }
+    pub fn members(&self) -> impl Iterator<Item = &EntityMember> {
+        self.members.iter()
+    }
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut EntityMember> {
+        self.members.iter_mut()
+    }
+    pub fn add_to_members(&mut self, value: EntityMember) {
+        self.members.push(value.into())
+    }
+    pub fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = EntityMember>,
+    {
+        self.members.extend(extension)
+    }
 
     // --------------------------------------------------------------------------------------------
 
     pub fn is_complete(&self) -> bool {
         self.members().all(|m| m.is_complete())
+    }
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.annotation_properties()
+            .map(|p| p.name())
+            .chain(self.annotation_properties().map(|a| a.name()))
+            .collect()
+    }
+
+    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.members().flat_map(|m| m.referenced_types()).collect()
     }
 }
 
@@ -468,33 +968,163 @@ impl EntityGroup {
 // Public Types ❱ Type Definitions ❱ Enumerations
 // ------------------------------------------------------------------------------------------------
 
-impl EnumDef {
-    type_definition_impl!(EnumBody);
-
-    referenced_optional_body_annotations!();
+impl ModelElement for EnumDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_complete(&self) -> bool {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn is_complete(&self) -> bool {
         self.body.is_some()
     }
 
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+    // --------------------------------------------------------------------------------------------
+
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         Default::default()
+    }
+}
+
+impl EnumDef {
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            body: None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&EnumBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: EnumBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl EnumBody {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-
-    has_owned_annotations!();
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub variants => Vec, ValueVariant);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_variants(&self) -> bool {
+        !self.variants.is_empty()
+    }
+    pub fn variants_len(&self) -> usize {
+        self.variants.len()
+    }
+    pub fn variants(&self) -> impl Iterator<Item = &ValueVariant> {
+        self.variants.iter()
+    }
+    pub fn variants_mut(&mut self) -> impl Iterator<Item = &mut ValueVariant> {
+        self.variants.iter_mut()
+    }
+    pub fn add_to_variants(&mut self, value: ValueVariant) {
+        self.variants.push(value.into())
+    }
+    pub fn extend_variants<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = ValueVariant>,
+    {
+        self.variants.extend(extension)
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -545,57 +1175,353 @@ impl ValueVariant {
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    get_and_mutate!(pub body => option AnnotationOnlyBody);
+    // --------------------------------------------------------------------------------------------
 
-    referenced_optional_body_annotations!();
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate!(pub name => Identifier);
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate!(pub value => copy u32);
+    pub fn name(&self) -> &Identifier {
+        &self.name
+    }
+    pub fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn value(&self) -> u32 {
+        self.value
+    }
+    pub fn set_value(&mut self, value: u32) {
+        self.value = value;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&AnnotationOnlyBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: AnnotationOnlyBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Events
 // ------------------------------------------------------------------------------------------------
 
+impl ModelElement for EventDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn is_complete(&self) -> bool {
+        self.body.is_some()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_types())
+            .unwrap_or_default()
+    }
+}
+
 impl EventDef {
-    type_definition_impl!(StructureBody, event_source, IdentifierReference);
+    pub fn new(name: Identifier, event_source: IdentifierReference) -> Self {
+        Self {
+            span: None,
+            name,
+            event_source,
+            body: None,
+        }
+    }
 
-    referenced_optional_body_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    is_body_complete_fn!();
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    referenced_optional_body_types!();
+    // --------------------------------------------------------------------------------------------
+
+    pub fn event_source(&self) -> &IdentifierReference {
+        &self.event_source
+    }
+    pub fn set_event_source(&mut self, event_source: IdentifierReference) {
+        self.event_source = event_source;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&StructureBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: StructureBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
+impl ModelElement for StructureDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn is_complete(&self) -> bool {
+        self.body().is_some()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_types())
+            .unwrap_or_default()
+    }
+}
+
 impl StructureDef {
-    type_definition_impl!(StructureBody);
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            body: None,
+        }
+    }
 
-    referenced_optional_body_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    is_body_complete_fn!();
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    referenced_optional_body_types!();
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&StructureBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: StructureBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl StructureBody {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub members => Vec, ByValueMember);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate_collection_of!(pub groups => Vec, StructureGroup);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_members(&self) -> bool {
+        !self.members.is_empty()
+    }
+    pub fn members_len(&self) -> usize {
+        self.members.len()
+    }
+    pub fn members(&self) -> impl Iterator<Item = &ByValueMember> {
+        self.members.iter()
+    }
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut ByValueMember> {
+        self.members.iter_mut()
+    }
+    pub fn add_to_members(&mut self, value: ByValueMember) {
+        self.members.push(value.into())
+    }
+    pub fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = ByValueMember>,
+    {
+        self.members.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_groups(&self) -> bool {
+        !self.groups.is_empty()
+    }
+    pub fn groups_len(&self) -> usize {
+        self.groups.len()
+    }
+    pub fn groups(&self) -> impl Iterator<Item = &StructureGroup> {
+        self.groups.iter()
+    }
+    pub fn groups_mut(&mut self) -> impl Iterator<Item = &mut StructureGroup> {
+        self.groups.iter_mut()
+    }
+    pub fn add_to_groups(&mut self, value: StructureGroup) {
+        self.groups.push(value.into())
+    }
+    pub fn extend_groups<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = StructureGroup>,
+    {
+        self.groups.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn flat_members(&self) -> impl Iterator<Item = &ByValueMember> {
+        self.members()
+            .chain(self.groups().flat_map(|g| g.members()))
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -603,24 +1529,105 @@ impl StructureBody {
         self.members().all(|m| m.is_complete()) && self.groups().all(|m| m.is_complete())
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        todo!()
+        self.flat_members()
+            .flat_map(|m| m.referenced_annotations())
+            .collect()
     }
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        todo!()
+        self.flat_members()
+            .flat_map(|m| m.referenced_types())
+            .collect()
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl StructureGroup {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub members => Vec, ByValueMember);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_members(&self) -> bool {
+        !self.members.is_empty()
+    }
+    pub fn members_len(&self) -> usize {
+        self.members.len()
+    }
+    pub fn members(&self) -> impl Iterator<Item = &ByValueMember> {
+        self.members.iter()
+    }
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut ByValueMember> {
+        self.members.iter_mut()
+    }
+    pub fn add_to_members(&mut self, value: ByValueMember) {
+        self.members.push(value.into())
+    }
+    pub fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = ByValueMember>,
+    {
+        self.members.extend(extension)
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -628,12 +1635,17 @@ impl StructureGroup {
         self.members().all(|m| m.is_complete())
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.annotation_properties().map(|a| a.name()).collect()
+        self.annotation_properties()
+            .map(|p| p.name())
+            .chain(self.annotation_properties().map(|a| a.name()))
+            .collect()
     }
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        todo!()
+        self.members().flat_map(|m| m.referenced_types()).collect()
     }
 }
 
@@ -641,29 +1653,165 @@ impl StructureGroup {
 // Public Types ❱ Type Definitions ❱ Unions
 // ------------------------------------------------------------------------------------------------
 
-impl UnionDef {
-    type_definition_impl!(UnionBody);
-
-    referenced_optional_body_annotations!();
-
-    referenced_optional_body_types!();
+impl ModelElement for UnionDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_complete(&self) -> bool {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn is_complete(&self) -> bool {
         self.body.is_some()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_types())
+            .unwrap_or_default()
+    }
+}
+
+impl UnionDef {
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            body: None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&UnionBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: UnionBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl UnionBody {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub variants => Vec, TypeVariant);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_variants(&self) -> bool {
+        !self.variants.is_empty()
+    }
+    pub fn variants_len(&self) -> usize {
+        self.variants.len()
+    }
+    pub fn variants(&self) -> impl Iterator<Item = &TypeVariant> {
+        self.variants.iter()
+    }
+    pub fn variants_mut(&mut self) -> impl Iterator<Item = &mut TypeVariant> {
+        self.variants.iter_mut()
+    }
+    pub fn add_to_variants(&mut self, value: TypeVariant) {
+        self.variants.push(value.into())
+    }
+    pub fn extend_variants<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = TypeVariant>,
+    {
+        self.variants.extend(extension)
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -697,29 +1845,106 @@ impl TypeVariant {
         }
     }
 
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    pub fn with_rename(self, rename: Identifier) -> Self {
+        Self {
+            rename: Some(rename),
+            ..self
+        }
+    }
+
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate!(pub body => option AnnotationOnlyBody);
-
-    referenced_optional_body_annotations!();
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    get_and_mutate!(pub name => IdentifierReference);
+    pub fn has_body(&self) -> bool {
+        self.body().is_some()
+    }
+    pub fn body(&self) -> Option<&AnnotationOnlyBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: AnnotationOnlyBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
 
-    with!(pub rename => option Identifier);
-    get_and_mutate!(pub rename => option Identifier);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn name(&self) -> &IdentifierReference {
+        &self.name
+    }
+    pub fn set_name(&mut self, name: IdentifierReference) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_rename(&self) -> bool {
+        self.body().is_some()
+    }
+    pub fn rename(&self) -> Option<&Identifier> {
+        self.rename.as_ref()
+    }
+    pub fn set_rename(&mut self, rename: Identifier) {
+        self.rename = Some(rename);
+    }
+    pub fn unset_rename(&mut self) {
+        self.rename = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Properties
 // ------------------------------------------------------------------------------------------------
 
-impl PropertyDef {
-    type_definition_impl!(PropertyBody);
+impl ModelElement for PropertyDef {
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -727,28 +1952,144 @@ impl PropertyDef {
         self.body.is_some()
     }
 
-    referenced_optional_body_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
+
+    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         self.body()
             .map(|b| b.referenced_types())
             .unwrap_or_default()
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-
-impl PropertyBody {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-
-    has_owned_annotations!();
-
-    get_and_mutate_collection_of!(pub roles => Vec, PropertyRole);
+impl PropertyDef {
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            body: None,
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    referenced_own_annotations!();
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body.is_some()
+    }
+    pub fn body(&self) -> Option<&PropertyBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: PropertyBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl PropertyBody {
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_roles(&self) -> bool {
+        !self.roles.is_empty()
+    }
+    pub fn roles_len(&self) -> usize {
+        self.roles.len()
+    }
+    pub fn roles(&self) -> impl Iterator<Item = &PropertyRole> {
+        self.roles.iter()
+    }
+    pub fn roles_mut(&mut self) -> impl Iterator<Item = &mut PropertyRole> {
+        self.roles.iter_mut()
+    }
+    pub fn add_to_roles(&mut self, value: PropertyRole) {
+        self.roles.push(value.into())
+    }
+    pub fn extend_roles<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = PropertyRole>,
+    {
+        self.roles.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.annotation_properties().map(|a| a.name()).collect()
+    }
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         self.roles()
@@ -775,22 +2116,98 @@ impl PropertyRole {
         Self::new(name, TypeReference::Unknown)
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-
-    get_and_mutate!(pub body => option AnnotationOnlyBody);
-
-    get_and_mutate!(pub name => Identifier);
-
-    get_and_mutate!(pub target_type => TypeReference);
-
-    get_and_mutate!(pub inverse_name => option Option<Identifier>);
-
-    get_and_mutate!(pub target_cardinality(target_cardinality) => option Cardinality);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    referenced_optional_body_annotations!();
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn name(&self) -> &Identifier {
+        &self.name
+    }
+    pub fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn target_type(&self) -> &TypeReference {
+        &self.target_type
+    }
+    pub fn set_target_type(&mut self, target_type: TypeReference) {
+        self.target_type = target_type;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_inverse_name(&self) -> bool {
+        self.inverse_name().is_some()
+    }
+    pub fn inverse_name(&self) -> Option<&Option<Identifier>> {
+        self.inverse_name.as_ref()
+    }
+    pub fn set_inverse_name(&mut self, inverse_name: Option<Identifier>) {
+        self.inverse_name = Some(inverse_name);
+    }
+    pub fn unset_inverse_name(&mut self) {
+        self.inverse_name = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_target_cardinality(&self) -> bool {
+        self.target_cardinality().is_some()
+    }
+    pub fn target_cardinality(&self) -> Option<&Cardinality> {
+        self.target_cardinality.as_ref()
+    }
+    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
+        self.target_cardinality = Some(target_cardinality);
+    }
+    pub fn unset_target_cardinality(&mut self) {
+        self.target_cardinality = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_body(&self) -> bool {
+        self.body().is_some()
+    }
+    pub fn body(&self) -> Option<&AnnotationOnlyBody> {
+        self.body.as_ref()
+    }
+    pub fn set_body(&mut self, body: AnnotationOnlyBody) {
+        self.body = Some(body);
+    }
+    pub fn unset_body(&mut self) {
+        self.body = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+        self.body()
+            .map(|b| b.referenced_annotations())
+            .unwrap_or_default()
+    }
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         todo!()

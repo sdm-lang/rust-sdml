@@ -21,7 +21,7 @@ use super::Span;
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Constraint {
     span: Option<Span>,
-    name: Option<Identifier>,
+    name: Identifier,
     body: ConstraintBody,
 }
 
@@ -421,17 +421,8 @@ pub struct BoundExpression {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl<B> From<B> for Constraint
-where
-    B: Into<ConstraintBody>,
-{
-    fn from(value: B) -> Self {
-        Self::anonymous(value)
-    }
-}
-
 impl Constraint {
-    pub fn new<B>(name: Option<Identifier>, body: B) -> Self
+    pub fn new<B>(name: Identifier, body: B) -> Self
     where
         B: Into<ConstraintBody>,
     {
@@ -442,28 +433,47 @@ impl Constraint {
         }
     }
 
-    pub fn named<B>(name: Identifier, body: B) -> Self
-    where
-        B: Into<ConstraintBody>,
-    {
-        Self::new(Some(name), body)
-    }
+    // --------------------------------------------------------------------------------------------
 
-    pub fn anonymous<B>(body: B) -> Self
-    where
-        B: Into<ConstraintBody>,
-    {
-        Self::new(None, body)
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
     }
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate!(pub name => option Identifier);
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate!(pub body => ConstraintBody);
+    pub fn name(&self) -> &Identifier {
+        &self.name
+    }
+    pub fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn body(&self) -> &ConstraintBody {
+        &self.body
+    }
+    pub fn set_body(&mut self, body: ConstraintBody) {
+        self.body = body;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -472,8 +482,27 @@ impl_from_for_variant!(ConstraintBody, Informal, ControlledLanguageString);
 impl_from_for_variant!(ConstraintBody, Formal, ConstraintSentence);
 
 impl ConstraintBody {
-    is_as_variant!(pub informal => Informal, ControlledLanguageString);
-    is_as_variant!(pub formal => Formal, ConstraintSentence);
+    pub fn is_informal(&self) -> bool {
+        matches!(self, Self::Informal(_))
+    }
+    pub fn as_informal(&self) -> Option<&ControlledLanguageString> {
+        match self {
+            Self::Informal(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_formal(&self) -> bool {
+        matches!(self, Self::Formal(_))
+    }
+    pub fn as_formal(&self) -> Option<&ConstraintSentence> {
+        match self {
+            Self::Formal(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -500,10 +529,50 @@ impl ControlledLanguageString {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub value => String);
-    get_and_mutate!(pub language => option ControlledLanguageTag);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn value(&self) -> &String {
+        &self.value
+    }
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn language(&self) -> Option<&ControlledLanguageTag> {
+        self.language.as_ref()
+    }
+    pub fn set_language(&mut self, language: ControlledLanguageTag) {
+        self.language = Some(language);
+    }
+    pub fn unset_language(&mut self) {
+        self.language = None;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -533,8 +602,17 @@ impl FromStr for ControlledLanguageTag {
     }
 }
 
-into_string_impl!(ControlledLanguageTag, value);
-as_str_impl!(ControlledLanguageTag, value);
+impl From<ControlledLanguageTag> for String {
+    fn from(value: ControlledLanguageTag) -> Self {
+        value.value
+    }
+}
+
+impl AsRef<str> for ControlledLanguageTag {
+    fn as_ref(&self) -> &str {
+        self.value.as_str()
+    }
+}
 
 impl PartialEq for ControlledLanguageTag {
     fn eq(&self, other: &Self) -> bool {
@@ -545,7 +623,6 @@ impl PartialEq for ControlledLanguageTag {
 impl Eq for ControlledLanguageTag {}
 
 impl ControlledLanguageTag {
-    #[allow(dead_code)]
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
@@ -553,13 +630,44 @@ impl ControlledLanguageTag {
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn value(&self) -> &String {
+        &self.value
+    }
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
     pub fn is_valid(s: &str) -> bool {
         LANGUAGE_TAG.is_match(s)
     }
-
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get!(pub value => String);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -569,9 +677,39 @@ impl_from_for_variant!(ConstraintSentence, Boolean, BooleanSentence);
 impl_from_for_variant!(ConstraintSentence, Quantified, QuantifiedSentence);
 
 impl ConstraintSentence {
-    is_as_variant!(pub simple => Simple, SimpleSentence);
-    is_as_variant!(pub boolean => Boolean, BooleanSentence);
-    is_as_variant!(pub quantified => Quantified, QuantifiedSentence);
+    pub fn is_simple(&self) -> bool {
+        matches!(self, Self::Simple(_))
+    }
+    pub fn as_simple(&self) -> Option<&SimpleSentence> {
+        match self {
+            Self::Simple(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_boolean(&self) -> bool {
+        matches!(self, Self::Boolean(_))
+    }
+    pub fn as_boolean(&self) -> Option<&BooleanSentence> {
+        match self {
+            Self::Boolean(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_quantified(&self) -> bool {
+        matches!(self, Self::Quantified(_))
+    }
+    pub fn as_quantified(&self) -> Option<&QuantifiedSentence> {
+        match self {
+            Self::Quantified(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -580,28 +718,164 @@ impl_from_for_variant!(SimpleSentence, Atomic, AtomicSentence);
 impl_from_for_variant!(SimpleSentence, Equation, BinaryOperation);
 
 impl SimpleSentence {
-    is_as_variant!(pub simple => Atomic, AtomicSentence);
-    is_as_variant!(pub boolean => Equation, BinaryOperation);
+    pub fn is_atomic(&self) -> bool {
+        matches!(self, Self::Atomic(_))
+    }
+    pub fn as_atomic(&self) -> Option<&AtomicSentence> {
+        match self {
+            Self::Atomic(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_equation(&self) -> bool {
+        matches!(self, Self::Equation(_))
+    }
+    pub fn as_equation(&self) -> Option<&BinaryOperation> {
+        match self {
+            Self::Equation(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl AtomicSentence {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub predicate => Term);
-    get_and_mutate_collection_of!(pub arguments => Vec, Term);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn predicate(&self) -> &Term {
+        &self.predicate
+    }
+    pub fn set_predicate(&mut self, predicate: Term) {
+        self.predicate = predicate;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_arguments(&self) -> bool {
+        !self.arguments.is_empty()
+    }
+    pub fn arguments_len(&self) -> usize {
+        self.arguments.len()
+    }
+    pub fn arguments(&self) -> impl Iterator<Item = &Term> {
+        self.arguments.iter()
+    }
+    pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
+        self.arguments.iter_mut()
+    }
+    pub fn add_to_arguments(&mut self, value: Term) {
+        self.arguments.push(value.into())
+    }
+    pub fn extend_arguments<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Term>,
+    {
+        self.arguments.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
+// Box:: impl_from_for_variant!(BooleanSentence, Negation, ConstraintSentence);
+
 impl BooleanSentence {
-    is_as_variant!(pub negation => Negation, ConstraintSentence);
-    is_as_variant!(pub conjunction => Conjunction, BinaryOperation);
-    is_as_variant!(pub disjunction => Disjunction, BinaryOperation);
-    is_as_variant!(pub exclusive_disjunction => ExclusiveDisjunction, BinaryOperation);
-    is_as_variant!(pub implication => Implication, BinaryOperation);
-    is_as_variant!(pub biconditional => Biconditional, BinaryOperation);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_negation(&self) -> bool {
+        matches!(self, Self::Negation(_))
+    }
+    pub fn as_negation(&self) -> Option<&ConstraintSentence> {
+        match self {
+            Self::Negation(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_conjunction(&self) -> bool {
+        matches!(self, Self::Conjunction(_))
+    }
+    pub fn as_conjunction(&self) -> Option<&BinaryOperation> {
+        match self {
+            Self::Conjunction(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_disjunction(&self) -> bool {
+        matches!(self, Self::Disjunction(_))
+    }
+    pub fn as_disjunction(&self) -> Option<&BinaryOperation> {
+        match self {
+            Self::Disjunction(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_exclusive_disjunction(&self) -> bool {
+        matches!(self, Self::ExclusiveDisjunction(_))
+    }
+    pub fn as_exclusive_disjunction(&self) -> Option<&BinaryOperation> {
+        match self {
+            Self::ExclusiveDisjunction(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_implication(&self) -> bool {
+        matches!(self, Self::Implication(_))
+    }
+    pub fn as_implication(&self) -> Option<&BinaryOperation> {
+        match self {
+            Self::Implication(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_biconditional(&self) -> bool {
+        matches!(self, Self::Biconditional(_))
+    }
+    pub fn as_biconditional(&self) -> Option<&BinaryOperation> {
+        match self {
+            Self::Biconditional(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -618,17 +892,74 @@ impl BinaryOperation {
             right_operand: Box::new(right_operand.into()),
         }
     }
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub left_operand => boxed ConstraintSentence);
-    get_and_mutate!(pub right_operand => boxed ConstraintSentence);
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn left_operand(&self) -> &ConstraintSentence {
+        &self.left_operand
+    }
+    pub fn set_left_operand(&mut self, operand: ConstraintSentence) {
+        self.left_operand = Box::new(operand);
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn right_operand(&self) -> &ConstraintSentence {
+        &self.right_operand
+    }
+    pub fn set_right_operand(&mut self, operand: ConstraintSentence) {
+        self.right_operand = Box::new(operand);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl QuantifiedSentence {
-    is_as_variant!(pub universal => Universal, BoundSentence);
-    is_as_variant!(pub existential => Existential, BoundSentence);
+    pub fn is_universal(&self) -> bool {
+        matches!(self, Self::Universal(_))
+    }
+    pub fn as_universal(&self) -> Option<&BoundSentence> {
+        match self {
+            Self::Universal(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_existential(&self) -> bool {
+        matches!(self, Self::Existential(_))
+    }
+    pub fn as_existential(&self) -> Option<&BoundSentence> {
+        match self {
+            Self::Existential(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -646,10 +977,65 @@ impl BoundSentence {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate_collection_of!(pub bindings => Vec, QuantifierBinding);
-    get_and_mutate!(pub body => boxed ConstraintSentence);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_bindings(&self) -> bool {
+        !self.bindings.is_empty()
+    }
+    pub fn bindings_len(&self) -> usize {
+        self.bindings.len()
+    }
+    pub fn bindings(&self) -> impl Iterator<Item = &QuantifierBinding> {
+        self.bindings.iter()
+    }
+    pub fn bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifierBinding> {
+        self.bindings.iter_mut()
+    }
+    pub fn add_to_bindings<I>(&mut self, value: I)
+    where
+        I: Into<QuantifierBinding>,
+    {
+        self.bindings.push(value.into())
+    }
+    pub fn extend_bindings<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = QuantifierBinding>,
+    {
+        self.bindings.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn body(&self) -> &ConstraintSentence {
+        &self.body
+    }
+    pub fn set_body(&mut self, body: ConstraintSentence) {
+        self.body = Box::new(body);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -657,8 +1043,23 @@ impl BoundSentence {
 impl_from_for_variant!(QuantifierBinding, Named, QuantifierNamedBinding);
 
 impl QuantifierBinding {
-    is_variant!(pub self_instance => empty ReservedSelf);
-    is_as_variant!(pub named => Named, QuantifierNamedBinding);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_self_instance(&self) -> bool {
+        matches!(self, Self::ReservedSelf)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_named(&self) -> bool {
+        matches!(self, Self::Named(_))
+    }
+    pub fn as_named(&self) -> Option<&QuantifierNamedBinding> {
+        match self {
+            Self::Named(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -667,8 +1068,29 @@ impl_from_for_variant!(BindingTarget, Type, BindingTypeRef);
 impl_from_for_variant!(BindingTarget, Iterator, BindingSeqIterator);
 
 impl BindingTarget {
-    is_as_variant!(pub type_ref => Type, BindingTypeRef);
-    is_as_variant!(pub iterator => Iterator, BindingSeqIterator);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_type_ref(&self) -> bool {
+        matches!(self, Self::Type(_))
+    }
+    pub fn as_type_ref(&self) -> Option<&BindingTypeRef> {
+        match self {
+            Self::Type(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_iterator(&self) -> bool {
+        matches!(self, Self::Iterator(_))
+    }
+    pub fn as_iterator(&self) -> Option<&BindingSeqIterator> {
+        match self {
+            Self::Iterator(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -685,10 +1107,47 @@ impl QuantifierNamedBinding {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub name => Identifier);
-    get_and_mutate!(pub target => BindingTarget);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn name(&self) -> &Identifier {
+        &self.name
+    }
+    pub fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn target(&self) -> &BindingTarget {
+        &self.target
+    }
+    pub fn set_target(&mut self, target: BindingTarget) {
+        self.target = target;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -698,9 +1157,41 @@ impl_from_for_variant!(Term, Value, Vec<SimpleValue>);
 impl_from_for_variant!(Term, Function, Box<FunctionalTerm>);
 
 impl Term {
-    is_as_variant!(pub name => Name, NamePath);
-    is_as_variant!(pub value => Value, Vec<SimpleValue>);
-    is_as_variant!(pub function => Function, Box<FunctionalTerm>);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_name(&self) -> bool {
+        matches!(self, Self::Name(_))
+    }
+    pub fn as_name(&self) -> Option<&NamePath> {
+        match self {
+            Self::Name(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_value(&self) -> bool {
+        matches!(self, Self::Value(_))
+    }
+    pub fn as_value(&self) -> Option<&Vec<SimpleValue>> {
+        match self {
+            Self::Value(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_function(&self) -> bool {
+        matches!(self, Self::Function(_))
+    }
+    pub fn as_function(&self) -> Option<&FunctionalTerm> {
+        match self {
+            Self::Function(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -718,10 +1209,62 @@ impl NamePath {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub subject => Subject);
-    get_and_mutate_collection_of!(pub path => Vec, Identifier);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn subject(&self) -> &Subject {
+        &self.subject
+    }
+    pub fn set_subject(&mut self, subject: Subject) {
+        self.subject = subject;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_path(&self) -> bool {
+        !self.path.is_empty()
+    }
+    pub fn path_len(&self) -> usize {
+        self.path.len()
+    }
+    pub fn path(&self) -> impl Iterator<Item = &Identifier> {
+        self.path.iter()
+    }
+    pub fn path_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
+        self.path.iter_mut()
+    }
+    pub fn add_to_path(&mut self, value: Identifier) {
+        self.path.push(value.into())
+    }
+    pub fn extend_path<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.path.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -729,9 +1272,29 @@ impl NamePath {
 impl_from_for_variant!(Subject, Identifier, Identifier);
 
 impl Subject {
-    is_variant!(pub reserved_self => empty ReservedSelf);
-    is_variant!(pub reserved_self_type => empty ReservedSelfType);
-    is_as_variant!(pub identifier => Identifier, Identifier);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_reserved_self(&self) -> bool {
+        matches!(self, Self::ReservedSelf)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_reserved_self_type(&self) -> bool {
+        matches!(self, Self::ReservedSelfType)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_identifier(&self) -> bool {
+        matches!(self, Self::Identifier(_))
+    }
+    pub fn as_identifier(&self) -> Option<&Identifier> {
+        match self {
+            Self::Identifier(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -760,10 +1323,65 @@ impl FunctionalTerm {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub function => Term);
-    get_and_mutate_collection_of!(pub arguments => Vec, Term);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn function(&self) -> &Term {
+        &self.function
+    }
+    pub fn set_function(&mut self, function: Term) {
+        self.function = function;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_arguments(&self) -> bool {
+        !self.arguments.is_empty()
+    }
+    pub fn arguments_len(&self) -> usize {
+        self.arguments.len()
+    }
+    pub fn arguments(&self) -> impl Iterator<Item = &Term> {
+        self.arguments.iter()
+    }
+    pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
+        self.arguments.iter_mut()
+    }
+    pub fn add_to_arguments<I>(&mut self, value: I)
+    where
+        I: Into<Term>,
+    {
+        self.arguments.push(value.into())
+    }
+    pub fn extend_arguments<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Term>,
+    {
+        self.arguments.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -781,10 +1399,65 @@ impl SequenceComprehension {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate_collection_of!(pub returns => Vec, Identifier);
-    get_and_mutate!(pub body => Expression);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_returns(&self) -> bool {
+        !self.returns.is_empty()
+    }
+    pub fn returns_len(&self) -> usize {
+        self.returns.len()
+    }
+    pub fn returns(&self) -> impl Iterator<Item = &Identifier> {
+        self.returns.iter()
+    }
+    pub fn returns_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
+        self.returns.iter_mut()
+    }
+    pub fn add_to_returns<I>(&mut self, value: I)
+    where
+        I: Into<Identifier>,
+    {
+        self.returns.push(value.into())
+    }
+    pub fn extend_returns<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.returns.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn body(&self) -> &Expression {
+        &self.body
+    }
+    pub fn set_body(&mut self, body: Expression) {
+        self.body = body;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -794,18 +1467,91 @@ impl_from_for_variant!(Expression, Quantified, QuantifiedExpression);
 impl_from_for_variant!(Expression, Constraint, ConstraintSentence);
 
 impl Expression {
-    is_as_variant!(pub boolean => Boolean, BooleanExpression);
-    is_as_variant!(pub quantified => Quantified, QuantifiedExpression);
-    is_as_variant!(pub constraint => Constraint, ConstraintSentence);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_boolean(&self) -> bool {
+        matches!(self, Self::Boolean(_))
+    }
+    pub fn as_boolean(&self) -> Option<&BooleanExpression> {
+        match self {
+            Self::Boolean(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_quantified(&self) -> bool {
+        matches!(self, Self::Quantified(_))
+    }
+    pub fn as_quantified(&self) -> Option<&QuantifiedExpression> {
+        match self {
+            Self::Quantified(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_constraint(&self) -> bool {
+        matches!(self, Self::Constraint(_))
+    }
+    pub fn as_constraint(&self) -> Option<&ConstraintSentence> {
+        match self {
+            Self::Constraint(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl BooleanExpression {
-    is_as_variant!(pub negation => Negation, Expression);
-    is_as_variant!(pub conjunction => Conjunction, BinaryExpressionOperation);
-    is_as_variant!(pub disjunction => Disjunction, BinaryExpressionOperation);
-    is_as_variant!(pub exclusive_disjunction => ExclusiveDisjunction, BinaryExpressionOperation);
+    pub fn is_negation(&self) -> bool {
+        matches!(self, Self::Negation(_))
+    }
+    pub fn as_negation(&self) -> Option<&Expression> {
+        match self {
+            Self::Negation(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_conjunction(&self) -> bool {
+        matches!(self, Self::Conjunction(_))
+    }
+    pub fn as_conjunction(&self) -> Option<&BinaryExpressionOperation> {
+        match self {
+            Self::Conjunction(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_disjunction(&self) -> bool {
+        matches!(self, Self::Disjunction(_))
+    }
+    pub fn as_disjunction(&self) -> Option<&BinaryExpressionOperation> {
+        match self {
+            Self::Disjunction(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_exclusive_disjunction(&self) -> bool {
+        matches!(self, Self::ExclusiveDisjunction(_))
+    }
+    pub fn as_exclusive_disjunction(&self) -> Option<&BinaryExpressionOperation> {
+        match self {
+            Self::ExclusiveDisjunction(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -823,17 +1569,73 @@ impl BinaryExpressionOperation {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub left_operand => boxed Expression);
-    get_and_mutate!(pub right_operand => boxed Expression);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn left_operand(&self) -> &Expression {
+        &self.left_operand
+    }
+    pub fn set_left_operand(&mut self, left_operand: Expression) {
+        self.left_operand = Box::new(left_operand);
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn right_operand(&self) -> &Expression {
+        &self.right_operand
+    }
+    pub fn set_right_operand(&mut self, right_operand: Expression) {
+        self.right_operand = Box::new(right_operand);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl QuantifiedExpression {
-    is_as_variant!(pub universal => Universal, BoundExpression);
-    is_as_variant!(pub existential => Existential, BoundExpression);
+    pub fn is_universal(&self) -> bool {
+        matches!(self, Self::Universal(_))
+    }
+    pub fn as_universal(&self) -> Option<&BoundExpression> {
+        match self {
+            Self::Universal(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_existential(&self) -> bool {
+        matches!(self, Self::Existential(_))
+    }
+    pub fn as_existential(&self) -> Option<&BoundExpression> {
+        match self {
+            Self::Existential(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -851,10 +1653,62 @@ impl BoundExpression {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-    get_and_mutate_collection_of!(pub bindings => Vec, QuantifierBinding);
-    get_and_mutate!(pub body => boxed Expression);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_bindings(&self) -> bool {
+        !self.bindings.is_empty()
+    }
+    pub fn bindings_len(&self) -> usize {
+        self.bindings.len()
+    }
+    pub fn bindings(&self) -> impl Iterator<Item = &QuantifierBinding> {
+        self.bindings.iter()
+    }
+    pub fn bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifierBinding> {
+        self.bindings.iter_mut()
+    }
+    pub fn add_to_bindings(&mut self, value: QuantifierBinding) {
+        self.bindings.push(value.into())
+    }
+    pub fn extend_bindings<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = QuantifierBinding>,
+    {
+        self.bindings.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn body(&self) -> &Expression {
+        &self.body
+    }
+    pub fn set_body(&mut self, body: Expression) {
+        self.body = Box::new(body);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

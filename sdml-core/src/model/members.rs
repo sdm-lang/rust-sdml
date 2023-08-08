@@ -1,157 +1,108 @@
-use super::{AnnotationOnlyBody, Identifier, IdentifierReference, QualifiedIdentifier, Span};
+use super::{
+    AnnotationOnlyBody, Identifier, IdentifierReference, ModelElement, QualifiedIdentifier, Span,
+};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-macro_rules! member_types {
-    ($prefix: ident, $rule: literal $(, $addname: ident, $addtype: ty )*) => {
-        paste::paste! {
-            #[doc = "Corresponds to the grammar rule `" $rule "_member`."]
-            #[derive(Clone, Debug)]
-            #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-            pub struct [< $prefix Member >] {
-                span: Option<Span>,
-                name: Identifier,
-                inner: [< $prefix MemberInner >],
-            }
-
-            #[doc = "Corresponds to the choice component within grammar rule `" $rule "_member`."]
-            #[derive(Clone, Debug)]
-            #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-            pub enum [< $prefix MemberInner >] {
-                PropertyRole(Identifier),
-                Defined([< $prefix MemberDef >]),
-            }
-
-            #[doc = "Corresponds to the definition component within grammar rule `" $rule "_member`."]
-            #[derive(Clone, Debug)]
-            #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-            pub struct [< $prefix MemberDef >] {
-                target_type: TypeReference,
-                $(
-                    $addname: Option<$addtype>,
-                )*
-                    body: Option<AnnotationOnlyBody>,
-            }
-        }
-    };
-}
-
-macro_rules! member_impl {
-    ($prefix: ident $(, $addname: ident, $addtype: ty )*) => {
-        paste::paste! {
-            impl [< $prefix Member >] {
-                pub fn new_with_role(name: Identifier, role: Identifier) -> Self {
-                    Self {
-                        span: None,
-                        name,
-                        inner: role.into(),
-                    }
-                }
-
-                pub fn new_with_definition(name: Identifier, def: [< $prefix MemberDef >]) -> Self {
-                    Self {
-                        span: None,
-                        name,
-                        inner: def.into(),
-                    }
-                }
-
-                with!(pub span (ts_span) => option Span);
-                get_and_mutate!(pub span (ts_span) => option Span);
-
-                get_and_mutate!(pub name => Identifier);
-
-                get_and_mutate!(pub inner => [< $prefix MemberInner >]);
-
-                delegate_is_as_variant!(pub property_role, inner => [< $prefix MemberInner >], PropertyRole, Identifier);
-
-                delegate_is_as_variant!(pub defined, inner => [< $prefix MemberInner >], Defined, [< $prefix MemberDef >]);
-
-                pub fn is_complete(&self) -> bool {
-                    self.inner.is_complete()
-                }
-            }
-
-            impl From<Identifier> for [< $prefix MemberInner >] {
-                fn from(value: Identifier) -> Self {
-                    Self::PropertyRole(value)
-                }
-            }
-
-            impl From<[< $prefix MemberDef >]> for [< $prefix MemberInner >] {
-                fn from(value: [< $prefix MemberDef >]) -> Self {
-                    Self::Defined(value)
-                }
-            }
-
-            impl [< $prefix MemberInner >] {
-                is_as_variant!(pub property_role => PropertyRole, Identifier);
-                is_as_variant!(pub defined => Defined, [< $prefix MemberDef >]);
-
-                pub fn is_complete(&self) -> bool {
-                    if let Self::Defined(defined) = self {
-                        defined.is_complete()
-                    } else {
-                        true
-                    }
-                }
-            }
-
-            impl [< $prefix MemberDef >] {
-                pub fn new(target_type: TypeReference) -> Self {
-                    Self {
-                        target_type,
-                        body: None,
-                        $(
-                            $addname: Default::default(),
-                        )*
-                    }
-                }
-
-                get_and_mutate!(pub target_type => TypeReference);
-
-                $(
-                    with!(pub $addname => option $addtype);
-                    get_and_mutate!(pub $addname => option $addtype);
-                )*
-
-                    get_and_mutate!(pub body => option AnnotationOnlyBody);
-
-                referenced_optional_body_annotations!();
-
-                pub fn is_complete(&self) -> bool {
-                    self.target_type().is_complete()
-                }
-            }
-        }
-    };
-}
-// ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Members
+// Public Types ❱ Members ❱ Identity
 // ------------------------------------------------------------------------------------------------
 
-member_types!(Identity, "identity");
+/// Corresponds to the grammar rule `identify_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct IdentityMember {
+    span: Option<Span>,
+    name: Identifier,
+    inner: IdentityMemberInner,
+}
 
-member_types!(ByValue, "by_value", target_cardinality, Cardinality);
+/// Corresponds to the choice component within grammar rule `identity_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum IdentityMemberInner {
+    PropertyRole(Identifier),
+    Defined(IdentityMemberDef),
+}
 
-member_types!(
-    ByReference,
-    "by_reference",
-    inverse_name,
-    Identifier,
-    target_cardinality,
-    Cardinality
-);
+/// Corresponds to the definition component within grammar rule `identity_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct IdentityMemberDef {
+    target_type: TypeReference,
+    body: Option<AnnotationOnlyBody>,
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Members ❱ ByValue
+// ------------------------------------------------------------------------------------------------
+
+/// Corresponds to the grammar rule `by_value_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ByValueMember {
+    span: Option<Span>,
+    name: Identifier,
+    inner: ByValueMemberInner,
+}
+
+/// Corresponds to the choice component within grammar rule `by_value_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum ByValueMemberInner {
+    PropertyRole(Identifier),
+    Defined(ByValueMemberDef),
+}
+
+/// Corresponds to the definition component within grammar rule `by_value_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ByValueMemberDef {
+    target_type: TypeReference,
+    target_cardinality: Cardinality,
+    body: Option<AnnotationOnlyBody>,
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Members ❱ ByReference
+// ------------------------------------------------------------------------------------------------
+
+/// Corresponds to the grammar rule `by_reference_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ByReferenceMember {
+    span: Option<Span>,
+    name: Identifier,
+    inner: ByReferenceMemberInner,
+}
+
+/// Corresponds to the choice component within grammar rule `by_reference_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum ByReferenceMemberInner {
+    PropertyRole(Identifier),
+    Defined(ByReferenceMemberDef),
+}
+
+/// Corresponds to the definition component within grammar rule `by_reference_member`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ByReferenceMemberDef {
+    target_type: TypeReference,
+    inverse_name: Option<Identifier>,
+    target_cardinality: Cardinality,
+    body: Option<AnnotationOnlyBody>,
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Members ❱ Type Reference
+// ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `type_reference`.
 #[derive(Clone, Debug)]
@@ -166,7 +117,7 @@ pub enum TypeReference {
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `cardinality`.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Cardinality {
     span: Option<Span>,
@@ -182,25 +133,322 @@ pub struct Cardinality {
 // Private Macros
 // ------------------------------------------------------------------------------------------------
 
+macro_rules! member_model_element_impl {
+    ($type: ty) => {
+        impl ModelElement for $type {
+            fn ts_span(&self) -> Option<&Span> {
+                self.span.as_ref()
+            }
+            fn set_ts_span(&mut self, span: Span) {
+                self.span = Some(span);
+            }
+            fn unset_ts_span(&mut self) {
+                self.span = None;
+            }
+
+            fn name(&self) -> &Identifier {
+                &self.name
+            }
+            fn set_name(&mut self, name: Identifier) {
+                self.name = name;
+            }
+
+            delegate!(is_complete, bool, fn inner);
+            delegate!(referenced_annotations, HashSet<&IdentifierReference>, fn inner);
+
+            fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+                if let Some(target_type) = self.inner().target_type() {
+                    [target_type].into_iter().collect()
+                } else {
+                    Default::default()
+                }
+            }
+        }
+    };
+}
+
+macro_rules! member_impl {
+    ($type: ty, $inner_type: ty, $def_type: ty) => {
+        impl $type {
+            pub fn new_with_role(name: Identifier, role: Identifier) -> Self {
+                Self {
+                    span: None,
+                    name,
+                    inner: role.into(),
+                }
+            }
+
+            pub fn new_with_definition(name: Identifier, def: $def_type) -> Self {
+                Self {
+                    span: None,
+                    name,
+                    inner: def.into(),
+                }
+            }
+
+            pub fn with_ts_span(self, ts_span: Span) -> Self {
+                Self {
+                    span: Some(ts_span),
+                    ..self
+                }
+            }
+
+            pub fn inner(&self) -> &$inner_type {
+                &self.inner
+            }
+            pub fn set_inner(&mut self, inner: $inner_type) {
+                self.inner = inner;
+            }
+
+            delegate!(pub is_property_role, bool, fn inner);
+            delegate!(pub as_property_role, Option<&Identifier>, fn inner);
+
+            delegate!(pub is_defined, bool, fn inner);
+            delegate!(pub as_defined, Option<&$def_type>, fn inner);
+
+            delegate!(pub target_type, Option<&IdentifierReference>, fn inner);
+        }
+    };
+}
+
+macro_rules! member_inner_impl {
+    ($inner_type: ty, $def_type: ty) => {
+        impl From<Identifier> for $inner_type {
+            fn from(value: Identifier) -> Self {
+                Self::PropertyRole(value)
+            }
+        }
+
+        impl From<$def_type> for $inner_type {
+            fn from(value: $def_type) -> Self {
+                Self::Defined(value)
+            }
+        }
+
+        impl $inner_type {
+            pub fn is_property_role(&self) -> bool {
+                matches!(self, Self::PropertyRole(_))
+            }
+            pub fn as_property_role(&self) -> Option<&Identifier> {
+                match self {
+                    Self::PropertyRole(v) => Some(v),
+                    _ => None,
+                }
+            }
+
+            pub fn is_defined(&self) -> bool {
+                matches!(self, Self::Defined(_))
+            }
+            pub fn as_defined(&self) -> Option<&$def_type> {
+                match self {
+                    Self::Defined(v) => Some(v),
+                    _ => None,
+                }
+            }
+
+            pub fn target_type(&self) -> Option<&IdentifierReference> {
+                if let Self::Defined(defined) = self {
+                    defined.target_type().as_reference()
+                } else {
+                    // TODO: lookup the property role to check.
+                    None
+                }
+            }
+
+            pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+                if let Self::Defined(defined) = self {
+                    defined.referenced_annotations()
+                } else {
+                    // TODO: lookup the property role to check.
+                    Default::default()
+                }
+            }
+
+            pub fn is_complete(&self) -> bool {
+                if let Self::Defined(defined) = self {
+                    defined.is_complete()
+                } else {
+                    // TODO: lookup the property role to check.
+                    true
+                }
+            }
+        }
+    };
+}
+
+macro_rules! member_def_impl {
+    () => {
+        pub fn target_type(&self) -> &TypeReference {
+            &self.target_type
+        }
+        pub fn set_target_type(&mut self, target_type: TypeReference) {
+            self.target_type = target_type;
+        }
+
+        pub fn body(&self) -> Option<&AnnotationOnlyBody> {
+            self.body.as_ref()
+        }
+        pub fn set_body(&mut self, body: AnnotationOnlyBody) {
+            self.body = Some(body);
+        }
+        pub fn unset_body(&mut self) {
+            self.body = None;
+        }
+
+        pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+            self.body()
+                .map(|b| b.referenced_annotations())
+                .unwrap_or_default()
+        }
+
+        pub fn is_complete(&self) -> bool {
+            self.target_type().is_complete()
+        }
+    };
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members
+// Implementations ❱ Members ❱ Identity
 // ------------------------------------------------------------------------------------------------
 
-member_impl!(Identity);
+member_model_element_impl!(IdentityMember);
 
-member_impl!(ByValue, target_cardinality, Cardinality);
+member_impl!(IdentityMember, IdentityMemberInner, IdentityMemberDef);
+
+member_inner_impl!(IdentityMemberInner, IdentityMemberDef);
+
+impl IdentityMemberDef {
+    pub fn new(target_type: TypeReference) -> Self {
+        Self {
+            target_type,
+            body: None,
+        }
+    }
+    pub fn new_named(target_type: IdentifierReference) -> Self {
+        Self {
+            target_type: target_type.into(),
+            body: None,
+        }
+    }
+    pub fn new_unknown() -> Self {
+        Self {
+            target_type: TypeReference::Unknown,
+            body: None,
+        }
+    }
+    member_def_impl!();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ ByValue
+// ------------------------------------------------------------------------------------------------
+
+member_model_element_impl!(ByValueMember);
+
+member_impl!(ByValueMember, ByValueMemberInner, ByValueMemberDef);
+
+member_inner_impl!(ByValueMemberInner, ByValueMemberDef);
+
+impl ByValueMemberDef {
+    pub fn new(target_type: TypeReference) -> Self {
+        Self {
+            target_type,
+            target_cardinality: DEFAULT_BY_VALUE_CARDINALITY,
+            body: None,
+        }
+    }
+    pub fn new_named(target_type: IdentifierReference) -> Self {
+        Self {
+            target_type: target_type.into(),
+            target_cardinality: DEFAULT_BY_VALUE_CARDINALITY,
+            body: None,
+        }
+    }
+    pub fn new_unknown() -> Self {
+        Self {
+            target_type: TypeReference::Unknown,
+            target_cardinality: DEFAULT_BY_VALUE_CARDINALITY,
+            body: None,
+        }
+    }
+
+    pub fn target_cardinality(&self) -> &Cardinality {
+        &self.target_cardinality
+    }
+
+    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
+        self.target_cardinality = target_cardinality;
+    }
+
+    member_def_impl!();
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ ByReference
+// ------------------------------------------------------------------------------------------------
+
+member_model_element_impl!(ByReferenceMember);
 
 member_impl!(
-    ByReference,
-    inverse_name,
-    Identifier,
-    target_cardinality,
-    Cardinality
+    ByReferenceMember,
+    ByReferenceMemberInner,
+    ByReferenceMemberDef
 );
+
+member_inner_impl!(ByReferenceMemberInner, ByReferenceMemberDef);
+
+impl ByReferenceMemberDef {
+    pub fn new(target_type: TypeReference) -> Self {
+        Self {
+            target_type,
+            target_cardinality: DEFAULT_BY_REFERENCE_CARDINALITY,
+            inverse_name: None,
+            body: None,
+        }
+    }
+    pub fn new_named(target_type: IdentifierReference) -> Self {
+        Self {
+            target_type: target_type.into(),
+            target_cardinality: DEFAULT_BY_REFERENCE_CARDINALITY,
+            inverse_name: None,
+            body: None,
+        }
+    }
+    pub fn new_unknown() -> Self {
+        Self {
+            target_type: TypeReference::Unknown,
+            target_cardinality: DEFAULT_BY_REFERENCE_CARDINALITY,
+            inverse_name: None,
+            body: None,
+        }
+    }
+
+    pub fn target_cardinality(&self) -> &Cardinality {
+        &self.target_cardinality
+    }
+
+    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
+        self.target_cardinality = target_cardinality;
+    }
+
+    pub fn inverse_name(&self) -> Option<&Identifier> {
+        self.inverse_name.as_ref()
+    }
+
+    pub fn set_inverse_name(&mut self, inverse_name: Identifier) {
+        self.inverse_name = Some(inverse_name);
+    }
+
+    pub fn unset_inverse_name(&mut self) {
+        self.inverse_name = None;
+    }
+
+    member_def_impl!();
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Type Reference
@@ -225,7 +473,15 @@ impl From<QualifiedIdentifier> for TypeReference {
 }
 
 impl TypeReference {
-    is_as_variant!(pub reference => Reference, IdentifierReference);
+    pub fn is_reference(&self) -> bool {
+        matches!(self, Self::Reference(_))
+    }
+    pub fn as_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
 
     pub fn is_unknown(&self) -> bool {
         matches!(self, Self::Unknown)
@@ -240,8 +496,12 @@ impl TypeReference {
 // Implementations ❱ Members ❱ Cardinality
 // ------------------------------------------------------------------------------------------------
 
+pub const DEFAULT_BY_VALUE_CARDINALITY: Cardinality = Cardinality::new_single(1);
+
+pub const DEFAULT_BY_REFERENCE_CARDINALITY: Cardinality = Cardinality::new_range(0, 1);
+
 impl Cardinality {
-    pub fn new_range(min: u32, max: u32) -> Self {
+    pub const fn new_range(min: u32, max: u32) -> Self {
         Self {
             span: None,
             min,
@@ -249,7 +509,7 @@ impl Cardinality {
         }
     }
 
-    pub fn new_unbounded(min: u32) -> Self {
+    pub const fn new_unbounded(min: u32) -> Self {
         Self {
             span: None,
             min,
@@ -257,7 +517,7 @@ impl Cardinality {
         }
     }
 
-    pub fn new_single(min_and_max: u32) -> Self {
+    pub const fn new_single(min_and_max: u32) -> Self {
         Self {
             span: None,
             min: min_and_max,
@@ -265,54 +525,71 @@ impl Cardinality {
         }
     }
 
-    pub fn value_target_default() -> Self {
-        Self {
-            span: None,
-            min: 1,
-            max: Some(1),
-        }
-    }
+    // --------------------------------------------------------------------------------------------
 
-    pub fn ref_source_default() -> Self {
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
         Self {
-            span: None,
-            min: 0,
-            max: None,
+            span: Some(ts_span),
+            ..self
         }
     }
-    pub fn ref_target_default() -> Self {
-        Self {
-            span: None,
-            min: 0,
-            max: Some(1),
-        }
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
     }
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
-
-    // --------------------------------------------------------------------------------------------
-
+    #[inline(always)]
     pub fn min_occurs(&self) -> u32 {
         self.min
     }
 
+    #[inline(always)]
     pub fn max_occurs(&self) -> Option<u32> {
         self.max
     }
 
+    #[inline(always)]
+    pub fn is_optional(&self) -> bool {
+        self.min_occurs() == 0
+    }
+
+    #[inline(always)]
+    pub fn is_required(&self) -> bool {
+        !self.is_optional()
+    }
+
+    #[inline(always)]
     pub fn is_range(&self) -> bool {
         self.max.map(|i| i != self.min).unwrap_or(true)
     }
 
+    #[inline(always)]
+    pub fn is_unbounded(&self) -> bool {
+        self.max_occurs().is_none()
+    }
+
+    #[inline(always)]
+    pub fn is_exactly(&self, value: u32) -> bool {
+        self.min_occurs() == value && self.max_occurs().map(|i| i == value).unwrap_or(false)
+    }
+
+    #[inline(always)]
     pub fn to_uml_string(&self) -> String {
         if self.is_range() {
             format!(
                 "{}..{}",
-                self.min,
-                self.max
+                self.min_occurs(),
+                self.max_occurs()
                     .map(|i| i.to_string())
                     .unwrap_or_else(|| "*".to_string())
             )

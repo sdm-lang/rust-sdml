@@ -176,20 +176,7 @@ impl From<ListOfValues> for Value {
     }
 }
 
-impl Display for Value {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Value::Simple(v) => v.to_string(),
-                Value::ValueConstructor(v) => v.to_string(),
-                Value::Reference(v) => v.to_string(),
-                Value::List(v) => v.to_string(),
-            }
-        )
-    }
-}
+enum_display_impl!(Value => Simple, ValueConstructor, Reference, List);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -205,22 +192,7 @@ impl_from_for_variant!(SimpleValue, Boolean, bool);
 
 impl_from_for_variant!(SimpleValue, IriReference, Url);
 
-impl Display for SimpleValue {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::String(v) => v.to_string(),
-                Self::Double(v) => v.to_string(),
-                Self::Decimal(v) => v.to_string(),
-                Self::Integer(v) => v.to_string(),
-                Self::Boolean(v) => v.to_string(),
-                Self::IriReference(v) => v.to_string(),
-            }
-        )
-    }
-}
+enum_display_impl!(SimpleValue => String, Double, Decimal, Integer, Boolean, IriReference);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -270,12 +242,42 @@ impl LanguageString {
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    get_and_mutate!(pub value => String);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate!(pub language => option LanguageTag);
+    pub fn value(&self) -> &String {
+        &self.value
+    }
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
+
+    pub fn language(&self) -> Option<&LanguageTag> {
+        self.language.as_ref()
+    }
+    pub fn set_language(&mut self, language: LanguageTag) {
+        self.language = Some(language);
+    }
+    pub fn unset_language(&mut self) {
+        self.language = None;
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -307,8 +309,17 @@ impl FromStr for LanguageTag {
     }
 }
 
-into_string_impl!(LanguageTag, value);
-as_str_impl!(LanguageTag, value);
+impl From<LanguageTag> for String {
+    fn from(value: LanguageTag) -> Self {
+        value.value
+    }
+}
+
+impl AsRef<str> for LanguageTag {
+    fn as_ref(&self) -> &str {
+        self.value.as_str()
+    }
+}
 
 impl PartialEq for LanguageTag {
     fn eq(&self, other: &Self) -> bool {
@@ -319,7 +330,6 @@ impl PartialEq for LanguageTag {
 impl Eq for LanguageTag {}
 
 impl LanguageTag {
-    #[allow(dead_code)]
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
@@ -329,8 +339,25 @@ impl LanguageTag {
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -374,10 +401,50 @@ impl FromIterator<ListMember> for ListOfValues {
 }
 
 impl ListOfValues {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    get_and_mutate_collection_of!(pub values => Vec, ListMember);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+    pub fn iter(&self) -> impl Iterator<Item = &ListMember> {
+        self.values.iter()
+    }
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut ListMember> {
+        self.values.iter_mut()
+    }
+    pub fn push<I>(&mut self, value: I)
+    where
+        I: Into<ListMember>,
+    {
+        self.values.push(value.into())
+    }
+    pub fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = ListMember>,
+    {
+        self.values.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -409,12 +476,39 @@ impl ValueConstructor {
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    get_and_mutate!(pub type_name => IdentifierReference);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate!(pub value => SimpleValue);
+    pub fn type_name(&self) -> &IdentifierReference {
+        &self.type_name
+    }
+    pub fn set_type_name(&mut self, type_name: IdentifierReference) {
+        self.type_name = type_name;
+    }
+
+    pub fn value(&self) -> &SimpleValue {
+        &self.value
+    }
+    pub fn set_value(&mut self, value: SimpleValue) {
+        self.value = value;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

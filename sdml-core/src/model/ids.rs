@@ -95,6 +95,12 @@ const RESERVED_KEYWORDS: [&str; 19] = [
 const RESERVED_TYPES: [&str; 6] = ["string", "double", "decimal", "integer", "boolean", "iri"];
 const RESERVED_MODULES: [&str; 6] = ["owl", "rdf", "rdfs", "sdml", "xml", "xsd"];
 
+impl Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
 impl FromStr for Identifier {
     type Err = crate::error::Error;
 
@@ -110,9 +116,23 @@ impl FromStr for Identifier {
     }
 }
 
-simple_display_impl!(Identifier, value);
-as_str_impl!(Identifier, value);
-into_string_impl!(Identifier, value);
+impl From<Identifier> for String {
+    fn from(value: Identifier) -> Self {
+        value.value
+    }
+}
+
+impl From<&Identifier> for String {
+    fn from(value: &Identifier) -> Self {
+        value.value.clone()
+    }
+}
+
+impl AsRef<str> for Identifier {
+    fn as_ref(&self) -> &str {
+        self.value.as_str()
+    }
+}
 
 impl PartialEq for Identifier {
     fn eq(&self, other: &Self) -> bool {
@@ -137,13 +157,36 @@ impl Identifier {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
+    #[inline(always)]
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    #[inline(always)]
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    #[inline(always)]
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    #[inline(always)]
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    #[inline(always)]
     pub fn with_module(&self, module: Identifier) -> QualifiedIdentifier {
         QualifiedIdentifier::new(module, self.clone())
     }
 
+    #[inline(always)]
     pub fn with_member(&self, member: Identifier) -> QualifiedIdentifier {
         QualifiedIdentifier::new(self.clone(), member)
     }
@@ -184,6 +227,18 @@ impl Display for QualifiedIdentifier {
     }
 }
 
+impl From<QualifiedIdentifier> for String {
+    fn from(value: QualifiedIdentifier) -> Self {
+        String::from(&value)
+    }
+}
+
+impl From<&QualifiedIdentifier> for String {
+    fn from(value: &QualifiedIdentifier) -> Self {
+        value.to_string()
+    }
+}
+
 impl PartialEq for QualifiedIdentifier {
     fn eq(&self, other: &Self) -> bool {
         self.module == other.module && self.member == other.member
@@ -209,11 +264,39 @@ impl QualifiedIdentifier {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    get!(pub module => Identifier);
-    get!(pub member => Identifier);
+    #[inline(always)]
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    #[inline(always)]
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    #[inline(always)]
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    #[inline(always)]
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    #[inline(always)]
+    pub fn module(&self) -> &Identifier {
+        &self.module
+    }
+
+    #[inline(always)]
+    pub fn member(&self) -> &Identifier {
+        &self.member
+    }
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.module == other.module && self.member == other.member
@@ -222,19 +305,29 @@ impl QualifiedIdentifier {
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<Identifier> for IdentifierReference {
-    fn from(v: Identifier) -> Self {
-        Self::Identifier(v)
-    }
-}
-
-impl From<QualifiedIdentifier> for IdentifierReference {
-    fn from(v: QualifiedIdentifier) -> Self {
-        Self::QualifiedIdentifier(v)
-    }
-}
-
 enum_display_impl!(IdentifierReference => Identifier, QualifiedIdentifier);
+
+impl_from_for_variant!(IdentifierReference, Identifier, Identifier);
+impl_from_for_variant!(
+    IdentifierReference,
+    QualifiedIdentifier,
+    QualifiedIdentifier
+);
+
+impl From<IdentifierReference> for String {
+    fn from(value: IdentifierReference) -> Self {
+        String::from(&value)
+    }
+}
+
+impl From<&IdentifierReference> for String {
+    fn from(value: &IdentifierReference) -> Self {
+        match value {
+            IdentifierReference::Identifier(v) => v.to_string(),
+            IdentifierReference::QualifiedIdentifier(v) => v.to_string(),
+        }
+    }
+}
 
 impl PartialEq for IdentifierReference {
     fn eq(&self, other: &Self) -> bool {
@@ -255,8 +348,25 @@ impl Hash for IdentifierReference {
 }
 
 impl IdentifierReference {
-    is_variant!(pub identifier => Identifier);
-    is_variant!(pub qualified_identifier => QualifiedIdentifier);
+    pub fn is_identifier(&self) -> bool {
+        matches!(self, Self::Identifier(_))
+    }
+    pub fn as_identifier(&self) -> Option<&Identifier> {
+        match self {
+            Self::Identifier(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_qualified_identifier(&self) -> bool {
+        matches!(self, Self::QualifiedIdentifier(_))
+    }
+    pub fn as_qualified_identifier(&self) -> Option<&QualifiedIdentifier> {
+        match self {
+            Self::QualifiedIdentifier(v) => Some(v),
+            _ => None,
+        }
+    }
 
     pub fn has_ts_span(&self) -> bool {
         match self {

@@ -1,4 +1,7 @@
-use super::{Annotation, Definition, Identifier, IdentifierReference, QualifiedIdentifier, Span};
+use super::{
+    Annotation, AnnotationProperty, Constraint, Definition, Identifier, IdentifierReference,
+    ModelElement, QualifiedIdentifier, Span,
+};
 use std::{collections::HashSet, fmt::Debug, hash::Hash};
 use url::Url;
 
@@ -75,6 +78,32 @@ pub enum Import {
 // Implementations ❱ Modules
 // ------------------------------------------------------------------------------------------------
 
+impl ModelElement for Module {
+    fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    delegate!(is_complete, bool, body);
+    delegate!(referenced_types, HashSet<&IdentifierReference>, body);
+    delegate!(referenced_annotations, HashSet<&IdentifierReference>, body);
+}
+
 impl Module {
     pub fn empty(name: Identifier) -> Self {
         Self {
@@ -96,42 +125,160 @@ impl Module {
 
     // --------------------------------------------------------------------------------------------
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    get_and_mutate!(pub name => Identifier);
+    pub fn with_base(self, base: Url) -> Self {
+        Self {
+            base: Some(base),
+            ..self
+        }
+    }
 
-    with!(pub base => option Url);
-    get_and_mutate!(pub base => option Url);
+    pub fn has_base(&self) -> bool {
+        self.base().is_some()
+    }
+    pub fn base(&self) -> Option<&Url> {
+        self.base.as_ref()
+    }
+    pub fn set_base(&mut self, base: Url) {
+        self.base = Some(base);
+    }
+    pub fn unset_base(&mut self) {
+        self.base = None;
+    }
 
-    get_and_mutate!(pub body => ModuleBody);
+    pub fn body(&self) -> &ModuleBody {
+        &self.body
+    }
+    pub fn set_body(&mut self, body: ModuleBody) {
+        self.body = body;
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    is_complete_fn!(body);
-
-    delegate!(imported_modules, HashSet<&Identifier>, body);
-
-    delegate!(imported_types, HashSet<&QualifiedIdentifier>, body);
-
-    delegate!(defined_names, HashSet<&Identifier>, body);
-
-    delegate!(referenced_types, HashSet<&IdentifierReference>, body);
-
-    delegate!(referenced_annotations, HashSet<&IdentifierReference>, body);
+    delegate!(pub imported_modules, HashSet<&Identifier>, body);
+    delegate!(pub imported_types, HashSet<&QualifiedIdentifier>, body);
+    delegate!(pub defined_names, HashSet<&Identifier>, body);
+    delegate!(pub referenced_types, HashSet<&IdentifierReference>, body);
+    delegate!(pub referenced_annotations, HashSet<&IdentifierReference> , body);
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl ModuleBody {
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
 
-    has_owned_annotations!();
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub imports => Vec, ImportStatement);
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
 
-    get_and_mutate_collection_of!(pub definitions => Vec, Definition);
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    pub fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    pub fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    pub fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension)
+    }
+
+    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
+    }
+
+    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_imports(&self) -> bool {
+        !self.imports.is_empty()
+    }
+    pub fn imports_len(&self) -> usize {
+        self.imports.len()
+    }
+    pub fn imports(&self) -> impl Iterator<Item = &ImportStatement> {
+        self.imports.iter()
+    }
+    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut ImportStatement> {
+        self.imports.iter_mut()
+    }
+    pub fn add_to_imports(&mut self, value: ImportStatement) {
+        self.imports.push(value.into())
+    }
+    pub fn extend_imports<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = ImportStatement>,
+    {
+        self.imports.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_definitions(&self) -> bool {
+        !self.definitions.is_empty()
+    }
+    pub fn definitions_len(&self) -> usize {
+        self.definitions.len()
+    }
+    pub fn definitions(&self) -> impl Iterator<Item = &Definition> {
+        self.definitions.iter()
+    }
+    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
+        self.definitions.iter_mut()
+    }
+    pub fn add_to_definitions<I>(&mut self, value: I)
+    where
+        I: Into<Definition>,
+    {
+        self.definitions.push(value.into())
+    }
+    pub fn extend_definitions<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Definition>,
+    {
+        self.definitions.extend(extension)
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -156,6 +303,8 @@ impl ModuleBody {
     pub fn defined_names(&self) -> HashSet<&Identifier> {
         self.definitions().map(|def| def.name()).collect()
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
         self.definitions()
@@ -188,14 +337,61 @@ impl ImportStatement {
         }
     }
 
-    with!(pub span (ts_span) => option Span);
-    get_and_mutate!(pub span (ts_span) => option Span);
+    // --------------------------------------------------------------------------------------------
 
-    get_and_mutate_collection_of!(pub imports => Vec, Import);
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_imports_empty(&self) -> bool {
+        self.imports.is_empty()
+    }
+    pub fn imports_len(&self) -> usize {
+        self.imports.len()
+    }
+    pub fn imports(&self) -> impl Iterator<Item = &Import> {
+        self.imports.iter()
+    }
+    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut Import> {
+        self.imports.iter_mut()
+    }
+    pub fn add_to_imports(&mut self, value: Import) {
+        self.imports.push(value.into())
+    }
+    pub fn extend_imports<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Import>,
+    {
+        self.imports.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     pub(crate) fn as_slice(&self) -> &[Import] {
         self.imports.as_slice()
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
         self.imports()
