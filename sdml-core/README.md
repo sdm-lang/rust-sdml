@@ -7,6 +7,10 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.10**
+
+* Added support for `mapping_type` and `mapping_value` rules.
+
 **Version 0.1.9**
 
 * Run Cargo format and clippy

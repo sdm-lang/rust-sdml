@@ -1,7 +1,9 @@
+use crate::syntax::{KW_TYPE_UNKNOWN, KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_UNIQUENESS_UNIQUE, KW_UNIQUENESS_NONUNIQUE};
+
 use super::{
     AnnotationOnlyBody, Identifier, IdentifierReference, ModelElement, QualifiedIdentifier, Span,
 };
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::HashSet, fmt::{Debug, Display}};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -108,8 +110,18 @@ pub struct ByReferenceMemberDef {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum TypeReference {
-    Reference(IdentifierReference),
     Unknown,
+    Reference(IdentifierReference),
+    // builtin_simple_type is converted into a reference
+    MappingType(MappingType),
+}
+
+/// Corresponds to the definition component within grammar rule `mapping_type`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct MappingType {
+    domain: Box<TypeReference>,
+    range: Box<TypeReference>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -120,9 +132,36 @@ pub enum TypeReference {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Cardinality {
+    ordering: Option<Ordering>,
+    uniqueness: Option<Uniqueness>,
     span: Option<Span>,
     min: u32,
     max: Option<u32>,
+}
+
+/// Corresponds to the grammar rule `sequence_ordering`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum Ordering {
+    Ordered,
+    Unordered,
+}
+
+/// Corresponds to the grammar rule `sequence_uniqueness`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum Uniqueness {
+    Unique,
+    Nonunique,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum PseudoSequenceType {
+    Maybe,
+    Bag,
+    List,
+    Set,
+    UnorderedSet,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -454,6 +493,16 @@ impl ByReferenceMemberDef {
 // Implementations ❱ Members ❱ Type Reference
 // ------------------------------------------------------------------------------------------------
 
+impl Display for TypeReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            TypeReference::Unknown => KW_TYPE_UNKNOWN.to_string(),
+            TypeReference::Reference(v) => v.to_string(),
+            TypeReference::MappingType(v) => v.to_string(),
+        })
+    }
+}
+
 impl From<IdentifierReference> for TypeReference {
     fn from(value: IdentifierReference) -> Self {
         Self::Reference(value)
@@ -493,6 +542,49 @@ impl TypeReference {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ Mapping Type
+// ------------------------------------------------------------------------------------------------
+
+impl Display for MappingType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({} -> {})", self.domain, self.range)
+    }
+}
+
+impl MappingType {
+    pub fn new<T1,T2>(domain: T1, range: T2) -> Self
+    where
+        T1: Into<TypeReference>,
+        T2: Into<TypeReference>,
+    {
+        Self {
+            domain: Box::new(domain.into()),
+            range: Box::new(range.into()),
+        }
+    }
+
+    pub fn domain(&self) -> &TypeReference {
+        &self.domain
+    }
+    pub fn set_domain<T>(&mut self, domain: T)
+    where
+        T: Into<TypeReference>
+    {
+        self.domain = Box::new(domain.into());
+    }
+
+    pub fn range(&self) -> &TypeReference {
+        &self.range
+    }
+    pub fn set_range<T>(&mut self, range: T)
+    where
+        T: Into<TypeReference>
+    {
+        self.range = Box::new(range.into());
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Cardinality
 // ------------------------------------------------------------------------------------------------
 
@@ -500,9 +592,32 @@ pub const DEFAULT_BY_VALUE_CARDINALITY: Cardinality = Cardinality::new_single(1)
 
 pub const DEFAULT_BY_REFERENCE_CARDINALITY: Cardinality = Cardinality::new_range(0, 1);
 
+impl Display for Cardinality {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{{{}{}{}..{}}}",
+            self.ordering.map(|c|format!("{} ", c)).unwrap_or_default(),
+            self.uniqueness.map(|c|format!("{} ", c)).unwrap_or_default(),
+            self.min_occurs(),
+            self.max_occurs()
+                .map(|i| i.to_string())
+                .unwrap_or_default()
+        )
+    }
+}
+
+impl From<u32> for Cardinality {
+    fn from(value: u32) -> Self {
+        Self::new_single(value)
+    }
+}
+
 impl Cardinality {
     pub const fn new_range(min: u32, max: u32) -> Self {
         Self {
+            ordering: None,
+            uniqueness: None,
             span: None,
             min,
             max: Some(max),
@@ -511,6 +626,8 @@ impl Cardinality {
 
     pub const fn new_unbounded(min: u32) -> Self {
         Self {
+            ordering: None,
+            uniqueness: None,
             span: None,
             min,
             max: None,
@@ -519,6 +636,8 @@ impl Cardinality {
 
     pub const fn new_single(min_and_max: u32) -> Self {
         Self {
+            ordering: None,
+            uniqueness: None,
             span: None,
             min: min_and_max,
             max: Some(min_and_max),
@@ -548,15 +667,73 @@ impl Cardinality {
 
     // --------------------------------------------------------------------------------------------
 
+    pub fn with_ordering(self, ordering: Ordering) -> Self {
+        Self {
+            ordering: Some(ordering),
+            ..self
+        }
+    }
+
+    #[inline(always)]
+    pub fn ordering(&self) -> Option<Ordering> {
+        self.ordering
+    }
+
+    #[inline(always)]
+    pub fn is_ordered(&self) -> Option<bool> {
+        self.ordering().map(|o|o == Ordering::Ordered)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+        Self {
+            uniqueness: Some(uniqueness),
+            ..self
+        }
+    }
+
+    #[inline(always)]
+    pub fn uniqueness(&self) -> Option<Uniqueness> {
+        self.uniqueness
+    }
+
+    #[inline(always)]
+    pub fn is_unique(&self) -> Option<bool> {
+        self.uniqueness().map(|u|u == Uniqueness::Unique)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
     #[inline(always)]
     pub fn min_occurs(&self) -> u32 {
         self.min
     }
 
     #[inline(always)]
+    pub fn set_min_occurs(&mut self, min: u32) {
+        self.min = min;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
     pub fn max_occurs(&self) -> Option<u32> {
         self.max
     }
+
+    #[inline(always)]
+    pub fn set_max_occurs(&mut self, max: u32) {
+        self.max = Some(max);
+    }
+
+    #[inline(always)]
+    pub fn unset_max_occurs(&mut self) {
+        self.max = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
     pub fn is_optional(&self) -> bool {
@@ -583,6 +760,20 @@ impl Cardinality {
         self.min_occurs() == value && self.max_occurs().map(|i| i == value).unwrap_or(false)
     }
 
+    // --------------------------------------------------------------------------------------------
+
+    pub fn sequence_type(&self) -> PseudoSequenceType {
+        match (self.is_ordered(), self.is_unique(), self.min, self.max.unwrap_or(self.min)) {
+            (_, _, 0, 1) => PseudoSequenceType::Maybe,
+            (Some(true), Some(true), _, _) => PseudoSequenceType::UnorderedSet,
+            (Some(false), Some(true), _, _) => PseudoSequenceType::Set,
+            (Some(true), Some(false), _, _) => PseudoSequenceType::List,
+            _ => PseudoSequenceType::Bag,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
     #[inline(always)]
     pub fn to_uml_string(&self) -> String {
         if self.is_range() {
@@ -596,6 +787,40 @@ impl Cardinality {
         } else {
             self.min.to_string()
         }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Default for Ordering {
+    fn default() -> Self {
+        Self::Unordered
+    }
+}
+
+impl Display for Ordering {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Ordering::Ordered => KW_ORDERING_ORDERED,
+            Ordering::Unordered => KW_ORDERING_UNORDERED,
+        })
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Default for Uniqueness {
+    fn default() -> Self {
+        Self::Nonunique
+    }
+}
+
+impl Display for Uniqueness {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Uniqueness::Unique => KW_UNIQUENESS_UNIQUE,
+            Uniqueness::Nonunique => KW_UNIQUENESS_NONUNIQUE,
+        })
     }
 }
 

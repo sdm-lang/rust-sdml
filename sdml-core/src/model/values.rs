@@ -24,6 +24,7 @@ pub enum Value {
     Simple(SimpleValue),
     ValueConstructor(ValueConstructor),
     Reference(IdentifierReference),
+    Mapping(MappingValue),
     List(ListOfValues),
 }
 
@@ -63,6 +64,14 @@ pub struct LanguageTag {
     value: String,
 }
 
+/// Corresponds to the grammar rule `mapping_value`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct MappingValue {
+    domain: SimpleValue,
+    range: Box<Value>,
+}
+
 /// Corresponds to the grammar rule `list_of_values`.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
@@ -78,6 +87,7 @@ pub enum ListMember {
     Simple(SimpleValue),
     ValueConstructor(ValueConstructor),
     Reference(IdentifierReference),
+    Mapping(MappingValue),
 }
 
 /// Corresponds to the grammar rule `value_constructor`.
@@ -170,13 +180,19 @@ impl From<IdentifierReference> for Value {
     }
 }
 
+impl From<MappingValue> for Value {
+    fn from(v: MappingValue) -> Self {
+        Self::Mapping(v)
+    }
+}
+
 impl From<ListOfValues> for Value {
     fn from(v: ListOfValues) -> Self {
         Self::List(v)
     }
 }
 
-enum_display_impl!(Value => Simple, ValueConstructor, Reference, List);
+enum_display_impl!(Value => Simple, ValueConstructor, Reference, Mapping, List);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -374,6 +390,36 @@ impl LanguageTag {
 
 // ------------------------------------------------------------------------------------------------
 
+impl Display for MappingValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} -> {}", self.domain, self.range) 
+    }
+}
+
+impl MappingValue {
+    pub fn new(domain: SimpleValue, range: Value) -> Self {
+        Self { domain, range: Box::new(range) }
+    }
+
+    pub fn domain(&self) -> &SimpleValue {
+        &self.domain
+    }
+
+    pub fn set_domain(&mut self, domain: SimpleValue) {
+        self.domain = domain;
+    }
+
+    pub fn range(&self) -> &Value {
+        &self.range
+    }
+
+    pub fn set_range(&mut self, range: Value) {
+        self.range = Box::new(range);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl Display for ListOfValues {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -455,7 +501,7 @@ impl_from_for_variant!(ListMember, ValueConstructor, ValueConstructor);
 
 impl_from_for_variant!(ListMember, Reference, IdentifierReference);
 
-enum_display_impl!(ListMember => Simple, ValueConstructor, Reference);
+enum_display_impl!(ListMember => Simple, ValueConstructor, Reference, Mapping);
 
 // ------------------------------------------------------------------------------------------------
 

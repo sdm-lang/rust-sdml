@@ -45,6 +45,8 @@ pub const NODE_KIND_LANGUAGE_TAG: &str = "language_tag";
 pub const NODE_KIND_LINE_COMMENT: &str = "line_comment";
 pub const NODE_KIND_LIST_OF_VALUES: &str = "list_of_values";
 
+pub const NODE_KIND_MAPPING_TYPE: &str = "mapping_type";
+pub const NODE_KIND_MAPPING_VALUE: &str = "mapping_value";
 pub const NODE_KIND_MEMBER_BY_VALUE: &str = "member_by_value";
 pub const NODE_KIND_MEMBER_BY_REFERENCE: &str = "member_by_reference";
 pub const NODE_KIND_MEMBER_IMPORT: &str = "member_import";
@@ -84,6 +86,8 @@ pub const NODE_KIND_VALUE_VARIANT: &str = "value_variant";
 pub const FIELD_NAME_BASE: &str = "base";
 pub const FIELD_NAME_BODY: &str = "body";
 
+pub const FIELD_NAME_DOMAIN: &str = "domain";
+
 pub const FIELD_NAME_IDENTITY: &str = "identity";
 
 pub const FIELD_NAME_LANGUAGE: &str = "language";
@@ -95,6 +99,7 @@ pub const FIELD_NAME_MODULE: &str = NODE_KIND_MODULE;
 
 pub const FIELD_NAME_NAME: &str = "name";
 
+pub const FIELD_NAME_RANGE: &str = "range";
 pub const FIELD_NAME_RENAME: &str = "rename";
 pub const FIELD_NAME_ROLE: &str = "role";
 
@@ -109,6 +114,14 @@ pub const FIELD_NAME_VALUE: &str = "value";
 // ------------------------------------------------------------------------------------------------
 // Simple Type Keywords
 // ------------------------------------------------------------------------------------------------
+
+pub const KW_ORDERING_ORDERED: &str = "ordered";
+pub const KW_ORDERING_UNORDERED: &str = "unordered";
+
+pub const KW_TYPE_UNKNOWN: &str = "unknown";
+
+pub const KW_UNIQUENESS_UNIQUE: &str = "unique";
+pub const KW_UNIQUENESS_NONUNIQUE: &str = "nonunique";
 
 // pub const KW_TYPE_STRING: &str = NODE_KIND_STRING;
 // pub const KW_TYPE_DOUBLE: &str = NODE_KIND_DOUBLE;

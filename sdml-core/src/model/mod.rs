@@ -30,11 +30,13 @@ The following.
  * **Member Definitions**
    * [`ByReferenceMember`], [`ByReferenceMemberDef`], [`ByReferenceMemberInner`], [`ByValueMember`],
      [`ByValueMemberDef`], [`ByValueMemberInner`], [`Cardinality`], [`IdentityMember`],
-     [`IdentityMemberDef`], [`IdentityMemberInner`], [`TypeReference`]
+     [`IdentityMemberDef`], [`IdentityMemberInner`], [`MappingType`], [`Ordering`],
+     [`PseudoSequenceType`], [`TypeReference`], [`Uniqueness`],
+     [`DEFAULT_BY_REFERENCE_CARDINALITY`], [`DEFAULT_BY_VALUE_CARDINALITY`]
 
  * **Values**
-   * [`LanguageString`], [`LanguageTag`], [`ListMember`], [`ListOfValues`], [`SimpleValue`],
-     [`Value`], [`ValueConstructor`]
+   * [`LanguageString`], [`LanguageTag`], [`ListMember`], [`ListOfValues`], [`MappingValue`],
+     [`SimpleValue`], [`Value`], [`ValueConstructor`]
 
 */
 
@@ -156,7 +158,8 @@ pub use constraints::{
 
 mod values;
 pub use values::{
-    LanguageString, LanguageTag, ListMember, ListOfValues, SimpleValue, Value, ValueConstructor,
+    LanguageString, LanguageTag, ListMember, ListOfValues, MappingValue, SimpleValue, Value,
+    ValueConstructor,
 };
 
 mod types;
@@ -170,8 +173,8 @@ mod members;
 pub use members::{
     ByReferenceMember, ByReferenceMemberDef, ByReferenceMemberInner, ByValueMember,
     ByValueMemberDef, ByValueMemberInner, Cardinality, IdentityMember, IdentityMemberDef,
-    IdentityMemberInner, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
-    DEFAULT_BY_VALUE_CARDINALITY,
+    IdentityMemberInner, MappingType, Ordering, PseudoSequenceType, TypeReference, Uniqueness,
+    DEFAULT_BY_REFERENCE_CARDINALITY, DEFAULT_BY_VALUE_CARDINALITY,
 };
 
 pub mod walk;
