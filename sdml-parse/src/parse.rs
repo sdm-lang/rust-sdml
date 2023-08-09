@@ -26,28 +26,29 @@ use sdml_core::model::{
     ControlledLanguageString, ControlledLanguageTag, DatatypeDef, Definition, EntityBody,
     EntityDef, EntityGroup, EnumBody, EnumDef, EventDef, Identifier, IdentifierReference,
     IdentityMember, IdentityMemberDef, Import, ImportStatement, LanguageString, LanguageTag,
-    ListOfValues, Module, ModuleBody, PropertyBody, PropertyDef, PropertyRole, QualifiedIdentifier,
-    SimpleValue, StructureBody, StructureDef, StructureGroup, TypeReference, TypeVariant,
-    UnionBody, UnionDef, Value, ValueConstructor, ValueVariant,
+    ListOfValues, MappingType, MappingValue, Module, ModuleBody, PropertyBody, PropertyDef,
+    PropertyRole, QualifiedIdentifier, SimpleValue, StructureBody, StructureDef, StructureGroup,
+    TypeReference, TypeVariant, UnionBody, UnionDef, Value, ValueConstructor, ValueVariant,
 };
 use sdml_core::syntax::{
-    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_INVERSE_NAME,
-    FIELD_NAME_LANGUAGE, FIELD_NAME_MAX, FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE,
-    FIELD_NAME_NAME, FIELD_NAME_RENAME, FIELD_NAME_ROLE, FIELD_NAME_SOURCE, FIELD_NAME_TARGET,
-    FIELD_NAME_TARGET_CARDINALITY, FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION,
-    NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_BOOLEAN, NODE_KIND_BUILTIN_SIMPLE_TYPE,
-    NODE_KIND_CONSTRAINT, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DEFINITION,
-    NODE_KIND_DOUBLE, NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF,
-    NODE_KIND_EVENT_DEF, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT,
-    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
-    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_LIST_OF_VALUES, NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE,
-    NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_DEF,
-    NODE_KIND_PROPERTY_ROLE, NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUOTED_STRING,
-    NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP,
-    NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_DEF,
-    NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
+    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_DOMAIN, FIELD_NAME_IDENTITY,
+    FIELD_NAME_INVERSE_NAME, FIELD_NAME_LANGUAGE, FIELD_NAME_MAX, FIELD_NAME_MEMBER,
+    FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_RANGE, FIELD_NAME_RENAME,
+    FIELD_NAME_ROLE, FIELD_NAME_SOURCE, FIELD_NAME_TARGET, FIELD_NAME_TARGET_CARDINALITY,
+    FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_PROPERTY,
+    NODE_KIND_BOOLEAN, NODE_KIND_BUILTIN_SIMPLE_TYPE, NODE_KIND_CONSTRAINT,
+    NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL, NODE_KIND_DEFINITION, NODE_KIND_DOUBLE,
+    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_DEF, NODE_KIND_EVENT_DEF,
+    NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
+    NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IMPORT, NODE_KIND_IMPORT_STATEMENT,
+    NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER, NODE_KIND_IRI_REFERENCE,
+    NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT, NODE_KIND_LIST_OF_VALUES,
+    NODE_KIND_MAPPING_TYPE, NODE_KIND_MAPPING_VALUE, NODE_KIND_MEMBER_BY_REFERENCE,
+    NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_IMPORT,
+    NODE_KIND_PROPERTY_DEF, NODE_KIND_PROPERTY_ROLE, NODE_KIND_QUALIFIED_IDENTIFIER,
+    NODE_KIND_QUOTED_STRING, NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_DEF,
+    NODE_KIND_STRUCTURE_GROUP, NODE_KIND_STRUCTURE_MEMBER, NODE_KIND_TYPE_VARIANT,
+    NODE_KIND_UNION_DEF, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
     NODE_KIND_VALUE_VARIANT,
 };
 use std::collections::HashSet;
@@ -353,7 +354,6 @@ fn parse_module_body<'a>(
                                 NODE_KIND_IMPORT_STATEMENT,
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_DEFINITION,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -386,12 +386,7 @@ fn parse_import_statement<'a>(
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
-                        unexpected_node!(
-                            context,
-                            RULE_NAME,
-                            node,
-                            [NODE_KIND_IMPORT, NODE_KIND_LINE_COMMENT,]
-                        );
+                        unexpected_node!(context, RULE_NAME, node, NODE_KIND_IMPORT);
                     }
                 }
             }
@@ -432,11 +427,7 @@ fn parse_import<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_MODULE_IMPORT,
-                                NODE_KIND_MEMBER_IMPORT,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_MODULE_IMPORT, NODE_KIND_MEMBER_IMPORT,]
                         );
                     }
                 }
@@ -496,11 +487,7 @@ fn parse_identifier_reference<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_IDENTIFIER,
-                                NODE_KIND_QUALIFIED_IDENTIFIER,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_IDENTIFIER, NODE_KIND_QUALIFIED_IDENTIFIER,]
                         );
                     }
                 }
@@ -536,11 +523,7 @@ fn parse_annotation<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION_PROPERTY,
-                                NODE_KIND_CONSTRAINT,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_CONSTRAINT,]
                         );
                     }
                 }
@@ -587,7 +570,9 @@ fn parse_constraint<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    NODE_KIND_IDENTIFIER => {}
+                    NODE_KIND_IDENTIFIER => {
+                        // ignore: this is the name field above
+                    }
                     NODE_KIND_INFORMAL_CONSTRAINT => {
                         return Ok(Constraint::new(
                             constraint_name,
@@ -610,7 +595,6 @@ fn parse_constraint<'a>(
                                 NODE_KIND_IDENTIFIER,
                                 NODE_KIND_INFORMAL_CONSTRAINT,
                                 NODE_KIND_FORMAL_CONSTRAINT,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -644,6 +628,9 @@ fn parse_value<'a>(
                     NODE_KIND_IDENTIFIER_REFERENCE => {
                         return Ok(parse_identifier_reference(context, cursor)?.into());
                     }
+                    NODE_KIND_MAPPING_VALUE => {
+                        return Ok(parse_mapping_value(context, cursor)?.into());
+                    }
                     NODE_KIND_LIST_OF_VALUES => {
                         return Ok(parse_list_of_values(context, cursor)?.into());
                     }
@@ -658,7 +645,6 @@ fn parse_value<'a>(
                                 NODE_KIND_VALUE_CONSTRUCTOR,
                                 NODE_KIND_IDENTIFIER_REFERENCE,
                                 NODE_KIND_LIST_OF_VALUES,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -725,7 +711,6 @@ fn parse_simple_value<'a>(
                                 NODE_KIND_INTEGER,
                                 NODE_KIND_BOOLEAN,
                                 NODE_KIND_IRI_REFERENCE,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -767,11 +752,7 @@ fn parse_string<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_QUOTED_STRING,
-                                NODE_KIND_LANGUAGE_TAG,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_QUOTED_STRING, NODE_KIND_LANGUAGE_TAG,]
                         );
                     }
                 }
@@ -800,6 +781,24 @@ fn parse_value_constructor<'a>(
     let value = parse_simple_value(context, &mut child.walk())?;
 
     Ok(ValueConstructor::new(name, value).with_ts_span(node.into()))
+}
+
+fn parse_mapping_value<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<MappingValue, Error> {
+    let node = cursor.node();
+    rule_fn!("parse_mapping_value", node);
+
+    let child = node.child_by_field_name(FIELD_NAME_DOMAIN).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let domain = parse_simple_value(context, &mut child.walk())?;
+
+    let child = node.child_by_field_name(FIELD_NAME_RANGE).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let range = parse_value(context, &mut child.walk())?;
+
+    Ok(MappingValue::new(domain, range))
 }
 
 fn parse_list_of_values<'a>(
@@ -834,7 +833,6 @@ fn parse_list_of_values<'a>(
                                 NODE_KIND_SIMPLE_VALUE,
                                 NODE_KIND_VALUE_CONSTRUCTOR,
                                 NODE_KIND_IDENTIFIER_REFERENCE,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -893,7 +891,6 @@ fn parse_type_definition<'a>(
                                 NODE_KIND_EVENT_DEF,
                                 NODE_KIND_STRUCTURE_DEF,
                                 NODE_KIND_UNION_DEF,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -965,7 +962,6 @@ fn parse_data_type_base<'a>(
                         [
                             NODE_KIND_IDENTIFIER_REFERENCE,
                             NODE_KIND_BUILTIN_SIMPLE_TYPE,
-                            NODE_KIND_LINE_COMMENT,
                         ]
                     );
                 }
@@ -994,12 +990,7 @@ fn parse_annotation_only_body<'a>(
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
-                        unexpected_node!(
-                            context,
-                            RULE_NAME,
-                            node,
-                            [NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT,]
-                        );
+                        unexpected_node!(context, RULE_NAME, node, NODE_KIND_ANNOTATION);
                     }
                 }
             }
@@ -1053,6 +1044,9 @@ fn parse_entity_body<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
+                    NODE_KIND_IDENTITY_MEMBER => {
+                        // ignore: this is the identity field above
+                    }
                     NODE_KIND_ANNOTATION => {
                         body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
@@ -1065,8 +1059,7 @@ fn parse_entity_body<'a>(
                     NODE_KIND_ENTITY_GROUP => {
                         body.add_to_groups(parse_entity_group(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => (),
-                    NODE_KIND_IDENTITY_MEMBER => (),
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
@@ -1077,7 +1070,6 @@ fn parse_entity_body<'a>(
                                 NODE_KIND_MEMBER_BY_VALUE,
                                 NODE_KIND_MEMBER_BY_REFERENCE,
                                 NODE_KIND_ENTITY_GROUP,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -1122,7 +1114,6 @@ fn parse_entity_group<'a>(
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_MEMBER_BY_VALUE,
                                 NODE_KIND_MEMBER_BY_REFERENCE,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -1184,11 +1175,7 @@ fn parse_enum_body<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_VALUE_VARIANT,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_ANNOTATION, NODE_KIND_VALUE_VARIANT,]
                         );
                     }
                 }
@@ -1260,7 +1247,6 @@ fn parse_structure_body<'a>(
                                 NODE_KIND_ANNOTATION,
                                 NODE_KIND_STRUCTURE_MEMBER,
                                 NODE_KIND_STRUCTURE_GROUP,
-                                NODE_KIND_LINE_COMMENT,
                             ]
                         );
                     }
@@ -1298,11 +1284,7 @@ fn parse_structure_group<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_STRUCTURE_MEMBER,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_ANNOTATION, NODE_KIND_STRUCTURE_MEMBER,]
                         );
                     }
                 }
@@ -1387,11 +1369,7 @@ fn parse_union_body<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_TYPE_VARIANT,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_ANNOTATION, NODE_KIND_TYPE_VARIANT,]
                         );
                     }
                 }
@@ -1452,11 +1430,7 @@ fn parse_property_body<'a>(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_PROPERTY_ROLE,
-                                NODE_KIND_LINE_COMMENT,
-                            ]
+                            [NODE_KIND_ANNOTATION, NODE_KIND_PROPERTY_ROLE,]
                         );
                     }
                 }
@@ -1664,7 +1638,10 @@ fn parse_type_reference<'a>(
                         QualifiedIdentifier::new(module, member).into(),
                     ));
                 }
-                NODE_KIND_LINE_COMMENT => {}
+                NODE_KIND_MAPPING_TYPE => {
+                    let mapping = parse_mapping_type(context, &mut node.walk())?;
+                    return Ok(TypeReference::MappingType(mapping));
+                }
                 _ => {
                     unexpected_node!(
                         context,
@@ -1674,7 +1651,6 @@ fn parse_type_reference<'a>(
                             NODE_KIND_UNKNOWN_TYPE,
                             NODE_KIND_IDENTIFIER_REFERENCE,
                             NODE_KIND_BUILTIN_SIMPLE_TYPE,
-                            NODE_KIND_LINE_COMMENT,
                         ]
                     );
                 }
@@ -1683,6 +1659,24 @@ fn parse_type_reference<'a>(
         has_next = cursor.goto_next_sibling();
     }
     unreachable!()
+}
+
+fn parse_mapping_type<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<MappingType, Error> {
+    let node = cursor.node();
+    rule_fn!("parse_mapping_type", node);
+
+    let child = node.child_by_field_name(FIELD_NAME_DOMAIN).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let domain = parse_type_reference(context, &mut child.walk())?;
+
+    let child = node.child_by_field_name(FIELD_NAME_RANGE).unwrap();
+    context.check_if_error(&child, RULE_NAME)?;
+    let range = parse_type_reference(context, &mut child.walk())?;
+
+    Ok(MappingType::new(domain, range))
 }
 
 fn parse_enum_variant<'a>(

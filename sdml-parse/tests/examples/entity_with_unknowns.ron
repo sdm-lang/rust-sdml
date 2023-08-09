@@ -96,6 +96,8 @@ Module {
                                             ByValueMemberDef {
                                                 target_type: Unknown,
                                                 target_cardinality: Cardinality {
+                                                    ordering: None,
+                                                    uniqueness: None,
                                                     span: None,
                                                     min: 1,
                                                     max: Some(
@@ -139,6 +141,8 @@ Module {
                                                     ByValueMemberDef {
                                                         target_type: Unknown,
                                                         target_cardinality: Cardinality {
+                                                            ordering: None,
+                                                            uniqueness: None,
                                                             span: None,
                                                             min: 1,
                                                             max: Some(

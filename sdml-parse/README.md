@@ -7,6 +7,10 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.9**
+
+* Added support for `mapping_type` and `mapping_value` rules.
+
 **Version 0.1.8**
 
 * Removed macros from the resolver model.

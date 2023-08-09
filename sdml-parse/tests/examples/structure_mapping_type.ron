@@ -1,0 +1,141 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 103,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "Campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 102,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Structure(
+                StructureDef {
+                    span: Some(
+                        Span {
+                            start: 22,
+                            end: 97,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 32,
+                                end: 37,
+                            },
+                        ),
+                        value: "Thing",
+                    },
+                    body: Some(
+                        StructureBody {
+                            span: Some(
+                                Span {
+                                    start: 38,
+                                    end: 97,
+                                },
+                            ),
+                            annotations: [],
+                            members: [
+                                ByValueMember {
+                                    span: Some(
+                                        Span {
+                                            start: 45,
+                                            end: 91,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 45,
+                                                end: 55,
+                                            },
+                                        ),
+                                        value: "properties",
+                                    },
+                                    inner: Defined(
+                                        ByValueMemberDef {
+                                            target_type: MappingType(
+                                                MappingType {
+                                                    domain: Reference(
+                                                        QualifiedIdentifier(
+                                                            QualifiedIdentifier {
+                                                                span: None,
+                                                                module: Identifier {
+                                                                    span: None,
+                                                                    value: "sdml",
+                                                                },
+                                                                member: Identifier {
+                                                                    span: Some(
+                                                                        Span {
+                                                                            start: 73,
+                                                                            end: 79,
+                                                                        },
+                                                                    ),
+                                                                    value: "string",
+                                                                },
+                                                            },
+                                                        ),
+                                                    ),
+                                                    range: Reference(
+                                                        QualifiedIdentifier(
+                                                            QualifiedIdentifier {
+                                                                span: None,
+                                                                module: Identifier {
+                                                                    span: None,
+                                                                    value: "sdml",
+                                                                },
+                                                                member: Identifier {
+                                                                    span: Some(
+                                                                        Span {
+                                                                            start: 83,
+                                                                            end: 90,
+                                                                        },
+                                                                    ),
+                                                                    value: "integer",
+                                                                },
+                                                            },
+                                                        ),
+                                                    ),
+                                                },
+                                            ),
+                                            target_cardinality: Cardinality {
+                                                ordering: None,
+                                                uniqueness: None,
+                                                span: Some(
+                                                    Span {
+                                                        start: 59,
+                                                        end: 71,
+                                                    },
+                                                ),
+                                                min: 1,
+                                                max: None,
+                                            },
+                                            body: None,
+                                        },
+                                    ),
+                                },
+                            ],
+                            groups: [],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}

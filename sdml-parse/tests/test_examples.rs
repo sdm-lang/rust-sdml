@@ -17,6 +17,7 @@ macro_rules! test_example {
             if let Err(e) = module {
                 panic!("parse error: {}", e);
             }
+            println!("1");
             let module = module.unwrap();
 
             let module_as_string = format!("{:#?}\n", module);
@@ -26,11 +27,16 @@ macro_rules! test_example {
             if let Err(e) = expected_string {
                 panic!("io error: {}", e);
             }
+            println!("2");
 
             pretty_assertions::assert_eq!(module_as_string, expected_string.unwrap());
         }
     };
 }
+
+// ------------------------------------------------------------------------------------------------
+// Modules
+// ------------------------------------------------------------------------------------------------
 
 test_example!(test_module_annotations, "module_annotations");
 test_example!(test_module_empty, "module_empty");
@@ -39,6 +45,19 @@ test_example!(
     "module_empty_with_comments"
 );
 test_example!(test_module_with_underscore, "module_with_underscore");
+
+// ------------------------------------------------------------------------------------------------
+// Modules ❱ Imports
+// ------------------------------------------------------------------------------------------------
+
+test_example!(test_import_member_only, "import_member_only");
+test_example!(test_import_module_only, "import_module_only");
+test_example!(test_import_multiple_mixed, "import_multiple_mixed");
+test_example!(test_import_multiple_modules, "import_multiple_modules");
+
+// ------------------------------------------------------------------------------------------------
+// Annotations ❱ Single
+// ------------------------------------------------------------------------------------------------
 
 test_example!(test_annotation_single_boolean, "annotation_single_boolean");
 test_example!(
@@ -53,7 +72,12 @@ test_example!(
     test_annotation_single_language_string,
     "annotation_single_language_string"
 );
+test_example!(test_annotation_single_mapping, "annotation_single_mapping");
 test_example!(test_annotation_single_string, "annotation_single_string");
+
+// ------------------------------------------------------------------------------------------------
+// Annotations ❱ Multiple
+// ------------------------------------------------------------------------------------------------
 
 test_example!(
     test_annotation_multiple_decimal,
@@ -82,13 +106,16 @@ test_example!(
     "annotation_multiple_separate"
 );
 
-test_example!(test_import_member_only, "import_member_only");
-test_example!(test_import_module_only, "import_module_only");
-test_example!(test_import_multiple_mixed, "import_multiple_mixed");
-test_example!(test_import_multiple_modules, "import_multiple_modules");
+// ------------------------------------------------------------------------------------------------
+// Types ❱ Datatype
+// ------------------------------------------------------------------------------------------------
 
 test_example!(test_datatype_empty, "datatype_empty");
 test_example!(test_datatype_from_string, "datatype_from_string");
+
+// ------------------------------------------------------------------------------------------------
+// Types ❱ Entities
+// ------------------------------------------------------------------------------------------------
 
 test_example!(test_entity_empty, "entity_empty");
 test_example!(test_entity_with_diff_members, "entity_with_diff_members");
@@ -96,12 +123,29 @@ test_example!(test_entity_with_groups, "entity_with_groups");
 test_example!(test_entity_with_members, "entity_with_members");
 test_example!(test_entity_with_unknowns, "entity_with_unknowns");
 
+// ------------------------------------------------------------------------------------------------
+// Types ❱ Enums
+// ------------------------------------------------------------------------------------------------
+
 test_example!(test_enum_empty, "enum_empty");
 test_example!(test_enum_variants, "enum_variants");
 
+// ------------------------------------------------------------------------------------------------
+// Types ❱ Events
+// ------------------------------------------------------------------------------------------------
+
 test_example!(test_event_empty, "event_empty");
 
+// ------------------------------------------------------------------------------------------------
+// Types ❱ Structures
+// ------------------------------------------------------------------------------------------------
+
 test_example!(test_structure_empty, "structure_empty");
+test_example!(test_structure_mapping_type, "structure_mapping_type");
+
+// ------------------------------------------------------------------------------------------------
+// Types ❱ Unions
+// ------------------------------------------------------------------------------------------------
 
 test_example!(test_union_empty, "union_empty");
 test_example!(test_union_rename_variant, "union_rename_variant");

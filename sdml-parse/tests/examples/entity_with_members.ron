@@ -144,6 +144,8 @@ Module {
                                                     ),
                                                 ),
                                                 target_cardinality: Cardinality {
+                                                    ordering: None,
+                                                    uniqueness: None,
                                                     span: None,
                                                     min: 1,
                                                     max: Some(
@@ -200,6 +202,8 @@ Module {
                                                     ),
                                                 ),
                                                 target_cardinality: Cardinality {
+                                                    ordering: None,
+                                                    uniqueness: None,
                                                     span: None,
                                                     min: 1,
                                                     max: Some(
