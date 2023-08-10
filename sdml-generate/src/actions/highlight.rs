@@ -315,7 +315,7 @@ fn highlighter_init() -> (Highlighter, HighlightConfiguration) {
         tree_sitter_sdml::language(),
         tree_sitter_sdml::HIGHLIGHTS_QUERY,
         tree_sitter_sdml::INJECTIONS_QUERY,
-        "",
+        tree_sitter_sdml::LOCALS_QUERY,
     )
     .unwrap();
     config.configure(HIGHLIGHT_NAMES);

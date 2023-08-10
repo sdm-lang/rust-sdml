@@ -10,7 +10,7 @@ YYYYY
 */
 
 use sdml_core::error::Error;
-use sdml_core::model::ModelElement;
+use sdml_core::model::{ModelElement, MappingValue};
 use sdml_core::model::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, ByReferenceMember, ByReferenceMemberInner,
     ByValueMember, ByValueMemberInner, Cardinality, DatatypeDef, Definition, EntityBody, EntityDef,
@@ -36,7 +36,7 @@ use sdml_core::syntax::{
     NODE_KIND_MODULE_IMPORT, NODE_KIND_PROPERTY_BODY, NODE_KIND_QUALIFIED_IDENTIFIER,
     NODE_KIND_QUOTED_STRING, NODE_KIND_STRING, NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF,
     NODE_KIND_STRUCTURE_GROUP, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
-    NODE_KIND_UNKNOWN_TYPE, NODE_KIND_VALUE_CONSTRUCTOR, NODE_KIND_VALUE_VARIANT,
+    NODE_KIND_UNKNOWN_TYPE, NODE_KIND_VALUE_CONSTRUCTOR, NODE_KIND_VALUE_VARIANT, FIELD_NAME_ORDERING, FIELD_NAME_UNIQUENESS, FIELD_NAME_DOMAIN, FIELD_NAME_RANGE,
 };
 use std::fmt::Display;
 use std::io::Write;
@@ -398,6 +398,7 @@ fn write_value<W: Write>(me: &Value, w: &mut Writer<W>) -> Result<(), Error> {
         Value::Simple(v) => write_simple_value(v, w)?,
         Value::ValueConstructor(v) => write_value_constructor(v, w)?,
         Value::Reference(v) => write_identifier_reference(v, w)?,
+        Value::Mapping(v) => write_mapping_value(v, w)?,
         Value::List(vs) => write_list_of_values(vs, w)?,
     }
 
@@ -434,6 +435,26 @@ fn write_simple_value<W: Write>(me: &SimpleValue, w: &mut Writer<W>) -> Result<(
     Ok(())
 }
 
+fn write_mapping_value<W: Write>(me: &MappingValue, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_LIST_OF_VALUES)?;
+    w.indent();
+
+    write_span!(me, w);
+
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_DOMAIN)?;
+    write_simple_value(me.domain(), w)?;
+
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_RANGE)?;
+    write_value(me.range(), w)?;
+
+    w.close_paren()?;
+
+    w.outdent();
+    Ok(())
+}
+
 fn write_list_of_values<W: Write>(me: &ListOfValues, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node(NODE_KIND_LIST_OF_VALUES)?;
     w.indent();
@@ -464,6 +485,7 @@ fn write_list_member<W: Write>(me: &ListMember, w: &mut Writer<W>) -> Result<(),
         ListMember::Simple(v) => write_simple_value(v, w)?,
         ListMember::ValueConstructor(v) => write_value_constructor(v, w)?,
         ListMember::Reference(v) => write_identifier_reference(v, w)?,
+        ListMember::Mapping(v) => write_mapping_value(v, w)?,
     }
 
     Ok(())
@@ -1068,6 +1090,16 @@ fn write_cardinality<W: Write>(me: &Cardinality, w: &mut Writer<W>) -> Result<()
     w.start_node(NODE_KIND_CARDINALITY_EXPRESSION)?;
 
     maybe_write_span(me.ts_span(), w)?;
+
+    if let Some(ordering) = me.ordering() {
+        w.field(FIELD_NAME_ORDERING, ordering)?;
+        w.space()?;
+    }
+
+    if let Some(uniqueness) = me.uniqueness() {
+        w.field(FIELD_NAME_UNIQUENESS, uniqueness)?;
+        w.space()?;
+    }
 
     w.field(FIELD_NAME_MIN, me.min_occurs())?;
 

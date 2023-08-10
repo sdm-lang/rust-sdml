@@ -57,6 +57,7 @@ Module {
                     ),
                     value: Mapping(
                         MappingValue {
+                            span: None,
                             domain: String(
                                 LanguageString {
                                     span: Some(

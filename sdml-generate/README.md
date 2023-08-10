@@ -7,18 +7,24 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 
 ## Changes
 
+**Version 0.1.8**
+
+* Feature: Add mapping type to the *s-expr* and *UML* generators.
+* Build: Update to latest `tree-sitter-sdml` to pick up changes in highlighting.
+* Build: Update to latest `sdml-core` to pick up changes in `Cardinality::to_uml_string`.
+
 **Version 0.1.7**
 
-* Update with recent model changes and fixes.
-* Clean-up the UML output.
+* Build: Update with recent model changes and fixes.
+* Fix: Clean-up the UML output.
 
 **Version 0.1.6**
 
-Updated org-mode and UML generators with a number of model changes from sdml-core.
+* Feature: Updated org-mode and UML generators with a number of model changes from sdml-core.
 
 **Version 0.1.5**
 
-Updated with a number of model changes from sdml-core.
+* Feature: Updated with a number of model changes from sdml-core.
 
 **Version 0.1.4**
 

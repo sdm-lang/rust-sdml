@@ -521,28 +521,53 @@ fn make_member(
     card: &Cardinality,
     by_ref: bool,
 ) -> (String, bool) {
-    if let TypeReference::Reference(target_type) = type_ref {
-        if *card
-            == if by_ref {
-                DEFAULT_BY_REFERENCE_CARDINALITY
+    match type_ref {
+        TypeReference::Reference(target_type) => {
+            if *card
+                == if by_ref {
+                    DEFAULT_BY_REFERENCE_CARDINALITY
+                } else {
+                    DEFAULT_BY_VALUE_CARDINALITY
+                }
+            {
+                (format!("    {name}: {target_type}\n"), true)
             } else {
-                DEFAULT_BY_VALUE_CARDINALITY
+                (
+                    format!(
+                        "  s_{source} {}--> \"{}\\n{name}\" {}\n",
+                        if by_ref { "o" } else { "*" },
+                        card.to_uml_string(),
+                        make_id(target_type),
+                    ),
+                    false,
+                )
             }
-        {
-            (format!("    {name}: {target_type}\n"), true)
-        } else {
+        }
+        TypeReference::MappingType(_) => {
             (
                 format!(
-                    "  s_{source} {}--> \"{}\\n{name}\" {}\n",
-                    if by_ref { "o" } else { "*" },
+                    "    {name}: {} {}\n",
                     card.to_uml_string(),
-                    make_id(target_type),
+                    make_type_reference(type_ref)
                 ),
-                false,
+                true
             )
         }
-    } else {
-        (format!("    {name}: ?\n"), true)
+        TypeReference::Unknown => {
+            (format!("    {name}: unknown\n"), true)
+        }
+    }
+}
+
+fn make_type_reference(type_ref: &TypeReference) -> String {
+    match type_ref {
+        TypeReference::Unknown => "unknown".to_string(),
+        TypeReference::Reference(v) => v.to_string(),
+        TypeReference::MappingType(v) => format!(
+            "Mapping<{}, {}>",
+            make_type_reference(v.domain()),
+            make_type_reference(v.range()),
+        ),
     }
 }
 
