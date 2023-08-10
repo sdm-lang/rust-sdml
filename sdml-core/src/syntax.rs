@@ -99,6 +99,8 @@ pub const FIELD_NAME_MODULE: &str = NODE_KIND_MODULE;
 
 pub const FIELD_NAME_NAME: &str = "name";
 
+pub const FIELD_NAME_ORDERING: &str = "ordering";
+
 pub const FIELD_NAME_RANGE: &str = "range";
 pub const FIELD_NAME_RENAME: &str = "rename";
 pub const FIELD_NAME_ROLE: &str = "role";
@@ -108,6 +110,8 @@ pub const FIELD_NAME_INVERSE_NAME: &str = "inverse";
 
 pub const FIELD_NAME_TARGET: &str = "target";
 pub const FIELD_NAME_TARGET_CARDINALITY: &str = "target_cardinality";
+
+pub const FIELD_NAME_UNIQUENESS: &str = "uniqueness";
 
 pub const FIELD_NAME_VALUE: &str = "value";
 

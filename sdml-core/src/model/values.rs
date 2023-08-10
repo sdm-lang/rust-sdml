@@ -68,6 +68,7 @@ pub struct LanguageTag {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MappingValue {
+    span: Option<Span>,
     domain: SimpleValue,
     range: Box<Value>,
 }
@@ -398,8 +399,32 @@ impl Display for MappingValue {
 
 impl MappingValue {
     pub fn new(domain: SimpleValue, range: Value) -> Self {
-        Self { domain, range: Box::new(range) }
+        Self { span: Default::default(), domain, range: Box::new(range) }
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ts_span(self, ts_span: Span) -> Self {
+        Self {
+            span: Some(ts_span),
+            ..self
+        }
+    }
+
+    pub fn has_ts_span(&self) -> bool {
+        self.ts_span().is_some()
+    }
+    pub fn ts_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    pub fn set_ts_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    pub fn unset_ts_span(&mut self) {
+        self.span = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn domain(&self) -> &SimpleValue {
         &self.domain
@@ -408,6 +433,8 @@ impl MappingValue {
     pub fn set_domain(&mut self, domain: SimpleValue) {
         self.domain = domain;
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn range(&self) -> &Value {
         &self.range

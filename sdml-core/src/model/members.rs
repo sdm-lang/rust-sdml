@@ -537,7 +537,11 @@ impl TypeReference {
     }
 
     pub fn is_complete(&self) -> bool {
-        !self.is_unknown()
+        match self {
+            TypeReference::Unknown => false,
+            TypeReference::Reference(_) => true,
+            TypeReference::MappingType(v) => v.is_complete(),
+        }
     }
 }
 
@@ -581,6 +585,10 @@ impl MappingType {
         T: Into<TypeReference>
     {
         self.range = Box::new(range.into());
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.range.is_complete()
     }
 }
 
@@ -778,7 +786,17 @@ impl Cardinality {
     pub fn to_uml_string(&self) -> String {
         if self.is_range() {
             format!(
-                "{}..{}",
+                "{}{}{}..{}",
+                if let Some(ordering) = self.ordering() {
+                    format!("{{{}}} ", ordering)
+                } else {
+                    String::new()
+                },
+                if let Some(uniqueness) = self.uniqueness() {
+                    format!("{{{}}} ", uniqueness)
+                } else {
+                    String::new()
+                },
                 self.min_occurs(),
                 self.max_occurs()
                     .map(|i| i.to_string())

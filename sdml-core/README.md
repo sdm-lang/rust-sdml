@@ -7,30 +7,35 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.1.11**
+
+* Feature: Update `Cardinality::to_uml_string` to output constraints.
+* Fix: Missing features in mapping types and values.
+
 **Version 0.1.10**
 
-* Added support for `mapping_type` and `mapping_value` rules.
+* Feature: Added support for `mapping_type` and `mapping_value` rules.
 
 **Version 0.1.9**
 
-* Run Cargo format and clippy
+* Style: Run Cargo format and clippy
 
 **Version 0.1.8**
 
-* Remove most macros from the model.
-* Made the name for constraints required, not `Option`.
+* Feature: Made the name for constraints required, not `Option`.
+* Style: Remove most macros from the model.
 
 **Version 0.1.7**
 
-* Minor fixes
+* Fix: Minor fixes
 
 **Version 0.1.6**
 
-* Updated parser with grammar changes in tree-sitter-sdml v0.1.29
+* Build: Updated parser with grammar changes in tree-sitter-sdml v0.1.29
 
 **Version 0.1.6**
 
-* Updated parser with grammar changes in tree-sitter-sdml v0.1.26
+* Build: Updated parser with grammar changes in tree-sitter-sdml v0.1.26
 
 **Version 0.1.5**
 
