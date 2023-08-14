@@ -40,16 +40,6 @@ macro_rules! impl_from_for_variant {
             }
         }
     };
-    ($tyname: ty, $varname: ident, into $vartype: ty) => {
-        impl<T> From<T> for $tyname
-        where
-            T: Into<$vartype>,
-        {
-            fn from(v: T) -> Self {
-                Self::$varname(v.into())
-            }
-        }
-    };
 }
 
 // ------------------------------------------------------------------------------------------------

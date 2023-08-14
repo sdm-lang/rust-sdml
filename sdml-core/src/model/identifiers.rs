@@ -15,11 +15,6 @@ use serde::{Deserialize, Serialize};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub trait Named {
-    fn name(&self) -> &Identifier;
-    fn set_name(&mut self, name: &Identifier);
-}
-
 ///
 /// Corresponds the grammar rule `identifier`.
 ///

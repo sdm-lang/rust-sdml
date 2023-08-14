@@ -1,9 +1,9 @@
-use crate::syntax::{KW_TYPE_UNKNOWN, KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_UNIQUENESS_UNIQUE, KW_UNIQUENESS_NONUNIQUE};
-
-use super::{
-    AnnotationOnlyBody, Identifier, IdentifierReference, ModelElement, QualifiedIdentifier, Span,
+use crate::model::{Identifier, IdentifierReference, QualifiedIdentifier, Span};
+use crate::syntax::{
+    KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_TYPE_UNKNOWN, KW_UNIQUENESS_NONUNIQUE,
+    KW_UNIQUENESS_UNIQUE,
 };
-use std::{collections::HashSet, fmt::{Debug, Display}};
+use std::fmt::{Debug, Display};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -11,96 +11,6 @@ use serde::{Deserialize, Serialize};
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Public Types ❱ Members ❱ Identity
-// ------------------------------------------------------------------------------------------------
-
-/// Corresponds to the grammar rule `identify_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct IdentityMember {
-    span: Option<Span>,
-    name: Identifier,
-    inner: IdentityMemberInner,
-}
-
-/// Corresponds to the choice component within grammar rule `identity_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum IdentityMemberInner {
-    PropertyRole(Identifier),
-    Defined(IdentityMemberDef),
-}
-
-/// Corresponds to the definition component within grammar rule `identity_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct IdentityMemberDef {
-    target_type: TypeReference,
-    body: Option<AnnotationOnlyBody>,
-}
-
-// ------------------------------------------------------------------------------------------------
-// Public Types ❱ Members ❱ ByValue
-// ------------------------------------------------------------------------------------------------
-
-/// Corresponds to the grammar rule `by_value_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct ByValueMember {
-    span: Option<Span>,
-    name: Identifier,
-    inner: ByValueMemberInner,
-}
-
-/// Corresponds to the choice component within grammar rule `by_value_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum ByValueMemberInner {
-    PropertyRole(Identifier),
-    Defined(ByValueMemberDef),
-}
-
-/// Corresponds to the definition component within grammar rule `by_value_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct ByValueMemberDef {
-    target_type: TypeReference,
-    target_cardinality: Cardinality,
-    body: Option<AnnotationOnlyBody>,
-}
-
-// ------------------------------------------------------------------------------------------------
-// Public Types ❱ Members ❱ ByReference
-// ------------------------------------------------------------------------------------------------
-
-/// Corresponds to the grammar rule `by_reference_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct ByReferenceMember {
-    span: Option<Span>,
-    name: Identifier,
-    inner: ByReferenceMemberInner,
-}
-
-/// Corresponds to the choice component within grammar rule `by_reference_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum ByReferenceMemberInner {
-    PropertyRole(Identifier),
-    Defined(ByReferenceMemberDef),
-}
-
-/// Corresponds to the definition component within grammar rule `by_reference_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct ByReferenceMemberDef {
-    target_type: TypeReference,
-    inverse_name: Option<Identifier>,
-    target_cardinality: Cardinality,
-    body: Option<AnnotationOnlyBody>,
-}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Members ❱ Type Reference
@@ -115,6 +25,10 @@ pub enum TypeReference {
     // builtin_simple_type is converted into a reference
     MappingType(MappingType),
 }
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Members ❱ Mapping Type
+// ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the definition component within grammar rule `mapping_type`.
 #[derive(Clone, Debug)]
@@ -132,12 +46,25 @@ pub struct MappingType {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Cardinality {
+    span: Option<Span>,
     ordering: Option<Ordering>,
     uniqueness: Option<Uniqueness>,
-    span: Option<Span>,
     min: u32,
     max: Option<u32>,
 }
+
+pub const DEFAULT_BY_REFERENCE_CARDINALITY: Cardinality = Cardinality::one();
+pub const DEFAULT_BY_VALUE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
+
+pub const TYPE_BAG_CARDINALITY: Cardinality = Cardinality::zero_or_more();
+pub const TYPE_LIST_CARDINALITY: Cardinality =
+    Cardinality::zero_or_more().with_ordering(Ordering::Ordered);
+pub const TYPE_SET_CARDINALITY: Cardinality =
+    Cardinality::zero_or_more().with_uniqueness(Uniqueness::Unique);
+pub const TYPE_ORDERED_SET_CARDINALITY: Cardinality = Cardinality::zero_or_more()
+    .with_ordering(Ordering::Ordered)
+    .with_uniqueness(Uniqueness::Unique);
+pub const TYPE_MAYBE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
 
 /// Corresponds to the grammar rule `sequence_ordering`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -351,155 +278,20 @@ macro_rules! member_def_impl {
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members ❱ Identity
-// ------------------------------------------------------------------------------------------------
-
-member_model_element_impl!(IdentityMember);
-
-member_impl!(IdentityMember, IdentityMemberInner, IdentityMemberDef);
-
-member_inner_impl!(IdentityMemberInner, IdentityMemberDef);
-
-impl IdentityMemberDef {
-    pub fn new(target_type: TypeReference) -> Self {
-        Self {
-            target_type,
-            body: None,
-        }
-    }
-    pub fn new_named(target_type: IdentifierReference) -> Self {
-        Self {
-            target_type: target_type.into(),
-            body: None,
-        }
-    }
-    pub fn new_unknown() -> Self {
-        Self {
-            target_type: TypeReference::Unknown,
-            body: None,
-        }
-    }
-    member_def_impl!();
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members ❱ ByValue
-// ------------------------------------------------------------------------------------------------
-
-member_model_element_impl!(ByValueMember);
-
-member_impl!(ByValueMember, ByValueMemberInner, ByValueMemberDef);
-
-member_inner_impl!(ByValueMemberInner, ByValueMemberDef);
-
-impl ByValueMemberDef {
-    pub fn new(target_type: TypeReference) -> Self {
-        Self {
-            target_type,
-            target_cardinality: DEFAULT_BY_VALUE_CARDINALITY,
-            body: None,
-        }
-    }
-    pub fn new_named(target_type: IdentifierReference) -> Self {
-        Self {
-            target_type: target_type.into(),
-            target_cardinality: DEFAULT_BY_VALUE_CARDINALITY,
-            body: None,
-        }
-    }
-    pub fn new_unknown() -> Self {
-        Self {
-            target_type: TypeReference::Unknown,
-            target_cardinality: DEFAULT_BY_VALUE_CARDINALITY,
-            body: None,
-        }
-    }
-
-    pub fn target_cardinality(&self) -> &Cardinality {
-        &self.target_cardinality
-    }
-
-    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
-        self.target_cardinality = target_cardinality;
-    }
-
-    member_def_impl!();
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members ❱ ByReference
-// ------------------------------------------------------------------------------------------------
-
-member_model_element_impl!(ByReferenceMember);
-
-member_impl!(
-    ByReferenceMember,
-    ByReferenceMemberInner,
-    ByReferenceMemberDef
-);
-
-member_inner_impl!(ByReferenceMemberInner, ByReferenceMemberDef);
-
-impl ByReferenceMemberDef {
-    pub fn new(target_type: TypeReference) -> Self {
-        Self {
-            target_type,
-            target_cardinality: DEFAULT_BY_REFERENCE_CARDINALITY,
-            inverse_name: None,
-            body: None,
-        }
-    }
-    pub fn new_named(target_type: IdentifierReference) -> Self {
-        Self {
-            target_type: target_type.into(),
-            target_cardinality: DEFAULT_BY_REFERENCE_CARDINALITY,
-            inverse_name: None,
-            body: None,
-        }
-    }
-    pub fn new_unknown() -> Self {
-        Self {
-            target_type: TypeReference::Unknown,
-            target_cardinality: DEFAULT_BY_REFERENCE_CARDINALITY,
-            inverse_name: None,
-            body: None,
-        }
-    }
-
-    pub fn target_cardinality(&self) -> &Cardinality {
-        &self.target_cardinality
-    }
-
-    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
-        self.target_cardinality = target_cardinality;
-    }
-
-    pub fn inverse_name(&self) -> Option<&Identifier> {
-        self.inverse_name.as_ref()
-    }
-
-    pub fn set_inverse_name(&mut self, inverse_name: Identifier) {
-        self.inverse_name = Some(inverse_name);
-    }
-
-    pub fn unset_inverse_name(&mut self) {
-        self.inverse_name = None;
-    }
-
-    member_def_impl!();
-}
-
-// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Type Reference
 // ------------------------------------------------------------------------------------------------
 
 impl Display for TypeReference {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            TypeReference::Unknown => KW_TYPE_UNKNOWN.to_string(),
-            TypeReference::Reference(v) => v.to_string(),
-            TypeReference::MappingType(v) => v.to_string(),
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                TypeReference::Unknown => KW_TYPE_UNKNOWN.to_string(),
+                TypeReference::Reference(v) => v.to_string(),
+                TypeReference::MappingType(v) => v.to_string(),
+            }
+        )
     }
 }
 
@@ -556,7 +348,7 @@ impl Display for MappingType {
 }
 
 impl MappingType {
-    pub fn new<T1,T2>(domain: T1, range: T2) -> Self
+    pub fn new<T1, T2>(domain: T1, range: T2) -> Self
     where
         T1: Into<TypeReference>,
         T2: Into<TypeReference>,
@@ -572,7 +364,7 @@ impl MappingType {
     }
     pub fn set_domain<T>(&mut self, domain: T)
     where
-        T: Into<TypeReference>
+        T: Into<TypeReference>,
     {
         self.domain = Box::new(domain.into());
     }
@@ -582,7 +374,7 @@ impl MappingType {
     }
     pub fn set_range<T>(&mut self, range: T)
     where
-        T: Into<TypeReference>
+        T: Into<TypeReference>,
     {
         self.range = Box::new(range.into());
     }
@@ -596,21 +388,17 @@ impl MappingType {
 // Implementations ❱ Members ❱ Cardinality
 // ------------------------------------------------------------------------------------------------
 
-pub const DEFAULT_BY_VALUE_CARDINALITY: Cardinality = Cardinality::new_single(1);
-
-pub const DEFAULT_BY_REFERENCE_CARDINALITY: Cardinality = Cardinality::new_range(0, 1);
-
 impl Display for Cardinality {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{{{}{}{}..{}}}",
-            self.ordering.map(|c|format!("{} ", c)).unwrap_or_default(),
-            self.uniqueness.map(|c|format!("{} ", c)).unwrap_or_default(),
+            self.ordering.map(|c| format!("{} ", c)).unwrap_or_default(),
+            self.uniqueness
+                .map(|c| format!("{} ", c))
+                .unwrap_or_default(),
             self.min_occurs(),
-            self.max_occurs()
-                .map(|i| i.to_string())
-                .unwrap_or_default()
+            self.max_occurs().map(|i| i.to_string()).unwrap_or_default()
         )
     }
 }
@@ -652,9 +440,29 @@ impl Cardinality {
         }
     }
 
+    #[inline(always)]
+    pub const fn one() -> Self {
+        Self::new_single(1)
+    }
+
+    #[inline(always)]
+    pub const fn zero_or_one() -> Self {
+        Self::new_range(0, 1)
+    }
+
+    #[inline(always)]
+    pub const fn one_or_more() -> Self {
+        Self::new_unbounded(1)
+    }
+
+    #[inline(always)]
+    pub const fn zero_or_more() -> Self {
+        Self::new_unbounded(0)
+    }
+
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
+    pub const fn with_ts_span(self, ts_span: Span) -> Self {
         Self {
             span: Some(ts_span),
             ..self
@@ -675,7 +483,7 @@ impl Cardinality {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ordering(self, ordering: Ordering) -> Self {
+    pub const fn with_ordering(self, ordering: Ordering) -> Self {
         Self {
             ordering: Some(ordering),
             ..self
@@ -688,14 +496,24 @@ impl Cardinality {
     }
 
     #[inline(always)]
+    pub fn set_ordering(&mut self, ordering: Ordering) {
+        self.ordering = Some(ordering);
+    }
+
+    #[inline(always)]
+    pub fn unset_ordering(&mut self) {
+        self.ordering = None;
+    }
+
+    #[inline(always)]
     pub fn is_ordered(&self) -> Option<bool> {
-        self.ordering().map(|o|o == Ordering::Ordered)
+        self.ordering().map(|o| o == Ordering::Ordered)
     }
 
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+    pub const fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
         Self {
             uniqueness: Some(uniqueness),
             ..self
@@ -708,8 +526,18 @@ impl Cardinality {
     }
 
     #[inline(always)]
+    pub fn set_uniqueness(&mut self, uniqueness: Uniqueness) {
+        self.uniqueness = Some(uniqueness);
+    }
+
+    #[inline(always)]
+    pub fn unset_uniqueness(&mut self) {
+        self.uniqueness = None;
+    }
+
+    #[inline(always)]
     pub fn is_unique(&self) -> Option<bool> {
-        self.uniqueness().map(|u|u == Uniqueness::Unique)
+        self.uniqueness().map(|u| u == Uniqueness::Unique)
     }
 
     // --------------------------------------------------------------------------------------------
@@ -771,7 +599,12 @@ impl Cardinality {
     // --------------------------------------------------------------------------------------------
 
     pub fn sequence_type(&self) -> PseudoSequenceType {
-        match (self.is_ordered(), self.is_unique(), self.min, self.max.unwrap_or(self.min)) {
+        match (
+            self.is_ordered(),
+            self.is_unique(),
+            self.min,
+            self.max.unwrap_or(self.min),
+        ) {
             (_, _, 0, 1) => PseudoSequenceType::Maybe,
             (Some(true), Some(true), _, _) => PseudoSequenceType::UnorderedSet,
             (Some(false), Some(true), _, _) => PseudoSequenceType::Set,
@@ -818,10 +651,14 @@ impl Default for Ordering {
 
 impl Display for Ordering {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Ordering::Ordered => KW_ORDERING_ORDERED,
-            Ordering::Unordered => KW_ORDERING_UNORDERED,
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Ordering::Ordered => KW_ORDERING_ORDERED,
+                Ordering::Unordered => KW_ORDERING_UNORDERED,
+            }
+        )
     }
 }
 
@@ -835,10 +672,14 @@ impl Default for Uniqueness {
 
 impl Display for Uniqueness {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Uniqueness::Unique => KW_UNIQUENESS_UNIQUE,
-            Uniqueness::Nonunique => KW_UNIQUENESS_NONUNIQUE,
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Uniqueness::Unique => KW_UNIQUENESS_UNIQUE,
+                Uniqueness::Nonunique => KW_UNIQUENESS_NONUNIQUE,
+            }
+        )
     }
 }
 
@@ -849,3 +690,12 @@ impl Display for Uniqueness {
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
+
+mod by_reference;
+pub use by_reference::{ByReferenceMember, ByReferenceMemberDef, ByReferenceMemberInner};
+
+mod by_value;
+pub use by_value::{ByValueMember, ByValueMemberDef, ByValueMemberInner};
+
+mod identity;
+pub use identity::{IdentityMember, IdentityMemberDef, IdentityMemberInner};

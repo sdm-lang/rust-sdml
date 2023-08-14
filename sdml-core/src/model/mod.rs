@@ -4,7 +4,7 @@ Provide the Rust types that implement an in-memory representation of the the SDM
 The following.
 
  * **Identifiers**
-   * [`Identifier`], [`IdentifierReference`], [`Named`], [`QualifiedIdentifier`]
+   * [`Identifier`], [`IdentifierReference`], [`QualifiedIdentifier`]
 
  * **Modules and Imports**
    * [`Import`], [`ImportStatement`], [`Module`], [`ModuleBody`]
@@ -140,20 +140,28 @@ impl Span {
 #[macro_use]
 mod macros;
 
-mod ids;
-pub use ids::{Identifier, IdentifierReference, Named, QualifiedIdentifier};
+mod identifiers;
+pub use identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 
-mod mods;
-pub use mods::{Import, ImportStatement, Module, ModuleBody};
+mod modules;
+pub use modules::{Module, ModuleBody};
+
+mod imports;
+pub use imports::{Import, ImportStatement};
 
 mod annotations;
 pub use annotations::{Annotation, AnnotationProperty};
 
 mod constraints;
 pub use constraints::{
-    AtomicSentence, BinaryOperation, BooleanSentence, BoundSentence, Constraint, ConstraintBody,
-    ConstraintSentence, ControlledLanguageString, ControlledLanguageTag, FunctionalTerm, NamePath,
-    QuantifiedSentence, SimpleSentence, Subject, Term,
+    AnyOr, AtomicSentence, BinaryExpressionOperation, BooleanExpression, BooleanSentence,
+    BoundExpression, BoundSentence, Constraint, ConstraintBody, ConstraintSentence,
+    ControlledLanguageString, ControlledLanguageTag, EnvironmentDef, EnvironmentDefBody,
+    Expression, FormalConstraint, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
+    FunctionTypeReference, FunctionalTerm, IteratorTarget, NamePath, PredicateListMember,
+    PredicateValue, PredicateValueList, QuantifiedExpression, QuantifiedSentence,
+    QuantifierBinding, QuantifierNamedBinding, SequenceComprehension, SequenceIterator,
+    SimpleSentence, Subject, Term, TypeIterator,
 };
 
 mod values;
@@ -162,8 +170,8 @@ pub use values::{
     ValueConstructor,
 };
 
-mod types;
-pub use types::{
+mod definitions;
+pub use definitions::{
     AnnotationOnlyBody, DatatypeDef, Definition, EntityBody, EntityDef, EntityGroup, EntityMember,
     EnumBody, EnumDef, EventDef, PropertyBody, PropertyDef, PropertyRole, StructureBody,
     StructureDef, StructureGroup, TypeVariant, UnionBody, UnionDef, ValueVariant,
@@ -174,7 +182,9 @@ pub use members::{
     ByReferenceMember, ByReferenceMemberDef, ByReferenceMemberInner, ByValueMember,
     ByValueMemberDef, ByValueMemberInner, Cardinality, IdentityMember, IdentityMemberDef,
     IdentityMemberInner, MappingType, Ordering, PseudoSequenceType, TypeReference, Uniqueness,
-    DEFAULT_BY_REFERENCE_CARDINALITY, DEFAULT_BY_VALUE_CARDINALITY,
+    DEFAULT_BY_REFERENCE_CARDINALITY, DEFAULT_BY_VALUE_CARDINALITY, TYPE_BAG_CARDINALITY,
+    TYPE_LIST_CARDINALITY, TYPE_MAYBE_CARDINALITY, TYPE_ORDERED_SET_CARDINALITY,
+    TYPE_SET_CARDINALITY,
 };
 
 pub mod walk;

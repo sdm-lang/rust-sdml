@@ -393,13 +393,17 @@ impl LanguageTag {
 
 impl Display for MappingValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} -> {}", self.domain, self.range) 
+        write!(f, "{} -> {}", self.domain, self.range)
     }
 }
 
 impl MappingValue {
     pub fn new(domain: SimpleValue, range: Value) -> Self {
-        Self { span: Default::default(), domain, range: Box::new(range) }
+        Self {
+            span: Default::default(),
+            domain,
+            range: Box::new(range),
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -481,6 +485,8 @@ impl ListOfValues {
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn has_ts_span(&self) -> bool {
         self.ts_span().is_some()
     }
@@ -493,6 +499,8 @@ impl ListOfValues {
     pub fn unset_ts_span(&mut self) {
         self.span = None;
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
