@@ -357,7 +357,12 @@ pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<()
 // ------------------------------------------------------------------------------------------------
 
 fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_datatype(def.name(), def.base_type(), def.has_body(), def.source_span())?;
+    walker.start_datatype(
+        def.name(),
+        def.base_type(),
+        def.has_body(),
+        def.source_span(),
+    )?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());

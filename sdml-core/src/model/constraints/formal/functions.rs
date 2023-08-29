@@ -1,12 +1,12 @@
+use crate::error::Error;
+use crate::model::check::Validate;
 use crate::model::constraints::ConstraintSentence;
 use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::members::{MappingType, Ordering, Uniqueness, CardinalityRange};
-use crate::model::Span;
-use crate::error::Error;
+use crate::model::members::{CardinalityRange, MappingType, Ordering, Uniqueness};
 use crate::model::modules::Module;
-use crate::model::check::Validate;
-use std::fmt::Display;
+use crate::model::Span;
 use crate::syntax::KW_WILDCARD;
+use std::fmt::Display;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -268,7 +268,11 @@ impl Validate for FunctionCardinality {
 }
 
 impl FunctionCardinality {
-    pub const fn new(ordering: Option<Ordering>, uniqueness: Option<Uniqueness>, range: Option<CardinalityRange>) -> Self {
+    pub const fn new(
+        ordering: Option<Ordering>,
+        uniqueness: Option<Uniqueness>,
+        range: Option<CardinalityRange>,
+    ) -> Self {
         Self {
             span: None,
             ordering,

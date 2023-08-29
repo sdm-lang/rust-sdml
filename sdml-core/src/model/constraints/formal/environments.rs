@@ -1,6 +1,6 @@
 use crate::model::constraints::{
-    BooleanSentence, ConstraintSentence, FunctionDef, PredicateValue, SequenceOfPredicateValues,
-    QuantifiedSentence, SimpleSentence,
+    BooleanSentence, ConstraintSentence, FunctionDef, PredicateValue, QuantifiedSentence,
+    SequenceOfPredicateValues, SimpleSentence,
 };
 use crate::model::identifiers::Identifier;
 use crate::model::values::SimpleValue;

@@ -5,7 +5,13 @@ use crate::error::Error;
 use crate::model::constraints::{FunctionComposition, SequenceBuilder, Term};
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::Span;
-use crate::syntax::{KW_TYPE_EXISTS_SYMBOL, KW_TYPE_EXISTS, KW_TYPE_FORALL_SYMBOL, KW_TYPE_FORALL, KW_RELATION_NOT_EQUAL_SYMBOL, KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL, KW_RELATION_GREATER_THAN_OR_EQUAL, KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL, KW_RELATION_GREATER_THAN, KW_RELATION_LESS_THAN, KW_RELATION_NOT_EQUAL};
+use crate::syntax::{
+    KW_RELATION_GREATER_THAN, KW_RELATION_GREATER_THAN_OR_EQUAL,
+    KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL, KW_RELATION_LESS_THAN,
+    KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL, KW_RELATION_NOT_EQUAL,
+    KW_RELATION_NOT_EQUAL_SYMBOL, KW_TYPE_EXISTS, KW_TYPE_EXISTS_SYMBOL, KW_TYPE_FORALL,
+    KW_TYPE_FORALL_SYMBOL,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -369,12 +375,12 @@ impl_has_source_span_for!(AtomicSentence);
 impl AtomicSentence {
     pub fn new<T>(predicate: T) -> Self
     where
-        T: Into<Term>
+        T: Into<Term>,
     {
         Self {
             span: Default::default(),
             predicate: predicate.into(),
-            arguments: Default::default()
+            arguments: Default::default(),
         }
     }
 
@@ -386,7 +392,7 @@ impl AtomicSentence {
         Self {
             span: Default::default(),
             predicate: predicate.into(),
-            arguments: Vec::from_iter(arguments.into_iter())
+            arguments: Vec::from_iter(arguments.into_iter()),
         }
     }
 
@@ -510,7 +516,11 @@ impl Inequation {
         L: Into<Term>,
         R: Into<Term>,
     {
-        Self::new(left_operand, InequalityRelation::LessThanOrEqual, right_operand)
+        Self::new(
+            left_operand,
+            InequalityRelation::LessThanOrEqual,
+            right_operand,
+        )
     }
 
     #[inline(always)]
@@ -528,7 +538,11 @@ impl Inequation {
         L: Into<Term>,
         R: Into<Term>,
     {
-        Self::new(left_operand, InequalityRelation::GreaterThanOrEqual, right_operand)
+        Self::new(
+            left_operand,
+            InequalityRelation::GreaterThanOrEqual,
+            right_operand,
+        )
     }
 
     // --------------------------------------------------------------------------------------------
@@ -591,16 +605,20 @@ impl Inequation {
 
 impl Display for InequalityRelation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match (self, f.alternate()) {
-            (Self::NotEqual, true) => KW_RELATION_NOT_EQUAL_SYMBOL,
-            (Self::NotEqual, false) => KW_RELATION_NOT_EQUAL,
-            (Self::LessThan, _) => KW_RELATION_LESS_THAN,
-            (Self::LessThanOrEqual, true) => KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
-            (Self::LessThanOrEqual, false) => KW_RELATION_LESS_THAN_OR_EQUAL,
-            (Self::GreaterThan, _) => KW_RELATION_GREATER_THAN,
-            (Self::GreaterThanOrEqual, true) => KW_RELATION_GREATER_THAN_OR_EQUAL,
-            (Self::GreaterThanOrEqual, false) => KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
-        })
+        write!(
+            f,
+            "{}",
+            match (self, f.alternate()) {
+                (Self::NotEqual, true) => KW_RELATION_NOT_EQUAL_SYMBOL,
+                (Self::NotEqual, false) => KW_RELATION_NOT_EQUAL,
+                (Self::LessThan, _) => KW_RELATION_LESS_THAN,
+                (Self::LessThanOrEqual, true) => KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
+                (Self::LessThanOrEqual, false) => KW_RELATION_LESS_THAN_OR_EQUAL,
+                (Self::GreaterThan, _) => KW_RELATION_GREATER_THAN,
+                (Self::GreaterThanOrEqual, true) => KW_RELATION_GREATER_THAN_OR_EQUAL,
+                (Self::GreaterThanOrEqual, false) => KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
+            }
+        )
     }
 }
 
@@ -609,14 +627,15 @@ impl FromStr for InequalityRelation {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            KW_RELATION_NOT_EQUAL
-                | KW_RELATION_NOT_EQUAL_SYMBOL => Ok(Self::NotEqual),
+            KW_RELATION_NOT_EQUAL | KW_RELATION_NOT_EQUAL_SYMBOL => Ok(Self::NotEqual),
             KW_RELATION_LESS_THAN => Ok(Self::LessThan),
-            KW_RELATION_LESS_THAN_OR_EQUAL
-                | KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL => Ok(Self::LessThanOrEqual),
+            KW_RELATION_LESS_THAN_OR_EQUAL | KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL => {
+                Ok(Self::LessThanOrEqual)
+            }
             KW_RELATION_GREATER_THAN => Ok(Self::GreaterThan),
-            KW_RELATION_GREATER_THAN_OR_EQUAL
-                | KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL => Ok(Self::GreaterThanOrEqual),
+            KW_RELATION_GREATER_THAN_OR_EQUAL | KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL => {
+                Ok(Self::GreaterThanOrEqual)
+            }
             // TODO: a real error.
             _ => panic!(),
         }
@@ -729,7 +748,7 @@ impl BinaryBooleanSentence {
         L: Into<ConstraintSentence>,
         R: Into<ConstraintSentence>,
     {
-        Self::new(left_operand, ConnectiveOperator::Conjunction,right_operand)
+        Self::new(left_operand, ConnectiveOperator::Conjunction, right_operand)
     }
 
     #[inline(always)]
@@ -738,7 +757,7 @@ impl BinaryBooleanSentence {
         L: Into<ConstraintSentence>,
         R: Into<ConstraintSentence>,
     {
-        Self::new(left_operand, ConnectiveOperator::Disjunction,right_operand)
+        Self::new(left_operand, ConnectiveOperator::Disjunction, right_operand)
     }
 
     #[inline(always)]
@@ -747,7 +766,11 @@ impl BinaryBooleanSentence {
         L: Into<ConstraintSentence>,
         R: Into<ConstraintSentence>,
     {
-        Self::new(left_operand, ConnectiveOperator::ExclusiveDisjunction,right_operand)
+        Self::new(
+            left_operand,
+            ConnectiveOperator::ExclusiveDisjunction,
+            right_operand,
+        )
     }
 
     #[inline(always)]
@@ -756,8 +779,8 @@ impl BinaryBooleanSentence {
         L: Into<ConstraintSentence>,
         R: Into<ConstraintSentence>,
     {
-        Self::new(left_operand, ConnectiveOperator::Implication,right_operand)
-   }
+        Self::new(left_operand, ConnectiveOperator::Implication, right_operand)
+    }
 
     #[inline(always)]
     pub fn iff<L, R>(left_operand: L, right_operand: R) -> Self
@@ -765,8 +788,12 @@ impl BinaryBooleanSentence {
         L: Into<ConstraintSentence>,
         R: Into<ConstraintSentence>,
     {
-        Self::new(left_operand, ConnectiveOperator::Biconditional,right_operand)
-     }
+        Self::new(
+            left_operand,
+            ConnectiveOperator::Biconditional,
+            right_operand,
+        )
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -833,7 +860,9 @@ impl QuantifiedSentence {
         self.variable_bindings.iter()
     }
 
-    pub fn variable_bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifiedVariableBinding> {
+    pub fn variable_bindings_mut(
+        &mut self,
+    ) -> impl Iterator<Item = &mut QuantifiedVariableBinding> {
         self.variable_bindings.iter_mut()
     }
 
@@ -862,12 +891,16 @@ impl Default for Quantifier {
 
 impl Display for Quantifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match (self, f.alternate()) {
-            (Self::Existential, true) => KW_TYPE_EXISTS_SYMBOL,
-            (Self::Existential, false) => KW_TYPE_EXISTS,
-            (Self::Universal, true) => KW_TYPE_FORALL,
-            (Self::Universal, false) => KW_TYPE_FORALL_SYMBOL,
-        })
+        write!(
+            f,
+            "{}",
+            match (self, f.alternate()) {
+                (Self::Existential, true) => KW_TYPE_EXISTS_SYMBOL,
+                (Self::Existential, false) => KW_TYPE_EXISTS,
+                (Self::Universal, true) => KW_TYPE_FORALL,
+                (Self::Universal, false) => KW_TYPE_FORALL_SYMBOL,
+            }
+        )
     }
 }
 
@@ -891,22 +924,25 @@ impl FromStr for Quantifier {
 impl_has_source_span_for!(QuantifiedVariableBinding);
 
 impl QuantifiedVariableBinding {
-
-    pub fn new<B,>(quantifier: Quantifier, bindings: B) -> Self
+    pub fn new<B>(quantifier: Quantifier, bindings: B) -> Self
     where
         B: Into<Vec<QuantifiedBinding>>,
     {
-        Self { span: Default::default(), quantifier, bindings: bindings.into() }
+        Self {
+            span: Default::default(),
+            quantifier,
+            bindings: bindings.into(),
+        }
     }
 
-    pub fn new_existential<B,>(bindings: B) -> Self
+    pub fn new_existential<B>(bindings: B) -> Self
     where
         B: Into<Vec<QuantifiedBinding>>,
     {
         Self::new(Quantifier::Existential, bindings)
     }
 
-    pub fn new_universal<B,>(bindings: B) -> Self
+    pub fn new_universal<B>(bindings: B) -> Self
     where
         B: Into<Vec<QuantifiedBinding>>,
     {

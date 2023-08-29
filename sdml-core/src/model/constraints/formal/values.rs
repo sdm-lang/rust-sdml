@@ -109,7 +109,6 @@ impl FromIterator<PredicateSequenceMember> for SequenceOfPredicateValues {
 impl_has_source_span_for!(SequenceOfPredicateValues);
 
 impl SequenceOfPredicateValues {
-
     // --------------------------------------------------------------------------------------------
 
     pub fn is_empty(&self) -> bool {

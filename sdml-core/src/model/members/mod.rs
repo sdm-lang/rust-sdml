@@ -143,9 +143,9 @@ pub struct CardinalityRange {
 }
 
 pub const BY_IDENTITY_CARDINALITY_RANGE: CardinalityRange = CardinalityRange::one();
-pub const DEFAULT_BY_REFERENCE_CARDINALITY_RANGE: CardinalityRange = CardinalityRange::zero_or_one();
+pub const DEFAULT_BY_REFERENCE_CARDINALITY_RANGE: CardinalityRange =
+    CardinalityRange::zero_or_one();
 pub const DEFAULT_BY_VALUE_CARDINALITY_RANGE: CardinalityRange = CardinalityRange::one();
-
 
 /// Corresponds to the grammar rule `sequence_ordering`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -475,7 +475,7 @@ impl From<CardinalityRange> for Cardinality {
             ordering: Default::default(),
             uniqueness: Default::default(),
             range,
-         }
+        }
     }
 }
 
@@ -492,7 +492,11 @@ impl Validate for Cardinality {
 }
 
 impl Cardinality {
-    pub const fn new(ordering: Option<Ordering>, uniqueness: Option<Uniqueness>, range: CardinalityRange) -> Self {
+    pub const fn new(
+        ordering: Option<Ordering>,
+        uniqueness: Option<Uniqueness>,
+        range: CardinalityRange,
+    ) -> Self {
         Self {
             span: None,
             ordering,
@@ -643,7 +647,7 @@ impl Cardinality {
 
     #[inline(always)]
     pub fn unset_max_occurs(&mut self) {
-       self.range.unset_max_occurs();
+        self.range.unset_max_occurs();
     }
 
     // --------------------------------------------------------------------------------------------

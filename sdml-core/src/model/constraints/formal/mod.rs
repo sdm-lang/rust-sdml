@@ -112,28 +112,27 @@ impl FormalConstraint {
 // ------------------------------------------------------------------------------------------------
 
 mod sequences;
-pub use sequences::{
-    SequenceBuilder, Variables, NamedVariables, MappingVariable, 
-};
+pub use sequences::{MappingVariable, NamedVariables, SequenceBuilder, Variables};
 
 mod environments;
 pub use environments::{EnvironmentDef, EnvironmentDefBody};
 
 mod functions;
 pub use functions::{
-    FunctionDef, FunctionParameter, FunctionSignature, FunctionType, FunctionCardinality, FunctionTypeReference,
+    FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
+    FunctionTypeReference,
 };
 
 mod sentences;
 pub use sentences::{
-    AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConstraintSentence, IteratorSource,
-    QuantifiedSentence, QuantifiedBinding, QuantifierBoundNames, SequenceIterator,
-    SimpleSentence, TypeIterator, Equation, Quantifier, Inequation, InequalityRelation,
-    QuantifiedVariableBinding, UnaryBooleanSentence, ConnectiveOperator,
+    AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
+    Equation, InequalityRelation, Inequation, IteratorSource, QuantifiedBinding,
+    QuantifiedSentence, QuantifiedVariableBinding, Quantifier, QuantifierBoundNames,
+    SequenceIterator, SimpleSentence, TypeIterator, UnaryBooleanSentence,
 };
 
 mod terms;
-pub use terms::{FunctionalTerm, FunctionComposition, Subject, Term};
+pub use terms::{FunctionComposition, FunctionalTerm, Subject, Term};
 
 mod values;
-pub use values::{SequenceOfPredicateValues, PredicateValue, PredicateSequenceMember};
+pub use values::{PredicateSequenceMember, PredicateValue, SequenceOfPredicateValues};

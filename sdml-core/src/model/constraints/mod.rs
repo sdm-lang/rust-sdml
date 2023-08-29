@@ -142,14 +142,14 @@ impl ConstraintBody {
 
 mod formal;
 pub use formal::{
-    AtomicSentence, BinaryBooleanSentence, BooleanSentence,
-    ConstraintSentence, EnvironmentDef, EnvironmentDefBody,
-    FormalConstraint, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionalTerm, IteratorSource, FunctionComposition, PredicateSequenceMember,
-    PredicateValue, SequenceOfPredicateValues, QuantifiedSentence,Inequation, InequalityRelation,
-    QuantifiedBinding, QuantifierBoundNames, SequenceBuilder, SequenceIterator,
-    SimpleSentence, Subject, Term, TypeIterator, Equation, Quantifier, Variables,NamedVariables, MappingVariable,
-    QuantifiedVariableBinding, FunctionCardinality,UnaryBooleanSentence, ConnectiveOperator,
+    AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
+    EnvironmentDef, EnvironmentDefBody, Equation, FormalConstraint, FunctionCardinality,
+    FunctionComposition, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
+    FunctionTypeReference, FunctionalTerm, InequalityRelation, Inequation, IteratorSource,
+    MappingVariable, NamedVariables, PredicateSequenceMember, PredicateValue, QuantifiedBinding,
+    QuantifiedSentence, QuantifiedVariableBinding, Quantifier, QuantifierBoundNames,
+    SequenceBuilder, SequenceIterator, SequenceOfPredicateValues, SimpleSentence, Subject, Term,
+    TypeIterator, UnaryBooleanSentence, Variables,
 };
 
 mod informal;

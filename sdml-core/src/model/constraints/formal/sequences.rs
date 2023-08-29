@@ -1,7 +1,8 @@
-use std::collections::HashSet;
 use crate::model::{
-    constraints::ConstraintSentence, constraints::QuantifiedVariableBinding, identifiers::Identifier, Span,
+    constraints::ConstraintSentence, constraints::QuantifiedVariableBinding,
+    identifiers::Identifier, Span,
 };
+use std::collections::HashSet;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -75,7 +76,10 @@ impl SequenceBuilder {
         &self.variables
     }
 
-    pub fn set_variables<V>(&mut self, variables: V) where V: Into<Variables> {
+    pub fn set_variables<V>(&mut self, variables: V)
+    where
+        V: Into<Variables>,
+    {
         self.variables = variables.into();
     }
 
@@ -176,7 +180,10 @@ impl AsMut<HashSet<Identifier>> for NamedVariables {
 
 impl NamedVariables {
     pub fn new(names: HashSet<Identifier>) -> Self {
-        Self { span: Default::default(), names }
+        Self {
+            span: Default::default(),
+            names,
+        }
     }
 }
 
@@ -186,7 +193,11 @@ impl_has_source_span_for!(MappingVariable);
 
 impl MappingVariable {
     pub fn new(domain: Identifier, range: Identifier) -> Self {
-        Self { span: Default::default(), domain, range }
+        Self {
+            span: Default::default(),
+            domain,
+            range,
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -195,7 +206,7 @@ impl MappingVariable {
         &self.domain
     }
 
-    pub fn set_domain(&mut self, domain: Identifier)  {
+    pub fn set_domain(&mut self, domain: Identifier) {
         self.domain = domain;
     }
 
@@ -205,7 +216,7 @@ impl MappingVariable {
         &self.range
     }
 
-    pub fn set_range(&mut self, range: Identifier)  {
+    pub fn set_range(&mut self, range: Identifier) {
         self.range = range;
     }
 }
