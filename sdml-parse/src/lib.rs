@@ -69,9 +69,6 @@ YYYYY
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-#[macro_use]
-mod macros;
-
 mod parse;
 
 pub use sdml_core::load::{ModuleLoader, ModuleLoaderRef, ModuleResolver};

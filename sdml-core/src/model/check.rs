@@ -9,7 +9,8 @@ YYYYY
 
 */
 
-// use ...
+use crate::error::Error;
+use crate::model::modules::Module;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -18,6 +19,16 @@ YYYYY
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
+
+// TODO: what about those that need a model loader?
+
+// TODO: interactive vs. API calls?
+
+pub trait Validate {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error>;
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error>;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions

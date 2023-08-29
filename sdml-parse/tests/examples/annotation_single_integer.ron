@@ -32,9 +32,14 @@ Module {
                             end: 69,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 55,
+                                    end: 65,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {

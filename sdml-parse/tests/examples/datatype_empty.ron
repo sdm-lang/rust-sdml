@@ -44,7 +44,12 @@ Module {
                     },
                     base_type: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 67,
+                                    end: 77,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {

@@ -13,11 +13,14 @@ use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
 use sdml_core::error::Error;
 use sdml_core::generate::GenerateToWriter;
-use sdml_core::model::walk::{walk_module, ModuleWalker};
-use sdml_core::model::{
-    ByReferenceMemberInner, Identifier, Module, Span, TypeReference,
+use sdml_core::model::identifiers::Identifier;
+use sdml_core::model::members::{
+    ByReferenceMemberDef, HasCardinality, HasType, MemberKind, TypeReference,
     DEFAULT_BY_REFERENCE_CARDINALITY,
 };
+use sdml_core::model::modules::Module;
+use sdml_core::model::walk::{walk_module, ModuleWalker};
+use sdml_core::model::Span;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -109,11 +112,11 @@ impl ModuleWalker for ConceptDiagramGenerator {
     fn start_by_reference_member(
         &mut self,
         name: &Identifier,
-        inner: &ByReferenceMemberInner,
+        inner: &MemberKind<ByReferenceMemberDef>,
         _: Option<&Span>,
     ) -> Result<(), Error> {
         match inner {
-            ByReferenceMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer.push_str(&format!(
                     "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
                     self.entity
@@ -124,7 +127,7 @@ impl ModuleWalker for ConceptDiagramGenerator {
                     role
                 ));
             }
-            ByReferenceMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 if matches!(def.target_type(), TypeReference::Unknown) && !self.has_unknown {
                     self.buffer.push_str(
                         "  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n",

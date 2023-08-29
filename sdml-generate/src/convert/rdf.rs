@@ -9,11 +9,19 @@ YYYYY
 
 */
 
-use sdml_core::error::Error;
-use sdml_core::model::ModelElement;
-use sdml_core::model::{
-    Annotation, AnnotationProperty, Constraint, DatatypeDef, Definition, EntityDef, EnumDef,
-    EventDef, IdentifierReference, Import, Module, PropertyDef, StructureDef, UnionDef,
+use sdml_core::{
+    error::Error,
+    model::{
+        annotations::{Annotation, AnnotationProperty, HasAnnotations},
+        constraints::Constraint,
+        definitions::{
+            DatatypeDef, Definition, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef,
+            UnionDef,
+        },
+        identifiers::IdentifierReference,
+        modules::{Import, Module},
+        HasName, HasNameReference,
+    },
 };
 use std::io::Write;
 
@@ -51,7 +59,7 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
     for statement in body.imports() {
         for import in statement.imports() {
             let name = match import {
-                Import::Module(v) => v,
+                Import::Module(v) => &v,
                 Import::Member(v) => v.module(),
             };
             w.write_all(format!("@prefix {name}: <> .\n").as_bytes())?;
@@ -63,7 +71,7 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
     for statement in body.imports() {
         for import in statement.imports() {
             let _name = match import {
-                Import::Module(v) => v,
+                Import::Module(v) => &v,
                 Import::Member(v) => v.module(),
             };
             w.write_all(format!("    owl:imports <{}> .\n", "").as_bytes())?;
@@ -224,10 +232,10 @@ fn write_property<W: Write>(me: &PropertyDef, w: &mut W) -> Result<(), Error> {
 }
 
 fn write_annotation_property<W: Write>(me: &AnnotationProperty, w: &mut W) -> Result<(), Error> {
-    let _name = me.name();
+    let _name = me.name_reference();
     let value = me.value();
 
-    let (prefix, name) = match me.name() {
+    let (prefix, name) = match me.name_reference() {
         IdentifierReference::Identifier(name) => (":", name.to_string()),
         IdentifierReference::QualifiedIdentifier(name) => ("", name.to_string()),
     };

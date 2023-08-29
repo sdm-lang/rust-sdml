@@ -32,9 +32,14 @@ Module {
                             end: 70,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 23,
+                                    end: 35,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -57,7 +62,12 @@ Module {
                     ),
                     value: Mapping(
                         MappingValue {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 38,
+                                    end: 70,
+                                },
+                            ),
                             domain: String(
                                 LanguageString {
                                     span: Some(
@@ -80,7 +90,12 @@ Module {
                                     ),
                                     type_name: QualifiedIdentifier(
                                         QualifiedIdentifier {
-                                            span: None,
+                                            span: Some(
+                                                Span {
+                                                    start: 48,
+                                                    end: 56,
+                                                },
+                                            ),
                                             module: Identifier {
                                                 span: Some(
                                                     Span {

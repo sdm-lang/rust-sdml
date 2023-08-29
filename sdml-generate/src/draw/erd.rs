@@ -13,12 +13,15 @@ use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
 use sdml_core::error::Error;
 use sdml_core::generate::GenerateToWriter;
-use sdml_core::model::walk::{walk_module, ModuleWalker};
-use sdml_core::model::{
-    ByReferenceMemberInner, ByValueMemberInner, Cardinality, Identifier, IdentifierReference,
-    IdentityMemberInner, Import, Module, Span, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
+use sdml_core::model::identifiers::{Identifier, IdentifierReference};
+use sdml_core::model::members::{
+    ByReferenceMemberDef, ByValueMemberDef, Cardinality, HasCardinality, HasType,
+    IdentityMemberDef, MemberKind, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
     DEFAULT_BY_VALUE_CARDINALITY,
 };
+use sdml_core::model::modules::{Import, Module};
+use sdml_core::model::walk::{walk_module, ModuleWalker};
+use sdml_core::model::Span;
 use std::io::Write;
 use tracing::trace;
 
@@ -187,11 +190,11 @@ impl ModuleWalker for ErdDiagramGenerator {
     fn start_identity_member(
         &mut self,
         name: &Identifier,
-        inner: &IdentityMemberInner,
+        inner: &MemberKind<IdentityMemberDef>,
         _: Option<&Span>,
     ) -> Result<(), Error> {
         match inner {
-            IdentityMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer.push_str(&format!(
                     "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
                     self.entity
@@ -202,7 +205,7 @@ impl ModuleWalker for ErdDiagramGenerator {
                     role
                 ));
             }
-            IdentityMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 if matches!(def.target_type(), TypeReference::Unknown)
                     && !self.seen.contains(&"unknown".to_string())
                 {
@@ -215,6 +218,7 @@ impl ModuleWalker for ErdDiagramGenerator {
                     name_to_ref(&target_type.to_string())
                 } else {
                     "unknown".to_string()
+                    // TODO: mapping types
                 };
                 self.buffer.push_str(&format!(
                     "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
@@ -234,11 +238,11 @@ impl ModuleWalker for ErdDiagramGenerator {
     fn start_by_value_member(
         &mut self,
         name: &Identifier,
-        inner: &ByValueMemberInner,
+        inner: &MemberKind<ByValueMemberDef>,
         _: Option<&Span>,
     ) -> Result<(), Error> {
         match inner {
-            ByValueMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer.push_str(&format!(
                     "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
                     self.entity
@@ -249,9 +253,10 @@ impl ModuleWalker for ErdDiagramGenerator {
                     role
                 ));
             }
-            ByValueMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 let target_type = if let TypeReference::Reference(target_type) = def.target_type() {
                     name_to_ref(&target_type.to_string())
+                    // TODO: mapping types
                 } else {
                     "unknown".to_string()
                 };
@@ -277,11 +282,11 @@ impl ModuleWalker for ErdDiagramGenerator {
     fn start_by_reference_member(
         &mut self,
         name: &Identifier,
-        inner: &ByReferenceMemberInner,
+        inner: &MemberKind<ByReferenceMemberDef>,
         _: Option<&Span>,
     ) -> Result<(), Error> {
         match inner {
-            ByReferenceMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer.push_str(&format!(
                     "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
                     self.entity
@@ -292,9 +297,10 @@ impl ModuleWalker for ErdDiagramGenerator {
                     role
                 ));
             }
-            ByReferenceMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 let target_type = if let TypeReference::Reference(target_type) = def.target_type() {
                     name_to_ref(&target_type.to_string())
+                    // TODO: mapping types
                 } else {
                     "unknown".to_string()
                 };

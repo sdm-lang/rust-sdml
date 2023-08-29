@@ -1,7 +1,9 @@
 use sdml_core::load::ModuleLoader as LoaderTrait;
-use sdml_core::model::{
-    AnnotationProperty, Definition, ImportStatement, ListMember, ModelElement, SimpleValue, Value,
-};
+use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
+use sdml_core::model::definitions::Definition;
+use sdml_core::model::modules::ImportStatement;
+use sdml_core::model::values::{SequenceMember, SimpleValue, Value};
+use sdml_core::model::{HasName, HasNameReference};
 use sdml_parse::load::ModuleLoader;
 use std::io::Cursor;
 use std::str::FromStr;
@@ -75,7 +77,7 @@ end"#
     assert_eq!(annotations.len(), 3);
 
     let annotation = annotations.get(0).unwrap();
-    assert_eq!(annotation.name().to_string().as_str(), "xml:base");
+    assert_eq!(annotation.name_reference().to_string().as_str(), "xml:base");
     if let Value::Simple(SimpleValue::IriReference(value)) = annotation.value() {
         assert_eq!(value, &Url::from_str("https://example.org/").unwrap());
     } else {
@@ -83,7 +85,10 @@ end"#
     }
 
     let annotation = annotations.get(1).unwrap();
-    assert_eq!(annotation.name().to_string().as_str(), "dc:version");
+    assert_eq!(
+        annotation.name_reference().to_string().as_str(),
+        "dc:version"
+    );
     if let Value::Simple(SimpleValue::Integer(value)) = annotation.value() {
         assert_eq!(value, &2);
     } else {
@@ -91,20 +96,23 @@ end"#
     }
 
     let annotation = annotations.get(2).unwrap();
-    assert_eq!(annotation.name().to_string().as_str(), "skos:prefLang");
+    assert_eq!(
+        annotation.name_reference().to_string().as_str(),
+        "skos:prefLang"
+    );
     match annotation.value() {
         Value::List(list) => {
-            let values: Vec<&ListMember> = list.iter().collect();
+            let values: Vec<&SequenceMember> = list.iter().collect();
             assert_eq!(values.len(), 2);
 
-            if let Some(ListMember::Simple(SimpleValue::String(value))) = values.get(0) {
+            if let Some(SequenceMember::Simple(SimpleValue::String(value))) = values.get(0) {
                 assert_eq!(value.value().as_str(), "aa");
                 assert_eq!(value.language().unwrap().as_ref(), "en");
             } else {
                 panic!();
             }
 
-            if let Some(ListMember::Simple(SimpleValue::String(value))) = values.get(1) {
+            if let Some(SequenceMember::Simple(SimpleValue::String(value))) = values.get(1) {
                 assert_eq!(value.value().as_str(), "bb");
                 assert!(value.language().is_none());
             } else {

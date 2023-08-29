@@ -25,7 +25,7 @@
 macro_rules! write_to_string {
     ($outer:ident, $inner:ident) => {
         pub fn $outer(
-            module: &::sdml_core::model::Module,
+            module: &::sdml_core::model::modules::Module,
         ) -> Result<String, ::sdml_core::error::Error> {
             let mut buffer = ::std::io::Cursor::new(Vec::new());
             $inner(module, &mut buffer)?;
@@ -50,7 +50,7 @@ macro_rules! write_to_string {
 macro_rules! write_to_file {
     ($outer:ident, $inner:ident) => {
         pub fn $outer<P>(
-            module: &::sdml_core::model::Module,
+            module: &::sdml_core::model::modules::Module,
             path: P,
         ) -> Result<(), ::sdml_core::error::Error>
         where
@@ -83,7 +83,7 @@ macro_rules! write_to_file {
 macro_rules! print_to_stdout {
     ($outer:ident, $inner:ident) => {
         pub fn $outer(
-            module: &::sdml_core::model::Module,
+            module: &::sdml_core::model::modules::Module,
         ) -> Result<(), ::sdml_core::error::Error> {
             $inner(module, &mut ::std::io::stdout())?;
             Ok(())

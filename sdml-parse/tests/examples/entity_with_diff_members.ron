@@ -66,8 +66,14 @@ Module {
                                     ),
                                     value: "a",
                                 },
-                                inner: Defined(
+                                kind: Definition(
                                     IdentityMemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 82,
+                                                end: 106,
+                                            },
+                                        ),
                                         target_type: Reference(
                                             Identifier(
                                                 Identifier {
@@ -104,12 +110,32 @@ Module {
                                             ),
                                             value: "b",
                                         },
-                                        inner: Defined(
+                                        kind: Definition(
                                             ByValueMemberDef {
+                                                span: Some(
+                                                    Span {
+                                                        start: 112,
+                                                        end: 127,
+                                                    },
+                                                ),
+                                                target_cardinality: Cardinality {
+                                                    span: None,
+                                                    ordering: None,
+                                                    uniqueness: None,
+                                                    min: 1,
+                                                    max: Some(
+                                                        1,
+                                                    ),
+                                                },
                                                 target_type: Reference(
                                                     QualifiedIdentifier(
                                                         QualifiedIdentifier {
-                                                            span: None,
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 117,
+                                                                    end: 127,
+                                                                },
+                                                            ),
                                                             module: Identifier {
                                                                 span: Some(
                                                                     Span {
@@ -131,15 +157,6 @@ Module {
                                                         },
                                                     ),
                                                 ),
-                                                target_cardinality: Cardinality {
-                                                    ordering: None,
-                                                    uniqueness: None,
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
                                                 body: None,
                                             },
                                         ),
@@ -162,8 +179,24 @@ Module {
                                             ),
                                             value: "c",
                                         },
-                                        inner: Defined(
+                                        kind: Definition(
                                             ByReferenceMemberDef {
+                                                span: Some(
+                                                    Span {
+                                                        start: 133,
+                                                        end: 148,
+                                                    },
+                                                ),
+                                                inverse_name: None,
+                                                target_cardinality: Cardinality {
+                                                    span: None,
+                                                    ordering: None,
+                                                    uniqueness: None,
+                                                    min: 0,
+                                                    max: Some(
+                                                        1,
+                                                    ),
+                                                },
                                                 target_type: Reference(
                                                     Identifier(
                                                         Identifier {
@@ -177,16 +210,6 @@ Module {
                                                         },
                                                     ),
                                                 ),
-                                                inverse_name: None,
-                                                target_cardinality: Cardinality {
-                                                    ordering: None,
-                                                    uniqueness: None,
-                                                    span: None,
-                                                    min: 0,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
                                                 body: None,
                                             },
                                         ),

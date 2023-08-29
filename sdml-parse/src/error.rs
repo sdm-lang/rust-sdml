@@ -13,7 +13,7 @@ use codespan_reporting::diagnostic::{Diagnostic, Severity};
 use codespan_reporting::term::termcolor::{ColorChoice, StandardStream, WriteColor};
 use codespan_reporting::term::Config;
 use sdml_core::error::Error as CoreError;
-use sdml_core::model::Identifier;
+use sdml_core::model::identifiers::Identifier;
 use std::io::Write;
 use std::ops::{Add, AddAssign};
 use std::{error::Error, fmt::Display};

@@ -1,5 +1,9 @@
-use crate::model::members::{Cardinality, TypeReference};
-use crate::model::{AnnotationOnlyBody, Identifier, IdentifierReference, ModelElement, Span};
+use crate::error::Error;
+use crate::model::annotations::AnnotationOnlyBody;
+use crate::model::check::Validate;
+use crate::model::members::{Cardinality, MemberKind, TypeReference};
+use crate::model::modules::Module;
+use crate::model::{Identifier, IdentifierReference, References, Span};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
@@ -15,23 +19,16 @@ use serde::{Deserialize, Serialize};
 pub struct ByValueMember {
     span: Option<Span>,
     name: Identifier,
-    inner: ByValueMemberInner,
-}
-
-/// Corresponds to the choice component within grammar rule `by_value_member`.
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum ByValueMemberInner {
-    PropertyRole(Identifier),
-    Defined(ByValueMemberDef),
+    kind: MemberKind<ByValueMemberDef>,
 }
 
 /// Corresponds to the definition component within grammar rule `by_value_member`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ByValueMemberDef {
-    target_type: TypeReference,
+    span: Option<Span>,
     target_cardinality: Cardinality,
+    target_type: TypeReference,
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -39,42 +36,67 @@ pub struct ByValueMemberDef {
 // Implementations ❱ Members ❱ ByValue
 // ------------------------------------------------------------------------------------------------
 
-member_model_element_impl!(ByValueMember);
+impl_has_name_for!(ByValueMember);
 
-member_impl!(ByValueMember, ByValueMemberInner, ByValueMemberDef);
+impl_has_source_span_for!(ByValueMember);
 
-member_inner_impl!(ByValueMemberInner, ByValueMemberDef);
+impl_member_for!(ByValueMember, ByValueMemberDef);
+
+impl_member_outer_for!(ByValueMember, ByValueMemberDef);
+
+impl_references_for!(ByValueMember => delegate kind);
+
+impl_validate_for!(ByValueMember => delegate kind);
+
+// ------------------------------------------------------------------------------------------------
+
+impl Into<MemberKind<ByValueMemberDef>> for ByValueMemberDef {
+    fn into(self) -> MemberKind<ByValueMemberDef> {
+        MemberKind::Definition(self)
+    }
+}
+
+impl_has_cardinality_for!(ByValueMemberDef);
+
+impl_has_optional_body_for!(ByValueMemberDef);
+
+impl_has_source_span_for!(ByValueMemberDef);
+
+impl_has_type_for!(ByValueMemberDef);
+
+impl_member_def_references_for!(ByValueMemberDef);
+
+impl Validate for ByValueMemberDef {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        Ok(self.target_type.is_complete(top)? && self.target_cardinality.is_complete(top)?)
+    }
+
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        // TODO: check target type exists
+        // TODO: check property reference exists
+        Ok(true)
+    }
+}
 
 impl ByValueMemberDef {
-    pub fn new(target_type: TypeReference) -> Self {
+    pub fn new<T>(target_type: T) -> Self
+    where
+        T: Into<TypeReference>,
+    {
         Self {
-            target_type,
-            target_cardinality: Cardinality::one(),
-            body: None,
-        }
-    }
-    pub fn new_named(target_type: IdentifierReference) -> Self {
-        Self {
+            span: Default::default(),
             target_type: target_type.into(),
             target_cardinality: Cardinality::one(),
             body: None,
         }
     }
+
     pub fn new_unknown() -> Self {
         Self {
+            span: Default::default(),
             target_type: TypeReference::Unknown,
             target_cardinality: Cardinality::one(),
             body: None,
         }
     }
-
-    pub fn target_cardinality(&self) -> &Cardinality {
-        &self.target_cardinality
-    }
-
-    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
-        self.target_cardinality = target_cardinality;
-    }
-
-    member_def_impl!();
 }

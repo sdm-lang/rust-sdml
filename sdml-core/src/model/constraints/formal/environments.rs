@@ -1,7 +1,10 @@
-use crate::model::{
-    BooleanSentence, ConstraintSentence, FunctionDef, Identifier, PredicateValue,
-    PredicateValueList, QuantifiedSentence, SimpleSentence, SimpleValue, Span,
+use crate::model::constraints::{
+    BooleanSentence, ConstraintSentence, FunctionDef, PredicateValue, SequenceOfPredicateValues,
+    QuantifiedSentence, SimpleSentence,
 };
+use crate::model::identifiers::Identifier;
+use crate::model::values::SimpleValue;
+use crate::model::Span;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -33,6 +36,12 @@ pub enum EnvironmentDefBody {
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Formal Constraints ❱ Environments
 // ------------------------------------------------------------------------------------------------
+
+impl_has_body_for!(EnvironmentDef, EnvironmentDefBody);
+
+impl_has_name_for!(EnvironmentDef);
+
+impl_has_source_span_for!(EnvironmentDef);
 
 impl EnvironmentDef {
     pub fn new(name: Identifier, body: EnvironmentDefBody) -> Self {
@@ -75,53 +84,6 @@ impl EnvironmentDef {
             body: EnvironmentDefBody::Sentence(body.into()),
         }
     }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn name(&self) -> &Identifier {
-        &self.name
-    }
-
-    pub fn set_name(&mut self, name: Identifier) {
-        self.name = name;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn body(&self) -> &EnvironmentDefBody {
-        &self.body
-    }
-
-    pub fn set_value<V>(&mut self, body: V)
-    where
-        V: Into<EnvironmentDefBody>,
-    {
-        self.body = body.into();
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -144,8 +106,8 @@ impl From<SimpleValue> for EnvironmentDefBody {
     }
 }
 
-impl From<PredicateValueList> for EnvironmentDefBody {
-    fn from(v: PredicateValueList) -> Self {
+impl From<SequenceOfPredicateValues> for EnvironmentDefBody {
+    fn from(v: SequenceOfPredicateValues) -> Self {
         Self::Value(v.into())
     }
 }

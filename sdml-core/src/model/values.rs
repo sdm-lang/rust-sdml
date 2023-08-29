@@ -25,7 +25,7 @@ pub enum Value {
     ValueConstructor(ValueConstructor),
     Reference(IdentifierReference),
     Mapping(MappingValue),
-    List(ListOfValues),
+    List(SequenceOfValues),
 }
 
 /// Corresponds to the grammar rule `simple_value`.
@@ -76,15 +76,15 @@ pub struct MappingValue {
 /// Corresponds to the grammar rule `list_of_values`.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct ListOfValues {
+pub struct SequenceOfValues {
     span: Option<Span>,
-    values: Vec<ListMember>,
+    values: Vec<SequenceMember>,
 }
 
 /// Corresponds to the grammar rule `name`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum ListMember {
+pub enum SequenceMember {
     Simple(SimpleValue),
     ValueConstructor(ValueConstructor),
     Reference(IdentifierReference),
@@ -187,8 +187,8 @@ impl From<MappingValue> for Value {
     }
 }
 
-impl From<ListOfValues> for Value {
-    fn from(v: ListOfValues) -> Self {
+impl From<SequenceOfValues> for Value {
+    fn from(v: SequenceOfValues) -> Self {
         Self::List(v)
     }
 }
@@ -248,6 +248,8 @@ impl PartialEq for LanguageString {
 
 impl Eq for LanguageString {}
 
+impl_has_source_span_for!(LanguageString);
+
 impl LanguageString {
     pub fn new(value: &str, language: Option<LanguageTag>) -> Self {
         Self {
@@ -259,32 +261,14 @@ impl LanguageString {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
     pub fn value(&self) -> &String {
         &self.value
     }
     pub fn set_value(&mut self, value: String) {
         self.value = value;
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn language(&self) -> Option<&LanguageTag> {
         self.language.as_ref()
@@ -315,7 +299,7 @@ impl FromStr for LanguageTag {
     type Err = crate::error::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if Self::is_valid(s) {
+        if Self::is_valid_str(s) {
             Ok(Self {
                 span: None,
                 value: s.to_string(),
@@ -346,6 +330,8 @@ impl PartialEq for LanguageTag {
 
 impl Eq for LanguageTag {}
 
+impl_has_source_span_for!(LanguageTag);
+
 impl LanguageTag {
     pub fn new_unchecked(s: &str) -> Self {
         Self {
@@ -356,29 +342,7 @@ impl LanguageTag {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_valid(s: &str) -> bool {
+    pub fn is_valid_str(s: &str) -> bool {
         LANGUAGE_TAG.is_match(s)
     }
 
@@ -397,6 +361,8 @@ impl Display for MappingValue {
     }
 }
 
+impl_has_source_span_for!(MappingValue);
+
 impl MappingValue {
     pub fn new(domain: SimpleValue, range: Value) -> Self {
         Self {
@@ -404,28 +370,6 @@ impl MappingValue {
             domain,
             range: Box::new(range),
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -451,7 +395,7 @@ impl MappingValue {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Display for ListOfValues {
+impl Display for SequenceOfValues {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -465,64 +409,47 @@ impl Display for ListOfValues {
     }
 }
 
-impl From<Vec<ListMember>> for ListOfValues {
-    fn from(values: Vec<ListMember>) -> Self {
+impl From<Vec<SequenceMember>> for SequenceOfValues {
+    fn from(values: Vec<SequenceMember>) -> Self {
         Self { span: None, values }
     }
 }
 
-impl FromIterator<ListMember> for ListOfValues {
-    fn from_iter<T: IntoIterator<Item = ListMember>>(iter: T) -> Self {
+impl FromIterator<SequenceMember> for SequenceOfValues {
+    fn from_iter<T: IntoIterator<Item = SequenceMember>>(iter: T) -> Self {
         Self::from(Vec::from_iter(iter))
     }
 }
 
-impl ListOfValues {
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
+impl_has_source_span_for!(SequenceOfValues);
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
+impl SequenceOfValues {
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
     }
+
     pub fn len(&self) -> usize {
         self.values.len()
     }
-    pub fn iter(&self) -> impl Iterator<Item = &ListMember> {
+
+    pub fn iter(&self) -> impl Iterator<Item = &SequenceMember> {
         self.values.iter()
     }
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut ListMember> {
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut SequenceMember> {
         self.values.iter_mut()
     }
+
     pub fn push<I>(&mut self, value: I)
     where
-        I: Into<ListMember>,
+        I: Into<SequenceMember>,
     {
         self.values.push(value.into())
     }
+
     pub fn extend<I>(&mut self, extension: I)
     where
-        I: IntoIterator<Item = ListMember>,
+        I: IntoIterator<Item = SequenceMember>,
     {
         self.values.extend(extension)
     }
@@ -530,13 +457,13 @@ impl ListOfValues {
 
 // ------------------------------------------------------------------------------------------------
 
-impl_from_for_variant!(ListMember, Simple, SimpleValue);
+impl_from_for_variant!(SequenceMember, Simple, SimpleValue);
 
-impl_from_for_variant!(ListMember, ValueConstructor, ValueConstructor);
+impl_from_for_variant!(SequenceMember, ValueConstructor, ValueConstructor);
 
-impl_from_for_variant!(ListMember, Reference, IdentifierReference);
+impl_from_for_variant!(SequenceMember, Reference, IdentifierReference);
 
-enum_display_impl!(ListMember => Simple, ValueConstructor, Reference, Mapping);
+enum_display_impl!(SequenceMember => Simple, ValueConstructor, Reference, Mapping);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -545,6 +472,8 @@ impl Display for ValueConstructor {
         write!(f, "{}({})", self.type_name, self.value)
     }
 }
+
+impl_has_source_span_for!(ValueConstructor);
 
 impl ValueConstructor {
     pub fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
@@ -557,32 +486,14 @@ impl ValueConstructor {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
     pub fn type_name(&self) -> &IdentifierReference {
         &self.type_name
     }
     pub fn set_type_name(&mut self, type_name: IdentifierReference) {
         self.type_name = type_name;
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn value(&self) -> &SimpleValue {
         &self.value

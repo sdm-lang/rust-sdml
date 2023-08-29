@@ -9,7 +9,7 @@ module Campaign is
     end
 
     ref c -> Target is
-      assert is
+      assert check_tags is
         ∀ self (contains(self.tags "foo"))
       end
 

@@ -32,9 +32,14 @@ Module {
                             end: 52,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 19,
+                                    end: 27,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -84,9 +89,14 @@ Module {
                             end: 71,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 57,
+                                    end: 67,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -122,9 +132,14 @@ Module {
                             end: 118,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 76,
+                                    end: 89,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -147,7 +162,12 @@ Module {
                     ),
                     value: List(
                         ListOfValues {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 92,
+                                    end: 118,
+                                },
+                            ),
                             values: [
                                 Simple(
                                     String(
@@ -161,7 +181,12 @@ Module {
                                             value: "aa",
                                             language: Some(
                                                 LanguageTag {
-                                                    span: None,
+                                                    span: Some(
+                                                        Span {
+                                                            start: 102,
+                                                            end: 105,
+                                                        },
+                                                    ),
                                                     value: "en",
                                                 },
                                             ),

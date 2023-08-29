@@ -1,45 +1,9 @@
 /*!
 Provide the Rust types that implement an in-memory representation of the the SDML Grammar.
 
-The following.
-
- * **Identifiers**
-   * [`Identifier`], [`IdentifierReference`], [`QualifiedIdentifier`]
-
- * **Modules and Imports**
-   * [`Import`], [`ImportStatement`], [`Module`], [`ModuleBody`]
-
- * **Annotations & Comments**
-   * [`Annotation`], [`AnnotationProperty`]
-
- * **Constraints**
-   * [`AtomicSentence`], [`BinaryOperation`], [`Binding`], [`BooleanSentence`], [`BoundSentence`],
-     [`Constraint`], [`ConstraintBody`], [`ConstraintSentence`], [`ControlledLanguageString`],
-     [`ControlledLanguageTag`], [`FunctionalTerm`], [`NamePath`], [`PredicateValue`],
-     [`QuantifiedSentence`], [`SimpleSentence`], [`Subject`], [`Term`], [`UnaryOperation`]
-
- * **Type Definitions**
-   * [`AnnotationOnlyBody`], [`DatatypeDef`], [`Definition`], [`EntityBody`], [`EntityDef`],
-     [`EntityGroup`], [`EntityMember`], [`EnumBody`], [`EnumDef`], [`EventDef`],
-     [`StructureBody`], [`StructureDef`], [`StructureGroup`], [`TypeVariant`], [`UnionBody`],
-     [`UnionDef`], [`ValueVariant`]
-
- * **Property Definitions**
-   * [`PropertyBody`], [`PropertyDef`], [`PropertyRole`]
-
- * **Member Definitions**
-   * [`ByReferenceMember`], [`ByReferenceMemberDef`], [`ByReferenceMemberInner`], [`ByValueMember`],
-     [`ByValueMemberDef`], [`ByValueMemberInner`], [`Cardinality`], [`IdentityMember`],
-     [`IdentityMemberDef`], [`IdentityMemberInner`], [`MappingType`], [`Ordering`],
-     [`PseudoSequenceType`], [`TypeReference`], [`Uniqueness`],
-     [`DEFAULT_BY_REFERENCE_CARDINALITY`], [`DEFAULT_BY_VALUE_CARDINALITY`]
-
- * **Values**
-   * [`LanguageString`], [`LanguageTag`], [`ListMember`], [`ListOfValues`], [`MappingValue`],
-     [`SimpleValue`], [`Value`], [`ValueConstructor`]
-
 */
 
+use crate::model::identifiers::{Identifier, IdentifierReference};
 use std::{
     collections::HashSet,
     fmt::{Debug, Display},
@@ -52,7 +16,53 @@ use tree_sitter::Node;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Traits
+// ------------------------------------------------------------------------------------------------
+
+pub trait HasBody<T> {
+    fn body(&self) -> &T;
+    fn set_body(&mut self, body: T);
+}
+
+pub trait HasName {
+    fn name(&self) -> &Identifier;
+    fn set_name(&mut self, name: Identifier);
+}
+
+pub trait HasNameReference {
+    fn name_reference(&self) -> &IdentifierReference;
+    fn set_name_reference(&mut self, name: IdentifierReference);
+}
+
+pub trait HasOptionalBody<T> {
+    fn has_body(&self) -> bool {
+        self.body().is_some()
+    }
+    fn body(&self) -> Option<&T>;
+    fn set_body(&mut self, body: T);
+    fn unset_body(&mut self);
+}
+
+pub trait HasSourceSpan {
+    fn with_source_span(self, ts_span: Span) -> Self;
+    fn has_source_span(&self) -> bool {
+        self.source_span().is_some()
+    }
+    fn source_span(&self) -> Option<&Span>;
+    fn set_source_span(&mut self, span: Span);
+    fn unset_source_span(&mut self);
+}
+
+pub trait References {
+    #[allow(unused_variables)]
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {}
+
+    #[allow(unused_variables)]
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {}
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
 ///
@@ -61,23 +71,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Span(Range<usize>);
-
-pub trait ModelElement {
-    fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    fn ts_span(&self) -> Option<&Span>;
-    fn set_ts_span(&mut self, span: Span);
-    fn unset_ts_span(&mut self);
-
-    fn name(&self) -> &Identifier;
-    fn set_name(&mut self, name: Identifier);
-
-    fn is_complete(&self) -> bool;
-
-    fn referenced_types(&self) -> HashSet<&IdentifierReference>;
-    fn referenced_annotations(&self) -> HashSet<&IdentifierReference>;
-}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -140,51 +133,20 @@ impl Span {
 #[macro_use]
 mod macros;
 
-mod identifiers;
-pub use identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
+pub mod identifiers;
 
-mod modules;
-pub use modules::{Module, ModuleBody};
+pub mod modules;
 
-mod imports;
-pub use imports::{Import, ImportStatement};
+pub mod annotations;
 
-mod annotations;
-pub use annotations::{Annotation, AnnotationProperty};
+pub mod constraints;
 
-mod constraints;
-pub use constraints::{
-    AnyOr, AtomicSentence, BinaryExpressionOperation, BooleanExpression, BooleanSentence,
-    BoundExpression, BoundSentence, Constraint, ConstraintBody, ConstraintSentence,
-    ControlledLanguageString, ControlledLanguageTag, EnvironmentDef, EnvironmentDefBody,
-    Expression, FormalConstraint, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionalTerm, IteratorTarget, NamePath, PredicateListMember,
-    PredicateValue, PredicateValueList, QuantifiedExpression, QuantifiedSentence,
-    QuantifierBinding, QuantifierNamedBinding, SequenceComprehension, SequenceIterator,
-    SimpleSentence, Subject, Term, TypeIterator,
-};
+pub mod values;
 
-mod values;
-pub use values::{
-    LanguageString, LanguageTag, ListMember, ListOfValues, MappingValue, SimpleValue, Value,
-    ValueConstructor,
-};
+pub mod definitions;
 
-mod definitions;
-pub use definitions::{
-    AnnotationOnlyBody, DatatypeDef, Definition, EntityBody, EntityDef, EntityGroup, EntityMember,
-    EnumBody, EnumDef, EventDef, PropertyBody, PropertyDef, PropertyRole, StructureBody,
-    StructureDef, StructureGroup, TypeVariant, UnionBody, UnionDef, ValueVariant,
-};
+pub mod members;
 
-mod members;
-pub use members::{
-    ByReferenceMember, ByReferenceMemberDef, ByReferenceMemberInner, ByValueMember,
-    ByValueMemberDef, ByValueMemberInner, Cardinality, IdentityMember, IdentityMemberDef,
-    IdentityMemberInner, MappingType, Ordering, PseudoSequenceType, TypeReference, Uniqueness,
-    DEFAULT_BY_REFERENCE_CARDINALITY, DEFAULT_BY_VALUE_CARDINALITY, TYPE_BAG_CARDINALITY,
-    TYPE_LIST_CARDINALITY, TYPE_MAYBE_CARDINALITY, TYPE_ORDERED_SET_CARDINALITY,
-    TYPE_SET_CARDINALITY,
-};
+pub mod check;
 
 pub mod walk;

@@ -3,7 +3,7 @@ Provides the traits used to define *generators*, types that convert one or more 
 other artifacts.
 */
 
-use crate::{error::Error, model::Module};
+use crate::{error::Error, model::modules::Module};
 use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path};
 
 // ------------------------------------------------------------------------------------------------

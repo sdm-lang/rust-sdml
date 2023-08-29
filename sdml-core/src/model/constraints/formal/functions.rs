@@ -1,4 +1,12 @@
-use crate::model::{Cardinality, ConstraintSentence, Identifier, IdentifierReference, MappingType, Span};
+use crate::model::constraints::ConstraintSentence;
+use crate::model::identifiers::{Identifier, IdentifierReference};
+use crate::model::members::{MappingType, Ordering, Uniqueness, CardinalityRange};
+use crate::model::Span;
+use crate::error::Error;
+use crate::model::modules::Module;
+use crate::model::check::Validate;
+use std::fmt::Display;
+use crate::syntax::KW_WILDCARD;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -39,28 +47,36 @@ pub struct FunctionParameter {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionType {
     span: Option<Span>,
-    target_cardinality: AnyOr<Cardinality>,
-    target_type: AnyOr<FunctionTypeReference>,
+    target_cardinality: FunctionCardinality,
+    target_type: FunctionTypeReference,
+}
+
+/// Corresponds to the grammar rule `cardinality`.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct FunctionCardinality {
+    span: Option<Span>,
+    ordering: Option<Ordering>,
+    uniqueness: Option<Uniqueness>,
+    range: Option<CardinalityRange>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum FunctionTypeReference {
+    Wildcard,
     Reference(IdentifierReference),
     // builtin_simple_type is converted into a reference
     MappingType(MappingType),
 }
 
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum AnyOr<T> {
-    Any,
-    Some(T),
-}
-
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Formal Constraints ❱ Environments ❱ Functions
 // ------------------------------------------------------------------------------------------------
+
+impl_has_body_for!(FunctionDef, ConstraintSentence);
+
+impl_has_source_span_for!(FunctionDef);
 
 impl FunctionDef {
     pub fn new(signature: FunctionSignature, body: ConstraintSentence) -> Self {
@@ -73,48 +89,17 @@ impl FunctionDef {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     pub fn signature(&self) -> &FunctionSignature {
         &self.signature
     }
     pub fn set_signature(&mut self, signature: FunctionSignature) {
         self.signature = signature;
     }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn body(&self) -> &ConstraintSentence {
-        &self.body
-    }
-    pub fn set_target_type(&mut self, body: ConstraintSentence) {
-        self.body = body;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
+
+impl_has_source_span_for!(FunctionSignature);
 
 impl FunctionSignature {
     pub fn new(parameters: Vec<FunctionParameter>, target_type: FunctionType) -> Self {
@@ -123,30 +108,6 @@ impl FunctionSignature {
             parameters,
             target_type,
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -185,6 +146,10 @@ impl FunctionSignature {
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_name_for!(FunctionParameter);
+
+impl_has_source_span_for!(FunctionParameter);
+
 impl FunctionParameter {
     pub fn new(name: Identifier, target_type: FunctionType) -> Self {
         Self {
@@ -192,39 +157,6 @@ impl FunctionParameter {
             name,
             target_type,
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn name(&self) -> &Identifier {
-        &self.name
-    }
-    pub fn set_name(&mut self, name: Identifier) {
-        self.name = name;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -239,10 +171,12 @@ impl FunctionParameter {
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_source_span_for!(FunctionType);
+
 impl FunctionType {
     pub fn new(
-        target_cardinality: AnyOr<Cardinality>,
-        target_type: AnyOr<FunctionTypeReference>,
+        target_cardinality: FunctionCardinality,
+        target_type: FunctionTypeReference,
     ) -> Self {
         Self {
             span: Default::default(),
@@ -253,72 +187,227 @@ impl FunctionType {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
+    pub fn with_wildcard_cardinality(self) -> Self {
         Self {
-            span: Some(ts_span),
+            target_cardinality: FunctionCardinality::new_wildcard(),
             ..self
         }
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_any_cardinality(self) -> Self {
+    pub fn with_target_cardinality(self, target_cardinality: FunctionCardinality) -> Self {
         Self {
-            target_cardinality: AnyOr::Any,
+            target_cardinality,
             ..self
         }
     }
 
-    pub fn with_target_cardinality(self, target_cardinality: Cardinality) -> Self {
-        Self {
-            target_cardinality: AnyOr::Some(target_cardinality),
-            ..self
-        }
-    }
-
-    pub fn target_cardinality(&self) -> &AnyOr<Cardinality> {
+    pub fn target_cardinality(&self) -> &FunctionCardinality {
         &self.target_cardinality
     }
-    pub fn set_target_cardinality(&mut self, target_cardinality: AnyOr<Cardinality>) {
+
+    pub fn set_target_cardinality(&mut self, target_cardinality: FunctionCardinality) {
         self.target_cardinality = target_cardinality;
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_any_type(self) -> Self {
-        Self {
-            target_cardinality: AnyOr::Any,
-            ..self
-        }
-    }
-
     pub fn with_target_type(self, target_type: FunctionTypeReference) -> Self {
         Self {
-            target_type: AnyOr::Some(target_type),
+            target_type,
             ..self
         }
     }
 
-    pub fn target_type(&self) -> &AnyOr<FunctionTypeReference> {
+    pub fn target_type(&self) -> &FunctionTypeReference {
         &self.target_type
     }
-    pub fn set_target_type(&mut self, target_type: AnyOr<FunctionTypeReference>) {
+
+    pub fn set_target_type(&mut self, target_type: FunctionTypeReference) {
         self.target_type = target_type;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Display for FunctionCardinality {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{{{}{}{}}}",
+            self.ordering.map(|c| format!("{} ", c)).unwrap_or_default(),
+            self.uniqueness
+                .map(|c| format!("{} ", c))
+                .unwrap_or_default(),
+            if let Some(range) = &self.range {
+                range.to_string()
+            } else {
+                KW_WILDCARD.to_string()
+            }
+        )
+    }
+}
+
+impl_has_source_span_for!(FunctionCardinality);
+
+impl Validate for FunctionCardinality {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        if let Some(range) = &self.range {
+            range.is_complete(top)
+        } else {
+            Ok(true)
+        }
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        if let Some(range) = &self.range {
+            range.is_valid(check_constraints, top)
+        } else {
+            Ok(true)
+        }
+    }
+}
+
+impl FunctionCardinality {
+    pub const fn new(ordering: Option<Ordering>, uniqueness: Option<Uniqueness>, range: Option<CardinalityRange>) -> Self {
+        Self {
+            span: None,
+            ordering,
+            uniqueness,
+            range,
+        }
+    }
+
+    pub const fn new_range(min: u32, max: u32) -> Self {
+        Self {
+            span: None,
+            ordering: None,
+            uniqueness: None,
+            range: Some(CardinalityRange::new_range(min, max)),
+        }
+    }
+
+    pub const fn new_unbounded(min: u32) -> Self {
+        Self {
+            span: None,
+            ordering: None,
+            uniqueness: None,
+            range: Some(CardinalityRange::new_unbounded(min)),
+        }
+    }
+
+    pub const fn new_single(min_and_max: u32) -> Self {
+        Self {
+            span: None,
+            ordering: None,
+            uniqueness: None,
+            range: Some(CardinalityRange::new_single(min_and_max)),
+        }
+    }
+
+    pub const fn new_wildcard() -> Self {
+        Self {
+            span: None,
+            ordering: None,
+            uniqueness: None,
+            range: None,
+        }
+    }
+
+    #[inline(always)]
+    pub const fn one() -> Self {
+        Self::new_single(1)
+    }
+
+    #[inline(always)]
+    pub const fn zero_or_one() -> Self {
+        Self::new_range(0, 1)
+    }
+
+    #[inline(always)]
+    pub const fn one_or_more() -> Self {
+        Self::new_unbounded(1)
+    }
+
+    #[inline(always)]
+    pub const fn zero_or_more() -> Self {
+        Self::new_unbounded(0)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn with_ordering(self, ordering: Ordering) -> Self {
+        Self {
+            ordering: Some(ordering),
+            ..self
+        }
+    }
+
+    #[inline(always)]
+    pub fn ordering(&self) -> Option<Ordering> {
+        self.ordering
+    }
+
+    #[inline(always)]
+    pub fn set_ordering(&mut self, ordering: Ordering) {
+        self.ordering = Some(ordering);
+    }
+
+    #[inline(always)]
+    pub fn unset_ordering(&mut self) {
+        self.ordering = None;
+    }
+
+    #[inline(always)]
+    pub fn is_ordered(&self) -> Option<bool> {
+        self.ordering().map(|o| o == Ordering::Ordered)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub const fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+        Self {
+            uniqueness: Some(uniqueness),
+            ..self
+        }
+    }
+
+    #[inline(always)]
+    pub fn uniqueness(&self) -> Option<Uniqueness> {
+        self.uniqueness
+    }
+
+    #[inline(always)]
+    pub fn set_uniqueness(&mut self, uniqueness: Uniqueness) {
+        self.uniqueness = Some(uniqueness);
+    }
+
+    #[inline(always)]
+    pub fn unset_uniqueness(&mut self) {
+        self.uniqueness = None;
+    }
+
+    #[inline(always)]
+    pub fn is_unique(&self) -> Option<bool> {
+        self.uniqueness().map(|u| u == Uniqueness::Unique)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_range(&self) -> bool {
+        self.range.is_some()
+    }
+
+    pub fn is_wildcard(&self) -> bool {
+        self.range.is_none()
+    }
+
+    pub fn range(&self) -> Option<&CardinalityRange> {
+        self.range.as_ref()
+    }
+
+    pub fn set_range(&mut self, range: CardinalityRange) {
+        self.range = Some(range);
     }
 }
 
@@ -340,6 +429,7 @@ impl FunctionTypeReference {
     pub fn is_type_reference(&self) -> bool {
         matches!(self, Self::Reference(_))
     }
+
     pub fn as_type_reference(&self) -> Option<&IdentifierReference> {
         match self {
             Self::Reference(v) => Some(v),
@@ -352,53 +442,18 @@ impl FunctionTypeReference {
     pub fn is_mapping_type(&self) -> bool {
         matches!(self, Self::MappingType(_))
     }
+
     pub fn as_mapping_type(&self) -> Option<&MappingType> {
         match self {
             Self::MappingType(v) => Some(v),
             _ => None,
         }
     }
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl<T> From<T> for AnyOr<T> {
-    fn from(value: T) -> Self {
-        Self::Some(value)
-    }
-}
-
-impl<T> AnyOr<T> {
-    pub fn is_any(&self) -> bool {
-        matches!(self, Self::Any)
-    }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_some(&self) -> bool {
-        matches!(self, Self::Some(_))
-    }
-    pub fn as_some(&self) -> Option<&T> {
-        match self {
-            Self::Some(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn map<U, F>(self, f: F) -> Option<U>
-    where
-        F: FnOnce(&T) -> U,
-    {
-        self.as_some().map(f)
-    }
-
-    pub fn map_or<U, F>(self, default: U, f: F) -> U
-    where
-        F: FnOnce(&T) -> U,
-    {
-        self.as_some().map_or(default, f)
+    pub fn is_wildcard(&self) -> bool {
+        matches!(self, Self::Wildcard)
     }
 }
 

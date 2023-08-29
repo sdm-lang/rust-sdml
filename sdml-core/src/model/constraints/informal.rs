@@ -1,4 +1,7 @@
-use crate::{error::invalid_language_tag_error, model::Span};
+use crate::{
+    error::{invalid_language_tag_error, Error},
+    model::{check::Validate, modules::Module, References, Span},
+};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{fmt::Display, str::FromStr};
@@ -78,6 +81,20 @@ impl From<String> for ControlledLanguageString {
     }
 }
 
+impl_has_source_span_for!(ControlledLanguageString);
+
+impl References for ControlledLanguageString {}
+
+impl Validate for ControlledLanguageString {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        todo!()
+    }
+
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        todo!()
+    }
+}
+
 impl ControlledLanguageString {
     pub fn new<S>(value: S, language: ControlledLanguageTag) -> Self
     where
@@ -92,33 +109,10 @@ impl ControlledLanguageString {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     pub fn value(&self) -> &String {
         &self.value
     }
+
     pub fn set_value(&mut self, value: String) {
         self.value = value;
     }
@@ -128,9 +122,11 @@ impl ControlledLanguageString {
     pub fn language(&self) -> Option<&ControlledLanguageTag> {
         self.language.as_ref()
     }
+
     pub fn set_language(&mut self, language: ControlledLanguageTag) {
         self.language = Some(language);
     }
+
     pub fn unset_language(&mut self) {
         self.language = None;
     }
@@ -152,7 +148,7 @@ impl FromStr for ControlledLanguageTag {
     type Err = crate::error::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if Self::is_valid(s) {
+        if Self::is_valid_str(s) {
             Ok(Self {
                 span: None,
                 value: s.to_string(),
@@ -183,36 +179,24 @@ impl PartialEq for ControlledLanguageTag {
 
 impl Eq for ControlledLanguageTag {}
 
+impl_has_source_span_for!(ControlledLanguageTag);
+
+impl Validate for ControlledLanguageTag {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        Ok(true)
+    }
+
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        Ok(Self::is_valid_str(&self.value))
+    }
+}
+
 impl ControlledLanguageTag {
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
             value: s.to_string(),
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -226,7 +210,7 @@ impl ControlledLanguageTag {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_valid(s: &str) -> bool {
+    pub fn is_valid_str(s: &str) -> bool {
         LANGUAGE_TAG.is_match(s)
     }
 }

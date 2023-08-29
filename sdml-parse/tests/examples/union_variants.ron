@@ -59,7 +59,7 @@ Module {
                                             end: 77,
                                         },
                                     ),
-                                    name: Identifier(
+                                    name_reference: Identifier(
                                         Identifier {
                                             span: Some(
                                                 Span {
@@ -80,7 +80,7 @@ Module {
                                             end: 86,
                                         },
                                     ),
-                                    name: Identifier(
+                                    name_reference: Identifier(
                                         Identifier {
                                             span: Some(
                                                 Span {

@@ -30,10 +30,14 @@ use tree_sitter_highlight::HtmlRenderer;
 // ------------------------------------------------------------------------------------------------
 
 const HIGHLIGHT_NAMES: &[&str] = &[
+    "boolean",
     "comment",
+    "constant",
     "constant.builtin",
+    "embedded",
     "error",
     "function.call",
+    "function.definition",
     "keyword",
     "operator",
     "module",
@@ -41,12 +45,20 @@ const HIGHLIGHT_NAMES: &[&str] = &[
     "number",
     "property",
     "punctuation.bracket",
+    "punctuation.delimiter",
+    "punctuation.separator",
     "string",
     "string.special",
     "type",
+    "type.builtin",
     "type.definition",
+    "variable",
+    "variable.builtin",
     "variable.field",
+    "variable.parameter",
 ];
+
+const DEFAULT_CSS: &str = include_str!("sdml-highlight.css");
 
 const HTML_HEADER: &str = r##"<!DOCTYPE html>
 <html>
@@ -56,76 +68,11 @@ const HTML_HEADER: &str = r##"<!DOCTYPE html>
 
     <title>Formatted SDML</title>
 
-    <link
-      href="https://fonts.googleapis.com/css?family=Fira+Code:300,600|Fira+Sans:100,100i,200,200i,400,400i&display=swap"
-      rel="stylesheet">
-
-    <style>
+    <style type="text/css" media="screen">
     body {
       font-family: "Fira Sans",sans;
     }
-    pre.sdml {
-      font-family: "Fira Code",monospace;
-      font-size: .9em;
-      font-weight: 300;
-      line-height: 1.4;
-      padding: .6em;
-      border: 1px solid #e1e4e5;
-      white-space: pre;
-    }
-    pre.sdml code {
-      font-family: "Fira Code",monospace;
-    }
-    pre.sdml code span.sdml-comment {
-      color: #949494;
-      font-style: italic;
-    }
-    pre.sdml code span.sdml-constant-builtin {
-      color: #5f5f00;
-    }
-    pre.sdml code span.sdml-error {
-      color: #ff0000;
-    }
-    pre.sdml code span.sdml-function-call {
-      color: #005fd7;
-    }
-    pre.sdml code span.sdml-keyword {
-      color: #878700;
-    }
-    pre.sdml code span.sdml-operator {
-      color: #4e4e4e;
-      font-weight: bold;
-    }
-    pre.sdml code span.sdml-module {
-      color: #005faf;
-    }
-    pre.sdml code span.sdml-module-definition {
-      color: #0000af;
-    }
-    pre.sdml code span.sdml-number {
-      color: #5f5f00;
-    }
-    pre.sdml code span.sdml-property {
-      color: #d70000;
-    }
-    pre.sdml code span.sdml-punctuation-bracket {
-      color: #4e4e4e;
-    }
-    pre.sdml code span.sdml-string {
-      color: #5faf00;
-    }
-    pre.sdml code span.sdml-string-special {
-      color: #8700d7;
-    }
-    pre.sdml code span.sdml-type {
-      color: #005fff;
-    }
-    pre.sdml code span.sdml-type-definition {
-      color: #0000ff;
-    }
-    pre.sdml code span.sdml-variable-field {
-      color: #5f87af;
-    }
+{css}
     </style>
   </head>
 
@@ -266,7 +213,7 @@ fn highlight_as_html<S: AsRef<[u8]>, W: Write>(
         .collect();
 
     if stand_alone {
-        write!(w, "{}", HTML_HEADER)?;
+        write!(w, "{}", HTML_HEADER.replace("{css}", DEFAULT_CSS))?;
     }
 
     highlight_as_html_inner(
@@ -298,8 +245,8 @@ fn highlight_as_html_inner<S: AsRef<[u8]>, W: Write>(
         })
         .unwrap();
 
-    writeln!(w, "{}<pre class=\"sdml\">", prefix)?;
-    writeln!(w, "{}  <code>", prefix)?;
+    writeln!(w, "{}<pre>", prefix)?;
+    writeln!(w, "{}  <code class=\"sdml\">", prefix)?;
     for line in renderer.lines() {
         write!(w, "{}    {}", prefix, line)?;
     }

@@ -68,14 +68,43 @@ Module {
                                         ),
                                         value: "properties",
                                     },
-                                    inner: Defined(
+                                    kind: Definition(
                                         ByValueMemberDef {
+                                            span: Some(
+                                                Span {
+                                                    start: 45,
+                                                    end: 91,
+                                                },
+                                            ),
+                                            target_cardinality: Cardinality {
+                                                span: Some(
+                                                    Span {
+                                                        start: 59,
+                                                        end: 71,
+                                                    },
+                                                ),
+                                                ordering: None,
+                                                uniqueness: None,
+                                                min: 1,
+                                                max: None,
+                                            },
                                             target_type: MappingType(
                                                 MappingType {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 72,
+                                                            end: 91,
+                                                        },
+                                                    ),
                                                     domain: Reference(
                                                         QualifiedIdentifier(
                                                             QualifiedIdentifier {
-                                                                span: None,
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 73,
+                                                                        end: 79,
+                                                                    },
+                                                                ),
                                                                 module: Identifier {
                                                                     span: None,
                                                                     value: "sdml",
@@ -95,7 +124,12 @@ Module {
                                                     range: Reference(
                                                         QualifiedIdentifier(
                                                             QualifiedIdentifier {
-                                                                span: None,
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 83,
+                                                                        end: 90,
+                                                                    },
+                                                                ),
                                                                 module: Identifier {
                                                                     span: None,
                                                                     value: "sdml",
@@ -114,18 +148,6 @@ Module {
                                                     ),
                                                 },
                                             ),
-                                            target_cardinality: Cardinality {
-                                                ordering: None,
-                                                uniqueness: None,
-                                                span: Some(
-                                                    Span {
-                                                        start: 59,
-                                                        end: 71,
-                                                    },
-                                                ),
-                                                min: 1,
-                                                max: None,
-                                            },
                                             body: None,
                                         },
                                     ),

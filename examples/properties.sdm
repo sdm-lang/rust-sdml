@@ -14,7 +14,7 @@ module properties is
 
   structure Account is
 
-    accountId as identitifer
+    identitifer in accountId
 
     name -> string
 

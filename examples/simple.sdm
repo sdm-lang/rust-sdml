@@ -1,10 +1,7 @@
-module campaign is
+module campaign base <https://advertising.amazon.com/api-model> is
 
   import [xsd skos xml:base dc]
-
   import foo
-
-  @xml:base = <https://advertising.amazon.com/api-model>
 
   @skos:version = xsd:decimal(2)
 
@@ -32,7 +29,7 @@ module campaign is
 
     tag -> {0..} Tag
 
-    ref target {0..1} -> {0..} Target
+    ref target -> {1..} Target
   end
 
   union foo of

@@ -32,9 +32,14 @@ Module {
                             end: 89,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 57,
+                                    end: 66,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -57,7 +62,12 @@ Module {
                     ),
                     value: List(
                         ListOfValues {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 69,
+                                    end: 89,
+                                },
+                            ),
                             values: [
                                 Simple(
                                     String(

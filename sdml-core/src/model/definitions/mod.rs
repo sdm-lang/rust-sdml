@@ -1,8 +1,64 @@
-use crate::model::{Identifier, IdentifierReference, ModelElement, Span};
-use std::{collections::HashSet, fmt::Debug};
+use crate::model::identifiers::Identifier;
+use crate::model::{HasName, HasSourceSpan, Span};
+use std::fmt::Debug;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+// ------------------------------------------------------------------------------------------------
+// Public Types
+// ------------------------------------------------------------------------------------------------
+
+pub trait HasMembers<T> {
+    fn has_members(&self) -> bool;
+
+    fn members_len(&self) -> usize;
+
+    fn members(&self) -> Box<dyn Iterator<Item = &T> + '_>;
+
+    fn members_mut(&mut self) -> Box<dyn Iterator<Item = &mut T> + '_>;
+
+    fn add_to_members(&mut self, value: T);
+
+    fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = T>;
+}
+
+pub trait HasVariants<T> {
+    fn has_variants(&self) -> bool;
+
+    fn variants_len(&self) -> usize;
+
+    fn variants(&self) -> Box<dyn Iterator<Item = &T> + '_>;
+
+    fn variants_mut(&mut self) -> Box<dyn Iterator<Item = &mut T> + '_>;
+
+    fn add_to_variants(&mut self, value: T);
+
+    fn extend_variants<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = T>;
+}
+
+pub trait HasGroups<G, T>
+where
+    G: HasMembers<T>,
+{
+    fn has_groups(&self) -> bool;
+
+    fn groups_len(&self) -> usize;
+
+    fn groups(&self) -> Box<dyn Iterator<Item = &G> + '_>;
+
+    fn groups_mut(&mut self) -> Box<dyn Iterator<Item = &mut G> + '_>;
+
+    fn add_to_groups(&mut self, value: G);
+
+    fn extend_groups<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = G>;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions
@@ -51,45 +107,7 @@ impl_from_for_variant!(Definition, Union, UnionDef);
 
 impl_from_for_variant!(Definition, Property, PropertyDef);
 
-//enum_display_impl!(Definition => Datatype, Entity, Enum, Event, Structure, Union, Property);
-
-impl ModelElement for Definition {
-    fn ts_span(&self) -> Option<&Span> {
-        match self {
-            Self::Datatype(v) => v.ts_span(),
-            Self::Entity(v) => v.ts_span(),
-            Self::Enum(v) => v.ts_span(),
-            Self::Event(v) => v.ts_span(),
-            Self::Structure(v) => v.ts_span(),
-            Self::Union(v) => v.ts_span(),
-            Self::Property(v) => v.ts_span(),
-        }
-    }
-
-    fn set_ts_span(&mut self, span: Span) {
-        match self {
-            Self::Datatype(v) => v.set_ts_span(span),
-            Self::Entity(v) => v.set_ts_span(span),
-            Self::Enum(v) => v.set_ts_span(span),
-            Self::Event(v) => v.set_ts_span(span),
-            Self::Structure(v) => v.set_ts_span(span),
-            Self::Union(v) => v.set_ts_span(span),
-            Self::Property(v) => v.set_ts_span(span),
-        }
-    }
-
-    fn unset_ts_span(&mut self) {
-        match self {
-            Self::Datatype(v) => v.unset_ts_span(),
-            Self::Entity(v) => v.unset_ts_span(),
-            Self::Enum(v) => v.unset_ts_span(),
-            Self::Event(v) => v.unset_ts_span(),
-            Self::Structure(v) => v.unset_ts_span(),
-            Self::Union(v) => v.unset_ts_span(),
-            Self::Property(v) => v.unset_ts_span(),
-        }
-    }
-
+impl HasName for Definition {
     fn name(&self) -> &Identifier {
         match self {
             Self::Datatype(v) => v.name(),
@@ -113,40 +131,46 @@ impl ModelElement for Definition {
             Self::Property(v) => v.set_name(name),
         }
     }
+}
 
-    fn is_complete(&self) -> bool {
+impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Structure, Union, Property);
+
+impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, Structure, Union, Property);
+
+impl Definition {
+    pub fn source_span(&self) -> Option<&Span> {
         match self {
-            Self::Datatype(v) => v.is_complete(),
-            Self::Entity(v) => v.is_complete(),
-            Self::Enum(v) => v.is_complete(),
-            Self::Event(v) => v.is_complete(),
-            Self::Structure(v) => v.is_complete(),
-            Self::Union(v) => v.is_complete(),
-            Self::Property(v) => v.is_complete(),
+            Self::Datatype(v) => v.source_span(),
+            Self::Entity(v) => v.source_span(),
+            Self::Enum(v) => v.source_span(),
+            Self::Event(v) => v.source_span(),
+            Self::Structure(v) => v.source_span(),
+            Self::Union(v) => v.source_span(),
+            Self::Property(v) => v.source_span(),
         }
     }
 
-    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
+    pub fn set_source_span(&mut self, span: Span) {
         match self {
-            Self::Datatype(v) => v.referenced_types(),
-            Self::Entity(v) => v.referenced_types(),
-            Self::Enum(v) => v.referenced_types(),
-            Self::Event(v) => v.referenced_types(),
-            Self::Structure(v) => v.referenced_types(),
-            Self::Union(v) => v.referenced_types(),
-            Self::Property(v) => v.referenced_types(),
+            Self::Datatype(v) => v.set_source_span(span),
+            Self::Entity(v) => v.set_source_span(span),
+            Self::Enum(v) => v.set_source_span(span),
+            Self::Event(v) => v.set_source_span(span),
+            Self::Structure(v) => v.set_source_span(span),
+            Self::Union(v) => v.set_source_span(span),
+            Self::Property(v) => v.set_source_span(span),
         }
     }
 
-    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
+    pub fn unset_source_span(&mut self) {
         match self {
-            Self::Datatype(v) => v.referenced_annotations(),
-            Self::Entity(v) => v.referenced_annotations(),
-            Self::Enum(v) => v.referenced_annotations(),
-            Self::Event(v) => v.referenced_annotations(),
-            Self::Structure(v) => v.referenced_annotations(),
-            Self::Union(v) => v.referenced_annotations(),
-            Self::Property(v) => v.referenced_annotations(),
+            Self::Datatype(v) => v.unset_source_span(),
+            Self::Entity(v) => v.unset_source_span(),
+            Self::Enum(v) => v.unset_source_span(),
+            Self::Event(v) => v.unset_source_span(),
+            Self::Structure(v) => v.unset_source_span(),
+            Self::Union(v) => v.unset_source_span(),
+            Self::Property(v) => v.unset_source_span(),
         }
     }
 }
@@ -160,7 +184,7 @@ impl ModelElement for Definition {
 // ------------------------------------------------------------------------------------------------
 
 mod datatypes;
-pub use datatypes::{AnnotationOnlyBody, DatatypeDef};
+pub use datatypes::DatatypeDef;
 
 mod entities;
 pub use entities::{EntityBody, EntityDef, EntityGroup, EntityMember};
@@ -172,7 +196,7 @@ mod events;
 pub use events::EventDef;
 
 mod properties;
-pub use properties::{PropertyBody, PropertyDef, PropertyRole};
+pub use properties::{PropertyBody, PropertyDef, PropertyRole, PropertyRoleDef};
 
 mod structures;
 pub use structures::{StructureBody, StructureDef, StructureGroup};

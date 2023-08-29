@@ -32,9 +32,14 @@ Module {
                             end: 95,
                         },
                     ),
-                    name: QualifiedIdentifier(
+                    name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 70,
+                                    end: 78,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -67,7 +72,12 @@ Module {
                                 value: "a test",
                                 language: Some(
                                     LanguageTag {
-                                        span: None,
+                                        span: Some(
+                                            Span {
+                                                start: 89,
+                                                end: 95,
+                                            },
+                                        ),
                                         value: "en-US",
                                     },
                                 ),

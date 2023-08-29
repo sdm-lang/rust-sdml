@@ -10,7 +10,7 @@ YYYYY
 */
 
 use sdml_core::error::Error;
-use sdml_core::model::Module;
+use sdml_core::model::modules::Module;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------

@@ -22,15 +22,21 @@ walk_module(&some_module, &mut MyModuleWalker::default());
 */
 
 use crate::error::Error;
-use crate::model::{
-    Annotation, ByReferenceMember, ByReferenceMemberInner, ByValueMember, ByValueMemberInner,
-    Cardinality, ConstraintBody, DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember,
-    EnumDef, EventDef, Identifier, IdentifierReference, IdentityMember, IdentityMemberInner,
-    Import, ModelElement, Module, PropertyDef, Span, StructureDef, StructureGroup, TypeReference,
-    UnionDef, Value,
+use crate::model::annotations::{Annotation, HasAnnotations};
+use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
+use crate::model::definitions::{
+    DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember, EnumDef, EventDef, HasGroups,
+    HasMembers, HasVariants, PropertyDef, StructureDef, StructureGroup, UnionDef,
 };
-
-use super::ControlledLanguageTag;
+use crate::model::definitions::{PropertyRole, PropertyRoleDef};
+use crate::model::identifiers::{Identifier, IdentifierReference};
+use crate::model::members::{
+    ByReferenceMember, ByReferenceMemberDef, ByValueMember, ByValueMemberDef, IdentityMember,
+    IdentityMemberDef, Member, MemberKind,
+};
+use crate::model::modules::{Import, Module};
+use crate::model::values::Value;
+use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -97,7 +103,7 @@ pub trait ModuleWalker {
     fn start_identity_member(
         &mut self,
         _name: &Identifier,
-        _inner: &IdentityMemberInner,
+        _inner: &MemberKind<IdentityMemberDef>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
@@ -106,7 +112,7 @@ pub trait ModuleWalker {
     fn start_by_value_member(
         &mut self,
         _name: &Identifier,
-        _inner: &ByValueMemberInner,
+        _inner: &MemberKind<ByValueMemberDef>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
@@ -115,7 +121,7 @@ pub trait ModuleWalker {
     fn start_by_reference_member(
         &mut self,
         _name: &Identifier,
-        _inner: &ByReferenceMemberInner,
+        _inner: &MemberKind<ByReferenceMemberDef>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
@@ -231,19 +237,34 @@ pub trait ModuleWalker {
         Ok(())
     }
 
-    fn start_property_role(
+    fn start_identity_role(
         &mut self,
         _name: &Identifier,
-        _inverse_name: Option<&Option<Identifier>>,
-        _target_cardinality: Option<&Cardinality>,
-        _target_type: &TypeReference,
-        _has_body: bool,
+        _inner: &IdentityMemberDef,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_property_role(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    fn start_by_reference_role(
+        &mut self,
+        _name: &Identifier,
+        _inner: &ByReferenceMemberDef,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn start_by_value_role(
+        &mut self,
+        _name: &Identifier,
+        _inner: &ByValueMemberDef,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_property_role(&mut self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
 
@@ -265,7 +286,11 @@ macro_rules! walk_annotations {
         for annotation in $iterator {
             match annotation {
                 Annotation::Property(prop) => {
-                    $walker.annotation_property(prop.name(), prop.value(), annotation.ts_span())?;
+                    $walker.annotation_property(
+                        prop.name_reference(),
+                        prop.value(),
+                        annotation.source_span(),
+                    )?;
                 }
                 Annotation::Constraint(cons) => match cons.body() {
                     ConstraintBody::Informal(body) => {
@@ -273,7 +298,7 @@ macro_rules! walk_annotations {
                             cons.name(),
                             body.value(),
                             body.language(),
-                            cons.ts_span(),
+                            cons.source_span(),
                         )?;
                     }
                     ConstraintBody::Formal(_) => todo!(),
@@ -290,12 +315,12 @@ macro_rules! walk_annotations {
 /// Walk the module `module` calling the relevant methods on `walker`.
 ///
 pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_module(module.name(), module.ts_span())?;
+    walker.start_module(module.name(), module.source_span())?;
 
     let body = module.body();
 
     for import in body.imports() {
-        walker.import(import.as_slice(), import.ts_span())?;
+        walker.import(import.as_slice(), import.source_span())?;
     }
 
     walk_annotations!(walker, body.annotations());
@@ -332,7 +357,7 @@ pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<()
 // ------------------------------------------------------------------------------------------------
 
 fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_datatype(def.name(), def.base_type(), def.has_body(), def.ts_span())?;
+    walker.start_datatype(def.name(), def.base_type(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
@@ -342,7 +367,7 @@ fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl ModuleWalker) -> Resul
 }
 
 fn walk_entity_def(def: &EntityDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_entity(def.name(), def.has_body(), def.ts_span())?;
+    walker.start_entity(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_identity_member(body.identity(), walker)?;
@@ -365,7 +390,7 @@ fn walk_entity_def(def: &EntityDef, walker: &mut impl ModuleWalker) -> Result<()
 }
 
 fn walk_entity_group(group: &EntityGroup, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_group(group.ts_span())?;
+    walker.start_group(group.source_span())?;
 
     walk_annotations!(walker, group.annotations());
 
@@ -380,7 +405,7 @@ fn walk_entity_group(group: &EntityGroup, walker: &mut impl ModuleWalker) -> Res
 }
 
 fn walk_enum_def(def: &EnumDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_enum(def.name(), def.has_body(), def.ts_span())?;
+    walker.start_enum(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
@@ -389,7 +414,7 @@ fn walk_enum_def(def: &EnumDef, walker: &mut impl ModuleWalker) -> Result<(), Er
                 variant.name(),
                 variant.value(),
                 variant.has_body(),
-                variant.ts_span(),
+                variant.source_span(),
             )?;
             if let Some(body) = variant.body() {
                 walk_annotations!(walker, body.annotations());
@@ -406,7 +431,7 @@ fn walk_event_def(def: &EventDef, walker: &mut impl ModuleWalker) -> Result<(), 
         def.name(),
         def.event_source(),
         def.has_body(),
-        def.ts_span(),
+        def.source_span(),
     )?;
 
     if let Some(body) = def.body() {
@@ -425,7 +450,7 @@ fn walk_event_def(def: &EventDef, walker: &mut impl ModuleWalker) -> Result<(), 
 }
 
 fn walk_structure_def(def: &StructureDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_structure(def.name(), def.has_body(), def.ts_span())?;
+    walker.start_structure(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
@@ -446,7 +471,7 @@ fn walk_structure_group(
     group: &StructureGroup,
     walker: &mut impl ModuleWalker,
 ) -> Result<(), Error> {
-    walker.start_group(group.ts_span())?;
+    walker.start_group(group.source_span())?;
 
     walk_annotations!(walker, group.annotations());
 
@@ -458,21 +483,21 @@ fn walk_structure_group(
 }
 
 fn walk_union_def(def: &UnionDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_union(def.name(), def.has_body(), def.ts_span())?;
+    walker.start_union(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
         for variant in body.variants() {
             walker.start_type_variant(
-                variant.name(),
+                variant.name_reference(),
                 variant.rename(),
                 variant.has_body(),
-                variant.ts_span(),
+                variant.source_span(),
             )?;
             if let Some(body) = variant.body() {
                 walk_annotations!(walker, body.annotations());
             }
-            walker.end_type_variant(variant.name(), def.has_body())?;
+            walker.end_type_variant(variant.name_reference(), def.has_body())?;
         }
     }
 
@@ -480,38 +505,47 @@ fn walk_union_def(def: &UnionDef, walker: &mut impl ModuleWalker) -> Result<(), 
 }
 
 fn walk_property_def(def: &PropertyDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_property(def.name(), def.has_body(), def.ts_span())?;
+    walker.start_property(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
+
         for role in body.roles() {
-            walker.start_property_role(
-                role.name(),
-                role.inverse_name(),
-                role.target_cardinality(),
-                role.target_type(),
-                role.has_body(),
-                role.ts_span(),
-            )?;
-            if let Some(body) = role.body() {
-                walk_annotations!(walker, body.annotations());
-            }
-            walker.end_property_role(role.name(), def.has_body())?;
+            walk_property_role(role, walker)?;
         }
     }
 
     walker.end_union(def.name(), def.has_body())
 }
 
+fn walk_property_role(role: &PropertyRole, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+    match role.definition() {
+        PropertyRoleDef::Identity(inner) => {
+            walker.start_identity_role(role.name(), inner, role.source_span())?
+        }
+        PropertyRoleDef::ByReference(inner) => {
+            walker.start_by_reference_role(role.name(), inner, role.source_span())?
+        }
+        PropertyRoleDef::ByValue(inner) => {
+            walker.start_by_value_role(role.name(), inner, role.source_span())?
+        }
+    }
+
+    if let Some(body) = role.body() {
+        walk_annotations!(walker, body.annotations());
+    }
+    walker.end_property_role(role.name())
+}
+
 fn walk_identity_member(
     member: &IdentityMember,
     walker: &mut impl ModuleWalker,
 ) -> Result<(), Error> {
-    walker.start_identity_member(member.name(), member.inner(), member.ts_span())?;
+    walker.start_identity_member(member.name(), member.kind(), member.source_span())?;
 
     if let Some(body) = member
-        .inner()
-        .as_defined()
+        .kind()
+        .as_definition()
         .map(|def| def.body())
         .unwrap_or_default()
     {
@@ -525,11 +559,11 @@ fn walk_by_value_member(
     member: &ByValueMember,
     walker: &mut impl ModuleWalker,
 ) -> Result<(), Error> {
-    walker.start_by_value_member(member.name(), member.inner(), member.ts_span())?;
+    walker.start_by_value_member(member.name(), member.kind(), member.source_span())?;
 
     if let Some(body) = member
-        .inner()
-        .as_defined()
+        .kind()
+        .as_definition()
         .map(|def| def.body())
         .unwrap_or_default()
     {
@@ -543,11 +577,11 @@ fn walk_by_reference_member(
     member: &ByReferenceMember,
     walker: &mut impl ModuleWalker,
 ) -> Result<(), Error> {
-    walker.start_by_reference_member(member.name(), member.inner(), member.ts_span())?;
+    walker.start_by_reference_member(member.name(), member.kind(), member.source_span())?;
 
     if let Some(body) = member
-        .inner()
-        .as_defined()
+        .kind()
+        .as_definition()
         .map(|def| def.body())
         .unwrap_or_default()
     {

@@ -1,16 +1,83 @@
-use crate::model::{Identifier, IdentifierReference, QualifiedIdentifier, Span};
+use crate::error::Error;
+use crate::model::check::Validate;
+use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
+use crate::model::modules::Module;
+use crate::model::{References, Span};
 use crate::syntax::{
     KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_TYPE_UNKNOWN, KW_UNIQUENESS_NONUNIQUE,
     KW_UNIQUENESS_UNIQUE,
 };
+use std::collections::HashSet;
 use std::fmt::{Debug, Display};
+use std::str::FromStr;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Traits
 // ------------------------------------------------------------------------------------------------
+
+pub trait HasCardinality {
+    fn target_cardinality(&self) -> &Cardinality;
+
+    fn set_target_cardinality(&mut self, target_cardinality: Cardinality);
+}
+
+pub trait HasType {
+    fn target_type(&self) -> &TypeReference;
+    fn set_target_type(&mut self, target_type: TypeReference);
+    fn is_unknown_type(&self) -> bool {
+        matches!(self.target_type(), TypeReference::Unknown)
+    }
+    fn is_named_type(&self) -> bool {
+        matches!(self.target_type(), TypeReference::Reference(_))
+    }
+    fn is_mapping_type(&self) -> bool {
+        matches!(self.target_type(), TypeReference::MappingType(_))
+    }
+}
+
+pub trait Member<'a, D: 'a> {
+    fn kind(&'a self) -> &'a MemberKind<D>;
+
+    fn set_kind(&mut self, kind: MemberKind<D>);
+
+    fn is_property_reference(&'a self) -> bool {
+        matches!(self.kind(), MemberKind::PropertyReference(_))
+    }
+
+    fn as_property_reference(&'a self) -> Option<&'a IdentifierReference> {
+        if let MemberKind::PropertyReference(v) = self.kind() {
+            Some(v)
+        } else {
+            None
+        }
+    }
+
+    fn is_definition(&'a self) -> bool {
+        matches!(self.kind(), MemberKind::Definition(_))
+    }
+
+    fn as_definition(&'a self) -> Option<&'a D> {
+        if let MemberKind::Definition(v) = self.kind() {
+            Some(v)
+        } else {
+            None
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Members ❱ MemberKind
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum MemberKind<D> {
+    PropertyReference(IdentifierReference),
+    Definition(D),
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Members ❱ Type Reference
@@ -34,6 +101,7 @@ pub enum TypeReference {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MappingType {
+    span: Option<Span>,
     domain: Box<TypeReference>,
     range: Box<TypeReference>,
 }
@@ -49,12 +117,12 @@ pub struct Cardinality {
     span: Option<Span>,
     ordering: Option<Ordering>,
     uniqueness: Option<Uniqueness>,
-    min: u32,
-    max: Option<u32>,
+    range: CardinalityRange,
 }
 
-pub const DEFAULT_BY_REFERENCE_CARDINALITY: Cardinality = Cardinality::one();
-pub const DEFAULT_BY_VALUE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
+pub const BY_IDENTITY_CARDINALITY: Cardinality = Cardinality::one();
+pub const DEFAULT_BY_REFERENCE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
+pub const DEFAULT_BY_VALUE_CARDINALITY: Cardinality = Cardinality::one();
 
 pub const TYPE_BAG_CARDINALITY: Cardinality = Cardinality::zero_or_more();
 pub const TYPE_LIST_CARDINALITY: Cardinality =
@@ -65,6 +133,19 @@ pub const TYPE_ORDERED_SET_CARDINALITY: Cardinality = Cardinality::zero_or_more(
     .with_ordering(Ordering::Ordered)
     .with_uniqueness(Uniqueness::Unique);
 pub const TYPE_MAYBE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
+
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct CardinalityRange {
+    span: Option<Span>,
+    min: u32,
+    max: Option<u32>,
+}
+
+pub const BY_IDENTITY_CARDINALITY_RANGE: CardinalityRange = CardinalityRange::one();
+pub const DEFAULT_BY_REFERENCE_CARDINALITY_RANGE: CardinalityRange = CardinalityRange::zero_or_one();
+pub const DEFAULT_BY_VALUE_CARDINALITY_RANGE: CardinalityRange = CardinalityRange::one();
+
 
 /// Corresponds to the grammar rule `sequence_ordering`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -96,186 +177,105 @@ pub enum PseudoSequenceType {
 // ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-macro_rules! member_model_element_impl {
-    ($type: ty) => {
-        impl ModelElement for $type {
-            fn ts_span(&self) -> Option<&Span> {
-                self.span.as_ref()
-            }
-            fn set_ts_span(&mut self, span: Span) {
-                self.span = Some(span);
-            }
-            fn unset_ts_span(&mut self) {
-                self.span = None;
-            }
-
-            fn name(&self) -> &Identifier {
-                &self.name
-            }
-            fn set_name(&mut self, name: Identifier) {
-                self.name = name;
-            }
-
-            delegate!(is_complete, bool, fn inner);
-            delegate!(referenced_annotations, HashSet<&IdentifierReference>, fn inner);
-
-            fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-                if let Some(target_type) = self.inner().target_type() {
-                    [target_type].into_iter().collect()
-                } else {
-                    Default::default()
-                }
-            }
-        }
-    };
-}
-
-macro_rules! member_impl {
-    ($type: ty, $inner_type: ty, $def_type: ty) => {
-        impl $type {
-            pub fn new_with_role(name: Identifier, role: Identifier) -> Self {
-                Self {
-                    span: None,
-                    name,
-                    inner: role.into(),
-                }
-            }
-
-            pub fn new_with_definition(name: Identifier, def: $def_type) -> Self {
-                Self {
-                    span: None,
-                    name,
-                    inner: def.into(),
-                }
-            }
-
-            pub fn with_ts_span(self, ts_span: Span) -> Self {
-                Self {
-                    span: Some(ts_span),
-                    ..self
-                }
-            }
-
-            pub fn inner(&self) -> &$inner_type {
-                &self.inner
-            }
-            pub fn set_inner(&mut self, inner: $inner_type) {
-                self.inner = inner;
-            }
-
-            delegate!(pub is_property_role, bool, fn inner);
-            delegate!(pub as_property_role, Option<&Identifier>, fn inner);
-
-            delegate!(pub is_defined, bool, fn inner);
-            delegate!(pub as_defined, Option<&$def_type>, fn inner);
-
-            delegate!(pub target_type, Option<&IdentifierReference>, fn inner);
-        }
-    };
-}
-
-macro_rules! member_inner_impl {
-    ($inner_type: ty, $def_type: ty) => {
-        impl From<Identifier> for $inner_type {
-            fn from(value: Identifier) -> Self {
-                Self::PropertyRole(value)
-            }
-        }
-
-        impl From<$def_type> for $inner_type {
-            fn from(value: $def_type) -> Self {
-                Self::Defined(value)
-            }
-        }
-
-        impl $inner_type {
-            pub fn is_property_role(&self) -> bool {
-                matches!(self, Self::PropertyRole(_))
-            }
-            pub fn as_property_role(&self) -> Option<&Identifier> {
-                match self {
-                    Self::PropertyRole(v) => Some(v),
-                    _ => None,
-                }
-            }
-
-            pub fn is_defined(&self) -> bool {
-                matches!(self, Self::Defined(_))
-            }
-            pub fn as_defined(&self) -> Option<&$def_type> {
-                match self {
-                    Self::Defined(v) => Some(v),
-                    _ => None,
-                }
-            }
-
-            pub fn target_type(&self) -> Option<&IdentifierReference> {
-                if let Self::Defined(defined) = self {
-                    defined.target_type().as_reference()
-                } else {
-                    // TODO: lookup the property role to check.
-                    None
-                }
-            }
-
-            pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-                if let Self::Defined(defined) = self {
-                    defined.referenced_annotations()
-                } else {
-                    // TODO: lookup the property role to check.
-                    Default::default()
-                }
-            }
-
-            pub fn is_complete(&self) -> bool {
-                if let Self::Defined(defined) = self {
-                    defined.is_complete()
-                } else {
-                    // TODO: lookup the property role to check.
-                    true
-                }
-            }
-        }
-    };
-}
-
-macro_rules! member_def_impl {
-    () => {
-        pub fn target_type(&self) -> &TypeReference {
-            &self.target_type
-        }
-        pub fn set_target_type(&mut self, target_type: TypeReference) {
-            self.target_type = target_type;
-        }
-
-        pub fn body(&self) -> Option<&AnnotationOnlyBody> {
-            self.body.as_ref()
-        }
-        pub fn set_body(&mut self, body: AnnotationOnlyBody) {
-            self.body = Some(body);
-        }
-        pub fn unset_body(&mut self) {
-            self.body = None;
-        }
-
-        pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-            self.body()
-                .map(|b| b.referenced_annotations())
-                .unwrap_or_default()
-        }
-
-        pub fn is_complete(&self) -> bool {
-            self.target_type().is_complete()
-        }
-    };
-}
-
-// ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ Member Kind
+// ------------------------------------------------------------------------------------------------
+
+impl<D> Into<MemberKind<D>> for IdentifierReference {
+    fn into(self) -> MemberKind<D> {
+        MemberKind::PropertyReference(self)
+    }
+}
+
+impl<D> Into<MemberKind<D>> for Identifier {
+    fn into(self) -> MemberKind<D> {
+        MemberKind::PropertyReference(self.into())
+    }
+}
+
+impl<D> Into<MemberKind<D>> for QualifiedIdentifier {
+    fn into(self) -> MemberKind<D> {
+        MemberKind::PropertyReference(self.into())
+    }
+}
+
+impl<D> References for MemberKind<D>
+where
+    D: References,
+{
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        if let Self::Definition(defininition) = self {
+            defininition.referenced_annotations(names)
+        }
+    }
+
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        if let Self::Definition(defininition) = self {
+            defininition.referenced_types(names)
+        }
+    }
+}
+
+impl<D> Validate for MemberKind<D>
+where
+    D: Validate,
+{
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        match self {
+            MemberKind::PropertyReference(_) => Ok(true),
+            MemberKind::Definition(v) => v.is_complete(top),
+        }
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        match self {
+            MemberKind::PropertyReference(_) => Ok(true),
+            MemberKind::Definition(v) => v.is_valid(check_constraints, top),
+        }
+    }
+}
+
+impl<D> MemberKind<D>
+where
+    D: HasType,
+{
+    pub fn target_type(&self) -> Option<&IdentifierReference> {
+        if let Self::Definition(defininition) = self {
+            defininition.target_type().as_reference()
+        } else {
+            None
+        }
+    }
+}
+
+impl<D> MemberKind<D> {
+    pub fn is_property_reference(&self) -> bool {
+        matches!(self, Self::PropertyReference(_))
+    }
+
+    pub fn as_property_reference(&self) -> Option<&IdentifierReference> {
+        if let Self::PropertyReference(v) = self {
+            Some(v)
+        } else {
+            None
+        }
+    }
+
+    pub fn is_definition(&self) -> bool {
+        matches!(self, Self::Definition(_))
+    }
+
+    pub fn as_definition(&self) -> Option<&D> {
+        if let Self::Definition(v) = self {
+            Some(v)
+        } else {
+            None
+        }
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Type Reference
@@ -313,10 +313,43 @@ impl From<QualifiedIdentifier> for TypeReference {
     }
 }
 
+impl References for TypeReference {
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        match self {
+            TypeReference::Unknown => {}
+            TypeReference::Reference(v) => {
+                names.insert(v);
+            }
+            TypeReference::MappingType(v) => {
+                v.referenced_types(names);
+            }
+        }
+    }
+}
+
+impl Validate for TypeReference {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        match self {
+            TypeReference::Unknown => Ok(false),
+            TypeReference::Reference(_) => Ok(true),
+            TypeReference::MappingType(v) => v.is_complete(top),
+        }
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        match self {
+            TypeReference::Unknown => Ok(true),
+            TypeReference::Reference(_) => todo!(),
+            TypeReference::MappingType(v) => v.is_valid(check_constraints, top),
+        }
+    }
+}
+
 impl TypeReference {
     pub fn is_reference(&self) -> bool {
         matches!(self, Self::Reference(_))
     }
+
     pub fn as_reference(&self) -> Option<&IdentifierReference> {
         match self {
             Self::Reference(v) => Some(v),
@@ -324,16 +357,19 @@ impl TypeReference {
         }
     }
 
-    pub fn is_unknown(&self) -> bool {
-        matches!(self, Self::Unknown)
+    pub fn is_mapping_type(&self) -> bool {
+        matches!(self, Self::MappingType(_))
     }
 
-    pub fn is_complete(&self) -> bool {
+    pub fn as_mapping_type(&self) -> Option<&MappingType> {
         match self {
-            TypeReference::Unknown => false,
-            TypeReference::Reference(_) => true,
-            TypeReference::MappingType(v) => v.is_complete(),
+            Self::MappingType(v) => Some(v),
+            _ => None,
         }
+    }
+
+    pub fn is_unknown(&self) -> bool {
+        matches!(self, Self::Unknown)
     }
 }
 
@@ -347,6 +383,26 @@ impl Display for MappingType {
     }
 }
 
+impl_has_source_span_for!(MappingType);
+
+impl References for MappingType {
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.domain.referenced_types(names);
+        self.range.referenced_types(names);
+    }
+}
+
+impl Validate for MappingType {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        Ok(self.domain.is_complete(top)? && self.range.is_complete(top)?)
+    }
+
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        // TODO: check type references exist
+        todo!()
+    }
+}
+
 impl MappingType {
     pub fn new<T1, T2>(domain: T1, range: T2) -> Self
     where
@@ -354,14 +410,18 @@ impl MappingType {
         T2: Into<TypeReference>,
     {
         Self {
+            span: Default::default(),
             domain: Box::new(domain.into()),
             range: Box::new(range.into()),
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn domain(&self) -> &TypeReference {
         &self.domain
     }
+
     pub fn set_domain<T>(&mut self, domain: T)
     where
         T: Into<TypeReference>,
@@ -369,18 +429,17 @@ impl MappingType {
         self.domain = Box::new(domain.into());
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn range(&self) -> &TypeReference {
         &self.range
     }
+
     pub fn set_range<T>(&mut self, range: T)
     where
         T: Into<TypeReference>,
     {
         self.range = Box::new(range.into());
-    }
-
-    pub fn is_complete(&self) -> bool {
-        self.range.is_complete()
     }
 }
 
@@ -409,34 +468,63 @@ impl From<u32> for Cardinality {
     }
 }
 
+impl From<CardinalityRange> for Cardinality {
+    fn from(range: CardinalityRange) -> Self {
+        Self {
+            span: Default::default(),
+            ordering: Default::default(),
+            uniqueness: Default::default(),
+            range,
+         }
+    }
+}
+
+impl_has_source_span_for!(Cardinality);
+
+impl Validate for Cardinality {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        self.range.is_complete(top)
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        self.range.is_valid(check_constraints, top)
+    }
+}
+
 impl Cardinality {
+    pub const fn new(ordering: Option<Ordering>, uniqueness: Option<Uniqueness>, range: CardinalityRange) -> Self {
+        Self {
+            span: None,
+            ordering,
+            uniqueness,
+            range,
+        }
+    }
+
     pub const fn new_range(min: u32, max: u32) -> Self {
         Self {
+            span: None,
             ordering: None,
             uniqueness: None,
-            span: None,
-            min,
-            max: Some(max),
+            range: CardinalityRange::new_range(min, max),
         }
     }
 
     pub const fn new_unbounded(min: u32) -> Self {
         Self {
+            span: None,
             ordering: None,
             uniqueness: None,
-            span: None,
-            min,
-            max: None,
+            range: CardinalityRange::new_unbounded(min),
         }
     }
 
     pub const fn new_single(min_and_max: u32) -> Self {
         Self {
+            span: None,
             ordering: None,
             uniqueness: None,
-            span: None,
-            min: min_and_max,
-            max: Some(min_and_max),
+            range: CardinalityRange::new_single(min_and_max),
         }
     }
 
@@ -458,27 +546,6 @@ impl Cardinality {
     #[inline(always)]
     pub const fn zero_or_more() -> Self {
         Self::new_unbounded(0)
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub const fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -542,6 +609,192 @@ impl Cardinality {
 
     // --------------------------------------------------------------------------------------------
 
+    pub fn range(&self) -> &CardinalityRange {
+        &self.range
+    }
+
+    pub fn set_range(&mut self, range: CardinalityRange) {
+        self.range = range;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub fn min_occurs(&self) -> u32 {
+        self.range.min_occurs()
+    }
+
+    #[inline(always)]
+    pub fn set_min_occurs(&mut self, min: u32) {
+        self.range.set_min_occurs(min);
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub fn max_occurs(&self) -> Option<u32> {
+        self.range.max_occurs()
+    }
+
+    #[inline(always)]
+    pub fn set_max_occurs(&mut self, max: u32) {
+        self.range.set_max_occurs(max);
+    }
+
+    #[inline(always)]
+    pub fn unset_max_occurs(&mut self) {
+       self.range.unset_max_occurs();
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub fn is_optional(&self) -> bool {
+        self.range.is_optional()
+    }
+
+    #[inline(always)]
+    pub fn is_required(&self) -> bool {
+        !self.range.is_optional()
+    }
+
+    #[inline(always)]
+    pub fn is_range(&self) -> bool {
+        self.range.is_range()
+    }
+
+    #[inline(always)]
+    pub fn is_unbounded(&self) -> bool {
+        self.range.is_unbounded()
+    }
+
+    #[inline(always)]
+    pub fn is_exactly(&self, value: u32) -> bool {
+        self.range.is_exactly(value)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn sequence_type(&self) -> PseudoSequenceType {
+        match (
+            self.is_ordered(),
+            self.is_unique(),
+            self.range.min_occurs(),
+            self.range.max_occurs().unwrap_or(self.range.min_occurs()),
+        ) {
+            (_, _, 0, 1) => PseudoSequenceType::Maybe,
+            (Some(true), Some(true), _, _) => PseudoSequenceType::UnorderedSet,
+            (Some(false), Some(true), _, _) => PseudoSequenceType::Set,
+            (Some(true), Some(false), _, _) => PseudoSequenceType::List,
+            _ => PseudoSequenceType::Bag,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub fn to_uml_string(&self) -> String {
+        format!(
+            "{}{}{}",
+            if let Some(ordering) = self.ordering() {
+                format!("{{{}}} ", ordering)
+            } else {
+                String::new()
+            },
+            if let Some(uniqueness) = self.uniqueness() {
+                format!("{{{}}} ", uniqueness)
+            } else {
+                String::new()
+            },
+            self.range
+        )
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Display for CardinalityRange {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}..{}",
+            self.min,
+            self.max.map(|i| i.to_string()).unwrap_or_default()
+        )
+    }
+}
+
+impl From<u32> for CardinalityRange {
+    fn from(value: u32) -> Self {
+        Self::new_single(value)
+    }
+}
+
+impl_has_source_span_for!(CardinalityRange);
+
+impl Validate for CardinalityRange {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        Ok(true)
+    }
+
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        Ok(if let Some(max) = self.max {
+            max >= self.min
+        } else {
+            true
+        })
+    }
+}
+
+impl CardinalityRange {
+    pub const fn new_range(min: u32, max: u32) -> Self {
+        assert!(max > 0 && max >= min);
+        Self {
+            span: None,
+            min,
+            max: Some(max),
+        }
+    }
+
+    pub const fn new_unbounded(min: u32) -> Self {
+        Self {
+            span: None,
+            min,
+            max: None,
+        }
+    }
+
+    pub const fn new_single(min_and_max: u32) -> Self {
+        assert!(min_and_max > 0);
+        Self {
+            span: None,
+            min: min_and_max,
+            max: Some(min_and_max),
+        }
+    }
+
+    #[inline(always)]
+    pub const fn one() -> Self {
+        Self::new_single(1)
+    }
+
+    #[inline(always)]
+    pub const fn zero_or_one() -> Self {
+        Self::new_range(0, 1)
+    }
+
+    #[inline(always)]
+    pub const fn one_or_more() -> Self {
+        Self::new_unbounded(1)
+    }
+
+    #[inline(always)]
+    pub const fn zero_or_more() -> Self {
+        Self::new_unbounded(0)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
     #[inline(always)]
     pub fn min_occurs(&self) -> u32 {
         self.min
@@ -549,6 +802,9 @@ impl Cardinality {
 
     #[inline(always)]
     pub fn set_min_occurs(&mut self, min: u32) {
+        if let Some(max) = self.max {
+            assert!(min <= max);
+        }
         self.min = min;
     }
 
@@ -561,6 +817,7 @@ impl Cardinality {
 
     #[inline(always)]
     pub fn set_max_occurs(&mut self, max: u32) {
+        assert!(max > 0 && max >= self.min);
         self.max = Some(max);
     }
 
@@ -598,38 +855,11 @@ impl Cardinality {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn sequence_type(&self) -> PseudoSequenceType {
-        match (
-            self.is_ordered(),
-            self.is_unique(),
-            self.min,
-            self.max.unwrap_or(self.min),
-        ) {
-            (_, _, 0, 1) => PseudoSequenceType::Maybe,
-            (Some(true), Some(true), _, _) => PseudoSequenceType::UnorderedSet,
-            (Some(false), Some(true), _, _) => PseudoSequenceType::Set,
-            (Some(true), Some(false), _, _) => PseudoSequenceType::List,
-            _ => PseudoSequenceType::Bag,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     #[inline(always)]
     pub fn to_uml_string(&self) -> String {
         if self.is_range() {
             format!(
-                "{}{}{}..{}",
-                if let Some(ordering) = self.ordering() {
-                    format!("{{{}}} ", ordering)
-                } else {
-                    String::new()
-                },
-                if let Some(uniqueness) = self.uniqueness() {
-                    format!("{{{}}} ", uniqueness)
-                } else {
-                    String::new()
-                },
+                "{}..{}",
                 self.min_occurs(),
                 self.max_occurs()
                     .map(|i| i.to_string())
@@ -655,10 +885,22 @@ impl Display for Ordering {
             f,
             "{}",
             match self {
-                Ordering::Ordered => KW_ORDERING_ORDERED,
-                Ordering::Unordered => KW_ORDERING_UNORDERED,
+                Self::Ordered => KW_ORDERING_ORDERED,
+                Self::Unordered => KW_ORDERING_UNORDERED,
             }
         )
+    }
+}
+
+impl FromStr for Ordering {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_ORDERING_ORDERED => Ok(Self::Ordered),
+            KW_ORDERING_UNORDERED => Ok(Self::Unordered),
+            _ => panic!(),
+        }
     }
 }
 
@@ -676,26 +918,80 @@ impl Display for Uniqueness {
             f,
             "{}",
             match self {
-                Uniqueness::Unique => KW_UNIQUENESS_UNIQUE,
-                Uniqueness::Nonunique => KW_UNIQUENESS_NONUNIQUE,
+                Self::Unique => KW_UNIQUENESS_UNIQUE,
+                Self::Nonunique => KW_UNIQUENESS_NONUNIQUE,
             }
         )
     }
 }
 
+impl FromStr for Uniqueness {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_UNIQUENESS_UNIQUE => Ok(Self::Unique),
+            KW_UNIQUENESS_NONUNIQUE => Ok(Self::Nonunique),
+            _ => panic!(),
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
-// Private Functions
+// Private Macros
 // ------------------------------------------------------------------------------------------------
 
+macro_rules! impl_member_outer_for {
+    ($type: ty, $deftype: ty) => {
+        impl $type {
+            pub fn new_with_role(role: Identifier, property: IdentifierReference) -> Self {
+                Self {
+                    span: None,
+                    name: role,
+                    kind: property.into(),
+                }
+            }
+
+            pub fn new_with_definition(name: Identifier, definition: $deftype) -> Self {
+                Self {
+                    span: None,
+                    name,
+                    kind: definition.into(),
+                }
+            }
+
+            // --------------------------------------------------------------------------------------------
+
+            delegate!(pub target_type, Option<&IdentifierReference>, kind);
+        }
+    };
+}
+
+macro_rules! impl_member_def_references_for {
+    ($type: ty) => {
+        impl References for $type {
+            fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+                self.body
+                    .as_ref()
+                    .map(|b| b.referenced_annotations(names))
+                    .unwrap_or_default()
+            }
+
+            fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+                self.target_type.referenced_types(names);
+            }
+        }
+    };
+}
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
 
 mod by_reference;
-pub use by_reference::{ByReferenceMember, ByReferenceMemberDef, ByReferenceMemberInner};
+pub use by_reference::{ByReferenceMember, ByReferenceMemberDef};
 
 mod by_value;
-pub use by_value::{ByValueMember, ByValueMemberDef, ByValueMemberInner};
+pub use by_value::{ByValueMember, ByValueMemberDef};
 
 mod identity;
-pub use identity::{IdentityMember, IdentityMemberDef, IdentityMemberInner};
+pub use identity::{IdentityMember, IdentityMemberDef};

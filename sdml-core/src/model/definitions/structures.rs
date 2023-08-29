@@ -1,6 +1,14 @@
-use crate::model::{
-    Annotation, AnnotationProperty, ByValueMember, Constraint, Identifier, IdentifierReference,
-    ModelElement, Span,
+use crate::{
+    error::Error,
+    model::{
+        annotations::Annotation,
+        check::Validate,
+        definitions::{HasGroups, HasMembers},
+        identifiers::{Identifier, IdentifierReference},
+        members::ByValueMember,
+        modules::Module,
+        References, Span,
+    },
 };
 use std::{collections::HashSet, fmt::Debug};
 
@@ -47,46 +55,15 @@ pub struct StructureGroup {
 // Public Types ❱ Type Definitions ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
-impl ModelElement for StructureDef {
-    fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
+impl_has_name_for!(StructureDef);
 
-    // --------------------------------------------------------------------------------------------
+impl_has_optional_body_for!(StructureDef, StructureBody);
 
-    fn name(&self) -> &Identifier {
-        &self.name
-    }
-    fn set_name(&mut self, name: Identifier) {
-        self.name = name;
-    }
+impl_has_source_span_for!(StructureDef);
 
-    // --------------------------------------------------------------------------------------------
+impl_references_for!(StructureDef => delegate optional body);
 
-    fn is_complete(&self) -> bool {
-        self.body().is_some()
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.body()
-            .map(|b| b.referenced_annotations())
-            .unwrap_or_default()
-    }
-
-    fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        self.body()
-            .map(|b| b.referenced_types())
-            .unwrap_or_default()
-    }
-}
+impl_validate_for!(StructureDef => delegate optional body, false, true);
 
 impl StructureDef {
     pub fn new(name: Identifier) -> Self {
@@ -96,271 +73,69 @@ impl StructureDef {
             body: None,
         }
     }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_body(&self) -> bool {
-        self.body.is_some()
-    }
-    pub fn body(&self) -> Option<&StructureBody> {
-        self.body.as_ref()
-    }
-    pub fn set_body(&mut self, body: StructureBody) {
-        self.body = Some(body);
-    }
-    pub fn unset_body(&mut self) {
-        self.body = None;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_annotations_for!(StructureBody);
+
+impl_has_groups_for!(StructureBody, StructureGroup, ByValueMember);
+
+impl_has_members_for!(StructureBody, ByValueMember);
+
+impl_has_source_span_for!(StructureBody);
+
+impl References for StructureBody {
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.flat_members().for_each(|m| m.referenced_types(names));
+    }
+
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.flat_members()
+            .for_each(|m| m.referenced_annotations(names));
+    }
+}
+
+impl Validate for StructureBody {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        todo!()
+    }
+
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        todo!()
+    }
+}
+
 impl StructureBody {
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_annotations(&self) -> bool {
-        !self.annotations.is_empty()
-    }
-    pub fn annotations_len(&self) -> usize {
-        self.annotations.len()
-    }
-    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
-        self.annotations.iter()
-    }
-    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
-        self.annotations.iter_mut()
-    }
-    pub fn add_to_annotations<I>(&mut self, value: I)
-    where
-        I: Into<Annotation>,
-    {
-        self.annotations.push(value.into())
-    }
-    pub fn extend_annotations<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Annotation>,
-    {
-        self.annotations.extend(extension)
-    }
-
-    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
-        self.annotations()
-            .filter_map(|a| a.as_annotation_property())
-    }
-
-    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
-        self.annotations().filter_map(|a| a.as_constraint())
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_members(&self) -> bool {
-        !self.members.is_empty()
-    }
-    pub fn members_len(&self) -> usize {
-        self.members.len()
-    }
-    pub fn members(&self) -> impl Iterator<Item = &ByValueMember> {
-        self.members.iter()
-    }
-    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut ByValueMember> {
-        self.members.iter_mut()
-    }
-    pub fn add_to_members(&mut self, value: ByValueMember) {
-        self.members.push(value)
-    }
-    pub fn extend_members<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = ByValueMember>,
-    {
-        self.members.extend(extension)
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_groups(&self) -> bool {
-        !self.groups.is_empty()
-    }
-    pub fn groups_len(&self) -> usize {
-        self.groups.len()
-    }
-    pub fn groups(&self) -> impl Iterator<Item = &StructureGroup> {
-        self.groups.iter()
-    }
-    pub fn groups_mut(&mut self) -> impl Iterator<Item = &mut StructureGroup> {
-        self.groups.iter_mut()
-    }
-    pub fn add_to_groups(&mut self, value: StructureGroup) {
-        self.groups.push(value)
-    }
-    pub fn extend_groups<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = StructureGroup>,
-    {
-        self.groups.extend(extension)
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     pub fn flat_members(&self) -> impl Iterator<Item = &ByValueMember> {
         self.members()
             .chain(self.groups().flat_map(|g| g.members()))
     }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_complete(&self) -> bool {
-        self.members().all(|m| m.is_complete()) && self.groups().all(|m| m.is_complete())
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.flat_members()
-            .flat_map(|m| m.referenced_annotations())
-            .collect()
-    }
-
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        self.flat_members()
-            .flat_map(|m| m.referenced_types())
-            .collect()
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl StructureGroup {
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
+impl_has_annotations_for!(StructureGroup);
+
+impl_has_members_for!(StructureGroup, ByValueMember);
+
+impl_has_source_span_for!(StructureGroup);
+
+impl References for StructureGroup {
+    fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
+
+    fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {
+        // TODO: self plus members
+    }
+}
+
+impl Validate for StructureGroup {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        todo!()
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_annotations(&self) -> bool {
-        !self.annotations.is_empty()
-    }
-    pub fn annotations_len(&self) -> usize {
-        self.annotations.len()
-    }
-    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
-        self.annotations.iter()
-    }
-    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
-        self.annotations.iter_mut()
-    }
-    pub fn add_to_annotations<I>(&mut self, value: I)
-    where
-        I: Into<Annotation>,
-    {
-        self.annotations.push(value.into())
-    }
-    pub fn extend_annotations<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Annotation>,
-    {
-        self.annotations.extend(extension)
-    }
-
-    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
-        self.annotations()
-            .filter_map(|a| a.as_annotation_property())
-    }
-
-    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
-        self.annotations().filter_map(|a| a.as_constraint())
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_members(&self) -> bool {
-        !self.members.is_empty()
-    }
-    pub fn members_len(&self) -> usize {
-        self.members.len()
-    }
-    pub fn members(&self) -> impl Iterator<Item = &ByValueMember> {
-        self.members.iter()
-    }
-    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut ByValueMember> {
-        self.members.iter_mut()
-    }
-    pub fn add_to_members(&mut self, value: ByValueMember) {
-        self.members.push(value)
-    }
-    pub fn extend_members<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = ByValueMember>,
-    {
-        self.members.extend(extension)
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_complete(&self) -> bool {
-        self.members().all(|m| m.is_complete())
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.annotation_properties()
-            .map(|p| p.name())
-            .chain(self.annotation_properties().map(|a| a.name()))
-            .collect()
-    }
-
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        self.members().flat_map(|m| m.referenced_types()).collect()
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        todo!()
     }
 }
 

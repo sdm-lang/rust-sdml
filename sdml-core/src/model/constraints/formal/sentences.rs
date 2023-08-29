@@ -1,4 +1,11 @@
-use crate::model::{Identifier, IdentifierReference, NamePath, SequenceComprehension, Span, Term};
+use std::fmt::Display;
+use std::str::FromStr;
+
+use crate::error::Error;
+use crate::model::constraints::{FunctionComposition, SequenceBuilder, Term};
+use crate::model::identifiers::{Identifier, IdentifierReference};
+use crate::model::Span;
+use crate::syntax::{KW_TYPE_EXISTS_SYMBOL, KW_TYPE_EXISTS, KW_TYPE_FORALL_SYMBOL, KW_TYPE_FORALL, KW_RELATION_NOT_EQUAL_SYMBOL, KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL, KW_RELATION_GREATER_THAN_OR_EQUAL, KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL, KW_RELATION_GREATER_THAN, KW_RELATION_LESS_THAN, KW_RELATION_NOT_EQUAL};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -33,9 +40,12 @@ pub enum ConstraintSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum SimpleSentence {
+    /// Corresponds to the choice `atomic_sentence`.
     Atomic(AtomicSentence),
-    /// Corresponds to the grammar rule `equation`.
-    Equation(BinaryOperation),
+    /// Corresponds to the choice `equation`.
+    Equation(Equation),
+    /// Corresponds to the choice `inequation`.
+    Inequation(Inequation),
 }
 
 ///
@@ -52,6 +62,33 @@ pub struct AtomicSentence {
     arguments: Vec<Term>,
 }
 
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct Equation {
+    span: Option<Span>,
+    left_operand: Term,
+    right_operand: Term,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct Inequation {
+    span: Option<Span>,
+    left_operand: Term,
+    relation: InequalityRelation,
+    right_operand: Term,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum InequalityRelation {
+    NotEqual,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+}
+
 ///
 /// Corresponds to the grammar rule `boolean_sentence`.
 ///
@@ -62,25 +99,8 @@ pub struct AtomicSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum BooleanSentence {
-    /// Corresponds to the grammar rule `negation`. Uses the prefix keyword **`not`**
-    /// or the operator $\lnot$.
-    Negation(Box<ConstraintSentence>),
-    /// Corresponds to the grammar rule `conjunction`. Uses the infix keyword **`and`**
-    /// or the operator $\land$.
-    Conjunction(BinaryOperation),
-    /// Corresponds to the grammar rule `disjunction`. Uses the infix keyword **`or`**
-    /// or the operator $\lor$.
-    Disjunction(BinaryOperation),
-    /// Corresponds to the grammar rule `exclusive_disjunction`. Uses the infix keyword **`xor`**
-    /// or the operator $\veebar$. Note that this operation is not a part of ISO Common Logic but
-    /// $a \veebar b$ can be rewritten as $\lnot (a \iff b)$
-    ExclusiveDisjunction(BinaryOperation),
-    /// Corresponds to the grammar rule `implication`. Uses the infix keyword **`implies`**
-    /// or the operator $\implies$.
-    Implication(BinaryOperation),
-    /// Corresponds to the grammar rule `biconditional`. Uses the infix keyword **`iff`**
-    /// or the operator $\iff$.
-    Biconditional(BinaryOperation),
+    Unary(UnaryBooleanSentence),
+    Binary(BinaryBooleanSentence),
 }
 
 ///
@@ -89,10 +109,46 @@ pub enum BooleanSentence {
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct BinaryOperation {
+pub struct UnaryBooleanSentence {
+    span: Option<Span>,
+    operand: Box<ConstraintSentence>,
+}
+
+///
+/// Holds the *left* and *right* operands in the rules `conjunction`, `disjunction`,
+/// `exclusive_disjunction`, `implication`, and `biconditional`.
+///
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct BinaryBooleanSentence {
     span: Option<Span>,
     left_operand: Box<ConstraintSentence>,
+    operator: ConnectiveOperator,
     right_operand: Box<ConstraintSentence>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum ConnectiveOperator {
+    /// Corresponds to the grammar rule `negation`. Uses the prefix keyword **`not`**
+    /// or the operator $\lnot$.
+    Negation,
+    /// Corresponds to the grammar rule `conjunction`. Uses the infix keyword **`and`**
+    /// or the operator $\land$.
+    Conjunction,
+    /// Corresponds to the grammar rule `disjunction`. Uses the infix keyword **`or`**
+    /// or the operator $\lor$.
+    Disjunction,
+    /// Corresponds to the grammar rule `exclusive_disjunction`. Uses the infix keyword **`xor`**
+    /// or the operator $\veebar$. Note that this operation is not a part of ISO Common Logic but
+    /// $a \veebar b$ can be rewritten as $\lnot (a \iff b)$
+    ExclusiveDisjunction,
+    /// Corresponds to the grammar rule `implication`. Uses the infix keyword **`implies`**
+    /// or the operator $\implies$.
+    Implication,
+    /// Corresponds to the grammar rule `biconditional`. Uses the infix keyword **`iff`**
+    /// or the operator $\iff$.
+    Biconditional,
 }
 
 ///
@@ -102,28 +158,29 @@ pub struct BinaryOperation {
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum QuantifiedSentence {
-    /// Corresponds to the grammar rule `universal`. Introduced with the keyword **`forall`**
-    /// or the operator $\forall$.
-    Universal(BoundSentence),
-    /// Corresponds to the grammar rule `existential`. Introduced with the keyword **`exists`**
-    /// or the operator $\exists$.
-    Existential(BoundSentence),
+pub struct QuantifiedSentence {
+    span: Option<Span>,
+    variable_bindings: Vec<QuantifiedVariableBinding>,
+    body: Box<ConstraintSentence>,
 }
 
-///
-/// Corresponds to the inner part of the grammar rule `quantified_sentence`,
-/// and the rule `quantified_body`.
-///
-/// The *body* of a bound sentence is a [`ConstraintSentence`], and the *bindings* are an
-/// ordered list of [`QuantifierBinding`]s
-///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct BoundSentence {
+pub struct QuantifiedVariableBinding {
     span: Option<Span>,
-    bindings: Vec<QuantifierBinding>, // assert!(!is_empty())
-    body: Box<ConstraintSentence>,
+    quantifier: Quantifier,
+    bindings: Vec<QuantifiedBinding>, // assert!(!is_empty())
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum Quantifier {
+    /// Corresponds to the grammar rule `universal`. Introduced with the keyword **`forall`**
+    /// or the operator $\forall$.
+    Universal,
+    /// Corresponds to the grammar rule `existential`. Introduced with the keyword **`exists`**
+    /// or the operator $\exists$.
+    Existential,
 }
 
 ///
@@ -133,22 +190,22 @@ pub struct BoundSentence {
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum QuantifierBinding {
+pub enum QuantifiedBinding {
     ReservedSelf,
-    Named(QuantifierNamedBinding),
+    Named(QuantifierBoundNames),
 }
 
 ///
 /// Corresponds to the inner part of the grammar rule `quantifier_binding`.
 ///
-/// A `QuantifierBinding` is either the keyword **`self`** or a *name* and *target* pair.
+/// A `QuantifierBinding` is either the keyword **`self`** or a set of *name* and a *target*.
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct QuantifierNamedBinding {
+pub struct QuantifierBoundNames {
     span: Option<Span>,
-    name: Identifier,
-    target: IteratorTarget,
+    names: Vec<Identifier>,
+    source: IteratorSource,
 }
 
 ///
@@ -158,7 +215,7 @@ pub struct QuantifierNamedBinding {
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum IteratorTarget {
+pub enum IteratorSource {
     Type(TypeIterator),
     Sequence(SequenceIterator),
 }
@@ -171,9 +228,9 @@ pub enum IteratorTarget {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum SequenceIterator {
-    Call(NamePath),
+    Call(FunctionComposition),
     Variable(Identifier),
-    Comprehension(SequenceComprehension),
+    Builder(SequenceBuilder),
 }
 
 ///
@@ -254,9 +311,15 @@ impl From<AtomicSentence> for SimpleSentence {
     }
 }
 
-impl From<BinaryOperation> for SimpleSentence {
-    fn from(v: BinaryOperation) -> Self {
+impl From<Equation> for SimpleSentence {
+    fn from(v: Equation) -> Self {
         Self::Equation(v)
+    }
+}
+
+impl From<Inequation> for SimpleSentence {
+    fn from(v: Inequation) -> Self {
+        Self::Inequation(v)
     }
 }
 
@@ -264,6 +327,7 @@ impl SimpleSentence {
     pub fn is_atomic(&self) -> bool {
         matches!(self, Self::Atomic(_))
     }
+
     pub fn as_atomic(&self) -> Option<&AtomicSentence> {
         match self {
             Self::Atomic(v) => Some(v),
@@ -276,9 +340,23 @@ impl SimpleSentence {
     pub fn is_equation(&self) -> bool {
         matches!(self, Self::Equation(_))
     }
-    pub fn as_equation(&self) -> Option<&BinaryOperation> {
+
+    pub fn as_equation(&self) -> Option<&Equation> {
         match self {
             Self::Equation(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_inequation(&self) -> bool {
+        matches!(self, Self::Inequation(_))
+    }
+
+    pub fn as_inequation(&self) -> Option<&Inequation> {
+        match self {
+            Self::Inequation(v) => Some(v),
             _ => None,
         }
     }
@@ -286,27 +364,30 @@ impl SimpleSentence {
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_source_span_for!(AtomicSentence);
+
 impl AtomicSentence {
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
+    pub fn new<T>(predicate: T) -> Self
+    where
+        T: Into<Term>
+    {
         Self {
-            span: Some(ts_span),
-            ..self
+            span: Default::default(),
+            predicate: predicate.into(),
+            arguments: Default::default()
         }
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
+    pub fn new_with_arguments<T, I>(predicate: T, arguments: I) -> Self
+    where
+        T: Into<Term>,
+        I: IntoIterator<Item = Term>,
+    {
+        Self {
+            span: Default::default(),
+            predicate: predicate.into(),
+            arguments: Vec::from_iter(arguments.into_iter())
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -314,6 +395,7 @@ impl AtomicSentence {
     pub fn predicate(&self) -> &Term {
         &self.predicate
     }
+
     pub fn set_predicate(&mut self, predicate: Term) {
         self.predicate = predicate;
     }
@@ -323,18 +405,23 @@ impl AtomicSentence {
     pub fn has_arguments(&self) -> bool {
         !self.arguments.is_empty()
     }
+
     pub fn arguments_len(&self) -> usize {
         self.arguments.len()
     }
+
     pub fn arguments(&self) -> impl Iterator<Item = &Term> {
         self.arguments.iter()
     }
+
     pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
         self.arguments.iter_mut()
     }
+
     pub fn add_to_arguments(&mut self, value: Term) {
         self.arguments.push(value)
     }
+
     pub fn extend_arguments<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = Term>,
@@ -345,87 +432,232 @@ impl AtomicSentence {
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<ConstraintSentence> for BooleanSentence {
-    fn from(v: ConstraintSentence) -> Self {
-        Self::Negation(Box::new(v))
+impl_has_source_span_for!(Equation);
+
+impl Equation {
+    pub fn new<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self {
+            span: Default::default(),
+            left_operand: left_operand.into(),
+            right_operand: right_operand.into(),
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn left_operand(&self) -> &Term {
+        &self.left_operand
+    }
+
+    pub fn set_left_operand(&mut self, operand: Term) {
+        self.left_operand = operand;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn right_operand(&self) -> &Term {
+        &self.right_operand
+    }
+
+    pub fn set_right_operand(&mut self, operand: Term) {
+        self.right_operand = operand;
     }
 }
 
-impl From<Box<ConstraintSentence>> for BooleanSentence {
-    fn from(v: Box<ConstraintSentence>) -> Self {
-        Self::Negation(v)
+// ------------------------------------------------------------------------------------------------
+
+impl_has_source_span_for!(Inequation);
+
+impl Inequation {
+    pub fn new<L, R>(left_operand: L, relation: InequalityRelation, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self {
+            span: Default::default(),
+            left_operand: left_operand.into(),
+            relation,
+            right_operand: right_operand.into(),
+        }
+    }
+
+    #[inline(always)]
+    pub fn not_equal<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self::new(left_operand, InequalityRelation::NotEqual, right_operand)
+    }
+
+    #[inline(always)]
+    pub fn less_than<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self::new(left_operand, InequalityRelation::LessThan, right_operand)
+    }
+
+    #[inline(always)]
+    pub fn less_than_or_greater<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self::new(left_operand, InequalityRelation::LessThanOrEqual, right_operand)
+    }
+
+    #[inline(always)]
+    pub fn greater_than<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self::new(left_operand, InequalityRelation::GreaterThan, right_operand)
+    }
+
+    #[inline(always)]
+    pub fn greater_than_or_equal<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<Term>,
+        R: Into<Term>,
+    {
+        Self::new(left_operand, InequalityRelation::GreaterThanOrEqual, right_operand)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn left_operand(&self) -> &Term {
+        &self.left_operand
+    }
+
+    pub fn set_left_operand(&mut self, operand: Term) {
+        self.left_operand = operand;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn relation(&self) -> &InequalityRelation {
+        &self.relation
+    }
+
+    pub fn set_relation(&mut self, relation: InequalityRelation) {
+        self.relation = relation;
+    }
+
+    #[inline(always)]
+    pub fn is_not_equal(&self) -> bool {
+        self.relation == InequalityRelation::NotEqual
+    }
+
+    #[inline(always)]
+    pub fn is_less_than(&self) -> bool {
+        self.relation == InequalityRelation::LessThan
+    }
+
+    #[inline(always)]
+    pub fn is_greater_than(&self) -> bool {
+        self.relation == InequalityRelation::GreaterThan
+    }
+
+    #[inline(always)]
+    pub fn is_less_than_or_equal(&self) -> bool {
+        self.relation == InequalityRelation::LessThanOrEqual
+    }
+
+    #[inline(always)]
+    pub fn is_greater_than_or_equal(&self) -> bool {
+        self.relation == InequalityRelation::GreaterThanOrEqual
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn right_operand(&self) -> &Term {
+        &self.right_operand
+    }
+
+    pub fn set_right_operand(&mut self, operand: Term) {
+        self.right_operand = operand;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Display for InequalityRelation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match (self, f.alternate()) {
+            (Self::NotEqual, true) => KW_RELATION_NOT_EQUAL_SYMBOL,
+            (Self::NotEqual, false) => KW_RELATION_NOT_EQUAL,
+            (Self::LessThan, _) => KW_RELATION_LESS_THAN,
+            (Self::LessThanOrEqual, true) => KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
+            (Self::LessThanOrEqual, false) => KW_RELATION_LESS_THAN_OR_EQUAL,
+            (Self::GreaterThan, _) => KW_RELATION_GREATER_THAN,
+            (Self::GreaterThanOrEqual, true) => KW_RELATION_GREATER_THAN_OR_EQUAL,
+            (Self::GreaterThanOrEqual, false) => KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
+        })
+    }
+}
+
+impl FromStr for InequalityRelation {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_RELATION_NOT_EQUAL
+                | KW_RELATION_NOT_EQUAL_SYMBOL => Ok(Self::NotEqual),
+            KW_RELATION_LESS_THAN => Ok(Self::LessThan),
+            KW_RELATION_LESS_THAN_OR_EQUAL
+                | KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL => Ok(Self::LessThanOrEqual),
+            KW_RELATION_GREATER_THAN => Ok(Self::GreaterThan),
+            KW_RELATION_GREATER_THAN_OR_EQUAL
+                | KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL => Ok(Self::GreaterThanOrEqual),
+            // TODO: a real error.
+            _ => panic!(),
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl From<UnaryBooleanSentence> for BooleanSentence {
+    fn from(v: UnaryBooleanSentence) -> Self {
+        Self::Unary(v)
+    }
+}
+
+impl From<BinaryBooleanSentence> for BooleanSentence {
+    fn from(v: BinaryBooleanSentence) -> Self {
+        Self::Binary(v)
     }
 }
 
 impl BooleanSentence {
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_negation(&self) -> bool {
-        matches!(self, Self::Negation(_))
+    pub fn is_unary(&self) -> bool {
+        matches!(self, Self::Unary(_))
     }
-    pub fn as_negation(&self) -> Option<&ConstraintSentence> {
+    pub fn as_unary(&self) -> Option<&UnaryBooleanSentence> {
         match self {
-            Self::Negation(v) => Some(v),
+            Self::Unary(v) => Some(v),
             _ => None,
         }
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_conjunction(&self) -> bool {
-        matches!(self, Self::Conjunction(_))
+    pub fn is_binary(&self) -> bool {
+        matches!(self, Self::Binary(_))
     }
-    pub fn as_conjunction(&self) -> Option<&BinaryOperation> {
+    pub fn as_binary(&self) -> Option<&BinaryBooleanSentence> {
         match self {
-            Self::Conjunction(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_disjunction(&self) -> bool {
-        matches!(self, Self::Disjunction(_))
-    }
-    pub fn as_disjunction(&self) -> Option<&BinaryOperation> {
-        match self {
-            Self::Disjunction(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_exclusive_disjunction(&self) -> bool {
-        matches!(self, Self::ExclusiveDisjunction(_))
-    }
-    pub fn as_exclusive_disjunction(&self) -> Option<&BinaryOperation> {
-        match self {
-            Self::ExclusiveDisjunction(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_implication(&self) -> bool {
-        matches!(self, Self::Implication(_))
-    }
-    pub fn as_implication(&self) -> Option<&BinaryOperation> {
-        match self {
-            Self::Implication(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_biconditional(&self) -> bool {
-        matches!(self, Self::Biconditional(_))
-    }
-    pub fn as_biconditional(&self) -> Option<&BinaryOperation> {
-        match self {
-            Self::Biconditional(v) => Some(v),
+            Self::Binary(v) => Some(v),
             _ => None,
         }
     }
@@ -433,50 +665,128 @@ impl BooleanSentence {
 
 // ------------------------------------------------------------------------------------------------
 
-impl BinaryOperation {
-    pub fn new<L, R>(left_operand: L, right_operand: R) -> Self
+impl_has_source_span_for!(UnaryBooleanSentence);
+
+impl UnaryBooleanSentence {
+    pub fn new<R>(operand: R) -> Self
     where
-        L: Into<ConstraintSentence>,
         R: Into<ConstraintSentence>,
     {
         Self {
             span: Default::default(),
+            operand: Box::new(operand.into()),
+        }
+    }
+
+    #[inline(always)]
+    pub fn negate<R>(operand: R) -> Self
+    where
+        R: Into<ConstraintSentence>,
+    {
+        Self::new(operand)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    #[inline(always)]
+    pub fn operator(&self) -> ConnectiveOperator {
+        ConnectiveOperator::Negation
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn operand(&self) -> &ConstraintSentence {
+        &self.operand
+    }
+
+    pub fn set_operand(&mut self, operand: ConstraintSentence) {
+        self.operand = Box::new(operand);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl_has_source_span_for!(BinaryBooleanSentence);
+
+impl BinaryBooleanSentence {
+    pub fn new<L, R>(left_operand: L, operator: ConnectiveOperator, right_operand: R) -> Self
+    where
+        L: Into<ConstraintSentence>,
+        R: Into<ConstraintSentence>,
+    {
+        assert!(operator != ConnectiveOperator::Negation);
+        Self {
+            span: Default::default(),
             left_operand: Box::new(left_operand.into()),
+            operator,
             right_operand: Box::new(right_operand.into()),
         }
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
+    #[inline(always)]
+    pub fn and<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<ConstraintSentence>,
+        R: Into<ConstraintSentence>,
+    {
+        Self::new(left_operand, ConnectiveOperator::Conjunction,right_operand)
     }
 
-    // --------------------------------------------------------------------------------------------
+    #[inline(always)]
+    pub fn or<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<ConstraintSentence>,
+        R: Into<ConstraintSentence>,
+    {
+        Self::new(left_operand, ConnectiveOperator::Disjunction,right_operand)
+    }
 
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
+    #[inline(always)]
+    pub fn xor<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<ConstraintSentence>,
+        R: Into<ConstraintSentence>,
+    {
+        Self::new(left_operand, ConnectiveOperator::ExclusiveDisjunction,right_operand)
     }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
+
+    #[inline(always)]
+    pub fn implies<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<ConstraintSentence>,
+        R: Into<ConstraintSentence>,
+    {
+        Self::new(left_operand, ConnectiveOperator::Implication,right_operand)
+   }
+
+    #[inline(always)]
+    pub fn iff<L, R>(left_operand: L, right_operand: R) -> Self
+    where
+        L: Into<ConstraintSentence>,
+        R: Into<ConstraintSentence>,
+    {
+        Self::new(left_operand, ConnectiveOperator::Biconditional,right_operand)
+     }
 
     // --------------------------------------------------------------------------------------------
 
     pub fn left_operand(&self) -> &ConstraintSentence {
         &self.left_operand
     }
+
     pub fn set_left_operand(&mut self, operand: ConstraintSentence) {
         self.left_operand = Box::new(operand);
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn operator(&self) -> ConnectiveOperator {
+        self.operator
+    }
+
+    pub fn set_operator(&mut self, operator: ConnectiveOperator) {
+        assert!(operator != ConnectiveOperator::Negation);
+        self.operator = operator;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -484,6 +794,7 @@ impl BinaryOperation {
     pub fn right_operand(&self) -> &ConstraintSentence {
         &self.right_operand
     }
+
     pub fn set_right_operand(&mut self, operand: ConstraintSentence) {
         self.right_operand = Box::new(operand);
     }
@@ -491,67 +802,133 @@ impl BinaryOperation {
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_body_for!(QuantifiedSentence, boxed ConstraintSentence);
+
+impl_has_source_span_for!(QuantifiedSentence);
+
 impl QuantifiedSentence {
-    pub fn is_universal(&self) -> bool {
-        matches!(self, Self::Universal(_))
-    }
-    pub fn as_universal(&self) -> Option<&BoundSentence> {
-        match self {
-            Self::Universal(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_existential(&self) -> bool {
-        matches!(self, Self::Existential(_))
-    }
-    pub fn as_existential(&self) -> Option<&BoundSentence> {
-        match self {
-            Self::Existential(v) => Some(v),
-            _ => None,
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl BoundSentence {
     pub fn new<B, S>(bindings: B, body: S) -> Self
     where
-        B: Into<Vec<QuantifierBinding>>,
+        B: Into<Vec<QuantifiedVariableBinding>>,
         S: Into<ConstraintSentence>,
     {
         Self {
             span: Default::default(),
-            bindings: bindings.into(),
+            variable_bindings: bindings.into(),
             body: Box::new(body.into()),
         }
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
+    pub fn has_variable_bindings(&self) -> bool {
+        !self.variable_bindings.is_empty()
+    }
+
+    pub fn variable_bindings_len(&self) -> usize {
+        self.variable_bindings.len()
+    }
+
+    pub fn variable_bindings(&self) -> impl Iterator<Item = &QuantifiedVariableBinding> {
+        self.variable_bindings.iter()
+    }
+
+    pub fn variable_bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifiedVariableBinding> {
+        self.variable_bindings.iter_mut()
+    }
+
+    pub fn add_to_variable_bindings<I>(&mut self, value: I)
+    where
+        I: Into<QuantifiedVariableBinding>,
+    {
+        self.variable_bindings.push(value.into())
+    }
+
+    pub fn extend_variable_bindings<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = QuantifiedVariableBinding>,
+    {
+        self.variable_bindings.extend(extension)
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Default for Quantifier {
+    fn default() -> Self {
+        Self::Universal
+    }
+}
+
+impl Display for Quantifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match (self, f.alternate()) {
+            (Self::Existential, true) => KW_TYPE_EXISTS_SYMBOL,
+            (Self::Existential, false) => KW_TYPE_EXISTS,
+            (Self::Universal, true) => KW_TYPE_FORALL,
+            (Self::Universal, false) => KW_TYPE_FORALL_SYMBOL,
+        })
+    }
+}
+
+impl FromStr for Quantifier {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_TYPE_EXISTS => Ok(Self::Existential),
+            KW_TYPE_EXISTS_SYMBOL => Ok(Self::Existential),
+            KW_TYPE_FORALL => Ok(Self::Universal),
+            KW_TYPE_FORALL_SYMBOL => Ok(Self::Universal),
+            // TODO: need an error here.
+            _ => panic!("Invalid Quantifier value {:?}", s),
         }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl_has_source_span_for!(QuantifiedVariableBinding);
+
+impl QuantifiedVariableBinding {
+
+    pub fn new<B,>(quantifier: Quantifier, bindings: B) -> Self
+    where
+        B: Into<Vec<QuantifiedBinding>>,
+    {
+        Self { span: Default::default(), quantifier, bindings: bindings.into() }
+    }
+
+    pub fn new_existential<B,>(bindings: B) -> Self
+    where
+        B: Into<Vec<QuantifiedBinding>>,
+    {
+        Self::new(Quantifier::Existential, bindings)
+    }
+
+    pub fn new_universal<B,>(bindings: B) -> Self
+    where
+        B: Into<Vec<QuantifiedBinding>>,
+    {
+        Self::new(Quantifier::Universal, bindings)
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
+    pub fn quantifier(&self) -> Quantifier {
+        self.quantifier
     }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
+
+    pub fn set_quantifier(&mut self, quantifier: Quantifier) {
+        self.quantifier = quantifier;
     }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
+
+    pub fn is_existential(&self) -> bool {
+        self.quantifier == Quantifier::Existential
     }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
+
+    pub fn is_universal(&self) -> bool {
+        self.quantifier == Quantifier::Universal
     }
 
     // --------------------------------------------------------------------------------------------
@@ -559,47 +936,43 @@ impl BoundSentence {
     pub fn has_bindings(&self) -> bool {
         !self.bindings.is_empty()
     }
+
     pub fn bindings_len(&self) -> usize {
         self.bindings.len()
     }
-    pub fn bindings(&self) -> impl Iterator<Item = &QuantifierBinding> {
+
+    pub fn bindings(&self) -> impl Iterator<Item = &QuantifiedBinding> {
         self.bindings.iter()
     }
-    pub fn bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifierBinding> {
+
+    pub fn bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifiedBinding> {
         self.bindings.iter_mut()
     }
+
     pub fn add_to_bindings<I>(&mut self, value: I)
     where
-        I: Into<QuantifierBinding>,
+        I: Into<QuantifiedBinding>,
     {
         self.bindings.push(value.into())
     }
+
     pub fn extend_bindings<I>(&mut self, extension: I)
     where
-        I: IntoIterator<Item = QuantifierBinding>,
+        I: IntoIterator<Item = QuantifiedBinding>,
     {
         self.bindings.extend(extension)
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn body(&self) -> &ConstraintSentence {
-        &self.body
-    }
-    pub fn set_body(&mut self, body: ConstraintSentence) {
-        self.body = Box::new(body);
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<QuantifierNamedBinding> for QuantifierBinding {
-    fn from(v: QuantifierNamedBinding) -> Self {
+impl From<QuantifierBoundNames> for QuantifiedBinding {
+    fn from(v: QuantifierBoundNames) -> Self {
         Self::Named(v)
     }
 }
 
-impl QuantifierBinding {
+impl QuantifiedBinding {
     // --------------------------------------------------------------------------------------------
 
     pub fn is_self_instance(&self) -> bool {
@@ -611,89 +984,110 @@ impl QuantifierBinding {
     pub fn is_named(&self) -> bool {
         matches!(self, Self::Named(_))
     }
-    pub fn as_named(&self) -> Option<&QuantifierNamedBinding> {
+
+    pub fn as_named(&self) -> Option<&QuantifierBoundNames> {
         match self {
             Self::Named(v) => Some(v),
             _ => None,
         }
     }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_valid_str(s: &str) -> bool {
+        s == KW_TYPE_EXISTS
+            || s == KW_TYPE_EXISTS_SYMBOL
+            || s == KW_TYPE_FORALL
+            || s == KW_TYPE_FORALL_SYMBOL
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl QuantifierNamedBinding {
-    pub fn new<B>(name: Identifier, target: B) -> Self
+impl_has_source_span_for!(QuantifierBoundNames);
+
+impl QuantifierBoundNames {
+    pub fn new<N, B>(names: N, source: B) -> Self
     where
-        B: Into<IteratorTarget>,
+        N: IntoIterator<Item = Identifier>,
+        B: Into<IteratorSource>,
     {
         Self {
             span: Default::default(),
-            name,
-            target: target.into(),
+            names: Vec::from_iter(names.into_iter()),
+            source: source.into(),
         }
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
+    pub fn has_names(&self) -> bool {
+        !self.names.is_empty()
+    }
+
+    pub fn names_len(&self) -> usize {
+        self.names.len()
+    }
+
+    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+        self.names.iter()
+    }
+
+    pub fn names_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
+        self.names.iter_mut()
+    }
+
+    pub fn set_names<I>(&mut self, names: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.names = Vec::from_iter(names.into_iter());
+    }
+
+    pub fn add_to_names<I>(&mut self, value: I)
+    where
+        I: Into<Identifier>,
+    {
+        self.names.push(value.into())
+    }
+
+    pub fn extend_names<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.names.extend(extension)
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
+    pub fn source(&self) -> &IteratorSource {
+        &self.source
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn name(&self) -> &Identifier {
-        &self.name
-    }
-    pub fn set_name(&mut self, name: Identifier) {
-        self.name = name;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn target(&self) -> &IteratorTarget {
-        &self.target
-    }
-    pub fn set_target(&mut self, target: IteratorTarget) {
-        self.target = target;
+    pub fn set_source(&mut self, source: IteratorSource) {
+        self.source = source;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<TypeIterator> for IteratorTarget {
+impl From<TypeIterator> for IteratorSource {
     fn from(v: TypeIterator) -> Self {
         Self::Type(v)
     }
 }
 
-impl From<SequenceIterator> for IteratorTarget {
+impl From<SequenceIterator> for IteratorSource {
     fn from(v: SequenceIterator) -> Self {
         Self::Sequence(v)
     }
 }
 
-impl IteratorTarget {
+impl IteratorSource {
     pub fn is_type_iterator(&self) -> bool {
         matches!(self, Self::Type(_))
     }
+
     pub fn as_type_iterator(&self) -> Option<&TypeIterator> {
         match self {
             Self::Type(v) => Some(v),
@@ -706,6 +1100,7 @@ impl IteratorTarget {
     pub fn is_sequence_iterator(&self) -> bool {
         matches!(self, Self::Sequence(_))
     }
+
     pub fn as_sequence_iterator(&self) -> Option<&SequenceIterator> {
         match self {
             Self::Sequence(v) => Some(v),
@@ -716,8 +1111,8 @@ impl IteratorTarget {
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<NamePath> for SequenceIterator {
-    fn from(v: NamePath) -> Self {
+impl From<FunctionComposition> for SequenceIterator {
+    fn from(v: FunctionComposition) -> Self {
         Self::Call(v)
     }
 }
@@ -728,9 +1123,9 @@ impl From<Identifier> for SequenceIterator {
     }
 }
 
-impl From<SequenceComprehension> for SequenceIterator {
-    fn from(v: SequenceComprehension) -> Self {
-        Self::Comprehension(v)
+impl From<SequenceBuilder> for SequenceIterator {
+    fn from(v: SequenceBuilder) -> Self {
+        Self::Builder(v)
     }
 }
 
@@ -738,7 +1133,8 @@ impl SequenceIterator {
     pub fn is_call_path(&self) -> bool {
         matches!(self, Self::Call(_))
     }
-    pub fn as_call_path(&self) -> Option<&NamePath> {
+
+    pub fn as_call_path(&self) -> Option<&FunctionComposition> {
         match self {
             Self::Call(v) => Some(v),
             _ => None,
@@ -750,6 +1146,7 @@ impl SequenceIterator {
     pub fn is_variable(&self) -> bool {
         matches!(self, Self::Variable(_))
     }
+
     pub fn as_variable(&self) -> Option<&Identifier> {
         match self {
             Self::Variable(v) => Some(v),
@@ -760,11 +1157,12 @@ impl SequenceIterator {
     // --------------------------------------------------------------------------------------------
 
     pub fn is_sequence_comprehension(&self) -> bool {
-        matches!(self, Self::Comprehension(_))
+        matches!(self, Self::Builder(_))
     }
-    pub fn as_sequence_comprehension(&self) -> Option<&SequenceComprehension> {
+
+    pub fn as_sequence_comprehension(&self) -> Option<&SequenceBuilder> {
         match self {
-            Self::Comprehension(v) => Some(v),
+            Self::Builder(v) => Some(v),
             _ => None,
         }
     }
@@ -788,6 +1186,7 @@ impl TypeIterator {
     pub fn is_type_name(&self) -> bool {
         matches!(self, Self::Type(_))
     }
+
     pub fn as_type_name(&self) -> Option<&IdentifierReference> {
         match self {
             Self::Type(v) => Some(v),

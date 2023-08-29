@@ -4,7 +4,7 @@ Provides traits for resolving module names to paths, and loading modules.
 */
 
 use crate::error::Error;
-use crate::model::{Identifier, Module};
+use crate::model::{identifiers::Identifier, modules::Module};
 use std::cell::{Ref, RefCell, RefMut};
 use std::fmt::Debug;
 use std::io::Read;

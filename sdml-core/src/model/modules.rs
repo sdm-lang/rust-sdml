@@ -1,12 +1,19 @@
+use crate::error::Error;
 use crate::model::{
-    Annotation, AnnotationProperty, Constraint, Definition, Identifier, IdentifierReference,
-    ImportStatement, ModelElement, QualifiedIdentifier, Span,
+    annotations::{Annotation, HasAnnotations},
+    check::Validate,
+    definitions::Definition,
+    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+    HasName, HasSourceSpan, Span,
 };
 use std::{collections::HashSet, fmt::Debug};
+use tracing::info;
 use url::Url;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use super::References;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Modules
@@ -37,6 +44,32 @@ pub struct ModuleBody {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Public Types ❱ Modules ❱ Imports
+// ------------------------------------------------------------------------------------------------
+
+///
+/// Corresponds the grammar rule `import_statement`.
+///
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ImportStatement {
+    span: Option<Span>,
+    imports: Vec<Import>,
+}
+
+///
+/// Corresponds the grammar rule `import`.
+///
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum Import {
+    /// Corresponds to the grammar rule `module_import`.
+    Module(Identifier),
+    /// Corresponds to the grammar rule `member_import`.
+    Member(QualifiedIdentifier),
+}
+
+// ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
@@ -52,30 +85,18 @@ pub struct ModuleBody {
 // Implementations ❱ Modules
 // ------------------------------------------------------------------------------------------------
 
-impl ModelElement for Module {
-    fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    fn unset_ts_span(&mut self) {
-        self.span = None;
+impl_has_source_span_for!(Module);
+
+impl_has_name_for!(Module);
+
+impl References for Module {
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.body.referenced_types(names);
     }
 
-    fn name(&self) -> &Identifier {
-        &self.name
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.body.referenced_annotations(names);
     }
-    fn set_name(&mut self, name: Identifier) {
-        self.name = name;
-    }
-
-    delegate!(is_complete, bool, body);
-    delegate!(referenced_types, HashSet<&IdentifierReference>, body);
-    delegate!(referenced_annotations, HashSet<&IdentifierReference>, body);
 }
 
 impl Module {
@@ -99,13 +120,6 @@ impl Module {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
     pub fn with_base(self, base: Url) -> Self {
         Self {
             base: Some(base),
@@ -126,6 +140,8 @@ impl Module {
         self.base = None;
     }
 
+    // --------------------------------------------------------------------------------------------
+
     pub fn body(&self) -> &ModuleBody {
         &self.body
     }
@@ -138,73 +154,39 @@ impl Module {
     delegate!(pub imported_modules, HashSet<&Identifier>, body);
     delegate!(pub imported_types, HashSet<&QualifiedIdentifier>, body);
     delegate!(pub defined_names, HashSet<&Identifier>, body);
-    delegate!(pub referenced_types, HashSet<&IdentifierReference>, body);
-    delegate!(pub referenced_annotations, HashSet<&IdentifierReference> , body);
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_complete(&self) -> Result<bool, Error> {
+        self.body.is_complete(self)
+    }
+
+    pub fn is_valid(&self, check_constraints: bool) -> Result<bool, Error> {
+        self.body.is_valid(check_constraints, self)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_source_span_for!(ModuleBody);
+
+impl_has_annotations_for!(ModuleBody);
+
+impl References for ModuleBody {
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.definitions
+            .iter()
+            .for_each(|def| def.referenced_types(names))
+    }
+
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.definitions
+            .iter()
+            .for_each(|def| def.referenced_annotations(names));
+    }
+}
+
 impl ModuleBody {
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_annotations(&self) -> bool {
-        !self.annotations.is_empty()
-    }
-    pub fn annotations_len(&self) -> usize {
-        self.annotations.len()
-    }
-    pub fn annotations(&self) -> impl Iterator<Item = &Annotation> {
-        self.annotations.iter()
-    }
-    pub fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
-        self.annotations.iter_mut()
-    }
-    pub fn add_to_annotations<I>(&mut self, value: I)
-    where
-        I: Into<Annotation>,
-    {
-        self.annotations.push(value.into())
-    }
-    pub fn extend_annotations<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Annotation>,
-    {
-        self.annotations.extend(extension)
-    }
-
-    pub fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
-        self.annotations()
-            .filter_map(|a| a.as_annotation_property())
-    }
-
-    pub fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
-        self.annotations().filter_map(|a| a.as_constraint())
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     pub fn has_imports(&self) -> bool {
         !self.imports.is_empty()
     }
@@ -256,12 +238,6 @@ impl ModuleBody {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_complete(&self) -> bool {
-        self.definitions().all(|d| d.is_complete())
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
         self.imports()
             .flat_map(|stmt| stmt.imported_modules())
@@ -277,19 +253,133 @@ impl ModuleBody {
     pub fn defined_names(&self) -> HashSet<&Identifier> {
         self.definitions().map(|def| def.name()).collect()
     }
+}
+
+impl Validate for ModuleBody {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        let failed: Result<Vec<bool>, Error> =
+            self.annotations().map(|ann| ann.is_complete(top)).collect();
+        Ok(failed?.iter().all(|b| *b))
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        for annotation in self.annotations() {
+            if !annotation.is_valid(check_constraints, top)? {
+                info!("Annotation {annotation:?} is not valid");
+            }
+        }
+        for definition in self.definitions() {
+            if !definition.is_valid(check_constraints, top)? {
+                info!("Definition {} is not valid", definition.name());
+            }
+        }
+        Ok(true)
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Modules ❱ Imports
+// ------------------------------------------------------------------------------------------------
+
+impl FromIterator<Import> for ImportStatement {
+    fn from_iter<T: IntoIterator<Item = Import>>(iter: T) -> Self {
+        Self::new(Vec::from_iter(iter))
+    }
+}
+
+impl_has_source_span_for!(ImportStatement);
+
+impl ImportStatement {
+    pub fn new(imports: Vec<Import>) -> Self {
+        Self {
+            span: None,
+            imports,
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn referenced_types(&self) -> HashSet<&IdentifierReference> {
-        self.definitions()
-            .flat_map(|def| def.referenced_types())
+    pub fn is_imports_empty(&self) -> bool {
+        self.imports.is_empty()
+    }
+    pub fn imports_len(&self) -> usize {
+        self.imports.len()
+    }
+    pub fn imports(&self) -> impl Iterator<Item = &Import> {
+        self.imports.iter()
+    }
+    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut Import> {
+        self.imports.iter_mut()
+    }
+    pub fn add_to_imports(&mut self, value: Import) {
+        self.imports.push(value)
+    }
+    pub fn extend_imports<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Import>,
+    {
+        self.imports.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub(crate) fn as_slice(&self) -> &[Import] {
+        self.imports.as_slice()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+        self.imports()
+            .map(|imp| match imp {
+                Import::Module(v) => v,
+                Import::Member(v) => v.module(),
+            })
             .collect()
     }
 
-    pub fn referenced_annotations(&self) -> HashSet<&IdentifierReference> {
-        self.definitions()
-            .flat_map(|def| def.referenced_annotations())
+    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+        self.imports()
+            .filter_map(|imp| {
+                if let Import::Member(imp) = imp {
+                    Some(imp)
+                } else {
+                    None
+                }
+            })
             .collect()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl From<Identifier> for Import {
+    fn from(v: Identifier) -> Self {
+        Self::Module(v)
+    }
+}
+
+impl From<QualifiedIdentifier> for Import {
+    fn from(v: QualifiedIdentifier) -> Self {
+        Self::Member(v)
+    }
+}
+
+enum_display_impl!(Import => Module, Member);
+
+impl Import {
+    pub fn has_source_span(&self) -> bool {
+        match self {
+            Self::Module(v) => v.has_source_span(),
+            Self::Member(v) => v.has_source_span(),
+        }
+    }
+
+    pub fn source_span(&self) -> Option<&Span> {
+        match self {
+            Self::Module(v) => v.source_span(),
+            Self::Member(v) => v.source_span(),
+        }
     }
 }
 

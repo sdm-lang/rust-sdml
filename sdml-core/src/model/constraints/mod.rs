@@ -1,4 +1,7 @@
-use crate::model::{Identifier, Span};
+use crate::{
+    error::Error,
+    model::{Identifier, Span},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -49,6 +52,29 @@ pub enum ConstraintBody {
 // Implementations ❱ Constraints
 // ------------------------------------------------------------------------------------------------
 
+impl_has_body_for!(Constraint, ConstraintBody);
+
+impl_has_name_for!(Constraint);
+
+impl_has_source_span_for!(Constraint);
+
+impl_references_for!(Constraint => delegate body);
+
+impl Validate for Constraint {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        // TODO: is this correct?
+        Ok(true)
+    }
+
+    fn is_valid(&self, check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        if check_constraints {
+            todo!()
+        } else {
+            Ok(true)
+        }
+    }
+}
+
 impl Constraint {
     pub fn new<B>(name: Identifier, body: B) -> Self
     where
@@ -59,48 +85,6 @@ impl Constraint {
             name,
             body: body.into(),
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn name(&self) -> &Identifier {
-        &self.name
-    }
-    pub fn set_name(&mut self, name: Identifier) {
-        self.name = name;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn body(&self) -> &ConstraintBody {
-        &self.body
-    }
-    pub fn set_body(&mut self, body: ConstraintBody) {
-        self.body = body;
     }
 }
 
@@ -118,10 +102,15 @@ impl From<FormalConstraint> for ConstraintBody {
     }
 }
 
+impl_references_for!(ConstraintBody => variants Informal, Formal);
+
+impl_validate_for!(ConstraintBody => variants Informal, Formal);
+
 impl ConstraintBody {
     pub fn is_informal(&self) -> bool {
         matches!(self, Self::Informal(_))
     }
+
     pub fn as_informal(&self) -> Option<&ControlledLanguageString> {
         match self {
             Self::Informal(v) => Some(v),
@@ -134,6 +123,7 @@ impl ConstraintBody {
     pub fn is_formal(&self) -> bool {
         matches!(self, Self::Formal(_))
     }
+
     pub fn as_formal(&self) -> Option<&FormalConstraint> {
         match self {
             Self::Formal(v) => Some(v),
@@ -152,14 +142,17 @@ impl ConstraintBody {
 
 mod formal;
 pub use formal::{
-    AnyOr, AtomicSentence, BinaryExpressionOperation, BooleanExpression, BooleanSentence,
-    BoundExpression, BoundSentence, ConstraintSentence, EnvironmentDef, EnvironmentDefBody,
-    Expression, FormalConstraint, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionalTerm, IteratorTarget, NamePath, PredicateListMember,
-    PredicateValue, PredicateValueList, QuantifiedExpression, QuantifiedSentence,
-    QuantifierBinding, QuantifierNamedBinding, SequenceComprehension, SequenceIterator,
-    SimpleSentence, Subject, Term, TypeIterator,
+    AtomicSentence, BinaryBooleanSentence, BooleanSentence,
+    ConstraintSentence, EnvironmentDef, EnvironmentDefBody,
+    FormalConstraint, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
+    FunctionTypeReference, FunctionalTerm, IteratorSource, FunctionComposition, PredicateSequenceMember,
+    PredicateValue, SequenceOfPredicateValues, QuantifiedSentence,Inequation, InequalityRelation,
+    QuantifiedBinding, QuantifierBoundNames, SequenceBuilder, SequenceIterator,
+    SimpleSentence, Subject, Term, TypeIterator, Equation, Quantifier, Variables,NamedVariables, MappingVariable,
+    QuantifiedVariableBinding, FunctionCardinality,UnaryBooleanSentence, ConnectiveOperator,
 };
 
 mod informal;
 pub use informal::{ControlledLanguageString, ControlledLanguageTag};
+
+use super::{check::Validate, modules::Module};

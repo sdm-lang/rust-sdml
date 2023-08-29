@@ -1,4 +1,6 @@
-use crate::model::{Identifier, PredicateValue, QualifiedIdentifier, SequenceComprehension, Span};
+use crate::model::constraints::{PredicateValue, SequenceBuilder};
+use crate::model::identifiers::{Identifier, QualifiedIdentifier};
+use crate::model::Span;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -15,21 +17,26 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Term {
-    Call(NamePath),
+    Call(FunctionComposition),
     Variable(Identifier),
     Type(QualifiedIdentifier),
-    /// Corresponds to the grammar rule `predicate_value`.
     Value(PredicateValue),
     Function(Box<FunctionalTerm>),
-    Sequence(Box<SequenceComprehension>),
+    Sequence(Box<SequenceBuilder>),
 }
 
 ///
-/// Corresponds to the grammar rule `name_path`.
+/// Corresponds to the grammar rule `function_composition`.
+///
+/// # Well-Formedness Rules
+///
+/// 1. The list of function names MUST have at least one element.
+///
+/// $$\forall r \in FunctionComposition \left( |name(r)| \gte 1 \right)$$
 ///
 /// # Semantics
 ///
-/// The keywords **`self`** and **`Self`** may ONLY appear as the first element.
+/// The keyword **`self`** may ONLY appear as the first element.
 ///
 /// The name path $x.y.z$ is equivalent to $z(y(x))$, or $(z \circ y)(x)$.
 ///
@@ -39,10 +46,10 @@ pub enum Term {
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct NamePath {
+pub struct FunctionComposition {
     span: Option<Span>,
     subject: Subject, // assert!(!is_empty())
-    path: Vec<Identifier>,
+    function_names: Vec<Identifier>,
 }
 
 /// Corresponds to the field `subject` in the grammar rule `name`.
@@ -67,8 +74,8 @@ pub struct FunctionalTerm {
 // Implementations ❱ Formal Constraints ❱ Terms
 // ------------------------------------------------------------------------------------------------
 
-impl From<NamePath> for Term {
-    fn from(v: NamePath) -> Self {
+impl From<FunctionComposition> for Term {
+    fn from(v: FunctionComposition) -> Self {
         Self::Call(v)
     }
 }
@@ -103,13 +110,26 @@ impl From<Box<FunctionalTerm>> for Term {
     }
 }
 
+impl From<SequenceBuilder> for Term {
+    fn from(v: SequenceBuilder) -> Self {
+        Self::Sequence(Box::new(v))
+    }
+}
+
+impl From<Box<SequenceBuilder>> for Term {
+    fn from(v: Box<SequenceBuilder>) -> Self {
+        Self::Sequence(v)
+    }
+}
+
 impl Term {
     // --------------------------------------------------------------------------------------------
 
     pub fn is_call(&self) -> bool {
         matches!(self, Self::Call(_))
     }
-    pub fn as_call(&self) -> Option<&NamePath> {
+
+    pub fn as_call(&self) -> Option<&FunctionComposition> {
         match self {
             Self::Call(v) => Some(v),
             _ => None,
@@ -121,6 +141,7 @@ impl Term {
     pub fn is_variable(&self) -> bool {
         matches!(self, Self::Variable(_))
     }
+
     pub fn as_variable(&self) -> Option<&Identifier> {
         match self {
             Self::Variable(v) => Some(v),
@@ -133,6 +154,7 @@ impl Term {
     pub fn is_type(&self) -> bool {
         matches!(self, Self::Type(_))
     }
+
     pub fn as_type(&self) -> Option<&QualifiedIdentifier> {
         match self {
             Self::Type(v) => Some(v),
@@ -145,6 +167,7 @@ impl Term {
     pub fn is_value(&self) -> bool {
         matches!(self, Self::Value(_))
     }
+
     pub fn as_value(&self) -> Option<&PredicateValue> {
         match self {
             Self::Value(v) => Some(v),
@@ -157,6 +180,7 @@ impl Term {
     pub fn is_function(&self) -> bool {
         matches!(self, Self::Function(_))
     }
+
     pub fn as_function(&self) -> Option<&FunctionalTerm> {
         match self {
             Self::Function(v) => Some(v),
@@ -167,41 +191,21 @@ impl Term {
 
 // ------------------------------------------------------------------------------------------------
 
-impl NamePath {
-    pub fn new<S, P>(subject: S, path: P) -> Self
+impl_has_source_span_for!(FunctionComposition);
+
+impl FunctionComposition {
+    pub fn new<S, N>(subject: S, function_names: N) -> Self
     where
         S: Into<Subject>,
-        P: Into<Vec<Identifier>>,
+        N: Into<Vec<Identifier>>,
     {
+        let function_names = function_names.into();
+        assert!(!function_names.is_empty());
         Self {
             span: Default::default(),
             subject: subject.into(),
-            path: path.into(),
+            function_names,
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     // --------------------------------------------------------------------------------------------
@@ -209,32 +213,37 @@ impl NamePath {
     pub fn subject(&self) -> &Subject {
         &self.subject
     }
-    pub fn set_subject(&mut self, subject: Subject) {
-        self.subject = subject;
+
+    pub fn set_subject<S>(&mut self, subject: S)
+    where
+        S: Into<Subject>,
+    {
+        self.subject = subject.into();
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn has_path(&self) -> bool {
-        !self.path.is_empty()
+    pub fn function_names_len(&self) -> usize {
+        self.function_names.len()
     }
-    pub fn path_len(&self) -> usize {
-        self.path.len()
+
+    pub fn function_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.function_names.iter()
     }
-    pub fn path(&self) -> impl Iterator<Item = &Identifier> {
-        self.path.iter()
+
+    pub fn function_names_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
+        self.function_names.iter_mut()
     }
-    pub fn path_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
-        self.path.iter_mut()
+
+    pub fn add_to_function_names(&mut self, value: Identifier) {
+        self.function_names.push(value)
     }
-    pub fn add_to_path(&mut self, value: Identifier) {
-        self.path.push(value)
-    }
-    pub fn extend_path<I>(&mut self, extension: I)
+
+    pub fn extend_function_names<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = Identifier>,
     {
-        self.path.extend(extension)
+        self.function_names.extend(extension)
     }
 }
 
@@ -268,6 +277,8 @@ impl Subject {
 
 // ------------------------------------------------------------------------------------------------
 
+impl_has_source_span_for!(FunctionalTerm);
+
 impl FunctionalTerm {
     pub fn new<T>(function: T) -> Self
     where
@@ -294,33 +305,10 @@ impl FunctionalTerm {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
     pub fn function(&self) -> &Term {
         &self.function
     }
+
     pub fn set_function(&mut self, function: Term) {
         self.function = function;
     }
@@ -330,21 +318,26 @@ impl FunctionalTerm {
     pub fn has_arguments(&self) -> bool {
         !self.arguments.is_empty()
     }
+
     pub fn arguments_len(&self) -> usize {
         self.arguments.len()
     }
+
     pub fn arguments(&self) -> impl Iterator<Item = &Term> {
         self.arguments.iter()
     }
+
     pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
         self.arguments.iter_mut()
     }
+
     pub fn add_to_arguments<I>(&mut self, value: I)
     where
         I: Into<Term>,
     {
         self.arguments.push(value.into())
     }
+
     pub fn extend_arguments<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = Term>,

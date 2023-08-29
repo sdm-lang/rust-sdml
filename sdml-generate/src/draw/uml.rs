@@ -13,13 +13,18 @@ use crate::draw::OutputFormat;
 use crate::exec::{exec_with_temp_input, CommandArg};
 use sdml_core::error::Error;
 use sdml_core::generate::GenerateToFile;
-use sdml_core::model::walk::{walk_module, ModuleWalker};
-use sdml_core::model::ModelElement;
-use sdml_core::model::{
-    ByReferenceMemberInner, ByValueMemberInner, Cardinality, ControlledLanguageTag, Identifier,
-    IdentifierReference, IdentityMemberInner, Module, Span, TypeReference, Value,
-    DEFAULT_BY_REFERENCE_CARDINALITY, DEFAULT_BY_VALUE_CARDINALITY,
+use sdml_core::model::constraints::ControlledLanguageTag;
+use sdml_core::model::identifiers::{Identifier, IdentifierReference};
+use sdml_core::model::members::{
+    ByReferenceMemberDef, ByValueMemberDef, Cardinality, HasCardinality, HasType,
+    IdentityMemberDef, MemberKind, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
+    DEFAULT_BY_VALUE_CARDINALITY,
 };
+use sdml_core::model::modules::Module;
+use sdml_core::model::values::Value;
+use sdml_core::model::walk::{walk_module, ModuleWalker};
+use sdml_core::model::{HasName, References, Span};
+use std::collections::HashSet;
 use std::path::Path;
 use tracing::debug;
 
@@ -104,11 +109,7 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
 }
 
 impl ModuleWalker for UmlDiagramGenerator {
-    fn start_module(
-        &mut self,
-        name: &Identifier,
-        _span: Option<&sdml_core::model::Span>,
-    ) -> Result<(), Error> {
+    fn start_module(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
         self.buffer.push_str(&format!(
             r#"@startuml {}
 skin rose
@@ -191,15 +192,15 @@ package "{name}" as {} <<module>> {{
     fn start_identity_member(
         &mut self,
         name: &Identifier,
-        inner: &IdentityMemberInner,
+        inner: &MemberKind<IdentityMemberDef>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer.push_str(&format!("    <<identity>> {name}"));
         match inner {
-            IdentityMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer.push_str(&format!(" {{role = {role}}}\n"));
             }
-            IdentityMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 if let TypeReference::Reference(target_type) = def.target_type() {
                     self.buffer.push_str(&format!(": {target_type}\n"));
                 } else {
@@ -215,15 +216,15 @@ package "{name}" as {} <<module>> {{
     fn start_by_value_member(
         &mut self,
         name: &Identifier,
-        inner: &ByValueMemberInner,
+        inner: &MemberKind<ByValueMemberDef>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         match inner {
-            ByValueMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer
                     .push_str(&format!("    {name} {{role = {role}}}\n"));
             }
-            ByValueMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 match make_member(
                     self.assoc_src.as_ref().unwrap(),
                     name,
@@ -245,15 +246,15 @@ package "{name}" as {} <<module>> {{
     fn start_by_reference_member(
         &mut self,
         name: &Identifier,
-        inner: &ByReferenceMemberInner,
+        inner: &MemberKind<ByReferenceMemberDef>,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         match inner {
-            ByReferenceMemberInner::PropertyRole(role) => {
+            MemberKind::PropertyReference(role) => {
                 self.buffer
                     .push_str(&format!("    {name} {{role = {role}}}\n"));
             }
-            ByReferenceMemberInner::Defined(def) => {
+            MemberKind::Definition(def) => {
                 match make_member(
                     self.assoc_src.as_ref().unwrap(),
                     name,
@@ -269,10 +270,6 @@ package "{name}" as {} <<module>> {{
             }
         }
 
-        Ok(())
-    }
-
-    fn end_member(&mut self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
 
@@ -399,14 +396,6 @@ package "{name}" as {} <<module>> {{
         Ok(())
     }
 
-    fn end_type_variant(
-        &mut self,
-        _name: &IdentifierReference,
-        _had_body: bool,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
     fn end_union(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
         self.buffer.push_str(&end_type(name, had_body));
         self.assoc_src = None;
@@ -424,25 +413,55 @@ package "{name}" as {} <<module>> {{
         Ok(())
     }
 
-    fn start_property_role(
+    fn start_identity_role(
         &mut self,
         name: &Identifier,
-        _inverse_name: Option<&Option<Identifier>>,
-        _target_cardinality: Option<&Cardinality>,
-        target_type: &TypeReference,
-        _has_body: bool,
+        inner: &IdentityMemberDef,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    <<role>> {name}"));
-        if let TypeReference::Reference(target_type) = target_type {
+        self.buffer
+            .push_str(&format!("    <<role, identity>> {name}"));
+        if let TypeReference::Reference(target_type) = inner.target_type() {
             self.buffer.push_str(&format!(": {target_type}\n"));
+            // TODO: Cardinality
+            // TODO: Mapping Types
         } else {
             self.buffer.push('\n');
         }
         Ok(())
     }
 
-    fn end_property_role(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    fn start_by_reference_role(
+        &mut self,
+        name: &Identifier,
+        inner: &ByReferenceMemberDef,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        self.buffer.push_str(&format!("    <<role, ref>> {name}"));
+        if let TypeReference::Reference(target_type) = inner.target_type() {
+            self.buffer.push_str(&format!(": {target_type}\n"));
+            // TODO: Cardinality
+            // TODO: Mapping Types
+        } else {
+            self.buffer.push('\n');
+        }
+        Ok(())
+    }
+
+    fn start_by_value_role(
+        &mut self,
+        name: &Identifier,
+        inner: &ByValueMemberDef,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        self.buffer.push_str(&format!("    <<role>> {name}"));
+        if let TypeReference::Reference(target_type) = inner.target_type() {
+            self.buffer.push_str(&format!(": {target_type}\n"));
+            // TODO: Cardinality
+            // TODO: Mapping Types
+        } else {
+            self.buffer.push('\n');
+        }
         Ok(())
     }
 
@@ -543,19 +562,15 @@ fn make_member(
                 )
             }
         }
-        TypeReference::MappingType(_) => {
-            (
-                format!(
-                    "    {name}: {} {}\n",
-                    card.to_uml_string(),
-                    make_type_reference(type_ref)
-                ),
-                true
-            )
-        }
-        TypeReference::Unknown => {
-            (format!("    {name}: unknown\n"), true)
-        }
+        TypeReference::MappingType(_) => (
+            format!(
+                "    {name}: {} {}\n",
+                card.to_uml_string(),
+                make_type_reference(type_ref)
+            ),
+            true,
+        ),
+        TypeReference::Unknown => (format!("    {name}: unknown\n"), true),
     }
 }
 
@@ -591,8 +606,9 @@ fn make_imports(module: &Module) -> (String, String) {
                 make_id(*imported),
             ));
         }
-        for imported in module
-            .referenced_types()
+        let mut names = HashSet::default();
+        module.referenced_types(&mut names);
+        for imported in names
             .iter()
             .filter_map(|rt| rt.as_qualified_identifier())
             .filter(|qi| qi.module() == other)

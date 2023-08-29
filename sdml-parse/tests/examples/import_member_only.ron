@@ -33,7 +33,12 @@ Module {
                 imports: [
                     Member(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 55,
+                                    end: 63,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {

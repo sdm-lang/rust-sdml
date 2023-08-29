@@ -1,5 +1,6 @@
 use super::Span;
 use crate::error::invalid_identifier_error;
+use crate::model::HasSourceSpan;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -144,36 +145,14 @@ impl Hash for Identifier {
     }
 }
 
+impl_has_source_span_for!(Identifier);
+
 impl Identifier {
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
             value: s.to_string(),
         }
-    }
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    #[inline(always)]
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    #[inline(always)]
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    #[inline(always)]
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    #[inline(always)]
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     #[inline(always)]
@@ -250,6 +229,8 @@ impl Hash for QualifiedIdentifier {
     }
 }
 
+impl_has_source_span_for!(QualifiedIdentifier, span);
+
 impl QualifiedIdentifier {
     pub fn new(module: Identifier, member: Identifier) -> Self {
         Self {
@@ -257,30 +238,6 @@ impl QualifiedIdentifier {
             module,
             member,
         }
-    }
-
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
-
-    #[inline(always)]
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    #[inline(always)]
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    #[inline(always)]
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    #[inline(always)]
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
     }
 
     #[inline(always)]
@@ -363,17 +320,17 @@ impl IdentifierReference {
         }
     }
 
-    pub fn has_ts_span(&self) -> bool {
+    pub fn has_source_span(&self) -> bool {
         match self {
-            Self::Identifier(v) => v.has_ts_span(),
-            Self::QualifiedIdentifier(v) => v.has_ts_span(),
+            Self::Identifier(v) => v.has_source_span(),
+            Self::QualifiedIdentifier(v) => v.has_source_span(),
         }
     }
 
-    pub fn ts_span(&self) -> Option<&Span> {
+    pub fn source_span(&self) -> Option<&Span> {
         match self {
-            Self::Identifier(v) => v.ts_span(),
-            Self::QualifiedIdentifier(v) => v.ts_span(),
+            Self::Identifier(v) => v.source_span(),
+            Self::QualifiedIdentifier(v) => v.source_span(),
         }
     }
 

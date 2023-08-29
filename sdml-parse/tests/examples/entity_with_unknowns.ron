@@ -66,8 +66,14 @@ Module {
                                     ),
                                     value: "id",
                                 },
-                                inner: Defined(
+                                kind: Definition(
                                     IdentityMemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 85,
+                                                end: 107,
+                                            },
+                                        ),
                                         target_type: Unknown,
                                         body: None,
                                     },
@@ -92,18 +98,24 @@ Module {
                                             ),
                                             value: "a",
                                         },
-                                        inner: Defined(
+                                        kind: Definition(
                                             ByValueMemberDef {
-                                                target_type: Unknown,
+                                                span: Some(
+                                                    Span {
+                                                        start: 113,
+                                                        end: 125,
+                                                    },
+                                                ),
                                                 target_cardinality: Cardinality {
+                                                    span: None,
                                                     ordering: None,
                                                     uniqueness: None,
-                                                    span: None,
                                                     min: 1,
                                                     max: Some(
                                                         1,
                                                     ),
                                                 },
+                                                target_type: Unknown,
                                                 body: None,
                                             },
                                         ),
@@ -137,18 +149,24 @@ Module {
                                                     ),
                                                     value: "b",
                                                 },
-                                                inner: Defined(
+                                                kind: Definition(
                                                     ByValueMemberDef {
-                                                        target_type: Unknown,
+                                                        span: Some(
+                                                            Span {
+                                                                start: 143,
+                                                                end: 155,
+                                                            },
+                                                        ),
                                                         target_cardinality: Cardinality {
+                                                            span: None,
                                                             ordering: None,
                                                             uniqueness: None,
-                                                            span: None,
                                                             min: 1,
                                                             max: Some(
                                                                 1,
                                                             ),
                                                         },
+                                                        target_type: Unknown,
                                                         body: None,
                                                     },
                                                 ),

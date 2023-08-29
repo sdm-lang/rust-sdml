@@ -1,0 +1,77 @@
+@import url(https://fonts.googleapis.com/css?family=Fira+Code:300,600|Fira+Sans:100,100i,200,200i,400,400i&display=swap);
+
+pre code.sdml {
+  font-family: "Fira Code",monospace;
+  font-size: .9em;
+  font-weight: 300;
+  line-height: 1.4;
+  padding: .6em;
+  border: 1px solid #e1e4e5;
+  white-space: pre;
+}
+
+pre code.sdml span.comment {
+  color: #949494;
+  font-style: italic;
+}
+
+pre code.sdml span.constant-builtin {
+  color: #5f5f00;
+}
+
+pre code.sdml span.error {
+  color: #ff0000;
+}
+
+pre code.sdml span.function-call {
+  color: #005fd7;
+}
+
+pre code.sdml span.keyword {
+  color: #878700;
+}
+
+pre code.sdml span.operator {
+  color: #4e4e4e;
+  font-weight: bold;
+}
+
+pre code.sdml span.module {
+  color: #005faf;
+}
+
+pre code.sdml span.module-definition {
+  color: #0000af;
+}
+
+pre code.sdml span.number {
+  color: #5f5f00;
+}
+
+pre code.sdml span.property {
+  color: #d70000;
+}
+
+pre code.sdml span.punctuation-bracket {
+  color: #4e4e4e;
+}
+
+pre code.sdml span.string {
+  color: #5faf00;
+}
+
+pre code.sdml span.string-special {
+  color: #8700d7;
+}
+
+pre code.sdml span.type {
+  color: #005fff;
+}
+
+pre code.sdml span.type-definition {
+  color: #0000ff;
+}
+
+pre code.sdml span.variable-field {
+  color: #5f87af;
+}

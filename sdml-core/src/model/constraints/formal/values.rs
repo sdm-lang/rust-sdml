@@ -1,4 +1,6 @@
-use crate::model::{IdentifierReference, SimpleValue, Span};
+use crate::model::identifiers::IdentifierReference;
+use crate::model::values::SimpleValue;
+use crate::model::Span;
 use std::fmt::Display;
 
 #[cfg(feature = "serde")]
@@ -16,19 +18,19 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum PredicateValue {
     Simple(SimpleValue),
-    List(PredicateValueList),
+    List(SequenceOfPredicateValues),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct PredicateValueList {
+pub struct SequenceOfPredicateValues {
     span: Option<Span>,
-    values: Vec<PredicateListMember>,
+    values: Vec<PredicateSequenceMember>,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum PredicateListMember {
+pub enum PredicateSequenceMember {
     Simple(SimpleValue),
     Reference(IdentifierReference),
 }
@@ -46,8 +48,8 @@ where
     }
 }
 
-impl From<PredicateValueList> for PredicateValue {
-    fn from(v: PredicateValueList) -> Self {
+impl From<SequenceOfPredicateValues> for PredicateValue {
+    fn from(v: SequenceOfPredicateValues) -> Self {
         Self::List(v)
     }
 }
@@ -68,7 +70,7 @@ impl PredicateValue {
     pub fn is_list(&self) -> bool {
         matches!(self, Self::List(_))
     }
-    pub fn as_list(&self) -> Option<&PredicateValueList> {
+    pub fn as_list(&self) -> Option<&SequenceOfPredicateValues> {
         match self {
             Self::List(v) => Some(v),
             _ => None,
@@ -78,7 +80,7 @@ impl PredicateValue {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Display for PredicateValueList {
+impl Display for SequenceOfPredicateValues {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -92,64 +94,50 @@ impl Display for PredicateValueList {
     }
 }
 
-impl From<Vec<PredicateListMember>> for PredicateValueList {
-    fn from(values: Vec<PredicateListMember>) -> Self {
+impl From<Vec<PredicateSequenceMember>> for SequenceOfPredicateValues {
+    fn from(values: Vec<PredicateSequenceMember>) -> Self {
         Self { span: None, values }
     }
 }
 
-impl FromIterator<PredicateListMember> for PredicateValueList {
-    fn from_iter<T: IntoIterator<Item = PredicateListMember>>(iter: T) -> Self {
+impl FromIterator<PredicateSequenceMember> for SequenceOfPredicateValues {
+    fn from_iter<T: IntoIterator<Item = PredicateSequenceMember>>(iter: T) -> Self {
         Self::from(Vec::from_iter(iter))
     }
 }
 
-impl PredicateValueList {
-    pub fn with_ts_span(self, ts_span: Span) -> Self {
-        Self {
-            span: Some(ts_span),
-            ..self
-        }
-    }
+impl_has_source_span_for!(SequenceOfPredicateValues);
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_ts_span(&self) -> bool {
-        self.ts_span().is_some()
-    }
-    pub fn ts_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-    pub fn set_ts_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-    pub fn unset_ts_span(&mut self) {
-        self.span = None;
-    }
+impl SequenceOfPredicateValues {
 
     // --------------------------------------------------------------------------------------------
 
     pub fn is_empty(&self) -> bool {
         self.values.is_empty()
     }
+
     pub fn len(&self) -> usize {
         self.values.len()
     }
-    pub fn iter(&self) -> impl Iterator<Item = &PredicateListMember> {
+
+    pub fn iter(&self) -> impl Iterator<Item = &PredicateSequenceMember> {
         self.values.iter()
     }
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut PredicateListMember> {
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut PredicateSequenceMember> {
         self.values.iter_mut()
     }
+
     pub fn push<I>(&mut self, value: I)
     where
-        I: Into<PredicateListMember>,
+        I: Into<PredicateSequenceMember>,
     {
         self.values.push(value.into())
     }
+
     pub fn extend<I>(&mut self, extension: I)
     where
-        I: IntoIterator<Item = PredicateListMember>,
+        I: IntoIterator<Item = PredicateSequenceMember>,
     {
         self.values.extend(extension)
     }
@@ -157,20 +145,20 @@ impl PredicateValueList {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Display for PredicateListMember {
+impl Display for PredicateSequenceMember {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{}",
             match self {
-                PredicateListMember::Simple(v) => v.to_string(),
-                PredicateListMember::Reference(v) => v.to_string(),
+                PredicateSequenceMember::Simple(v) => v.to_string(),
+                PredicateSequenceMember::Reference(v) => v.to_string(),
             }
         )
     }
 }
 
-impl<T> From<T> for PredicateListMember
+impl<T> From<T> for PredicateSequenceMember
 where
     T: Into<SimpleValue>,
 {
@@ -179,13 +167,13 @@ where
     }
 }
 
-impl From<IdentifierReference> for PredicateListMember {
+impl From<IdentifierReference> for PredicateSequenceMember {
     fn from(v: IdentifierReference) -> Self {
         Self::Reference(v)
     }
 }
 
-impl PredicateListMember {
+impl PredicateSequenceMember {
     pub fn is_simple(&self) -> bool {
         matches!(self, Self::Simple(_))
     }

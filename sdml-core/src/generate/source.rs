@@ -11,11 +11,14 @@ YYYYY
 
 use crate::error::Error;
 use crate::generate::GenerateToWriter;
-use crate::model::{
-    Annotation, AnnotationProperty, Constraint, ConstraintBody, DatatypeDef, Definition, EntityDef,
-    EnumDef, EventDef, ModelElement, Module, ModuleBody, PropertyDef, StructureDef, TypeVariant,
-    UnionDef, ValueVariant,
+use crate::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
+use crate::model::constraints::{Constraint, ConstraintBody};
+use crate::model::definitions::{
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasVariants, PropertyDef, StructureDef,
+    TypeVariant, UnionDef, ValueVariant,
 };
+use crate::model::modules::{Module, ModuleBody};
+use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
 use std::{fmt::Debug, io::Write};
 
 // ------------------------------------------------------------------------------------------------
@@ -187,7 +190,7 @@ impl SourceGenerator {
         writer.write_all(
             format!(
                 "{indentation}@{} = {}",
-                annotation.name(),
+                annotation.name_reference(),
                 annotation.value()
             )
             .as_bytes(),
@@ -472,7 +475,7 @@ impl SourceGenerator {
         options: &SourceOptions,
     ) -> Result<(), Error> {
         let indentation = options.indentation(DEFINITION_MEMBER_INDENT);
-        writer.write_all(format!("{indentation}{}", variant.name()).as_bytes())?;
+        writer.write_all(format!("{indentation}{}", variant.name_reference()).as_bytes())?;
 
         if let Some(rename) = variant.rename() {
             writer.write_all(format!(" as {rename}").as_bytes())?;
@@ -539,10 +542,10 @@ impl SourceGenerator {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::generate::source::SourceGenerator;
     use crate::generate::GenerateToWriter;
-    use crate::model::Identifier;
+    use crate::model::identifiers::Identifier;
+    use crate::model::modules::Module;
     use pretty_assertions::assert_eq;
     use url::Url;
 

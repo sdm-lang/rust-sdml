@@ -11,8 +11,15 @@ YYYYY
 
 use sdml_core::generate::{GenerateToWriter, NoFormatOptions};
 use sdml_core::load::{ModuleLoader, ModuleLoaderRef};
+use sdml_core::model::constraints::ControlledLanguageTag;
+use sdml_core::model::identifiers::{Identifier, IdentifierReference};
+use sdml_core::model::members::{
+    ByReferenceMemberDef, ByValueMemberDef, IdentityMemberDef, MemberKind,
+};
+use sdml_core::model::modules::{Import, Module};
+use sdml_core::model::values::Value;
 use sdml_core::model::walk::ModuleWalker;
-use sdml_core::model::Module;
+use sdml_core::model::Span;
 use sdml_core::{error::Error, model::walk::walk_module};
 use std::io::Write;
 
@@ -80,11 +87,7 @@ impl<T> ModuleWalker for OrgFileGenerator<T>
 where
     T: ModuleLoader + Clone,
 {
-    fn start_module(
-        &mut self,
-        name: &sdml_core::model::Identifier,
-        _span: Option<&sdml_core::model::Span>,
-    ) -> Result<(), Error> {
+    fn start_module(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
         self.buffer.push_str(&format!(
             r#"#+TITLE: Module {name}
 #+LANGUAGE: en
@@ -99,145 +102,125 @@ where
         Ok(())
     }
 
-    fn import(
-        &mut self,
-        _imported: &[sdml_core::model::Import],
-        _span: Option<&sdml_core::model::Span>,
-    ) -> Result<(), Error> {
+    fn import(&mut self, _imported: &[Import], _span: Option<&Span>) -> Result<(), Error> {
         Ok(())
     }
 
     fn annotation_property(
         &mut self,
-        _name: &sdml_core::model::IdentifierReference,
-        _value: &sdml_core::model::Value,
-        _span: Option<&sdml_core::model::Span>,
+        _name: &IdentifierReference,
+        _value: &Value,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn informal_constraint(
         &mut self,
-        _name: &sdml_core::model::Identifier,
+        _name: &Identifier,
         _value: &str,
-        _language: Option<&sdml_core::model::ControlledLanguageTag>,
-        _span: Option<&sdml_core::model::Span>,
+        _language: Option<&ControlledLanguageTag>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_datatype(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _base_type: &sdml_core::model::IdentifierReference,
+        _name: &Identifier,
+        _base_type: &IdentifierReference,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_datatype(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_datatype(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_entity(
         &mut self,
-        _name: &sdml_core::model::Identifier,
+        _name: &Identifier,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_identity_member(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _inner: &sdml_core::model::IdentityMemberInner,
-        _span: Option<&sdml_core::model::Span>,
+        _name: &Identifier,
+        _inner: &MemberKind<IdentityMemberDef>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_by_value_member(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _inner: &sdml_core::model::ByValueMemberInner,
-        _span: Option<&sdml_core::model::Span>,
+        _name: &Identifier,
+        _inner: &MemberKind<ByValueMemberDef>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_by_reference_member(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _inner: &sdml_core::model::ByReferenceMemberInner,
+        _name: &Identifier,
+        _inner: &MemberKind<ByReferenceMemberDef>,
         _span: Option<&sdml_core::model::Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_member(&mut self, _name: &sdml_core::model::Identifier) -> Result<(), Error> {
+    fn end_member(&mut self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_entity(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_entity(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_enum(
         &mut self,
-        _name: &sdml_core::model::Identifier,
+        _name: &Identifier,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_value_variant(
         &mut self,
-        _identifier: &sdml_core::model::Identifier,
+        _identifier: &Identifier,
         _value: u32,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_value_variant(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_value_variant(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_enum(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_enum(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_event(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _source: &sdml_core::model::IdentifierReference,
+        _name: &Identifier,
+        _source: &IdentifierReference,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_group(&mut self, _span: Option<&sdml_core::model::Span>) -> Result<(), Error> {
+    fn start_group(&mut self, _span: Option<&Span>) -> Result<(), Error> {
         Ok(())
     }
 
@@ -245,104 +228,99 @@ where
         Ok(())
     }
 
-    fn end_event(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_event(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_structure(
         &mut self,
-        _name: &sdml_core::model::Identifier,
+        _name: &Identifier,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_structure(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_structure(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_union(
         &mut self,
-        _name: &sdml_core::model::Identifier,
+        _name: &Identifier,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_type_variant(
         &mut self,
-        _identifier: &sdml_core::model::IdentifierReference,
-        _rename: Option<&sdml_core::model::Identifier>,
+        _identifier: &IdentifierReference,
+        _rename: Option<&Identifier>,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
     fn end_type_variant(
         &mut self,
-        _name: &sdml_core::model::IdentifierReference,
+        _name: &IdentifierReference,
         _had_body: bool,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_union(
-        &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
-    ) -> Result<(), Error> {
+    fn end_union(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
     fn start_property(
         &mut self,
-        _name: &sdml_core::model::Identifier,
+        _name: &Identifier,
         _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_property_role(
+    fn start_identity_role(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _inverse_name: Option<&Option<sdml_core::model::Identifier>>,
-        _target_cardinality: Option<&sdml_core::model::Cardinality>,
-        _target_type: &sdml_core::model::TypeReference,
-        _has_body: bool,
-        _span: Option<&sdml_core::model::Span>,
+        _name: &Identifier,
+        _inner: &IdentityMemberDef,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_property_role(
+    fn start_by_reference_role(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
+        _name: &Identifier,
+        _inner: &ByReferenceMemberDef,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_property(
+    fn start_by_value_role(
         &mut self,
-        _name: &sdml_core::model::Identifier,
-        _had_body: bool,
+        _name: &Identifier,
+        _inner: &ByValueMemberDef,
+        _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_module(&mut self, name: &sdml_core::model::Identifier) -> Result<(), Error> {
+    fn end_property_role(&mut self, _name: &Identifier) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_property(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_module(&mut self, name: &Identifier) -> Result<(), Error> {
         if let Some(loader) = &self.loader {
             let loader = loader.borrow();
             let source = loader.get_source(name).unwrap();

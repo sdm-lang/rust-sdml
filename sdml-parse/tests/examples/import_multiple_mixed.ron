@@ -44,7 +44,12 @@ Module {
                     ),
                     Member(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 65,
+                                    end: 73,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
@@ -67,7 +72,12 @@ Module {
                     ),
                     Member(
                         QualifiedIdentifier {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 74,
+                                    end: 82,
+                                },
+                            ),
                             module: Identifier {
                                 span: Some(
                                     Span {
