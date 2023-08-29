@@ -392,7 +392,7 @@ impl AtomicSentence {
         Self {
             span: Default::default(),
             predicate: predicate.into(),
-            arguments: Vec::from_iter(arguments.into_iter()),
+            arguments: Vec::from_iter(arguments),
         }
     }
 
@@ -1050,7 +1050,7 @@ impl QuantifierBoundNames {
     {
         Self {
             span: Default::default(),
-            names: Vec::from_iter(names.into_iter()),
+            names: Vec::from_iter(names),
             source: source.into(),
         }
     }
@@ -1077,7 +1077,7 @@ impl QuantifierBoundNames {
     where
         I: IntoIterator<Item = Identifier>,
     {
-        self.names = Vec::from_iter(names.into_iter());
+        self.names = Vec::from_iter(names);
     }
 
     pub fn add_to_names<I>(&mut self, value: I)

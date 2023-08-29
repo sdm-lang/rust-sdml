@@ -52,6 +52,7 @@ impl_validate_for!(ByReferenceMember => delegate kind);
 
 // ------------------------------------------------------------------------------------------------
 
+#[allow(clippy::from_over_into)]
 impl Into<MemberKind<ByReferenceMemberDef>> for ByReferenceMemberDef {
     fn into(self) -> MemberKind<ByReferenceMemberDef> {
         MemberKind::Definition(self)

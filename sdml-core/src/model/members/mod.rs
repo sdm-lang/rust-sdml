@@ -184,18 +184,21 @@ pub enum PseudoSequenceType {
 // Implementations ❱ Members ❱ Member Kind
 // ------------------------------------------------------------------------------------------------
 
+#[allow(clippy::from_over_into)]
 impl<D> Into<MemberKind<D>> for IdentifierReference {
     fn into(self) -> MemberKind<D> {
         MemberKind::PropertyReference(self)
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl<D> Into<MemberKind<D>> for Identifier {
     fn into(self) -> MemberKind<D> {
         MemberKind::PropertyReference(self.into())
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl<D> Into<MemberKind<D>> for QualifiedIdentifier {
     fn into(self) -> MemberKind<D> {
         MemberKind::PropertyReference(self.into())

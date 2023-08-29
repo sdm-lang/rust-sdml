@@ -49,6 +49,7 @@ impl_references_for!(IdentityMember => delegate kind);
 
 // ------------------------------------------------------------------------------------------------
 
+#[allow(clippy::from_over_into)]
 impl Into<MemberKind<IdentityMemberDef>> for IdentityMemberDef {
     fn into(self) -> MemberKind<IdentityMemberDef> {
         MemberKind::Definition(self)
