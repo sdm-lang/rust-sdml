@@ -80,6 +80,10 @@ impl Validate for ByValueMemberDef {
 }
 
 impl ByValueMemberDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<T>(target_type: T) -> Self
     where
         T: Into<TypeReference>,
@@ -92,9 +96,9 @@ impl ByValueMemberDef {
         }
     }
 
-    pub fn new_unknown() -> Self {
+    pub const fn new_unknown() -> Self {
         Self {
-            span: Default::default(),
+            span: None,
             target_type: TypeReference::Unknown,
             target_cardinality: Cardinality::one(),
             body: None,

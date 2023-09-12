@@ -1,10 +1,7 @@
-use crate::error::Error;
 use crate::model::References;
 use crate::model::{
     annotations::AnnotationOnlyBody,
-    check::Validate,
     identifiers::{Identifier, IdentifierReference},
-    modules::Module,
     Span,
 };
 use std::{collections::HashSet, fmt::Debug};
@@ -41,6 +38,8 @@ impl_has_name_for!(DatatypeDef);
 
 impl_has_optional_body_for!(DatatypeDef);
 
+impl_validate_for!(DatatypeDef => delegate optional body, true, true);
+
 impl References for DatatypeDef {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         names.insert(&self.base_type);
@@ -54,25 +53,11 @@ impl References for DatatypeDef {
     }
 }
 
-impl Validate for DatatypeDef {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        if let Some(body) = &self.body {
-            body.is_complete(top)
-        } else {
-            Ok(true)
-        }
-    }
-
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
-        if let Some(body) = &self.body {
-            body.is_valid(check_constraints, top)
-        } else {
-            Ok(true)
-        }
-    }
-}
-
 impl DatatypeDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name: Identifier, base_type: IdentifierReference) -> Self {
         Self {
             span: None,
@@ -83,14 +68,10 @@ impl DatatypeDef {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn base_type(&self) -> &IdentifierReference {
-        &self.base_type
-    }
-
-    pub fn set_base_type(&mut self, base_type: IdentifierReference) {
-        self.base_type = base_type;
-    }
+    get_and_set!(pub base_type, set_base_type => IdentifierReference);
 }
 
 // ------------------------------------------------------------------------------------------------

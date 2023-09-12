@@ -75,6 +75,10 @@ impl_references_for!(PropertyDef => delegate optional body);
 impl_validate_for!(PropertyDef => delegate optional body, false, true);
 
 impl PropertyDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name: Identifier) -> Self {
         Self {
             span: None,
@@ -90,49 +94,29 @@ impl_has_annotations_for!(PropertyBody);
 
 impl_has_source_span_for!(PropertyBody);
 
+impl_validate_for!(PropertyBody => todo!);
+
 impl References for PropertyBody {
     fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 
     fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 }
 
-impl Validate for PropertyBody {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-}
-
 impl PropertyBody {
-    pub fn has_roles(&self) -> bool {
-        !self.roles.is_empty()
-    }
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn roles_len(&self) -> usize {
-        self.roles.len()
-    }
-
-    pub fn roles(&self) -> impl Iterator<Item = &PropertyRole> {
-        self.roles.iter()
-    }
-
-    pub fn roles_mut(&mut self) -> impl Iterator<Item = &mut PropertyRole> {
-        self.roles.iter_mut()
-    }
-
-    pub fn add_to_roles(&mut self, value: PropertyRole) {
-        self.roles.push(value)
-    }
-
-    pub fn extend_roles<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = PropertyRole>,
-    {
-        self.roles.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_roles,
+        roles_len,
+        roles,
+        roles_mut,
+        add_to_roles,
+        extend_roles
+            => roles, PropertyRole
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -141,23 +125,19 @@ impl_has_name_for!(PropertyRole);
 
 impl_has_source_span_for!(PropertyRole);
 
+impl_validate_for!(PropertyRole => todo!);
+
 impl References for PropertyRole {
     fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 
     fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 }
 
-impl Validate for PropertyRole {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-}
-
 impl PropertyRole {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<D>(name: Identifier, definition: D) -> Self
     where
         D: Into<PropertyRoleDef>,
@@ -169,6 +149,8 @@ impl PropertyRole {
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn definition(&self) -> &PropertyRoleDef {
@@ -182,6 +164,8 @@ impl PropertyRole {
         self.definition = definition.into();
     }
 
+    // --------------------------------------------------------------------------------------------
+    // Delegated
     // --------------------------------------------------------------------------------------------
 
     delegate!(pub body, Option<&AnnotationOnlyBody>, definition);
@@ -218,70 +202,33 @@ impl References for PropertyRoleDef {
 }
 
 impl Validate for PropertyRoleDef {
-    fn is_complete(
-        &self,
-        _top: &crate::model::modules::Module,
-    ) -> Result<bool, crate::error::Error> {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
         todo!()
     }
 
-    fn is_valid(
-        &self,
-        _check_constraints: bool,
-        _top: &crate::model::modules::Module,
-    ) -> Result<bool, crate::error::Error> {
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
         todo!()
     }
 }
 
+impl_has_type_for!(PropertyRoleDef => variants Identity, ByReference, ByValue);
+
+impl_has_optional_body_for!(PropertyRoleDef => variants Identity, ByReference, ByValue);
+
 impl PropertyRoleDef {
-    pub fn is_identity(&self) -> bool {
-        matches!(self, Self::Identity(_))
-    }
-
-    pub fn as_identity(&self) -> Option<&IdentityMemberDef> {
-        match self {
-            Self::Identity(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_by_value(&self) -> bool {
-        matches!(self, Self::ByValue(_))
-    }
+    is_as_variant!(Identity (IdentityMemberDef) => is_identity, as_identity);
 
-    pub fn as_by_value(&self) -> Option<&ByValueMemberDef> {
-        match self {
-            Self::ByValue(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(ByValue (ByValueMemberDef) => is_by_value, as_by_value);
+
+    is_as_variant!(ByReference (ByReferenceMemberDef) => is_by_reference, as_by_reference);
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn is_by_reference(&self) -> bool {
-        matches!(self, Self::ByReference(_))
-    }
-
-    pub fn as_by_reference(&self) -> Option<&ByReferenceMemberDef> {
-        match self {
-            Self::ByReference(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // Delegated
     // --------------------------------------------------------------------------------------------
-
-    #[inline(always)]
-    fn body(&self) -> Option<&AnnotationOnlyBody> {
-        match self {
-            PropertyRoleDef::Identity(v) => v.body(),
-            PropertyRoleDef::ByReference(v) => v.body(),
-            PropertyRoleDef::ByValue(v) => v.body(),
-        }
-    }
 
     #[inline(always)]
     fn target_cardinality(&self) -> &Cardinality {
@@ -289,15 +236,6 @@ impl PropertyRoleDef {
             PropertyRoleDef::Identity(v) => v.target_cardinality(),
             PropertyRoleDef::ByReference(v) => v.target_cardinality(),
             PropertyRoleDef::ByValue(v) => v.target_cardinality(),
-        }
-    }
-
-    #[inline(always)]
-    fn target_type(&self) -> &TypeReference {
-        match self {
-            PropertyRoleDef::Identity(v) => v.target_type(),
-            PropertyRoleDef::ByReference(v) => v.target_type(),
-            PropertyRoleDef::ByValue(v) => v.target_type(),
         }
     }
 }

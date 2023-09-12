@@ -124,69 +124,16 @@ impl From<Box<SequenceBuilder>> for Term {
 
 impl Term {
     // --------------------------------------------------------------------------------------------
-
-    pub fn is_call(&self) -> bool {
-        matches!(self, Self::Call(_))
-    }
-
-    pub fn as_call(&self) -> Option<&FunctionComposition> {
-        match self {
-            Self::Call(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_variable(&self) -> bool {
-        matches!(self, Self::Variable(_))
-    }
+    is_as_variant!(Call (FunctionComposition) => is_call, as_call);
 
-    pub fn as_variable(&self) -> Option<&Identifier> {
-        match self {
-            Self::Variable(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Variable (Identifier) => is_variable, as_variable);
 
-    // --------------------------------------------------------------------------------------------
+    is_as_variant!(Value (PredicateValue) => is_value, as_value);
 
-    pub fn is_type(&self) -> bool {
-        matches!(self, Self::Type(_))
-    }
-
-    pub fn as_type(&self) -> Option<&QualifiedIdentifier> {
-        match self {
-            Self::Type(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_value(&self) -> bool {
-        matches!(self, Self::Value(_))
-    }
-
-    pub fn as_value(&self) -> Option<&PredicateValue> {
-        match self {
-            Self::Value(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_function(&self) -> bool {
-        matches!(self, Self::Function(_))
-    }
-
-    pub fn as_function(&self) -> Option<&FunctionalTerm> {
-        match self {
-            Self::Function(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Function (FunctionalTerm) => is_function, as_function);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -194,6 +141,10 @@ impl Term {
 impl_has_source_span_for!(FunctionComposition);
 
 impl FunctionComposition {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<S, N>(subject: S, function_names: N) -> Self
     where
         S: Into<Subject>,
@@ -209,6 +160,8 @@ impl FunctionComposition {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
     pub fn subject(&self) -> &Subject {
         &self.subject
@@ -221,30 +174,16 @@ impl FunctionComposition {
         self.subject = subject.into();
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn function_names_len(&self) -> usize {
-        self.function_names.len()
-    }
-
-    pub fn function_names(&self) -> impl Iterator<Item = &Identifier> {
-        self.function_names.iter()
-    }
-
-    pub fn function_names_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
-        self.function_names.iter_mut()
-    }
-
-    pub fn add_to_function_names(&mut self, value: Identifier) {
-        self.function_names.push(value)
-    }
-
-    pub fn extend_function_names<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Identifier>,
-    {
-        self.function_names.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_function_names,
+        function_names_len,
+        function_names,
+        function_names_mut,
+        add_to_function_names,
+        extend_function_names
+            => function_names, Identifier
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -257,22 +196,12 @@ impl From<Identifier> for Subject {
 
 impl Subject {
     // --------------------------------------------------------------------------------------------
-
-    pub fn is_reserved_self(&self) -> bool {
-        matches!(self, Self::ReservedSelf)
-    }
-
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_identifier(&self) -> bool {
-        matches!(self, Self::Identifier(_))
-    }
-    pub fn as_identifier(&self) -> Option<&Identifier> {
-        match self {
-            Self::Identifier(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_variant!(ReservedSelf => is_reservesd_self);
+
+    is_as_variant!(Identifier (Identifier) => is_identifier, as_identifier);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -280,6 +209,10 @@ impl Subject {
 impl_has_source_span_for!(FunctionalTerm);
 
 impl FunctionalTerm {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<T>(function: T) -> Self
     where
         T: Into<Term>,
@@ -304,46 +237,21 @@ impl FunctionalTerm {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn function(&self) -> &Term {
-        &self.function
-    }
-
-    pub fn set_function(&mut self, function: Term) {
-        self.function = function;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn has_arguments(&self) -> bool {
-        !self.arguments.is_empty()
-    }
+    get_and_set!(pub function, set_function => Term);
 
-    pub fn arguments_len(&self) -> usize {
-        self.arguments.len()
-    }
-
-    pub fn arguments(&self) -> impl Iterator<Item = &Term> {
-        self.arguments.iter()
-    }
-
-    pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
-        self.arguments.iter_mut()
-    }
-
-    pub fn add_to_arguments<I>(&mut self, value: I)
-    where
-        I: Into<Term>,
-    {
-        self.arguments.push(value.into())
-    }
-
-    pub fn extend_arguments<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Term>,
-    {
-        self.arguments.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_arguments,
+        arguments_len,
+        arguments,
+        arguments_mut,
+        add_to_arguments,
+        extend_arguments
+            => arguments, Term
+    );
 }
 
 // ------------------------------------------------------------------------------------------------

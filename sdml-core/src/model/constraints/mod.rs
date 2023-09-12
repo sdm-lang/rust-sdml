@@ -76,6 +76,10 @@ impl Validate for Constraint {
 }
 
 impl Constraint {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<B>(name: Identifier, body: B) -> Self
     where
         B: Into<ConstraintBody>,
@@ -107,29 +111,13 @@ impl_references_for!(ConstraintBody => variants Informal, Formal);
 impl_validate_for!(ConstraintBody => variants Informal, Formal);
 
 impl ConstraintBody {
-    pub fn is_informal(&self) -> bool {
-        matches!(self, Self::Informal(_))
-    }
-
-    pub fn as_informal(&self) -> Option<&ControlledLanguageString> {
-        match self {
-            Self::Informal(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_formal(&self) -> bool {
-        matches!(self, Self::Formal(_))
-    }
+    is_as_variant!(Informal (ControlledLanguageString) => is_informal, as_informal);
 
-    pub fn as_formal(&self) -> Option<&FormalConstraint> {
-        match self {
-            Self::Formal(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Formal (FormalConstraint) => is_formal, as_formal);
 }
 
 // ------------------------------------------------------------------------------------------------

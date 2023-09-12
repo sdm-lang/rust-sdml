@@ -251,6 +251,10 @@ impl Eq for LanguageString {}
 impl_has_source_span_for!(LanguageString);
 
 impl LanguageString {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(value: &str, language: Option<LanguageTag>) -> Self {
         Self {
             span: None,
@@ -260,26 +264,15 @@ impl LanguageString {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn value(&self) -> &String {
-        &self.value
-    }
-    pub fn set_value(&mut self, value: String) {
-        self.value = value;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn language(&self) -> Option<&LanguageTag> {
-        self.language.as_ref()
-    }
-    pub fn set_language(&mut self, language: LanguageTag) {
-        self.language = Some(language);
-    }
-    pub fn unset_language(&mut self) {
-        self.language = None;
-    }
+    get_and_set!(pub value, set_value => String);
 
+    get_and_set!(pub language, set_language, unset_language => optional has_language, LanguageTag);
+
+    // --------------------------------------------------------------------------------------------
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
@@ -328,11 +321,21 @@ impl PartialEq for LanguageTag {
     }
 }
 
+impl PartialEq<str> for LanguageTag {
+    fn eq(&self, other: &str) -> bool {
+        self.value == other
+    }
+}
+
 impl Eq for LanguageTag {}
 
 impl_has_source_span_for!(LanguageTag);
 
 impl LanguageTag {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
@@ -341,12 +344,12 @@ impl LanguageTag {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {
         LANGUAGE_TAG.is_match(s)
     }
-
-    // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
@@ -364,6 +367,10 @@ impl Display for MappingValue {
 impl_has_source_span_for!(MappingValue);
 
 impl MappingValue {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(domain: SimpleValue, range: Value) -> Self {
         Self {
             span: Default::default(),
@@ -373,24 +380,12 @@ impl MappingValue {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn domain(&self) -> &SimpleValue {
-        &self.domain
-    }
-
-    pub fn set_domain(&mut self, domain: SimpleValue) {
-        self.domain = domain;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn range(&self) -> &Value {
-        &self.range
-    }
+    get_and_set!(pub domain, set_domain => into SimpleValue);
 
-    pub fn set_range(&mut self, range: Value) {
-        self.range = Box::new(range);
-    }
+    get_and_set!(pub range, set_range => boxed into Value);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -423,37 +418,7 @@ impl FromIterator<SequenceMember> for SequenceOfValues {
 
 impl_has_source_span_for!(SequenceOfValues);
 
-impl SequenceOfValues {
-    pub fn is_empty(&self) -> bool {
-        self.values.is_empty()
-    }
-
-    pub fn len(&self) -> usize {
-        self.values.len()
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = &SequenceMember> {
-        self.values.iter()
-    }
-
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut SequenceMember> {
-        self.values.iter_mut()
-    }
-
-    pub fn push<I>(&mut self, value: I)
-    where
-        I: Into<SequenceMember>,
-    {
-        self.values.push(value.into())
-    }
-
-    pub fn extend<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = SequenceMember>,
-    {
-        self.values.extend(extension)
-    }
-}
+impl_as_sequence!(pub SequenceOfValues => SequenceMember);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -476,6 +441,10 @@ impl Display for ValueConstructor {
 impl_has_source_span_for!(ValueConstructor);
 
 impl ValueConstructor {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
         Self {
             span: None,
@@ -485,22 +454,12 @@ impl ValueConstructor {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn type_name(&self) -> &IdentifierReference {
-        &self.type_name
-    }
-    pub fn set_type_name(&mut self, type_name: IdentifierReference) {
-        self.type_name = type_name;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn value(&self) -> &SimpleValue {
-        &self.value
-    }
-    pub fn set_value(&mut self, value: SimpleValue) {
-        self.value = value;
-    }
+    get_and_set!(pub type_name, set_type_name => IdentifierReference);
+
+    get_and_set!(pub value, set_value => SimpleValue);
 }
 
 // ------------------------------------------------------------------------------------------------

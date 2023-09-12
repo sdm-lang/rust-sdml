@@ -255,29 +255,13 @@ where
 }
 
 impl<D> MemberKind<D> {
-    pub fn is_property_reference(&self) -> bool {
-        matches!(self, Self::PropertyReference(_))
-    }
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
 
-    pub fn as_property_reference(&self) -> Option<&IdentifierReference> {
-        if let Self::PropertyReference(v) = self {
-            Some(v)
-        } else {
-            None
-        }
-    }
+    is_as_variant!(PropertyReference (IdentifierReference) => is_property_reference, as_property_reference);
 
-    pub fn is_definition(&self) -> bool {
-        matches!(self, Self::Definition(_))
-    }
-
-    pub fn as_definition(&self) -> Option<&D> {
-        if let Self::Definition(v) = self {
-            Some(v)
-        } else {
-            None
-        }
-    }
+    is_as_variant!(Definition (D) => is_definition, as_definition);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -349,27 +333,17 @@ impl Validate for TypeReference {
 }
 
 impl TypeReference {
-    pub fn is_reference(&self) -> bool {
-        matches!(self, Self::Reference(_))
-    }
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
 
-    pub fn as_reference(&self) -> Option<&IdentifierReference> {
-        match self {
-            Self::Reference(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Reference (IdentifierReference) => is_reference, as_reference);
 
-    pub fn is_mapping_type(&self) -> bool {
-        matches!(self, Self::MappingType(_))
-    }
+    is_as_variant!(MappingType (MappingType) => is_mapping_type, as_mapping_type);
 
-    pub fn as_mapping_type(&self) -> Option<&MappingType> {
-        match self {
-            Self::MappingType(v) => Some(v),
-            _ => None,
-        }
-    }
+    // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
 
     pub fn is_unknown(&self) -> bool {
         matches!(self, Self::Unknown)
@@ -407,6 +381,10 @@ impl Validate for MappingType {
 }
 
 impl MappingType {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<T1, T2>(domain: T1, range: T2) -> Self
     where
         T1: Into<TypeReference>,
@@ -420,30 +398,12 @@ impl MappingType {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn domain(&self) -> &TypeReference {
-        &self.domain
-    }
-
-    pub fn set_domain<T>(&mut self, domain: T)
-    where
-        T: Into<TypeReference>,
-    {
-        self.domain = Box::new(domain.into());
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn range(&self) -> &TypeReference {
-        &self.range
-    }
+    get_and_set!(pub domain, set_domain => boxed into TypeReference);
 
-    pub fn set_range<T>(&mut self, range: T)
-    where
-        T: Into<TypeReference>,
-    {
-        self.range = Box::new(range.into());
-    }
+    get_and_set!(pub range, set_range => boxed into TypeReference);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -495,6 +455,10 @@ impl Validate for Cardinality {
 }
 
 impl Cardinality {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub const fn new(
         ordering: Option<Ordering>,
         uniqueness: Option<Uniqueness>,
@@ -555,6 +519,8 @@ impl Cardinality {
         Self::new_unbounded(0)
     }
 
+    // --------------------------------------------------------------------------------------------
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub const fn with_ordering(self, ordering: Ordering) -> Self {
@@ -654,6 +620,8 @@ impl Cardinality {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
     pub fn is_optional(&self) -> bool {
@@ -680,8 +648,6 @@ impl Cardinality {
         self.range.is_exactly(value)
     }
 
-    // --------------------------------------------------------------------------------------------
-
     pub fn sequence_type(&self) -> PseudoSequenceType {
         match (
             self.is_ordered(),
@@ -695,26 +661,6 @@ impl Cardinality {
             (Some(true), Some(false), _, _) => PseudoSequenceType::List,
             _ => PseudoSequenceType::Bag,
         }
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    #[inline(always)]
-    pub fn to_uml_string(&self) -> String {
-        format!(
-            "{}{}{}",
-            if let Some(ordering) = self.ordering() {
-                format!("{{{}}} ", ordering)
-            } else {
-                String::new()
-            },
-            if let Some(uniqueness) = self.uniqueness() {
-                format!("{{{}}} ", uniqueness)
-            } else {
-                String::new()
-            },
-            self.range
-        )
     }
 }
 

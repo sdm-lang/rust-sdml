@@ -72,31 +72,40 @@ impl Validate for IdentityMemberDef {
     }
 
     fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        // TOD: check type reference
         Ok(true)
     }
 }
 
 impl IdentityMemberDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<T>(target_type: T) -> Self
     where
         T: Into<TypeReference>,
     {
         Self {
-            span: Default::default(),
+            span: None,
             target_type: target_type.into(),
             body: None,
         }
     }
 
-    pub fn new_unknown() -> Self {
+    pub const fn new_unknown() -> Self {
         Self {
-            span: Default::default(),
+            span: None,
             target_type: TypeReference::Unknown,
             body: None,
         }
     }
 
-    pub fn target_cardinality(&self) -> &Cardinality {
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn target_cardinality(&self) -> &Cardinality {
         &BY_IDENTITY_CARDINALITY
     }
 }

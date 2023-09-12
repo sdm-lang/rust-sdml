@@ -47,6 +47,10 @@ impl Validate for FormalConstraint {
 }
 
 impl FormalConstraint {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<V>(body: V) -> Self
     where
         V: Into<ConstraintSentence>,
@@ -58,6 +62,8 @@ impl FormalConstraint {
         }
     }
 
+    // --------------------------------------------------------------------------------------------
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn with_definition<I>(self, definition: EnvironmentDef) -> Self {
@@ -72,35 +78,16 @@ impl FormalConstraint {
         self_mut
     }
 
-    pub fn has_definitions(&self) -> bool {
-        !self.environment.is_empty()
-    }
-
-    pub fn definitions_len(&self) -> usize {
-        self.environment.len()
-    }
-
-    pub fn definitions(&self) -> impl Iterator<Item = &EnvironmentDef> {
-        self.environment.iter()
-    }
-
-    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut EnvironmentDef> {
-        self.environment.iter_mut()
-    }
-
-    pub fn add_to_definitions<I>(&mut self, value: I)
-    where
-        I: Into<EnvironmentDef>,
-    {
-        self.environment.push(value.into())
-    }
-
-    pub fn extend_definitions<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = EnvironmentDef>,
-    {
-        self.environment.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_definitions,
+        definitions_len,
+        definitions,
+        definitions_mut,
+        add_to_definitions,
+        extend_definitions
+            => environment, EnvironmentDef
+    );
 }
 
 // ------------------------------------------------------------------------------------------------

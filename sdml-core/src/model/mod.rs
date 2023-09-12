@@ -104,11 +104,19 @@ impl Display for Span {
 }
 
 impl Span {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     #[inline(always)]
     pub fn new(start: usize, end: usize) -> Self {
         assert!(start <= end);
         Self(start..end)
     }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
     pub fn start(&self) -> usize {
@@ -133,20 +141,20 @@ impl Span {
 #[macro_use]
 mod macros;
 
-pub mod identifiers;
-
-pub mod modules;
-
 pub mod annotations;
+
+pub mod check;
 
 pub mod constraints;
 
-pub mod values;
-
 pub mod definitions;
+
+pub mod identifiers;
 
 pub mod members;
 
-pub mod check;
+pub mod modules;
+
+pub mod values;
 
 pub mod walk;

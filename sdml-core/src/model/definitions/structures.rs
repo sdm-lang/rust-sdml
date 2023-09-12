@@ -1,7 +1,7 @@
 use crate::{
     error::Error,
     model::{
-        annotations::Annotation,
+        annotations::{Annotation, HasAnnotations},
         check::Validate,
         definitions::{HasGroups, HasMembers},
         identifiers::{Identifier, IdentifierReference},
@@ -66,6 +66,10 @@ impl_references_for!(StructureDef => delegate optional body);
 impl_validate_for!(StructureDef => delegate optional body, false, true);
 
 impl StructureDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name: Identifier) -> Self {
         Self {
             span: None,
@@ -85,6 +89,8 @@ impl_has_members_for!(StructureBody, ByValueMember);
 
 impl_has_source_span_for!(StructureBody);
 
+impl_validate_for_annotations_and_members!(StructureBody);
+
 impl References for StructureBody {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         self.flat_members().for_each(|m| m.referenced_types(names));
@@ -96,17 +102,11 @@ impl References for StructureBody {
     }
 }
 
-impl Validate for StructureBody {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-}
-
 impl StructureBody {
+    // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
+
     pub fn flat_members(&self) -> impl Iterator<Item = &ByValueMember> {
         self.members()
             .chain(self.groups().flat_map(|g| g.members()))
@@ -121,21 +121,13 @@ impl_has_members_for!(StructureGroup, ByValueMember);
 
 impl_has_source_span_for!(StructureGroup);
 
+impl_validate_for_annotations_and_members!(StructureGroup);
+
 impl References for StructureGroup {
     fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 
     fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {
         // TODO: self plus members
-    }
-}
-
-impl Validate for StructureGroup {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
-        todo!()
     }
 }
 

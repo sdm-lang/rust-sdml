@@ -6,11 +6,11 @@ use crate::model::constraints::{FunctionComposition, SequenceBuilder, Term};
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::Span;
 use crate::syntax::{
-    KW_RELATION_GREATER_THAN, KW_RELATION_GREATER_THAN_OR_EQUAL,
+    KW_QUANTIFIER_EXISTS, KW_QUANTIFIER_EXISTS_SYMBOL, KW_QUANTIFIER_FORALL,
+    KW_QUANTIFIER_FORALL_SYMBOL, KW_RELATION_GREATER_THAN, KW_RELATION_GREATER_THAN_OR_EQUAL,
     KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL, KW_RELATION_LESS_THAN,
     KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL, KW_RELATION_NOT_EQUAL,
-    KW_RELATION_NOT_EQUAL_SYMBOL, KW_TYPE_EXISTS, KW_TYPE_EXISTS_SYMBOL, KW_TYPE_FORALL,
-    KW_TYPE_FORALL_SYMBOL,
+    KW_RELATION_NOT_EQUAL_SYMBOL,
 };
 
 #[cfg(feature = "serde")]
@@ -274,39 +274,15 @@ impl From<QuantifiedSentence> for ConstraintSentence {
 }
 
 impl ConstraintSentence {
-    pub fn is_simple(&self) -> bool {
-        matches!(self, Self::Simple(_))
-    }
-    pub fn as_simple(&self) -> Option<&SimpleSentence> {
-        match self {
-            Self::Simple(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_boolean(&self) -> bool {
-        matches!(self, Self::Boolean(_))
-    }
-    pub fn as_boolean(&self) -> Option<&BooleanSentence> {
-        match self {
-            Self::Boolean(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Simple (SimpleSentence) => is_simple, as_simple);
 
-    // --------------------------------------------------------------------------------------------
+    is_as_variant!(Boolean (BooleanSentence) => is_boolean, as_boolean);
 
-    pub fn is_quantified(&self) -> bool {
-        matches!(self, Self::Quantified(_))
-    }
-    pub fn as_quantified(&self) -> Option<&QuantifiedSentence> {
-        match self {
-            Self::Quantified(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Quantified (QuantifiedSentence) => is_quantified, as_quantified);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -330,42 +306,15 @@ impl From<Inequation> for SimpleSentence {
 }
 
 impl SimpleSentence {
-    pub fn is_atomic(&self) -> bool {
-        matches!(self, Self::Atomic(_))
-    }
-
-    pub fn as_atomic(&self) -> Option<&AtomicSentence> {
-        match self {
-            Self::Atomic(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_equation(&self) -> bool {
-        matches!(self, Self::Equation(_))
-    }
+    is_as_variant!(Atomic (AtomicSentence) => is_atomic, as_atomic);
 
-    pub fn as_equation(&self) -> Option<&Equation> {
-        match self {
-            Self::Equation(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Equation (Equation) => is_equation, as_equation);
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_inequation(&self) -> bool {
-        matches!(self, Self::Inequation(_))
-    }
-
-    pub fn as_inequation(&self) -> Option<&Inequation> {
-        match self {
-            Self::Inequation(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Inequation (Inequation) => is_inequation, as_inequation);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -373,6 +322,10 @@ impl SimpleSentence {
 impl_has_source_span_for!(AtomicSentence);
 
 impl AtomicSentence {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<T>(predicate: T) -> Self
     where
         T: Into<Term>,
@@ -397,43 +350,21 @@ impl AtomicSentence {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn predicate(&self) -> &Term {
-        &self.predicate
-    }
-
-    pub fn set_predicate(&mut self, predicate: Term) {
-        self.predicate = predicate;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn has_arguments(&self) -> bool {
-        !self.arguments.is_empty()
-    }
+    get_and_set!(pub predicate, set_predicate => Term);
 
-    pub fn arguments_len(&self) -> usize {
-        self.arguments.len()
-    }
-
-    pub fn arguments(&self) -> impl Iterator<Item = &Term> {
-        self.arguments.iter()
-    }
-
-    pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
-        self.arguments.iter_mut()
-    }
-
-    pub fn add_to_arguments(&mut self, value: Term) {
-        self.arguments.push(value)
-    }
-
-    pub fn extend_arguments<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Term>,
-    {
-        self.arguments.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_arguments,
+        arguments_len,
+        arguments,
+        arguments_mut,
+        add_to_arguments,
+        extend_arguments
+            => arguments, Term
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -441,6 +372,10 @@ impl AtomicSentence {
 impl_has_source_span_for!(Equation);
 
 impl Equation {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<L, R>(left_operand: L, right_operand: R) -> Self
     where
         L: Into<Term>,
@@ -454,24 +389,12 @@ impl Equation {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn left_operand(&self) -> &Term {
-        &self.left_operand
-    }
-
-    pub fn set_left_operand(&mut self, operand: Term) {
-        self.left_operand = operand;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn right_operand(&self) -> &Term {
-        &self.right_operand
-    }
+    get_and_set!(pub left_operand, set_left_operand => Term);
 
-    pub fn set_right_operand(&mut self, operand: Term) {
-        self.right_operand = operand;
-    }
+    get_and_set!(pub right_operand, set_right_operand => Term);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -479,6 +402,10 @@ impl Equation {
 impl_has_source_span_for!(Inequation);
 
 impl Inequation {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<L, R>(left_operand: L, relation: InequalityRelation, right_operand: R) -> Self
     where
         L: Into<Term>,
@@ -546,24 +473,12 @@ impl Inequation {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn left_operand(&self) -> &Term {
-        &self.left_operand
-    }
-
-    pub fn set_left_operand(&mut self, operand: Term) {
-        self.left_operand = operand;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn relation(&self) -> &InequalityRelation {
-        &self.relation
-    }
+    get_and_set!(pub left_operand, set_left_operand => Term);
 
-    pub fn set_relation(&mut self, relation: InequalityRelation) {
-        self.relation = relation;
-    }
+    get_and_set!(pub relation, set_relation => InequalityRelation);
 
     #[inline(always)]
     pub fn is_not_equal(&self) -> bool {
@@ -590,15 +505,7 @@ impl Inequation {
         self.relation == InequalityRelation::GreaterThanOrEqual
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn right_operand(&self) -> &Term {
-        &self.right_operand
-    }
-
-    pub fn set_right_operand(&mut self, operand: Term) {
-        self.right_operand = operand;
-    }
+    get_and_set!(pub right_operand, set_right_operand => Term);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -658,28 +565,12 @@ impl From<BinaryBooleanSentence> for BooleanSentence {
 
 impl BooleanSentence {
     // --------------------------------------------------------------------------------------------
-
-    pub fn is_unary(&self) -> bool {
-        matches!(self, Self::Unary(_))
-    }
-    pub fn as_unary(&self) -> Option<&UnaryBooleanSentence> {
-        match self {
-            Self::Unary(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_binary(&self) -> bool {
-        matches!(self, Self::Binary(_))
-    }
-    pub fn as_binary(&self) -> Option<&BinaryBooleanSentence> {
-        match self {
-            Self::Binary(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Unary (UnaryBooleanSentence) => is_unary, as_unary);
+
+    is_as_variant!(Binary (BinaryBooleanSentence) => is_binary, as_binary);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -687,6 +578,10 @@ impl BooleanSentence {
 impl_has_source_span_for!(UnaryBooleanSentence);
 
 impl UnaryBooleanSentence {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<R>(operand: R) -> Self
     where
         R: Into<ConstraintSentence>,
@@ -706,21 +601,15 @@ impl UnaryBooleanSentence {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
     pub fn operator(&self) -> ConnectiveOperator {
         ConnectiveOperator::Negation
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn operand(&self) -> &ConstraintSentence {
-        &self.operand
-    }
-
-    pub fn set_operand(&mut self, operand: ConstraintSentence) {
-        self.operand = Box::new(operand);
-    }
+    get_and_set!(pub operand, set_operand => boxed ConstraintSentence);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -728,6 +617,10 @@ impl UnaryBooleanSentence {
 impl_has_source_span_for!(BinaryBooleanSentence);
 
 impl BinaryBooleanSentence {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<L, R>(left_operand: L, operator: ConnectiveOperator, right_operand: R) -> Self
     where
         L: Into<ConstraintSentence>,
@@ -796,35 +689,14 @@ impl BinaryBooleanSentence {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn left_operand(&self) -> &ConstraintSentence {
-        &self.left_operand
-    }
-
-    pub fn set_left_operand(&mut self, operand: ConstraintSentence) {
-        self.left_operand = Box::new(operand);
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn operator(&self) -> ConnectiveOperator {
-        self.operator
-    }
+    get_and_set!(pub left_operand, set_left_operand => boxed ConstraintSentence);
 
-    pub fn set_operator(&mut self, operator: ConnectiveOperator) {
-        assert!(operator != ConnectiveOperator::Negation);
-        self.operator = operator;
-    }
+    get_and_set!(pub operator, set_operator => ConnectiveOperator);
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn right_operand(&self) -> &ConstraintSentence {
-        &self.right_operand
-    }
-
-    pub fn set_right_operand(&mut self, operand: ConstraintSentence) {
-        self.right_operand = Box::new(operand);
-    }
+    get_and_set!(pub right_operand, set_right_operand => boxed ConstraintSentence);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -834,6 +706,10 @@ impl_has_body_for!(QuantifiedSentence, boxed ConstraintSentence);
 impl_has_source_span_for!(QuantifiedSentence);
 
 impl QuantifiedSentence {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<B, S>(bindings: B, body: S) -> Self
     where
         B: Into<Vec<QuantifiedVariableBinding>>,
@@ -847,38 +723,19 @@ impl QuantifiedSentence {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn has_variable_bindings(&self) -> bool {
-        !self.variable_bindings.is_empty()
-    }
-
-    pub fn variable_bindings_len(&self) -> usize {
-        self.variable_bindings.len()
-    }
-
-    pub fn variable_bindings(&self) -> impl Iterator<Item = &QuantifiedVariableBinding> {
-        self.variable_bindings.iter()
-    }
-
-    pub fn variable_bindings_mut(
-        &mut self,
-    ) -> impl Iterator<Item = &mut QuantifiedVariableBinding> {
-        self.variable_bindings.iter_mut()
-    }
-
-    pub fn add_to_variable_bindings<I>(&mut self, value: I)
-    where
-        I: Into<QuantifiedVariableBinding>,
-    {
-        self.variable_bindings.push(value.into())
-    }
-
-    pub fn extend_variable_bindings<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = QuantifiedVariableBinding>,
-    {
-        self.variable_bindings.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_variable_bindings,
+        variable_bindings_len,
+        variable_bindings,
+        variable_bindings_mut,
+        add_to_variable_bindings,
+        extend_variable_bindings
+            => variable_bindings, QuantifiedVariableBinding
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -895,10 +752,10 @@ impl Display for Quantifier {
             f,
             "{}",
             match (self, f.alternate()) {
-                (Self::Existential, true) => KW_TYPE_EXISTS_SYMBOL,
-                (Self::Existential, false) => KW_TYPE_EXISTS,
-                (Self::Universal, true) => KW_TYPE_FORALL,
-                (Self::Universal, false) => KW_TYPE_FORALL_SYMBOL,
+                (Self::Existential, true) => KW_QUANTIFIER_EXISTS_SYMBOL,
+                (Self::Existential, false) => KW_QUANTIFIER_EXISTS,
+                (Self::Universal, true) => KW_QUANTIFIER_FORALL,
+                (Self::Universal, false) => KW_QUANTIFIER_FORALL_SYMBOL,
             }
         )
     }
@@ -909,10 +766,10 @@ impl FromStr for Quantifier {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            KW_TYPE_EXISTS => Ok(Self::Existential),
-            KW_TYPE_EXISTS_SYMBOL => Ok(Self::Existential),
-            KW_TYPE_FORALL => Ok(Self::Universal),
-            KW_TYPE_FORALL_SYMBOL => Ok(Self::Universal),
+            KW_QUANTIFIER_EXISTS => Ok(Self::Existential),
+            KW_QUANTIFIER_EXISTS_SYMBOL => Ok(Self::Existential),
+            KW_QUANTIFIER_FORALL => Ok(Self::Universal),
+            KW_QUANTIFIER_FORALL_SYMBOL => Ok(Self::Universal),
             // TODO: need an error here.
             _ => panic!("Invalid Quantifier value {:?}", s),
         }
@@ -924,6 +781,10 @@ impl FromStr for Quantifier {
 impl_has_source_span_for!(QuantifiedVariableBinding);
 
 impl QuantifiedVariableBinding {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<B>(quantifier: Quantifier, bindings: B) -> Self
     where
         B: Into<Vec<QuantifiedBinding>>,
@@ -950,54 +811,31 @@ impl QuantifiedVariableBinding {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn quantifier(&self) -> Quantifier {
-        self.quantifier
-    }
+    get_and_set!(pub quantifier, set_quantifier => Quantifier);
 
-    pub fn set_quantifier(&mut self, quantifier: Quantifier) {
-        self.quantifier = quantifier;
-    }
-
+    #[inline(always)]
     pub fn is_existential(&self) -> bool {
         self.quantifier == Quantifier::Existential
     }
 
+    #[inline(always)]
     pub fn is_universal(&self) -> bool {
         self.quantifier == Quantifier::Universal
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_bindings(&self) -> bool {
-        !self.bindings.is_empty()
-    }
-
-    pub fn bindings_len(&self) -> usize {
-        self.bindings.len()
-    }
-
-    pub fn bindings(&self) -> impl Iterator<Item = &QuantifiedBinding> {
-        self.bindings.iter()
-    }
-
-    pub fn bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifiedBinding> {
-        self.bindings.iter_mut()
-    }
-
-    pub fn add_to_bindings<I>(&mut self, value: I)
-    where
-        I: Into<QuantifiedBinding>,
-    {
-        self.bindings.push(value.into())
-    }
-
-    pub fn extend_bindings<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = QuantifiedBinding>,
-    {
-        self.bindings.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_bindings,
+        bindings_len,
+        bindings,
+        bindings_mut,
+        add_to_bindings,
+        extend_bindings
+            => bindings, QuantifiedBinding
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1010,31 +848,22 @@ impl From<QuantifierBoundNames> for QuantifiedBinding {
 
 impl QuantifiedBinding {
     // --------------------------------------------------------------------------------------------
-
-    pub fn is_self_instance(&self) -> bool {
-        matches!(self, Self::ReservedSelf)
-    }
-
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_named(&self) -> bool {
-        matches!(self, Self::Named(_))
-    }
+    is_variant!(ReservedSelf => is_self_instance);
 
-    pub fn as_named(&self) -> Option<&QuantifierBoundNames> {
-        match self {
-            Self::Named(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Named (QuantifierBoundNames) => is_named, as_named);
 
+    // --------------------------------------------------------------------------------------------
+    // FromStr helper
     // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {
-        s == KW_TYPE_EXISTS
-            || s == KW_TYPE_EXISTS_SYMBOL
-            || s == KW_TYPE_FORALL
-            || s == KW_TYPE_FORALL_SYMBOL
+        s == KW_QUANTIFIER_EXISTS
+            || s == KW_QUANTIFIER_EXISTS_SYMBOL
+            || s == KW_QUANTIFIER_FORALL
+            || s == KW_QUANTIFIER_FORALL_SYMBOL
     }
 }
 
@@ -1043,6 +872,10 @@ impl QuantifiedBinding {
 impl_has_source_span_for!(QuantifierBoundNames);
 
 impl QuantifierBoundNames {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<N, B>(names: N, source: B) -> Self
     where
         N: IntoIterator<Item = Identifier>,
@@ -1056,53 +889,21 @@ impl QuantifierBoundNames {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn has_names(&self) -> bool {
-        !self.names.is_empty()
-    }
-
-    pub fn names_len(&self) -> usize {
-        self.names.len()
-    }
-
-    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
-        self.names.iter()
-    }
-
-    pub fn names_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
-        self.names.iter_mut()
-    }
-
-    pub fn set_names<I>(&mut self, names: I)
-    where
-        I: IntoIterator<Item = Identifier>,
-    {
-        self.names = Vec::from_iter(names);
-    }
-
-    pub fn add_to_names<I>(&mut self, value: I)
-    where
-        I: Into<Identifier>,
-    {
-        self.names.push(value.into())
-    }
-
-    pub fn extend_names<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Identifier>,
-    {
-        self.names.extend(extension)
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn source(&self) -> &IteratorSource {
-        &self.source
-    }
+    get_and_set!(pub source, set_source => IteratorSource);
 
-    pub fn set_source(&mut self, source: IteratorSource) {
-        self.source = source;
-    }
+    get_and_set_vec!(
+        pub
+        has has_names,
+        names_len,
+        names,
+        names_mut,
+        add_to_names,
+        extend_names
+            => names, Identifier
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1120,29 +921,13 @@ impl From<SequenceIterator> for IteratorSource {
 }
 
 impl IteratorSource {
-    pub fn is_type_iterator(&self) -> bool {
-        matches!(self, Self::Type(_))
-    }
-
-    pub fn as_type_iterator(&self) -> Option<&TypeIterator> {
-        match self {
-            Self::Type(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_sequence_iterator(&self) -> bool {
-        matches!(self, Self::Sequence(_))
-    }
+    is_as_variant!(Type (TypeIterator) => is_type_iterator, as_type_iterator);
 
-    pub fn as_sequence_iterator(&self) -> Option<&SequenceIterator> {
-        match self {
-            Self::Sequence(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Sequence (SequenceIterator) => is_sequence_iterator, as_sequence_iterator);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1166,42 +951,15 @@ impl From<SequenceBuilder> for SequenceIterator {
 }
 
 impl SequenceIterator {
-    pub fn is_call_path(&self) -> bool {
-        matches!(self, Self::Call(_))
-    }
-
-    pub fn as_call_path(&self) -> Option<&FunctionComposition> {
-        match self {
-            Self::Call(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_variable(&self) -> bool {
-        matches!(self, Self::Variable(_))
-    }
+    is_as_variant!(Call (FunctionComposition) => is_call_path, as_call_path);
 
-    pub fn as_variable(&self) -> Option<&Identifier> {
-        match self {
-            Self::Variable(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Variable (Identifier) => is_variable, as_variable);
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_sequence_comprehension(&self) -> bool {
-        matches!(self, Self::Builder(_))
-    }
-
-    pub fn as_sequence_comprehension(&self) -> Option<&SequenceBuilder> {
-        match self {
-            Self::Builder(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Builder (SequenceBuilder) => is_sequence_builder, as_sequence_builder);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1213,28 +971,13 @@ impl From<IdentifierReference> for TypeIterator {
 }
 
 impl TypeIterator {
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+
     pub fn is_self_type(&self) -> bool {
         matches!(self, Self::SelfType)
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_type_name(&self) -> bool {
-        matches!(self, Self::Type(_))
-    }
-
-    pub fn as_type_name(&self) -> Option<&IdentifierReference> {
-        match self {
-            Self::Type(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Type (IdentifierReference) => is_type_name, as_type_name);
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

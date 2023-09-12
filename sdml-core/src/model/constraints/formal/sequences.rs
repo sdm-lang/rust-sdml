@@ -56,6 +56,10 @@ impl_has_body_for!(SequenceBuilder, ConstraintSentence);
 impl_has_source_span_for!(SequenceBuilder);
 
 impl SequenceBuilder {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<V, B, S>(variables: V, bindings: B, body: S) -> Self
     where
         V: Into<Variables>,
@@ -71,6 +75,8 @@ impl SequenceBuilder {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
     pub fn variables(&self) -> &Variables {
         &self.variables
@@ -83,37 +89,16 @@ impl SequenceBuilder {
         self.variables = variables.into();
     }
 
-    // --------------------------------------------------------------------------------------------
-
-    pub fn has_bindings(&self) -> bool {
-        !self.bindings.is_empty()
-    }
-
-    pub fn bindings_len(&self) -> usize {
-        self.bindings.len()
-    }
-
-    pub fn bindings(&self) -> impl Iterator<Item = &QuantifiedVariableBinding> {
-        self.bindings.iter()
-    }
-
-    pub fn bindings_mut(&mut self) -> impl Iterator<Item = &mut QuantifiedVariableBinding> {
-        self.bindings.iter_mut()
-    }
-
-    pub fn add_to_bindings<I>(&mut self, value: I)
-    where
-        I: Into<QuantifiedVariableBinding>,
-    {
-        self.bindings.push(value.into())
-    }
-
-    pub fn extend_bindings<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = QuantifiedVariableBinding>,
-    {
-        self.bindings.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_bindings,
+        bindings_len,
+        bindings,
+        bindings_mut,
+        add_to_bindings,
+        extend_bindings
+            => bindings, QuantifiedVariableBinding
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -131,29 +116,13 @@ impl From<MappingVariable> for Variables {
 }
 
 impl Variables {
-    pub fn is_named_set(&self) -> bool {
-        matches!(self, Self::Named(_))
-    }
-
-    pub fn as_named_set(&self) -> Option<&NamedVariables> {
-        match self {
-            Self::Named(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_mapping(&self) -> bool {
-        matches!(self, Self::Mapping(_))
-    }
+    is_as_variant!(Named (NamedVariables) => is_named_set, as_named_set);
 
-    pub fn as_mapping(&self) -> Option<&MappingVariable> {
-        match self {
-            Self::Mapping(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Mapping (MappingVariable) => is_mapping, as_mapping);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -192,33 +161,25 @@ impl NamedVariables {
 impl_has_source_span_for!(MappingVariable);
 
 impl MappingVariable {
-    pub fn new(domain: Identifier, range: Identifier) -> Self {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn new(domain: Identifier, range: Identifier) -> Self {
         Self {
-            span: Default::default(),
+            span: None,
             domain,
             range,
         }
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn domain(&self) -> &Identifier {
-        &self.domain
-    }
-
-    pub fn set_domain(&mut self, domain: Identifier) {
-        self.domain = domain;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn range(&self) -> &Identifier {
-        &self.range
-    }
+    get_and_set!(pub domain, set_domain => Identifier);
 
-    pub fn set_range(&mut self, range: Identifier) {
-        self.range = range;
-    }
+    get_and_set!(pub range, set_range => Identifier);
 }
 
 // ------------------------------------------------------------------------------------------------

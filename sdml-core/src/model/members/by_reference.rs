@@ -83,12 +83,16 @@ impl Validate for ByReferenceMemberDef {
 }
 
 impl ByReferenceMemberDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<T>(target_type: T) -> Self
     where
         T: Into<TypeReference>,
     {
         Self {
-            span: Default::default(),
+            span: None,
             target_type: target_type.into(),
             target_cardinality: Cardinality::zero_or_one(),
             inverse_name: None,
@@ -96,9 +100,9 @@ impl ByReferenceMemberDef {
         }
     }
 
-    pub fn new_unknown() -> Self {
+    pub const fn new_unknown() -> Self {
         Self {
-            span: Default::default(),
+            span: None,
             target_type: TypeReference::Unknown,
             target_cardinality: Cardinality::zero_or_one(),
             inverse_name: None,
@@ -107,16 +111,8 @@ impl ByReferenceMemberDef {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn inverse_name(&self) -> Option<&Identifier> {
-        self.inverse_name.as_ref()
-    }
-
-    pub fn set_inverse_name(&mut self, inverse_name: Identifier) {
-        self.inverse_name = Some(inverse_name);
-    }
-
-    pub fn unset_inverse_name(&mut self) {
-        self.inverse_name = None;
-    }
+    get_and_set!(pub inverse_name, set_inverse_name, unset_inverse_name => optional has_inverse_name, Identifier);
 }

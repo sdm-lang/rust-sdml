@@ -4,7 +4,7 @@ use crate::model::{
     check::Validate,
     definitions::Definition,
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    HasName, HasSourceSpan, Span,
+    HasName, Span,
 };
 use std::{collections::HashSet, fmt::Debug};
 use tracing::info;
@@ -13,6 +13,9 @@ use url::Url;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use super::definitions::{
+    DatatypeDef, EntityDef, EnumDef, EventDef, FeatureSetDef, PropertyDef, StructureDef, UnionDef,
+};
 use super::References;
 
 // ------------------------------------------------------------------------------------------------
@@ -89,6 +92,8 @@ impl_has_source_span_for!(Module);
 
 impl_has_name_for!(Module);
 
+impl_has_body_for!(Module, ModuleBody);
+
 impl References for Module {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         self.body.referenced_types(names);
@@ -100,6 +105,10 @@ impl References for Module {
 }
 
 impl Module {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn empty(name: Identifier) -> Self {
         Self {
             span: None,
@@ -119,6 +128,8 @@ impl Module {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
     pub fn with_base(self, base: Url) -> Self {
         Self {
@@ -127,32 +138,14 @@ impl Module {
         }
     }
 
-    pub fn has_base(&self) -> bool {
-        self.base().is_some()
-    }
-    pub fn base(&self) -> Option<&Url> {
-        self.base.as_ref()
-    }
-    pub fn set_base(&mut self, base: Url) {
-        self.base = Some(base);
-    }
-    pub fn unset_base(&mut self) {
-        self.base = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub fn body(&self) -> &ModuleBody {
-        &self.body
-    }
-    pub fn set_body(&mut self, body: ModuleBody) {
-        self.body = body;
-    }
+    get_and_set!(pub base, set_base, unset_base => optional has_base, Url);
 
     // --------------------------------------------------------------------------------------------
 
     delegate!(pub imported_modules, HashSet<&Identifier>, body);
+
     delegate!(pub imported_types, HashSet<&QualifiedIdentifier>, body);
+
     delegate!(pub defined_names, HashSet<&Identifier>, body);
 
     // --------------------------------------------------------------------------------------------
@@ -187,56 +180,20 @@ impl References for ModuleBody {
 }
 
 impl ModuleBody {
-    pub fn has_imports(&self) -> bool {
-        !self.imports.is_empty()
-    }
-    pub fn imports_len(&self) -> usize {
-        self.imports.len()
-    }
-    pub fn imports(&self) -> impl Iterator<Item = &ImportStatement> {
-        self.imports.iter()
-    }
-    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut ImportStatement> {
-        self.imports.iter_mut()
-    }
-    pub fn add_to_imports(&mut self, value: ImportStatement) {
-        self.imports.push(value)
-    }
-    pub fn extend_imports<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = ImportStatement>,
-    {
-        self.imports.extend(extension)
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn has_definitions(&self) -> bool {
-        !self.definitions.is_empty()
-    }
-    pub fn definitions_len(&self) -> usize {
-        self.definitions.len()
-    }
-    pub fn definitions(&self) -> impl Iterator<Item = &Definition> {
-        self.definitions.iter()
-    }
-    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
-        self.definitions.iter_mut()
-    }
-    pub fn add_to_definitions<I>(&mut self, value: I)
-    where
-        I: Into<Definition>,
-    {
-        self.definitions.push(value.into())
-    }
-    pub fn extend_definitions<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Definition>,
-    {
-        self.definitions.extend(extension)
-    }
-
-    // --------------------------------------------------------------------------------------------
+    get_and_set_vec!(
+        pub
+        has has_imports,
+        imports_len,
+        imports,
+        imports_mut,
+        add_to_imports,
+        extend_imports
+            => imports, ImportStatement
+    );
 
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
         self.imports()
@@ -248,6 +205,83 @@ impl ModuleBody {
         self.imports()
             .flat_map(|stmt| stmt.imported_types())
             .collect()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    get_and_set_vec!(
+        pub
+        has has_definitions,
+        definitions_len,
+        definitions,
+        definitions_mut,
+        add_to_definitions,
+        extend_definitions
+            => definitions, Definition
+    );
+
+    #[inline]
+    pub fn datatype_definitions(&self) -> impl Iterator<Item = &DatatypeDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Datatype(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn entity_definitions(&self) -> impl Iterator<Item = &EntityDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Entity(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn enum_definitions(&self) -> impl Iterator<Item = &EnumDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Enum(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn event_definitions(&self) -> impl Iterator<Item = &EventDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Event(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn feature_definitions(&self) -> impl Iterator<Item = &FeatureSetDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::FeatureSet(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn property_definitions(&self) -> impl Iterator<Item = &PropertyDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Property(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn structure_definitions(&self) -> impl Iterator<Item = &StructureDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Structure(v) => Some(v),
+            _ => None,
+        })
+    }
+
+    #[inline]
+    pub fn union_definitions(&self) -> impl Iterator<Item = &UnionDef> {
+        self.definitions.iter().filter_map(|d| match d {
+            Definition::Union(v) => Some(v),
+            _ => None,
+        })
     }
 
     pub fn defined_names(&self) -> HashSet<&Identifier> {
@@ -290,6 +324,10 @@ impl FromIterator<Import> for ImportStatement {
 impl_has_source_span_for!(ImportStatement);
 
 impl ImportStatement {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(imports: Vec<Import>) -> Self {
         Self {
             span: None,
@@ -298,28 +336,19 @@ impl ImportStatement {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn is_imports_empty(&self) -> bool {
-        self.imports.is_empty()
-    }
-    pub fn imports_len(&self) -> usize {
-        self.imports.len()
-    }
-    pub fn imports(&self) -> impl Iterator<Item = &Import> {
-        self.imports.iter()
-    }
-    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut Import> {
-        self.imports.iter_mut()
-    }
-    pub fn add_to_imports(&mut self, value: Import) {
-        self.imports.push(value)
-    }
-    pub fn extend_imports<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Import>,
-    {
-        self.imports.extend(extension)
-    }
+    get_and_set_vec!(
+        pub
+        has has_imports,
+        imports_len,
+        imports,
+        imports_mut,
+        add_to_imports,
+        extend_imports
+            => imports, Import
+    );
 
     // --------------------------------------------------------------------------------------------
 
@@ -367,21 +396,7 @@ impl From<QualifiedIdentifier> for Import {
 
 enum_display_impl!(Import => Module, Member);
 
-impl Import {
-    pub fn has_source_span(&self) -> bool {
-        match self {
-            Self::Module(v) => v.has_source_span(),
-            Self::Member(v) => v.has_source_span(),
-        }
-    }
-
-    pub fn source_span(&self) -> Option<&Span> {
-        match self {
-            Self::Module(v) => v.source_span(),
-            Self::Member(v) => v.source_span(),
-        }
-    }
-}
+impl_has_source_span_for!(Import => variants Module, Member);
 
 // ------------------------------------------------------------------------------------------------
 // Private Functions

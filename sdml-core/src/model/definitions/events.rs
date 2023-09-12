@@ -41,6 +41,10 @@ impl_has_source_span_for!(EventDef);
 impl_validate_for!(EventDef => delegate optional body, false, true);
 
 impl EventDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name: Identifier, event_source: IdentifierReference) -> Self {
         Self {
             span: None,
@@ -51,14 +55,10 @@ impl EventDef {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn event_source(&self) -> &IdentifierReference {
-        &self.event_source
-    }
-
-    pub fn set_event_source(&mut self, event_source: IdentifierReference) {
-        self.event_source = event_source;
-    }
+    get_and_set!(pub event_source, set_event_source => IdentifierReference);
 }
 
 // ------------------------------------------------------------------------------------------------

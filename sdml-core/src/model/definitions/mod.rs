@@ -1,5 +1,4 @@
-use crate::model::identifiers::Identifier;
-use crate::model::{HasName, HasSourceSpan, Span};
+use crate::model::Span;
 use std::fmt::Debug;
 
 #[cfg(feature = "serde")]
@@ -72,9 +71,10 @@ pub enum Definition {
     Entity(EntityDef),
     Enum(EnumDef),
     Event(EventDef),
+    FeatureSet(FeatureSetDef),
+    Property(PropertyDef),
     Structure(StructureDef),
     Union(UnionDef),
-    Property(PropertyDef),
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -101,79 +101,21 @@ impl_from_for_variant!(Definition, Enum, EnumDef);
 
 impl_from_for_variant!(Definition, Event, EventDef);
 
+impl_from_for_variant!(Definition, FeatureSet, FeatureSetDef);
+
+impl_from_for_variant!(Definition, Property, PropertyDef);
+
 impl_from_for_variant!(Definition, Structure, StructureDef);
 
 impl_from_for_variant!(Definition, Union, UnionDef);
 
-impl_from_for_variant!(Definition, Property, PropertyDef);
+impl_has_name_for!(Definition => variants Datatype, Entity, Enum, Event, FeatureSet, Property, Structure, Union);
 
-impl HasName for Definition {
-    fn name(&self) -> &Identifier {
-        match self {
-            Self::Datatype(v) => v.name(),
-            Self::Entity(v) => v.name(),
-            Self::Enum(v) => v.name(),
-            Self::Event(v) => v.name(),
-            Self::Structure(v) => v.name(),
-            Self::Union(v) => v.name(),
-            Self::Property(v) => v.name(),
-        }
-    }
+impl_has_source_span_for!(Definition => variants Datatype, Entity, Enum, Event, FeatureSet, Property, Structure, Union);
 
-    fn set_name(&mut self, name: Identifier) {
-        match self {
-            Self::Datatype(v) => v.set_name(name),
-            Self::Entity(v) => v.set_name(name),
-            Self::Enum(v) => v.set_name(name),
-            Self::Event(v) => v.set_name(name),
-            Self::Structure(v) => v.set_name(name),
-            Self::Union(v) => v.set_name(name),
-            Self::Property(v) => v.set_name(name),
-        }
-    }
-}
+impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, FeatureSet, Property, Structure, Union);
 
-impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Structure, Union, Property);
-
-impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, Structure, Union, Property);
-
-impl Definition {
-    pub fn source_span(&self) -> Option<&Span> {
-        match self {
-            Self::Datatype(v) => v.source_span(),
-            Self::Entity(v) => v.source_span(),
-            Self::Enum(v) => v.source_span(),
-            Self::Event(v) => v.source_span(),
-            Self::Structure(v) => v.source_span(),
-            Self::Union(v) => v.source_span(),
-            Self::Property(v) => v.source_span(),
-        }
-    }
-
-    pub fn set_source_span(&mut self, span: Span) {
-        match self {
-            Self::Datatype(v) => v.set_source_span(span),
-            Self::Entity(v) => v.set_source_span(span),
-            Self::Enum(v) => v.set_source_span(span),
-            Self::Event(v) => v.set_source_span(span),
-            Self::Structure(v) => v.set_source_span(span),
-            Self::Union(v) => v.set_source_span(span),
-            Self::Property(v) => v.set_source_span(span),
-        }
-    }
-
-    pub fn unset_source_span(&mut self) {
-        match self {
-            Self::Datatype(v) => v.unset_source_span(),
-            Self::Entity(v) => v.unset_source_span(),
-            Self::Enum(v) => v.unset_source_span(),
-            Self::Event(v) => v.unset_source_span(),
-            Self::Structure(v) => v.unset_source_span(),
-            Self::Union(v) => v.unset_source_span(),
-            Self::Property(v) => v.unset_source_span(),
-        }
-    }
-}
+impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, FeatureSet, Property, Structure, Union);
 
 // ------------------------------------------------------------------------------------------------
 // Private Functions
@@ -194,6 +136,11 @@ pub use enums::{EnumBody, EnumDef, ValueVariant};
 
 mod events;
 pub use events::EventDef;
+
+mod features;
+pub use features::{
+    FeatureMemberDef, FeatureSetBody, FeatureSetDef, FeatureSetProductBody, FeatureSetSumBody,
+};
 
 mod properties;
 pub use properties::{PropertyBody, PropertyDef, PropertyRole, PropertyRoleDef};

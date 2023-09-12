@@ -25,14 +25,15 @@ use crate::error::Error;
 use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember, EnumDef, EventDef, HasGroups,
-    HasMembers, HasVariants, PropertyDef, StructureDef, StructureGroup, UnionDef,
+    DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember, EnumDef, EventDef,
+    FeatureMemberDef, FeatureSetBody, FeatureSetDef, HasGroups, HasMembers, HasVariants,
+    PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, StructureGroup, TypeVariant,
+    UnionDef,
 };
-use crate::model::definitions::{PropertyRole, PropertyRoleDef};
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::members::{
-    ByReferenceMember, ByReferenceMemberDef, ByValueMember, ByValueMemberDef, IdentityMember,
-    IdentityMemberDef, Member, MemberKind,
+    ByReferenceMember, ByReferenceMemberDef, ByValueMember, ByValueMemberDef, Cardinality,
+    HasCardinality, HasType, IdentityMember, IdentityMemberDef, Member, MemberKind, TypeReference,
 };
 use crate::model::modules::{Import, Module};
 use crate::model::values::Value;
@@ -49,7 +50,7 @@ use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourc
 ///
 /// The trait that captures the callbacks that [`walk_module`] uses as it traverses the module.
 ///
-pub trait ModuleWalker {
+pub trait SimpleModuleWalker {
     fn start_module(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
         Ok(())
     }
@@ -184,7 +185,7 @@ pub trait ModuleWalker {
         Ok(())
     }
 
-    fn start_structure(
+    fn start_feature_set(
         &mut self,
         _name: &Identifier,
         _has_body: bool,
@@ -193,38 +194,17 @@ pub trait ModuleWalker {
         Ok(())
     }
 
-    fn end_structure(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_union(
+    fn start_feature_member(
         &mut self,
         _name: &Identifier,
-        _has_body: bool,
+        _target_cardinality: &Cardinality,
+        _target_type: &TypeReference,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_type_variant(
-        &mut self,
-        _identifier: &IdentifierReference,
-        _rename: Option<&Identifier>,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_type_variant(
-        &mut self,
-        _name: &IdentifierReference,
-        _had_body: bool,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_union(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    fn end_feature_set(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
@@ -272,6 +252,50 @@ pub trait ModuleWalker {
         Ok(())
     }
 
+    fn start_structure(
+        &mut self,
+        _name: &Identifier,
+        _has_body: bool,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_structure(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn start_union(
+        &mut self,
+        _name: &Identifier,
+        _has_body: bool,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn start_type_variant(
+        &mut self,
+        _identifier: &IdentifierReference,
+        _rename: Option<&Identifier>,
+        _has_body: bool,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_type_variant(
+        &mut self,
+        _name: &IdentifierReference,
+        _had_body: bool,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_union(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+        Ok(())
+    }
+
     fn end_module(&mut self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
@@ -314,7 +338,10 @@ macro_rules! walk_annotations {
 ///
 /// Walk the module `module` calling the relevant methods on `walker`.
 ///
-pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+pub fn walk_module_simple(
+    module: &Module,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
     walker.start_module(module.name(), module.source_span())?;
 
     let body = module.body();
@@ -331,9 +358,10 @@ pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<()
             Definition::Entity(def) => walk_entity_def(def, walker)?,
             Definition::Enum(def) => walk_enum_def(def, walker)?,
             Definition::Event(def) => walk_event_def(def, walker)?,
+            Definition::FeatureSet(def) => walk_feature_set_def(def, walker)?,
+            Definition::Property(def) => walk_property_def(def, walker)?,
             Definition::Structure(def) => walk_structure_def(def, walker)?,
             Definition::Union(def) => walk_union_def(def, walker)?,
-            Definition::Property(def) => walk_property_def(def, walker)?,
         }
     }
 
@@ -356,7 +384,7 @@ pub fn walk_module(module: &Module, walker: &mut impl ModuleWalker) -> Result<()
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
-fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
     walker.start_datatype(
         def.name(),
         def.base_type(),
@@ -371,7 +399,7 @@ fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl ModuleWalker) -> Resul
     walker.end_datatype(def.name(), def.has_body())
 }
 
-fn walk_entity_def(def: &EntityDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_entity_def(def: &EntityDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
     walker.start_entity(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
@@ -394,7 +422,10 @@ fn walk_entity_def(def: &EntityDef, walker: &mut impl ModuleWalker) -> Result<()
     walker.end_entity(def.name(), def.has_body())
 }
 
-fn walk_entity_group(group: &EntityGroup, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_entity_group(
+    group: &EntityGroup,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
     walker.start_group(group.source_span())?;
 
     walk_annotations!(walker, group.annotations());
@@ -409,7 +440,7 @@ fn walk_entity_group(group: &EntityGroup, walker: &mut impl ModuleWalker) -> Res
     walker.end_group()
 }
 
-fn walk_enum_def(def: &EnumDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_enum_def(def: &EnumDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
     walker.start_enum(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
@@ -431,7 +462,7 @@ fn walk_enum_def(def: &EnumDef, walker: &mut impl ModuleWalker) -> Result<(), Er
     walker.end_enum(def.name(), def.has_body())
 }
 
-fn walk_event_def(def: &EventDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_event_def(def: &EventDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
     walker.start_event(
         def.name(),
         def.event_source(),
@@ -454,7 +485,95 @@ fn walk_event_def(def: &EventDef, walker: &mut impl ModuleWalker) -> Result<(), 
     walker.end_event(def.name(), def.has_body())
 }
 
-fn walk_structure_def(def: &StructureDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_feature_set_def(
+    def: &FeatureSetDef,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
+    walker.start_feature_set(def.name(), def.has_body(), def.source_span())?;
+
+    if let Some(body) = def.body() {
+        walk_annotations!(walker, body.annotations());
+
+        match body {
+            FeatureSetBody::Conjunctive(v) => {
+                for member in v.members() {
+                    walk_feature_member(member, walker)?;
+                }
+            }
+            FeatureSetBody::Disjunctive(v) => {
+                for variant in v.variants() {
+                    walk_type_variant(variant, walker)?;
+                }
+            }
+            FeatureSetBody::ExclusiveDisjunction(v) => {
+                for variant in v.variants() {
+                    walk_type_variant(variant, walker)?;
+                }
+            }
+        }
+    }
+
+    walker.end_feature_set(def.name(), def.has_body())
+}
+
+fn walk_feature_member(
+    member: &FeatureMemberDef,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
+    walker.start_feature_member(
+        member.name(),
+        member.target_cardinality(),
+        member.target_type(),
+        member.source_span(),
+    )?;
+
+    if let Some(body) = member.body() {
+        walk_annotations!(walker, body.annotations());
+    }
+
+    walker.end_member(member.name())
+}
+
+fn walk_property_def(def: &PropertyDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
+    walker.start_property(def.name(), def.has_body(), def.source_span())?;
+
+    if let Some(body) = def.body() {
+        walk_annotations!(walker, body.annotations());
+
+        for role in body.roles() {
+            walk_property_role(role, walker)?;
+        }
+    }
+
+    walker.end_union(def.name(), def.has_body())
+}
+
+fn walk_property_role(
+    role: &PropertyRole,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
+    match role.definition() {
+        PropertyRoleDef::Identity(inner) => {
+            walker.start_identity_role(role.name(), inner, role.source_span())?
+        }
+        PropertyRoleDef::ByReference(inner) => {
+            walker.start_by_reference_role(role.name(), inner, role.source_span())?
+        }
+        PropertyRoleDef::ByValue(inner) => {
+            walker.start_by_value_role(role.name(), inner, role.source_span())?
+        }
+    }
+
+    if let Some(body) = role.body() {
+        walk_annotations!(walker, body.annotations());
+    }
+    walker.end_property_role(role.name())
+}
+
+fn walk_structure_def(
+    def: &StructureDef,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
     walker.start_structure(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
@@ -474,7 +593,7 @@ fn walk_structure_def(def: &StructureDef, walker: &mut impl ModuleWalker) -> Res
 
 fn walk_structure_group(
     group: &StructureGroup,
-    walker: &mut impl ModuleWalker,
+    walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
     walker.start_group(group.source_span())?;
 
@@ -487,64 +606,38 @@ fn walk_structure_group(
     walker.end_group()
 }
 
-fn walk_union_def(def: &UnionDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
+fn walk_union_def(def: &UnionDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
     walker.start_union(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
         walk_annotations!(walker, body.annotations());
         for variant in body.variants() {
-            walker.start_type_variant(
-                variant.name_reference(),
-                variant.rename(),
-                variant.has_body(),
-                variant.source_span(),
-            )?;
-            if let Some(body) = variant.body() {
-                walk_annotations!(walker, body.annotations());
-            }
-            walker.end_type_variant(variant.name_reference(), def.has_body())?;
+            walk_type_variant(variant, walker)?;
         }
     }
 
     walker.end_union(def.name(), def.has_body())
 }
 
-fn walk_property_def(def: &PropertyDef, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    walker.start_property(def.name(), def.has_body(), def.source_span())?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-
-        for role in body.roles() {
-            walk_property_role(role, walker)?;
-        }
-    }
-
-    walker.end_union(def.name(), def.has_body())
-}
-
-fn walk_property_role(role: &PropertyRole, walker: &mut impl ModuleWalker) -> Result<(), Error> {
-    match role.definition() {
-        PropertyRoleDef::Identity(inner) => {
-            walker.start_identity_role(role.name(), inner, role.source_span())?
-        }
-        PropertyRoleDef::ByReference(inner) => {
-            walker.start_by_reference_role(role.name(), inner, role.source_span())?
-        }
-        PropertyRoleDef::ByValue(inner) => {
-            walker.start_by_value_role(role.name(), inner, role.source_span())?
-        }
-    }
-
-    if let Some(body) = role.body() {
+fn walk_type_variant(
+    variant: &TypeVariant,
+    walker: &mut impl SimpleModuleWalker,
+) -> Result<(), Error> {
+    walker.start_type_variant(
+        variant.name_reference(),
+        variant.rename(),
+        variant.has_body(),
+        variant.source_span(),
+    )?;
+    if let Some(body) = variant.body() {
         walk_annotations!(walker, body.annotations());
     }
-    walker.end_property_role(role.name())
+    walker.end_type_variant(variant.name_reference(), variant.has_body())
 }
 
 fn walk_identity_member(
     member: &IdentityMember,
-    walker: &mut impl ModuleWalker,
+    walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
     walker.start_identity_member(member.name(), member.kind(), member.source_span())?;
 
@@ -562,7 +655,7 @@ fn walk_identity_member(
 
 fn walk_by_value_member(
     member: &ByValueMember,
-    walker: &mut impl ModuleWalker,
+    walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
     walker.start_by_value_member(member.name(), member.kind(), member.source_span())?;
 
@@ -580,7 +673,7 @@ fn walk_by_value_member(
 
 fn walk_by_reference_member(
     member: &ByReferenceMember,
-    walker: &mut impl ModuleWalker,
+    walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
     walker.start_by_reference_member(member.name(), member.kind(), member.source_span())?;
 

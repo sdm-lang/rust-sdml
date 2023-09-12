@@ -1,7 +1,7 @@
 use crate::error::Error;
 use crate::model::{
     check::Validate, constraints::Constraint, identifiers::IdentifierReference, modules::Module,
-    values::Value, HasNameReference, HasSourceSpan, Span,
+    values::Value, HasNameReference, Span,
 };
 use std::{collections::HashSet, fmt::Debug};
 
@@ -81,6 +81,18 @@ pub struct AnnotationOnlyBody {
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+pub fn skos_pref_label(element: &impl HasAnnotations) -> impl Iterator<Item = &AnnotationProperty> {
+    element
+        .annotation_properties()
+        .filter(|ann| ann.name_reference() == "skos:prefLabel")
+}
+
+pub fn skos_alt_label(element: &impl HasAnnotations) -> impl Iterator<Item = &AnnotationProperty> {
+    element
+        .annotation_properties()
+        .filter(|ann| ann.name_reference() == "skos:altLabel")
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Macros
 // ------------------------------------------------------------------------------------------------
@@ -92,6 +104,8 @@ pub struct AnnotationOnlyBody {
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Annotations
 // ------------------------------------------------------------------------------------------------
+
+impl_has_source_span_for!(Annotation => variants Property, Constraint);
 
 impl From<AnnotationProperty> for Annotation {
     fn from(value: AnnotationProperty) -> Self {
@@ -125,41 +139,13 @@ impl Validate for Annotation {
 }
 
 impl Annotation {
-    pub fn has_source_span(&self) -> bool {
-        match self {
-            Annotation::Property(v) => v.has_source_span(),
-            Annotation::Constraint(v) => v.has_source_span(),
-        }
-    }
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
 
-    pub fn source_span(&self) -> Option<&Span> {
-        match self {
-            Annotation::Property(v) => v.source_span(),
-            Annotation::Constraint(v) => v.source_span(),
-        }
-    }
+    is_as_variant!(Property (AnnotationProperty) => is_annotation_property, as_annotation_property);
 
-    pub fn is_annotation_property(&self) -> bool {
-        matches!(self, Self::Property(_))
-    }
-
-    pub fn as_annotation_property(&self) -> Option<&AnnotationProperty> {
-        match self {
-            Self::Property(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    pub fn is_constraint(&self) -> bool {
-        matches!(self, Self::Constraint(_))
-    }
-
-    pub fn as_constraint(&self) -> Option<&Constraint> {
-        match self {
-            Self::Constraint(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Constraint (Constraint) => is_constraint, as_constraint);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -182,6 +168,10 @@ impl Validate for AnnotationProperty {
 }
 
 impl AnnotationProperty {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name_reference: IdentifierReference, value: Value) -> Self {
         Self {
             span: None,
@@ -190,13 +180,11 @@ impl AnnotationProperty {
         }
     }
 
-    pub fn value(&self) -> &Value {
-        &self.value
-    }
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn set_value(&mut self, value: Value) {
-        self.value = value;
-    }
+    get_and_set!(pub value, set_value => Value);
 }
 
 // ------------------------------------------------------------------------------------------------

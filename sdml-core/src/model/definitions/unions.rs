@@ -50,7 +50,7 @@ pub struct TypeVariant {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Unions
+// Implementations ❱ Type Definitions ❱ Unions
 // ------------------------------------------------------------------------------------------------
 
 impl_has_name_for!(UnionDef);
@@ -71,6 +71,10 @@ impl References for UnionDef {
 }
 
 impl UnionDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name: Identifier) -> Self {
         Self {
             span: None,
@@ -114,6 +118,19 @@ impl_has_optional_body_for!(TypeVariant);
 
 impl_has_source_span_for!(TypeVariant);
 
+impl Validate for TypeVariant {
+    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+        Ok(true)
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        match (&self.body, check_constraints) {
+            (Some(body), true) => body.is_valid(check_constraints, top),
+            _ => Ok(true),
+        }
+    }
+}
+
 impl References for TypeVariant {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         self.body
@@ -124,6 +141,10 @@ impl References for TypeVariant {
 }
 
 impl TypeVariant {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(name_reference: IdentifierReference) -> Self {
         Self {
             span: None,
@@ -143,6 +164,8 @@ impl TypeVariant {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
     pub fn with_rename(self, rename: Identifier) -> Self {
         Self {
@@ -151,21 +174,7 @@ impl TypeVariant {
         }
     }
 
-    pub fn has_rename(&self) -> bool {
-        self.rename.is_some()
-    }
-
-    pub fn rename(&self) -> Option<&Identifier> {
-        self.rename.as_ref()
-    }
-
-    pub fn set_rename(&mut self, rename: Identifier) {
-        self.rename = Some(rename);
-    }
-
-    pub fn unset_rename(&mut self) {
-        self.rename = None;
-    }
+    get_and_set!(pub rename, set_rename, unset_rename => optional has_rename, Identifier);
 }
 
 // ------------------------------------------------------------------------------------------------

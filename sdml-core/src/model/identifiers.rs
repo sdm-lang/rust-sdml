@@ -1,6 +1,5 @@
 use super::Span;
 use crate::error::invalid_identifier_error;
-use crate::model::HasSourceSpan;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -91,6 +90,8 @@ const RESERVED_KEYWORDS: [&str; 19] = [
 const RESERVED_TYPES: [&str; 6] = ["string", "double", "decimal", "integer", "boolean", "iri"];
 const RESERVED_MODULES: [&str; 6] = ["owl", "rdf", "rdfs", "sdml", "xml", "xsd"];
 
+// ------------------------------------------------------------------------------------------------
+
 impl Display for Identifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.value)
@@ -130,6 +131,12 @@ impl AsRef<str> for Identifier {
     }
 }
 
+impl PartialEq<str> for Identifier {
+    fn eq(&self, other: &str) -> bool {
+        self.value.as_str() == other
+    }
+}
+
 impl PartialEq for Identifier {
     fn eq(&self, other: &Self) -> bool {
         self.value == other.value
@@ -148,6 +155,10 @@ impl Hash for Identifier {
 impl_has_source_span_for!(Identifier);
 
 impl Identifier {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
@@ -165,6 +176,8 @@ impl Identifier {
         QualifiedIdentifier::new(self.clone(), member)
     }
 
+    // --------------------------------------------------------------------------------------------
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
@@ -213,6 +226,12 @@ impl From<&QualifiedIdentifier> for String {
     }
 }
 
+impl PartialEq<str> for QualifiedIdentifier {
+    fn eq(&self, other: &str) -> bool {
+        self.to_string().as_str() == other
+    }
+}
+
 impl PartialEq for QualifiedIdentifier {
     fn eq(&self, other: &Self) -> bool {
         self.module == other.module && self.member == other.member
@@ -232,6 +251,10 @@ impl Hash for QualifiedIdentifier {
 impl_has_source_span_for!(QualifiedIdentifier, span);
 
 impl QualifiedIdentifier {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(module: Identifier, member: Identifier) -> Self {
         Self {
             span: None,
@@ -240,15 +263,17 @@ impl QualifiedIdentifier {
         }
     }
 
-    #[inline(always)]
-    pub fn module(&self) -> &Identifier {
-        &self.module
-    }
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    #[inline(always)]
-    pub fn member(&self) -> &Identifier {
-        &self.member
-    }
+    getter!(pub module => Identifier);
+
+    getter!(pub member => Identifier);
+
+    // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.module == other.module && self.member == other.member
@@ -256,15 +281,6 @@ impl QualifiedIdentifier {
 }
 
 // ------------------------------------------------------------------------------------------------
-
-enum_display_impl!(IdentifierReference => Identifier, QualifiedIdentifier);
-
-impl_from_for_variant!(IdentifierReference, Identifier, Identifier);
-impl_from_for_variant!(
-    IdentifierReference,
-    QualifiedIdentifier,
-    QualifiedIdentifier
-);
 
 impl From<IdentifierReference> for String {
     fn from(value: IdentifierReference) -> Self {
@@ -278,6 +294,12 @@ impl From<&IdentifierReference> for String {
             IdentifierReference::Identifier(v) => v.to_string(),
             IdentifierReference::QualifiedIdentifier(v) => v.to_string(),
         }
+    }
+}
+
+impl PartialEq<str> for IdentifierReference {
+    fn eq(&self, other: &str) -> bool {
+        self.to_string().as_str() == other
     }
 }
 
@@ -299,41 +321,28 @@ impl Hash for IdentifierReference {
     }
 }
 
+enum_display_impl!(IdentifierReference => Identifier, QualifiedIdentifier);
+
+impl_from_for_variant!(IdentifierReference, Identifier, Identifier);
+impl_from_for_variant!(
+    IdentifierReference,
+    QualifiedIdentifier,
+    QualifiedIdentifier
+);
+
+impl_has_source_span_for!(IdentifierReference => variants Identifier, QualifiedIdentifier);
+
 impl IdentifierReference {
-    pub fn is_identifier(&self) -> bool {
-        matches!(self, Self::Identifier(_))
-    }
-    pub fn as_identifier(&self) -> Option<&Identifier> {
-        match self {
-            Self::Identifier(v) => Some(v),
-            _ => None,
-        }
-    }
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
 
-    pub fn is_qualified_identifier(&self) -> bool {
-        matches!(self, Self::QualifiedIdentifier(_))
-    }
-    pub fn as_qualified_identifier(&self) -> Option<&QualifiedIdentifier> {
-        match self {
-            Self::QualifiedIdentifier(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Identifier (Identifier) => is_identifier, as_identifier);
 
-    pub fn has_source_span(&self) -> bool {
-        match self {
-            Self::Identifier(v) => v.has_source_span(),
-            Self::QualifiedIdentifier(v) => v.has_source_span(),
-        }
-    }
+    is_as_variant!(QualifiedIdentifier (QualifiedIdentifier) => is_qualified_identifier, as_qualified_identifier);
 
-    pub fn source_span(&self) -> Option<&Span> {
-        match self {
-            Self::Identifier(v) => v.source_span(),
-            Self::QualifiedIdentifier(v) => v.source_span(),
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {

@@ -14,8 +14,8 @@ use crate::generate::GenerateToWriter;
 use crate::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use crate::model::constraints::{Constraint, ConstraintBody};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasVariants, PropertyDef, StructureDef,
-    TypeVariant, UnionDef, ValueVariant,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, FeatureSetDef, HasVariants, PropertyDef,
+    StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
 use crate::model::modules::{Module, ModuleBody};
 use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
@@ -236,9 +236,10 @@ impl SourceGenerator {
                     Definition::Entity(v) => self.write_entity(v, writer, options)?,
                     Definition::Enum(v) => self.write_enum(v, writer, options)?,
                     Definition::Event(v) => self.write_event(v, writer, options)?,
+                    Definition::FeatureSet(v) => self.write_feature_set(v, writer, options)?,
+                    Definition::Property(v) => self.write_property(v, writer, options)?,
                     Definition::Structure(v) => self.write_structure(v, writer, options)?,
                     Definition::Union(v) => self.write_union(v, writer, options)?,
-                    Definition::Property(v) => self.write_property(v, writer, options)?,
                 }
             }
         }
@@ -406,6 +407,62 @@ impl SourceGenerator {
         Ok(())
     }
 
+    fn write_feature_set(
+        &mut self,
+        defn: &FeatureSetDef,
+        writer: &mut dyn Write,
+        options: &SourceOptions,
+    ) -> Result<(), Error> {
+        let indentation = options.indentation(MODULE_DEFINITION_INDENT);
+        writer.write_all(format!("{indentation}features {}", defn.name()).as_bytes())?;
+
+        if let Some(body) = defn.body() {
+            writer.write_all(b" is\n")?;
+            if body.has_annotations() {
+                self.write_annotations(
+                    body.annotations(),
+                    writer,
+                    DEFINITION_ANNOTATION_INDENT,
+                    options,
+                )?;
+            }
+            // TODO: roles
+            writer.write_all(format!("{indentation}end\n").as_bytes())?;
+        } else {
+            writer.write_all(b"\n")?;
+        }
+
+        Ok(())
+    }
+
+    fn write_property(
+        &mut self,
+        defn: &PropertyDef,
+        writer: &mut dyn Write,
+        options: &SourceOptions,
+    ) -> Result<(), Error> {
+        let indentation = options.indentation(MODULE_DEFINITION_INDENT);
+        writer.write_all(format!("{indentation}property {}", defn.name()).as_bytes())?;
+
+        if let Some(body) = defn.body() {
+            writer.write_all(b" is\n")?;
+            if body.has_annotations() {
+                self.write_annotations(
+                    body.annotations(),
+                    writer,
+                    DEFINITION_ANNOTATION_INDENT,
+                    options,
+                )?;
+            }
+            // TODO: roles
+            writer.write_all(format!("{indentation}end\n").as_bytes())?;
+        } else {
+            writer.write_all(b"\n")?;
+        }
+
+        Ok(())
+    }
+
     fn write_structure(
         &mut self,
         defn: &StructureDef,
@@ -491,34 +548,6 @@ impl SourceGenerator {
                     options,
                 )?;
             }
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
-        }
-
-        Ok(())
-    }
-
-    fn write_property(
-        &mut self,
-        defn: &PropertyDef,
-        writer: &mut dyn Write,
-        options: &SourceOptions,
-    ) -> Result<(), Error> {
-        let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}property {}", defn.name()).as_bytes())?;
-
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
-            }
-            // TODO: roles
             writer.write_all(format!("{indentation}end\n").as_bytes())?;
         } else {
             writer.write_all(b"\n")?;

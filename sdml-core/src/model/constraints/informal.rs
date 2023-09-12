@@ -96,6 +96,10 @@ impl Validate for ControlledLanguageString {
 }
 
 impl ControlledLanguageString {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new<S>(value: S, language: ControlledLanguageTag) -> Self
     where
         S: Into<String>,
@@ -108,28 +112,12 @@ impl ControlledLanguageString {
     }
 
     // --------------------------------------------------------------------------------------------
-
-    pub fn value(&self) -> &String {
-        &self.value
-    }
-
-    pub fn set_value(&mut self, value: String) {
-        self.value = value;
-    }
-
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn language(&self) -> Option<&ControlledLanguageTag> {
-        self.language.as_ref()
-    }
+    get_and_set!(pub value, set_value => String);
 
-    pub fn set_language(&mut self, language: ControlledLanguageTag) {
-        self.language = Some(language);
-    }
-
-    pub fn unset_language(&mut self) {
-        self.language = None;
-    }
+    get_and_set!(pub language, set_language, unset_language => optional has_language, ControlledLanguageTag);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -177,6 +165,12 @@ impl PartialEq for ControlledLanguageTag {
     }
 }
 
+impl PartialEq<str> for ControlledLanguageTag {
+    fn eq(&self, other: &str) -> bool {
+        self.value == other
+    }
+}
+
 impl Eq for ControlledLanguageTag {}
 
 impl_has_source_span_for!(ControlledLanguageTag);
@@ -192,6 +186,10 @@ impl Validate for ControlledLanguageTag {
 }
 
 impl ControlledLanguageTag {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
@@ -200,14 +198,13 @@ impl ControlledLanguageTag {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
 
-    pub fn value(&self) -> &String {
-        &self.value
-    }
-    pub fn set_value(&mut self, value: String) {
-        self.value = value;
-    }
+    get_and_set!(pub value, set_value => String);
 
+    // --------------------------------------------------------------------------------------------
+    // FromStr helper
     // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {

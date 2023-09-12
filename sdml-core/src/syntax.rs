@@ -191,22 +191,20 @@ pub const FIELD_NAME_VALUE: &str = "value";
 pub const FIELD_NAME_VARIABLE: &str = "variable";
 
 // ------------------------------------------------------------------------------------------------
-// Simple Type Keywords
+// Keywords, Operators, and Relations
 // ------------------------------------------------------------------------------------------------
+
+pub const KW_HAS_TYPE: &str = "->";
+pub const KW_HAS_TYPE_SYMBOL: &str = "→";
+pub const KW_HAS_TYPE_SYMBOL_ALT: &str = "↦";
 
 pub const KW_ORDERING_ORDERED: &str = "ordered";
 pub const KW_ORDERING_UNORDERED: &str = "unordered";
 
-pub const KW_TYPE_UNKNOWN: &str = "unknown";
-
-pub const KW_UNIQUENESS_UNIQUE: &str = "unique";
-pub const KW_UNIQUENESS_NONUNIQUE: &str = "nonunique";
-
-pub const KW_TYPE_EXISTS: &str = "exists";
-pub const KW_TYPE_EXISTS_SYMBOL: &str = "∃";
-
-pub const KW_TYPE_FORALL: &str = "forall";
-pub const KW_TYPE_FORALL_SYMBOL: &str = "∀";
+pub const KW_QUANTIFIER_EXISTS: &str = "exists";
+pub const KW_QUANTIFIER_EXISTS_SYMBOL: &str = "∃";
+pub const KW_QUANTIFIER_FORALL: &str = "forall";
+pub const KW_QUANTIFIER_FORALL_SYMBOL: &str = "∀";
 
 pub const KW_RELATION_NOT_EQUAL: &str = "/=";
 pub const KW_RELATION_NOT_EQUAL_SYMBOL: &str = "≠";
@@ -217,11 +215,24 @@ pub const KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL: &str = "≤";
 pub const KW_RELATION_GREATER_THAN_OR_EQUAL: &str = ">=";
 pub const KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL: &str = "≥";
 
-pub const KW_TYPE_HAS_TYPE: &str = "->";
-pub const KW_TYPE_HAS_TYPE_SYMBOL: &str = "→";
-pub const KW_TYPE_HAS_TYPE_SYMBOL_ALT: &str = "↦";
+pub const KW_OPERATION_CONJUNCTION: &str = "and";
+pub const KW_OPERATION_CONJUNCTION_SYMBOL: &str = "∧";
+pub const KW_OPERATION_DISJUNCTION: &str = "or";
+pub const KW_OPERATION_DISJUNCTION_SYMBOL: &str = "∨";
+pub const KW_OPERATION_EXCLUSIVE_DISJUNCTION: &str = "xor";
+pub const KW_OPERATION_EXCLUSIVE_DISJUNCTION_SYMBOL: &str = "⊻";
+pub const KW_OPERATION_IMPLICATION: &str = "implies";
+pub const KW_OPERATION_IMPLICATION_ALT: &str = "==>";
+pub const KW_OPERATION_IMPLICATION_SYMBOL: &str = "⇒";
+pub const KW_OPERATION_BICONDITIONAL: &str = "iff";
+pub const KW_OPERATION_BICONDITIONAL_ALT: &str = "<==>";
+pub const KW_OPERATION_BICONDITIONAL_SYMBOL: &str = "⇔";
 
-pub const KW_TYPE_TYPE_RESTRICTION: &str = "<-";
-pub const KW_TYPE_TYPE_RESTRICTION_SYMBOL: &str = "←";
+pub const KW_TYPE_RESTRICTION: &str = "<-";
+pub const KW_TYPE_RESTRICTION_SYMBOL: &str = "←";
+pub const KW_TYPE_UNKNOWN: &str = "unknown";
+
+pub const KW_UNIQUENESS_UNIQUE: &str = "unique";
+pub const KW_UNIQUENESS_NONUNIQUE: &str = "nonunique";
 
 pub const KW_WILDCARD: &str = "_";

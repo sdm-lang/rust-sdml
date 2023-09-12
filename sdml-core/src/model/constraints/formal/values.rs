@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum PredicateValue {
     Simple(SimpleValue),
-    List(SequenceOfPredicateValues),
+    Sequence(SequenceOfPredicateValues),
 }
 
 #[derive(Clone, Debug, Default)]
@@ -50,32 +50,18 @@ where
 
 impl From<SequenceOfPredicateValues> for PredicateValue {
     fn from(v: SequenceOfPredicateValues) -> Self {
-        Self::List(v)
+        Self::Sequence(v)
     }
 }
 
 impl PredicateValue {
-    pub fn is_simple(&self) -> bool {
-        matches!(self, Self::Simple(_))
-    }
-    pub fn as_simple(&self) -> Option<&SimpleValue> {
-        match self {
-            Self::Simple(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_list(&self) -> bool {
-        matches!(self, Self::List(_))
-    }
-    pub fn as_list(&self) -> Option<&SequenceOfPredicateValues> {
-        match self {
-            Self::List(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Simple (SimpleValue) => is_simple, as_simple);
+
+    is_as_variant!(Sequence (SequenceOfPredicateValues) => is_sequence, as_sequence);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -108,39 +94,7 @@ impl FromIterator<PredicateSequenceMember> for SequenceOfPredicateValues {
 
 impl_has_source_span_for!(SequenceOfPredicateValues);
 
-impl SequenceOfPredicateValues {
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_empty(&self) -> bool {
-        self.values.is_empty()
-    }
-
-    pub fn len(&self) -> usize {
-        self.values.len()
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = &PredicateSequenceMember> {
-        self.values.iter()
-    }
-
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut PredicateSequenceMember> {
-        self.values.iter_mut()
-    }
-
-    pub fn push<I>(&mut self, value: I)
-    where
-        I: Into<PredicateSequenceMember>,
-    {
-        self.values.push(value.into())
-    }
-
-    pub fn extend<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = PredicateSequenceMember>,
-    {
-        self.values.extend(extension)
-    }
-}
+impl_as_sequence!(pub SequenceOfPredicateValues => PredicateSequenceMember);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -173,27 +127,13 @@ impl From<IdentifierReference> for PredicateSequenceMember {
 }
 
 impl PredicateSequenceMember {
-    pub fn is_simple(&self) -> bool {
-        matches!(self, Self::Simple(_))
-    }
-    pub fn as_simple(&self) -> Option<&SimpleValue> {
-        match self {
-            Self::Simple(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_reference(&self) -> bool {
-        matches!(self, Self::Reference(_))
-    }
-    pub fn as_reference(&self) -> Option<&IdentifierReference> {
-        match self {
-            Self::Reference(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Simple (SimpleValue) => is_simple, as_simple);
+
+    is_as_variant!(Reference (IdentifierReference) => is_reference, as_reference);
 }
 
 // ------------------------------------------------------------------------------------------------

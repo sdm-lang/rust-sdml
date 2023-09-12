@@ -44,9 +44,13 @@ impl_has_name_for!(EnvironmentDef);
 impl_has_source_span_for!(EnvironmentDef);
 
 impl EnvironmentDef {
-    pub fn new(name: Identifier, body: EnvironmentDefBody) -> Self {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn new(name: Identifier, body: EnvironmentDefBody) -> Self {
         Self {
-            span: Default::default(),
+            span: None,
             name,
             body,
         }
@@ -57,7 +61,7 @@ impl EnvironmentDef {
         V: Into<PredicateValue>,
     {
         Self {
-            span: Default::default(),
+            span: None,
             name,
             body: EnvironmentDefBody::Value(body.into()),
         }
@@ -68,7 +72,7 @@ impl EnvironmentDef {
         V: Into<FunctionDef>,
     {
         Self {
-            span: Default::default(),
+            span: None,
             name,
             body: EnvironmentDefBody::Function(body.into()),
         }
@@ -79,7 +83,7 @@ impl EnvironmentDef {
         V: Into<ConstraintSentence>,
     {
         Self {
-            span: Default::default(),
+            span: None,
             name,
             body: EnvironmentDefBody::Sentence(body.into()),
         }
@@ -137,39 +141,15 @@ impl From<QuantifiedSentence> for EnvironmentDefBody {
 }
 
 impl EnvironmentDefBody {
-    pub fn is_value(&self) -> bool {
-        matches!(self, Self::Value(_))
-    }
-    pub fn as_value(&self) -> Option<&PredicateValue> {
-        match self {
-            Self::Value(v) => Some(v),
-            _ => None,
-        }
-    }
-
+    // --------------------------------------------------------------------------------------------
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_function(&self) -> bool {
-        matches!(self, Self::Function(_))
-    }
-    pub fn as_function(&self) -> Option<&FunctionDef> {
-        match self {
-            Self::Function(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Value (PredicateValue) => is_value, as_value);
 
-    // --------------------------------------------------------------------------------------------
+    is_as_variant!(Function (FunctionDef) => is_function, as_function);
 
-    pub fn is_sentence(&self) -> bool {
-        matches!(self, Self::Sentence(_))
-    }
-    pub fn as_sentence(&self) -> Option<&ConstraintSentence> {
-        match self {
-            Self::Sentence(v) => Some(v),
-            _ => None,
-        }
-    }
+    is_as_variant!(Sentence (ConstraintSentence) => is_sentence, as_sentence);
 }
 
 // ------------------------------------------------------------------------------------------------
