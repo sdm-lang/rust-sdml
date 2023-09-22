@@ -1,5 +1,20 @@
 # Project SDML 
 
+```
+        ___          _____          ___ 
+       /  /\        /  /::\        /__/\ 
+      /  /:/_      /  /:/\:\      |  |::\ 
+     /  /:/ /\    /  /:/  \:\     |  |:|:\    ___     ___ 
+    /  /:/ /::\  /__/:/ \__\:|  __|__|:|\:\  /__/\   /  /\ 
+   /__/:/ /:/\:\ \  \:\ /  /:/ /__/::::| \:\ \  \:\ /  /:/ 
+   \  \:\/:/~/:/  \  \:\  /:/  \  \:\~~\__\/  \  \:\  /:/ 
+    \  \::/ /:/    \  \:\/:/    \  \:\         \  \:\/:/ 
+     \__\/ /:/      \  \::/      \  \:\         \  \::/ 
+       /__/:/        \__\/        \  \:\         \__\/ 
+       \__\/          Domain       \__\/          Language
+        Simple                      Modeling
+```
+
 Rust Library and Tools for the Simple Domain Modeling Language (SDML).
 
 ![MIT License](https://img.shields.io/badge/license-mit-118811.svg)
