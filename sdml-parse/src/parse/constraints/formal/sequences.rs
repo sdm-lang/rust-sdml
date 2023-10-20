@@ -1,17 +1,15 @@
 use std::collections::HashSet;
-
-use crate::parse::constraints::formal::parse_quantified_variable_binding;
-use crate::parse::constraints::formal::sentences::parse_constraint_sentence;
+use crate::parse::constraints::formal::parse_quantified_sentence;
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::model::constraints::{
-    MappingVariable, NamedVariables, QuantifiedVariableBinding, SequenceBuilder, Variables,
+    MappingVariable, NamedVariables, SequenceBuilder, Variables,
 };
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_DOMAIN, NODE_KIND_IDENTIFIER, FIELD_NAME_RANGE, FIELD_NAME_VARIABLE,
-    NODE_KIND_MAPPING_VARIABLE, NODE_KIND_NAMED_VARIABLE_SET, FIELD_NAME_BINDING, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_MAPPING_VARIABLE, NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_LINE_COMMENT, NODE_KIND_QUANTIFIED_SENTENCE,
 };
 use tree_sitter::TreeCursor;
 
@@ -34,6 +32,7 @@ pub(crate) fn parse_sequence_builder<'a>(
             parse_named_variable_set(context, &mut child.walk())?.into()
         }
         NODE_KIND_MAPPING_VARIABLE => parse_mapping_variable(context, &mut child.walk())?.into(),
+        // should check for NODE_KIND_LINE_COMMENT => {},
         _ => {
             unexpected_node!(
                 context,
@@ -44,25 +43,28 @@ pub(crate) fn parse_sequence_builder<'a>(
         }
     };
 
-    let bindings = {
-        let mut bindings: Vec<QuantifiedVariableBinding> = Default::default();
-        for binding in cursor
-            .node()
-            .children_by_field_name(FIELD_NAME_BINDING, cursor)
-        {
-            bindings.push(parse_quantified_variable_binding(
-                context,
-                &mut binding.walk(),
-            )?);
+    // returns `sequence_builder_body`
+    let body = node.child_by_field_name(FIELD_NAME_BODY).unwrap();
+    context.check_if_error(&body, RULE_NAME)?;
+
+    for child in body.named_children(&mut body.walk()) {
+        match child.kind() {
+            NODE_KIND_QUANTIFIED_SENTENCE => {
+                let body = parse_quantified_sentence(context, &mut child.walk())?;
+                return Ok(SequenceBuilder::new(variables, body));
+            }
+            NODE_KIND_LINE_COMMENT => {},
+            _ => {
+                unexpected_node!(
+                    context,
+                    RULE_NAME,
+                    child,
+                    NODE_KIND_QUANTIFIED_SENTENCE
+                );
+            }
         }
-        bindings
-    };
-
-    let child = node.child_by_field_name(FIELD_NAME_BODY).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
-    let body = parse_constraint_sentence(context, &mut child.walk())?;
-
-    Ok(SequenceBuilder::new(variables, bindings, body))
+    }
+    unreachable!();
 }
 
 pub(crate) fn parse_named_variable_set<'a>(

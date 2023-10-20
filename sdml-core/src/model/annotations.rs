@@ -193,6 +193,21 @@ impl_has_source_span_for!(AnnotationOnlyBody);
 
 impl_has_annotations_for!(AnnotationOnlyBody);
 
+impl From<Vec<Annotation>> for AnnotationOnlyBody {
+    fn from(annotations: Vec<Annotation>) -> Self {
+        Self {
+            span: Default::default(),
+            annotations,
+        }
+    }
+}
+
+impl From<AnnotationOnlyBody> for Vec<Annotation> {
+    fn from(value: AnnotationOnlyBody) -> Self {
+        value.annotations
+    }
+}
+
 impl References for AnnotationOnlyBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         names.extend(self.annotation_properties().map(|ann| ann.name_reference()));

@@ -1,184 +1,192 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 176,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 46,
-                end: 54,
-            },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 55,
-                end: 175,
-            },
-        ),
-        imports: [],
-        annotations: [],
-        definitions: [
-            Entity(
-                EntityDef {
-                    span: Some(
-                        Span {
-                            start: 61,
-                            end: 170,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 68,
-                                end: 76,
-                            },
-                        ),
-                        value: "Campaign",
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 176,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 46,
+                        end: 54,
                     },
-                    body: Some(
-                        EntityBody {
+                ),
+                value: "campaign",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 55,
+                        end: 175,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [
+                    Entity(
+                        EntityDef {
                             span: Some(
                                 Span {
-                                    start: 77,
+                                    start: 61,
                                     end: 170,
                                 },
                             ),
-                            identity: IdentityMember {
+                            name: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 85,
-                                        end: 107,
+                                        start: 68,
+                                        end: 76,
                                     },
                                 ),
-                                name: Identifier {
+                                value: "Campaign",
+                            },
+                            body: Some(
+                                EntityBody {
                                     span: Some(
                                         Span {
-                                            start: 94,
-                                            end: 96,
+                                            start: 77,
+                                            end: 170,
                                         },
                                     ),
-                                    value: "id",
-                                },
-                                kind: Definition(
-                                    IdentityMemberDef {
+                                    identity: EntityIdentity {
                                         span: Some(
                                             Span {
                                                 start: 85,
                                                 end: 107,
                                             },
                                         ),
-                                        target_type: Unknown,
-                                        body: None,
-                                    },
-                                ),
-                            },
-                            annotations: [],
-                            members: [
-                                ByValue(
-                                    ByValueMember {
-                                        span: Some(
-                                            Span {
-                                                start: 113,
-                                                end: 125,
-                                            },
-                                        ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 113,
-                                                    end: 114,
+                                                    start: 94,
+                                                    end: 96,
                                                 },
                                             ),
-                                            value: "a",
+                                            value: "id",
                                         },
                                         kind: Definition(
-                                            ByValueMemberDef {
+                                            EntityIdentityDef {
                                                 span: Some(
                                                     Span {
-                                                        start: 113,
-                                                        end: 125,
+                                                        start: 85,
+                                                        end: 107,
                                                     },
                                                 ),
-                                                target_cardinality: Cardinality {
-                                                    span: None,
-                                                    ordering: None,
-                                                    uniqueness: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
                                                 target_type: Unknown,
                                                 body: None,
                                             },
                                         ),
                                     },
-                                ),
-                            ],
-                            groups: [
-                                EntityGroup {
-                                    span: Some(
-                                        Span {
-                                            start: 131,
-                                            end: 163,
-                                        },
-                                    ),
                                     annotations: [],
                                     members: [
-                                        ByValue(
-                                            ByValueMember {
+                                        Member {
+                                            span: Some(
+                                                Span {
+                                                    start: 113,
+                                                    end: 125,
+                                                },
+                                            ),
+                                            name: Identifier {
                                                 span: Some(
                                                     Span {
-                                                        start: 143,
-                                                        end: 155,
+                                                        start: 113,
+                                                        end: 114,
                                                     },
                                                 ),
-                                                name: Identifier {
+                                                value: "a",
+                                            },
+                                            kind: Definition(
+                                                MemberDef {
                                                     span: Some(
                                                         Span {
-                                                            start: 143,
-                                                            end: 144,
+                                                            start: 113,
+                                                            end: 125,
                                                         },
                                                     ),
-                                                    value: "b",
-                                                },
-                                                kind: Definition(
-                                                    ByValueMemberDef {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 143,
-                                                                end: 155,
-                                                            },
-                                                        ),
-                                                        target_cardinality: Cardinality {
+                                                    inverse_name: None,
+                                                    target_cardinality: Cardinality {
+                                                        span: None,
+                                                        ordering: None,
+                                                        uniqueness: None,
+                                                        range: CardinalityRange {
                                                             span: None,
-                                                            ordering: None,
-                                                            uniqueness: None,
-                                                            min: 1,
+                                                            min: 0,
                                                             max: Some(
                                                                 1,
                                                             ),
                                                         },
-                                                        target_type: Unknown,
-                                                        body: None,
                                                     },
-                                                ),
-                                            },
-                                        ),
+                                                    target_type: Unknown,
+                                                    body: None,
+                                                },
+                                            ),
+                                        },
+                                    ],
+                                    groups: [
+                                        MemberGroup {
+                                            span: Some(
+                                                Span {
+                                                    start: 131,
+                                                    end: 163,
+                                                },
+                                            ),
+                                            annotations: [],
+                                            members: [
+                                                Member {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 143,
+                                                            end: 155,
+                                                        },
+                                                    ),
+                                                    name: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 143,
+                                                                end: 144,
+                                                            },
+                                                        ),
+                                                        value: "b",
+                                                    },
+                                                    kind: Definition(
+                                                        MemberDef {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 143,
+                                                                    end: 155,
+                                                                },
+                                                            ),
+                                                            inverse_name: None,
+                                                            target_cardinality: Cardinality {
+                                                                span: None,
+                                                                ordering: None,
+                                                                uniqueness: None,
+                                                                range: CardinalityRange {
+                                                                    span: None,
+                                                                    min: 0,
+                                                                    max: Some(
+                                                                        1,
+                                                                    ),
+                                                                },
+                                                            },
+                                                            target_type: Unknown,
+                                                            body: None,
+                                                        },
+                                                    ),
+                                                },
+                                            ],
+                                        },
                                     ],
                                 },
-                            ],
+                            ),
                         },
                     ),
-                },
-            ),
-        ],
+                ],
+            },
+        },
     },
-}
+)

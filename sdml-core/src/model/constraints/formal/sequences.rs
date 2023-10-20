@@ -1,5 +1,5 @@
 use crate::model::{
-    constraints::ConstraintSentence, constraints::QuantifiedVariableBinding,
+    constraints::QuantifiedSentence,
     identifiers::Identifier, Span,
 };
 use std::collections::HashSet;
@@ -21,8 +21,7 @@ use serde::{Deserialize, Serialize};
 pub struct SequenceBuilder {
     span: Option<Span>,
     variables: Variables,
-    bindings: Vec<QuantifiedVariableBinding>,
-    body: ConstraintSentence,
+    body: QuantifiedSentence,
 }
 
 #[derive(Clone, Debug)]
@@ -51,7 +50,7 @@ pub struct MappingVariable {
 // Implementations ❱ Formal Constraints ❱  Sequence Comprehensions
 // ------------------------------------------------------------------------------------------------
 
-impl_has_body_for!(SequenceBuilder, ConstraintSentence);
+impl_has_body_for!(SequenceBuilder, QuantifiedSentence);
 
 impl_has_source_span_for!(SequenceBuilder);
 
@@ -60,16 +59,14 @@ impl SequenceBuilder {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new<V, B, S>(variables: V, bindings: B, body: S) -> Self
+    pub fn new<V, S>(variables: V, body: S) -> Self
     where
         V: Into<Variables>,
-        B: IntoIterator<Item = QuantifiedVariableBinding>,
-        S: Into<ConstraintSentence>,
+        S: Into<QuantifiedSentence>,
     {
         Self {
             span: Default::default(),
             variables: variables.into(),
-            bindings: Vec::from_iter(bindings),
             body: body.into(),
         }
     }
@@ -88,17 +85,6 @@ impl SequenceBuilder {
     {
         self.variables = variables.into();
     }
-
-    get_and_set_vec!(
-        pub
-        has has_bindings,
-        bindings_len,
-        bindings,
-        bindings_mut,
-        add_to_bindings,
-        extend_bindings
-            => bindings, QuantifiedVariableBinding
-    );
 }
 
 // ------------------------------------------------------------------------------------------------

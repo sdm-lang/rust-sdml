@@ -21,7 +21,7 @@ macro_rules! emit_diagnostic {
     //     emit_diagnostic!($files, $diagnostic, $config => writer);
     // };
     ($files: expr, $diagnostic: expr, $config: expr => $writer: expr) => {
-        ::codespan_reporting::term::emit(&mut $writer.lock(), &$config, $files, &$diagnostic)?
+        ::codespan_reporting::term::emit(&mut $writer.lock(), &$config, &*$files, &$diagnostic)?
     };
 }
 
@@ -70,6 +70,26 @@ macro_rules! unexpected_node {
     };
 }
 
+macro_rules! missing_node {
+    ($context: expr, $parse_fn: expr, $parent_node: expr, $variable_name: expr, $node_kind: expr) => {
+        let message = format!("Missing a `{}` in grammar variable named `{}`", $node_kind, $variable_name);
+        let diagnostic = $crate::error::MISSING_NODE_VARIABLE.into_diagnostic()
+            .with_labels(vec![
+                ::codespan_reporting::diagnostic::Label::primary($context.file_id, $parent_node.start_byte()..$parent_node.end_byte())
+                    .with_message(message),
+                ]);
+
+        $context.counts.report(diagnostic.severity);
+        emit_diagnostic!($context.loader.files(), diagnostic);
+
+        return Err(::sdml_core::error::missing_node_variable(
+            $parse_fn,
+            $variable_name,
+            $node_kind
+        ))
+    };
+}
+
 macro_rules! rule_fn {
     ($name: expr, $node: expr) => {
         const RULE_NAME: &str = $name;
@@ -98,5 +118,22 @@ macro_rules! rule_unreachable {
         );
         ::tracing::error!("{}", msg);
         unreachable!("{}", msg);
+    };
+}
+
+macro_rules! node_child_named {
+    ($node: expr, $name: expr, $context: expr, $rule_name: expr) => {
+        node_child_named!($node, $name, "dunno", $context, $rule_name)
+    };
+    ($node: expr, $name: expr, $kind: expr, $context: expr, $rule_name: expr) => {
+        match $node.child_by_field_name($name) {
+            Some(child) => {
+                $context.check_if_error(&child, $rule_name)?;
+                child
+            }
+            None => {
+                missing_node!($context, $rule_name, $node, $name, $kind);
+            }
+        }
     };
 }

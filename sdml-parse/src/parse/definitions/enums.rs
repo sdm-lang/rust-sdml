@@ -2,15 +2,14 @@ use crate::parse::annotations::parse_annotation;
 use crate::parse::definitions::parse_annotation_only_body;
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::ParseContext;
-use sdml_core::error::{invalid_value_for_type, Error};
+use sdml_core::error::Error;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{EnumBody, EnumDef, HasVariants, ValueVariant};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_VALUE, NODE_KIND_ANNOTATION,
+    FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,
     NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE_VARIANT,
 };
-use std::str::FromStr;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------
@@ -89,13 +88,8 @@ fn parse_value_variant<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
-    let text = context.node_source(&child)?;
-    let value = u32::from_str(text).map_err(|_| invalid_value_for_type(text, "unsigned"))?;
-
     context.start_member(&name)?;
-    let mut enum_variant = ValueVariant::new(name, value).with_source_span(node.into());
+    let mut enum_variant = ValueVariant::new(name).with_source_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;

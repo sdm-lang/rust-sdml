@@ -8,7 +8,7 @@ use sdml_core::model::constraints::EnvironmentDef;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_CONSTANT_DEF, NODE_KIND_CONSTRAINT_ENVIRONMENT_END,
-    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_ENVIRONMENT_DEFINITION, NODE_KIND_FUNCTION_DEF,
+    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_ENVIRONMENT_DEF, NODE_KIND_FUNCTION_DEF,
     NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
 };
 use tree_sitter::TreeCursor;
@@ -28,8 +28,8 @@ pub(crate) fn parse_constraint_environment<'a>(
     for node in cursor.node().named_children(cursor) {
         context.check_if_error(&node, RULE_NAME)?;
         match node.kind() {
-            NODE_KIND_ENVIRONMENT_DEFINITION => {
-                environment.push(parse_constraint_environment_definition(
+            NODE_KIND_ENVIRONMENT_DEF => {
+                environment.push(parse_environment_def(
                     context,
                     &mut node.walk(),
                 )?);
@@ -44,7 +44,7 @@ pub(crate) fn parse_constraint_environment<'a>(
                     RULE_NAME,
                     node,
                     [
-                        NODE_KIND_ENVIRONMENT_DEFINITION,
+                        NODE_KIND_ENVIRONMENT_DEF,
                         NODE_KIND_CONSTRAINT_ENVIRONMENT_END,
                     ]
                 );
@@ -54,12 +54,12 @@ pub(crate) fn parse_constraint_environment<'a>(
     Ok(environment)
 }
 
-fn parse_constraint_environment_definition<'a>(
+fn parse_environment_def<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
 ) -> Result<EnvironmentDef, Error> {
     let node = cursor.node();
-    rule_fn!("environment_definition", node);
+    rule_fn!("environment_def", node);
 
     let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     context.check_if_error(&child, RULE_NAME)?;

@@ -57,6 +57,11 @@ pub enum Error {
         rule: String,
         expected: String,
     },
+    MissingNodeVariable {
+        rule: String,
+        expected_name: String,
+        expected_kind: String,
+    },
     InvalidValueForType {
         value: String,
         type_name: String,
@@ -190,6 +195,21 @@ where
 
 /// Construct an invalid value Error from the provided input.
 #[inline]
+pub fn missing_node_variable<S1, S2, S3>(rule: S1, expected_name: S2, expected_kind: S3) -> Error
+where
+    S1: Into<String>,
+    S2: Into<String>,
+    S3: Into<String>,
+{
+    report_and_return!(Error::MissingNodeVariable {
+        rule: rule.into(),
+        expected_name: expected_name.into(),
+        expected_kind: expected_kind.into(),
+    });
+}
+
+/// Construct an invalid value Error from the provided input.
+#[inline]
 pub fn invalid_value_for_type<S1, S2>(value: S1, type_name: S2) -> Error
 where
     S1: Into<String>,
@@ -263,6 +283,8 @@ impl Display for Error {
                     "Invalid value for type; value: {value}, type: {type_name}"),
                 Self::MissingNodeKind { rule, expected } => format!(
                     "Missing node kind; expecting: {expected}, in rule: {rule}"),
+                Self::MissingNodeVariable { rule, expected_name, expected_kind } => format!(
+                    "Missing node variable; expecting variable: {expected_name}, kind {expected_kind}, in rule: {rule}"),
                 Self::ModuleFileNotFound { name } =>
                     format!("Could not resolve module name to a file; name: {name}"),
                 Self::ModuleParseError {

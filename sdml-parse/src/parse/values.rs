@@ -3,15 +3,15 @@ use rust_decimal::Decimal;
 use sdml_core::error::Error;
 use sdml_core::model::values::{
     LanguageString, LanguageTag, MappingValue, SequenceOfValues, SimpleValue, Value,
-    ValueConstructor,
+    ValueConstructor, Binary,
 };
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     FIELD_NAME_DOMAIN, FIELD_NAME_NAME, FIELD_NAME_RANGE, FIELD_NAME_VALUE, NODE_KIND_BOOLEAN,
     NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_INTEGER,
-    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT,
     NODE_KIND_MAPPING_VALUE, NODE_KIND_QUOTED_STRING, NODE_KIND_SEQUENCE_OF_VALUES,
-    NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_VALUE_CONSTRUCTOR,
+    NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_VALUE_CONSTRUCTOR, NODE_KIND_UNSIGNED, NODE_KIND_BINARY, FIELD_NAME_BYTE,
 };
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
@@ -85,36 +85,45 @@ pub(crate) fn parse_simple_value<'a>(
             if node.is_named() {
                 match node.kind() {
                     // TODO: convert expect into actual errors.
-                    NODE_KIND_STRING => {
-                        let value = parse_string(context, cursor)?;
-                        return Ok(SimpleValue::String(value));
-                    }
-                    NODE_KIND_DOUBLE => {
-                        let value = context.node_source(&node)?;
-                        let value = f64::from_str(value).expect("Invalid value for Double");
-                        return Ok(SimpleValue::Double(value.into()));
-                    }
-                    NODE_KIND_DECIMAL => {
-                        let value = context.node_source(&node)?;
-                        let value = Decimal::from_str(value).expect("Invalid value for Decimal");
-                        return Ok(SimpleValue::Decimal(value));
-                    }
-                    NODE_KIND_INTEGER => {
-                        let value = context.node_source(&node)?;
-                        let value = i64::from_str(value).expect("Invalid value for Integer");
-                        return Ok(SimpleValue::Integer(value));
-                    }
                     NODE_KIND_BOOLEAN => {
                         let value = context.node_source(&node)?;
                         // TODO: this doesn't take top and bottom into account
                         let value = bool::from_str(value).expect("Invalid value for Boolean");
                         return Ok(SimpleValue::Boolean(value));
                     }
-                    NODE_KIND_IRI_REFERENCE => {
+                    NODE_KIND_UNSIGNED => {
+                        let value = context.node_source(&node)?;
+                        let value = i64::from_str(value).expect("Invalid value for Unsigned");
+                        return Ok(SimpleValue::Integer(value));
+                    }
+                    NODE_KIND_INTEGER => {
+                        let value = context.node_source(&node)?;
+                        let value = i64::from_str(value).expect("Invalid value for Integer");
+                        return Ok(SimpleValue::Integer(value));
+                    }
+                    NODE_KIND_DECIMAL => {
+                        let value = context.node_source(&node)?;
+                        let value = Decimal::from_str(value).expect("Invalid value for Decimal");
+                        return Ok(SimpleValue::Decimal(value));
+                    }
+                    NODE_KIND_DOUBLE => {
+                        let value = context.node_source(&node)?;
+                        let value = f64::from_str(value).expect("Invalid value for Double");
+                        return Ok(SimpleValue::Double(value.into()));
+                    }
+                    NODE_KIND_STRING => {
+                        let value = parse_string(context, cursor)?;
+                        return Ok(SimpleValue::String(value));
+                    }
+                    NODE_KIND_IRI => {
                         let value = context.node_source(&node)?;
                         let value = Url::from_str(&value[1..(value.len() - 1)])
                             .expect("Invalid value for IriReference");
                         return Ok(SimpleValue::IriReference(value));
+                    }
+                    NODE_KIND_BINARY => {
+                        let value = parse_binary(context, cursor)?;
+                        return Ok(SimpleValue::Binary(value));
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
@@ -128,7 +137,7 @@ pub(crate) fn parse_simple_value<'a>(
                                 NODE_KIND_DECIMAL,
                                 NODE_KIND_INTEGER,
                                 NODE_KIND_BOOLEAN,
-                                NODE_KIND_IRI_REFERENCE,
+                                NODE_KIND_IRI,
                             ]
                         );
                     }
@@ -184,6 +193,23 @@ fn parse_string<'a>(
         return Ok(LanguageString::new(&value, language).with_source_span(root_node.into()));
     }
     unreachable!()
+}
+
+fn parse_binary<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<Binary, Error> {
+    rule_fn!("binary", cursor.node());
+    let mut result: Vec<u8> = Default::default();
+
+    for node in cursor.node().children_by_field_name(FIELD_NAME_BYTE, cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
+        let value = context.node_source(&node)?;
+        let value = u8::from_str(value).expect("Invalid value for Byte");
+        result.push(value);
+    }
+
+    Ok(result.into())
 }
 
 fn parse_value_constructor<'a>(

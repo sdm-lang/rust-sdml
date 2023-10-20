@@ -1,5 +1,5 @@
 use crate::parse::constraints::{parse_predicate_value, parse_sequence_builder};
-use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
+use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::model::constraints::{FunctionComposition, FunctionalTerm, Subject, Term};
@@ -7,8 +7,8 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::syntax::{
     FIELD_NAME_ARGUMENT, FIELD_NAME_FUNCTION, FIELD_NAME_NAME, FIELD_NAME_SUBJECT,
     NODE_KIND_FUNCTIONAL_TERM, NODE_KIND_FUNCTION_COMPOSITION, NODE_KIND_IDENTIFIER,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE, NODE_KIND_QUALIFIED_IDENTIFIER,
-    NODE_KIND_RESERVED_SELF, NODE_KIND_SEQUENCE_BUILDER,
+    NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
+    NODE_KIND_RESERVED_SELF, NODE_KIND_SEQUENCE_BUILDER, NODE_KIND_IDENTIFIER_REFERENCE,
 };
 use tree_sitter::TreeCursor;
 
@@ -25,23 +25,23 @@ pub(crate) fn parse_term<'a>(
     for node in cursor.node().named_children(cursor) {
         context.check_if_error(&node, RULE_NAME)?;
         match node.kind() {
-            NODE_KIND_FUNCTION_COMPOSITION => {
-                return Ok(parse_function_composition(context, &mut node.walk())?.into());
-            }
-            NODE_KIND_IDENTIFIER => {
-                return Ok(parse_identifier(context, &node)?.into());
-            }
-            NODE_KIND_QUALIFIED_IDENTIFIER => {
-                return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
-            }
-            NODE_KIND_PREDICATE_VALUE => {
-                return Ok(parse_predicate_value(context, &mut node.walk())?.into());
+            NODE_KIND_SEQUENCE_BUILDER => {
+                return Ok(parse_sequence_builder(context, &mut node.walk())?.into());
             }
             NODE_KIND_FUNCTIONAL_TERM => {
                 return Ok(parse_functional_term(context, &mut node.walk())?.into());
             }
-            NODE_KIND_SEQUENCE_BUILDER => {
-                return Ok(parse_sequence_builder(context, &mut node.walk())?.into());
+            NODE_KIND_FUNCTION_COMPOSITION => {
+                return Ok(parse_function_composition(context, &mut node.walk())?.into());
+            }
+            NODE_KIND_IDENTIFIER_REFERENCE => {
+                return Ok(parse_identifier_reference(context, &mut node.walk())?.into());
+            }
+            NODE_KIND_RESERVED_SELF => {
+                return Ok(Term::ReservedSelf);
+            }
+            NODE_KIND_PREDICATE_VALUE => {
+                return Ok(parse_predicate_value(context, &mut node.walk())?.into());
             }
             NODE_KIND_LINE_COMMENT => {}
             _ => {
@@ -51,10 +51,10 @@ pub(crate) fn parse_term<'a>(
                     node,
                     [
                         NODE_KIND_FUNCTION_COMPOSITION,
-                        NODE_KIND_IDENTIFIER,
-                        NODE_KIND_QUALIFIED_IDENTIFIER,
-                        NODE_KIND_PREDICATE_VALUE,
                         NODE_KIND_FUNCTIONAL_TERM,
+                        NODE_KIND_IDENTIFIER_REFERENCE,
+                        NODE_KIND_PREDICATE_VALUE,
+                        NODE_KIND_RESERVED_SELF,
                         NODE_KIND_SEQUENCE_BUILDER,
                     ]
                 );

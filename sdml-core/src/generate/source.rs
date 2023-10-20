@@ -11,11 +11,12 @@ YYYYY
 
 use crate::error::Error;
 use crate::generate::GenerateToWriter;
+use crate::load::ModuleLoader;
 use crate::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use crate::model::constraints::{Constraint, ConstraintBody};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, FeatureSetDef, HasVariants, PropertyDef,
-    StructureDef, TypeVariant, UnionDef, ValueVariant,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasVariants, PropertyDef, StructureDef,
+    TypeVariant, UnionDef, ValueVariant,
 };
 use crate::model::modules::{Module, ModuleBody};
 use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
@@ -88,6 +89,7 @@ impl GenerateToWriter<SourceOptions> for SourceGenerator {
     fn write_in_format(
         &mut self,
         module: &Module,
+        _: Option<&mut dyn ModuleLoader>,
         writer: &mut dyn Write,
         options: SourceOptions,
     ) -> Result<(), Error> {
@@ -236,9 +238,9 @@ impl SourceGenerator {
                     Definition::Entity(v) => self.write_entity(v, writer, options)?,
                     Definition::Enum(v) => self.write_enum(v, writer, options)?,
                     Definition::Event(v) => self.write_event(v, writer, options)?,
-                    Definition::FeatureSet(v) => self.write_feature_set(v, writer, options)?,
                     Definition::Property(v) => self.write_property(v, writer, options)?,
                     Definition::Structure(v) => self.write_structure(v, writer, options)?,
+                    Definition::TypeClass(_) => todo!(),
                     Definition::Union(v) => self.write_union(v, writer, options)?,
                 }
             }
@@ -349,9 +351,7 @@ impl SourceGenerator {
         options: &SourceOptions,
     ) -> Result<(), Error> {
         let indentation = options.indentation(DEFINITION_MEMBER_INDENT);
-        writer.write_all(
-            format!("{indentation}{} = {}", variant.name(), variant.value()).as_bytes(),
-        )?;
+        writer.write_all(format!("{indentation}{}", variant.name()).as_bytes())?;
 
         if let Some(body) = variant.body() {
             writer.write_all(b" is\n")?;
@@ -399,34 +399,6 @@ impl SourceGenerator {
             }
             // TODO: members
             // TODO: groups
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
-        }
-
-        Ok(())
-    }
-
-    fn write_feature_set(
-        &mut self,
-        defn: &FeatureSetDef,
-        writer: &mut dyn Write,
-        options: &SourceOptions,
-    ) -> Result<(), Error> {
-        let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}features {}", defn.name()).as_bytes())?;
-
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
-            }
-            // TODO: roles
             writer.write_all(format!("{indentation}end\n").as_bytes())?;
         } else {
             writer.write_all(b"\n")?;
@@ -582,7 +554,7 @@ mod tests {
     fn test_generate_module_empty() {
         let module = Module::empty(Identifier::new_unchecked("example"));
         let mut generator: SourceGenerator = Default::default();
-        let source = generator.write_to_string(&module).unwrap();
+        let source = generator.write_to_string(&module, None).unwrap();
         assert_eq!(source.as_str(), "module example is end\n");
     }
 
@@ -591,7 +563,7 @@ mod tests {
         let module = Module::empty(Identifier::new_unchecked("example"))
             .with_base(Url::parse("http://example.com").unwrap());
         let mut generator: SourceGenerator = Default::default();
-        let source = generator.write_to_string(&module).unwrap();
+        let source = generator.write_to_string(&module, None).unwrap();
         assert_eq!(
             source.as_str(),
             "module example base <http://example.com/> is end\n"

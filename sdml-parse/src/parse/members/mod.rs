@@ -65,6 +65,7 @@ pub(crate) fn parse_cardinality_expression<'a>(
 pub(crate) fn parse_type_reference<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
+    feature_set: bool,
 ) -> Result<TypeReference, Error> {
     rule_fn!("type_reference", cursor.node());
     let mut has_next = cursor.goto_first_child();
@@ -78,12 +79,16 @@ pub(crate) fn parse_type_reference<'a>(
                 }
                 NODE_KIND_IDENTIFIER_REFERENCE => {
                     let reference = parse_identifier_reference(context, &mut node.walk())?;
-                    return Ok(TypeReference::Reference(reference));
+                    if feature_set {
+                        return Ok(TypeReference::FeatureSet(reference));
+                    } else {
+                        return Ok(TypeReference::Type(reference));
+                    }
                 }
                 NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                     let module = Identifier::new_unchecked(NAME_SDML);
                     let member = parse_identifier(context, &node)?.with_source_span(node.into());
-                    return Ok(TypeReference::Reference(
+                    return Ok(TypeReference::Type(
                         QualifiedIdentifier::new(module, member)
                             .with_source_span(node.into())
                             .into(),
@@ -121,11 +126,11 @@ pub(crate) fn parse_mapping_type<'a>(
 
     let child = node.child_by_field_name(FIELD_NAME_DOMAIN).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let domain = parse_type_reference(context, &mut child.walk())?;
+    let domain = parse_type_reference(context, &mut child.walk(), false)?;
 
     let child = node.child_by_field_name(FIELD_NAME_RANGE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let range = parse_type_reference(context, &mut child.walk())?;
+    let range = parse_type_reference(context, &mut child.walk(), false)?;
 
     Ok(MappingType::new(domain, range).with_source_span(node.into()))
 }
@@ -134,11 +139,8 @@ pub(crate) fn parse_mapping_type<'a>(
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-mod identity;
-pub(crate) use identity::parse_identity_member;
+mod groups;
+pub(crate) use groups::parse_member_group;
 
-mod by_value;
-pub(crate) use by_value::parse_by_value_member;
-
-mod by_reference;
-pub(crate) use by_reference::parse_by_reference_member;
+mod member;
+pub(crate) use member::parse_member;

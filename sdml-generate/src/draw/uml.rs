@@ -16,17 +16,18 @@ use sdml_core::generate::GenerateToFile;
 use sdml_core::model::constraints::ControlledLanguageTag;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{
-    ByReferenceMemberDef, ByValueMemberDef, Cardinality, HasCardinality, HasType,
-    IdentityMemberDef, MemberKind, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
-    DEFAULT_BY_VALUE_CARDINALITY,
+    Cardinality, 
+    TypeReference, DEFAULT_CARDINALITY, Ordering, Uniqueness,
 };
 use sdml_core::model::modules::Module;
 use sdml_core::model::values::Value;
-use sdml_core::model::walk::{walk_module, ModuleWalker};
+use sdml_core::model::walk::{walk_module_simple, SimpleModuleWalker};
 use sdml_core::model::{HasName, References, Span};
+use sdml_core::syntax::{KW_ORDERING_ORDERED, KW_UNIQUENESS_UNIQUE};
 use std::collections::HashSet;
 use std::path::Path;
 use tracing::debug;
+use sdml_core::load::ModuleLoader;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -43,6 +44,7 @@ pub struct UmlDiagramGenerator {
     output: Option<DiagramOutput>,
     assoc_src: Option<String>,
     refs: Option<String>,
+    emit_annotations: bool,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -73,13 +75,14 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
+        _loader: Option<&mut dyn ModuleLoader>,
         path: &Path,
         format: OutputFormat,
     ) -> Result<(), Error> {
         self.imports = make_imports(module);
-        self.output = Some(path_to_output(path, module.name()));
+        self.output = Some(path_to_output(path, module.name())?);
 
-        walk_module(module, self)?;
+        walk_module_simple(module, self)?;
 
         if format == OutputFormat::Source {
             std::fs::write(path, &self.buffer)?;
@@ -108,11 +111,15 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
     }
 }
 
-impl ModuleWalker for UmlDiagramGenerator {
+impl SimpleModuleWalker for UmlDiagramGenerator {
     fn start_module(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
         self.buffer.push_str(&format!(
             r#"@startuml {}
-skin rose
+skinparam backgroundColor transparent
+skinparam style strictuml
+skinparam linetype polyline
+skinparam nodesep 50
+
 hide methods
 hide circle
 
@@ -138,10 +145,13 @@ package "{name}" as {} <<module>> {{
 
     fn annotation_property(
         &mut self,
-        _name: &IdentifierReference,
-        _value: &Value,
+        name: &IdentifierReference,
+        value: &Value,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
+        if self.emit_annotations {
+            self.buffer.push_str(&format!("{{{name} = {value}}}\n"));
+        }
         Ok(())
     }
 
@@ -158,118 +168,103 @@ package "{name}" as {} <<module>> {{
     fn start_datatype(
         &mut self,
         name: &Identifier,
+        _is_opaque: bool,
         base_type: &IdentifierReference,
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer
             .push_str(&start_type_with_sterotype("class", name, "datatype"));
-        self.buffer.push_str("  }\n");
-        self.buffer
-            .push_str(&format!("  hide {} members\n", make_id(name)));
-        self.buffer
-            .push_str(&format!("  {} ..|> s_{base_type}\n\n", make_id(name)));
+
+        // TODO: add opaque as stereotype on restriction
+        let restriction = format!("  {} --|> {}\n", make_id(name), make_id(base_type));
+        self.refs = Some(self.refs.clone().map(|r| format!("{r}{restriction}")).unwrap_or(restriction));
+        self.emit_annotations = true;
         Ok(())
     }
 
-    fn end_datatype(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    fn end_datatype(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
+        self.buffer.push_str("  }\n");
+        self.buffer
+            .push_str(&format!("  hide {} {}\n", make_id(name), if had_body { "methods" } else { "members" }));
+
         self.assoc_src = None;
+        self.emit_annotations = false;
+
         Ok(())
     }
 
     fn start_entity(
         &mut self,
         name: &Identifier,
-        _has_body: bool,
+        has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "entity"));
+            .push_str(&start_type_with_sterotype(if has_body { "class" } else { "abstract" }, name, "entity"));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }
 
-    fn start_identity_member(
+    fn start_entity_identity(
         &mut self,
         name: &Identifier,
-        inner: &MemberKind<IdentityMemberDef>,
-        _span: Option<&Span>,
+        target_type: &TypeReference,
+        _: bool,
+        _: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    <<identity>> {name}"));
-        match inner {
-            MemberKind::PropertyReference(role) => {
-                self.buffer.push_str(&format!(" {{role = {role}}}\n"));
-            }
-            MemberKind::Definition(def) => {
-                if let TypeReference::Reference(target_type) = def.target_type() {
-                    self.buffer.push_str(&format!(": {target_type}\n"));
-                } else {
-                    self.buffer.push_str(": ?\n");
-                }
-            }
+        if let TypeReference::Type(target_type) = target_type {
+            self.buffer.push_str(&format!("    +{name}: {target_type}\n"));
+        } else {
+            self.buffer.push_str("    +{role_name}: ?\n");
         }
         self.buffer.push_str("    --\n");
-
         Ok(())
     }
 
-    fn start_by_value_member(
+    fn start_entity_identity_role_ref(
         &mut self,
-        name: &Identifier,
-        inner: &MemberKind<ByValueMemberDef>,
-        _span: Option<&Span>,
+        role_name: &Identifier,
+        in_property: &IdentifierReference,
+        _: Option<&Span>,
     ) -> Result<(), Error> {
-        match inner {
-            MemberKind::PropertyReference(role) => {
-                self.buffer
-                    .push_str(&format!("    {name} {{role = {role}}}\n"));
-            }
-            MemberKind::Definition(def) => {
-                match make_member(
-                    self.assoc_src.as_ref().unwrap(),
-                    name,
-                    def.target_type(),
-                    def.target_cardinality(),
-                    false,
-                ) {
-                    (v, false) => {
-                        self.refs = Some(self.refs.clone().map(|r| format!("{r}{v}")).unwrap_or(v))
-                    }
-                    (v, true) => self.buffer.push_str(v.as_str()),
-                }
-            }
-        }
-
+        self.buffer.push_str(&format!("    +{role_name} <<identity>> {{property = {in_property}}}\n"));
+        self.buffer.push_str("    --\n");
         Ok(())
     }
 
-    fn start_by_reference_member(
+    fn start_member(
         &mut self,
         name: &Identifier,
-        inner: &MemberKind<ByReferenceMemberDef>,
-        _span: Option<&Span>,
+        _inverse_name: Option<&Identifier>,
+        target_cardinality: &Cardinality,
+        target_type: &TypeReference,
+        _: bool,
+        _: Option<&Span>,
     ) -> Result<(), Error> {
-        match inner {
-            MemberKind::PropertyReference(role) => {
-                self.buffer
-                    .push_str(&format!("    {name} {{role = {role}}}\n"));
+        match make_member(
+            self.assoc_src.as_ref().unwrap(),
+            name,
+            target_type,
+            target_cardinality,
+            false,
+        ) {
+            (v, false) => {
+                self.refs = Some(self.refs.clone().map(|r| format!("{r}{v}")).unwrap_or(v))
             }
-            MemberKind::Definition(def) => {
-                match make_member(
-                    self.assoc_src.as_ref().unwrap(),
-                    name,
-                    def.target_type(),
-                    def.target_cardinality(),
-                    true,
-                ) {
-                    (v, false) => {
-                        self.refs = Some(self.refs.clone().map(|r| format!("{r}{v}")).unwrap_or(v))
-                    }
-                    (v, true) => self.buffer.push_str(v.as_str()),
-                }
-            }
+            (v, true) => self.buffer.push_str(v.as_str()),
         }
+        Ok(())
+    }
 
+    fn start_member_role_ref(
+        &mut self,
+        role_name: &Identifier,
+        in_property: &IdentifierReference,
+        _: Option<&Span>,
+    ) -> Result<(), Error> {
+        self.buffer
+            .push_str(&format!("    +{role_name} {{property = {in_property}}}\n"));
         Ok(())
     }
 
@@ -285,18 +280,17 @@ package "{name}" as {} <<module>> {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&start_type("enum", name));
+        self.buffer.push_str(&start_type_with_sterotype("class", name, "enum"));
         Ok(())
     }
 
     fn start_value_variant(
         &mut self,
         name: &Identifier,
-        value: u32,
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    {name} = {value}\n"));
+        self.buffer.push_str(&format!("    +{name}\n"));
         Ok(())
     }
 
@@ -316,7 +310,7 @@ package "{name}" as {} <<module>> {{
         self.buffer
             .push_str(&start_type_with_sterotype("class", name, "event"));
         self.assoc_src = Some(name.to_string());
-        let reference = format!("  {} o--> {}\n", make_id(name), make_id(source));
+        let reference = format!("  {} ..> {}: <<source>>\n", make_id(name), make_id(source));
         self.refs = Some(
             self.refs
                 .clone()
@@ -343,7 +337,7 @@ package "{name}" as {} <<module>> {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&start_type("class", name));
+        self.buffer.push_str(&&start_type_with_sterotype("class", name, "structure"));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }
@@ -361,7 +355,7 @@ package "{name}" as {} <<module>> {{
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer
-            .push_str(&start_type_with_sterotype("enum", name, "union"));
+            .push_str(&start_type_with_sterotype("class", name, "union"));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }
@@ -416,12 +410,13 @@ package "{name}" as {} <<module>> {{
     fn start_identity_role(
         &mut self,
         name: &Identifier,
-        inner: &IdentityMemberDef,
+        target_type: &TypeReference,
+        _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer
             .push_str(&format!("    <<role, identity>> {name}"));
-        if let TypeReference::Reference(target_type) = inner.target_type() {
+        if let TypeReference::Type(target_type) = target_type {
             self.buffer.push_str(&format!(": {target_type}\n"));
             // TODO: Cardinality
             // TODO: Mapping Types
@@ -431,31 +426,17 @@ package "{name}" as {} <<module>> {{
         Ok(())
     }
 
-    fn start_by_reference_role(
+    fn start_member_role(
         &mut self,
         name: &Identifier,
-        inner: &ByReferenceMemberDef,
+        _inverse_name: Option<&Identifier>,
+        _target_cardinality: &Cardinality,
+        target_type: &TypeReference,
+        _has_body: bool,
         _span: Option<&Span>,
-    ) -> Result<(), Error> {
+     ) -> Result<(), Error> {
         self.buffer.push_str(&format!("    <<role, ref>> {name}"));
-        if let TypeReference::Reference(target_type) = inner.target_type() {
-            self.buffer.push_str(&format!(": {target_type}\n"));
-            // TODO: Cardinality
-            // TODO: Mapping Types
-        } else {
-            self.buffer.push('\n');
-        }
-        Ok(())
-    }
-
-    fn start_by_value_role(
-        &mut self,
-        name: &Identifier,
-        inner: &ByValueMemberDef,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    <<role>> {name}"));
-        if let TypeReference::Reference(target_type) = inner.target_type() {
+        if let TypeReference::Type(target_type) = target_type {
             self.buffer.push_str(&format!(": {target_type}\n"));
             // TODO: Cardinality
             // TODO: Mapping Types
@@ -500,16 +481,6 @@ where
     format!("s_{}", id.into().replace(':', "__"))
 }
 
-#[inline(always)]
-fn start_type(type_class: &str, type_name: &Identifier) -> String {
-    format!(
-        "  {} \"{}\" as {} {{\n",
-        type_class,
-        type_name,
-        make_id(type_name)
-    )
-}
-
 fn start_type_with_sterotype(
     type_class: &str,
     type_name: &Identifier,
@@ -541,21 +512,30 @@ fn make_member(
     by_ref: bool,
 ) -> (String, bool) {
     match type_ref {
-        TypeReference::Reference(target_type) => {
-            if *card
-                == if by_ref {
-                    DEFAULT_BY_REFERENCE_CARDINALITY
-                } else {
-                    DEFAULT_BY_VALUE_CARDINALITY
-                }
-            {
-                (format!("    {name}: {target_type}\n"), true)
+        TypeReference::Type(target_type) => {
+            if *card ==  DEFAULT_CARDINALITY {
+                (format!("    +{name}: {}\n", make_type_reference(type_ref)), true)
             } else {
                 (
                     format!(
-                        "  s_{source} {}--> \"{}\\n{name}\" {}\n",
+                        "  s_{source} {}--> \"+{name}\\n{}\" {}\n",
                         if by_ref { "o" } else { "*" },
-                        card.to_uml_string(),
+                        to_uml_string(card, true),
+                        make_id(target_type),
+                    ),
+                    false,
+                )
+            }
+        }
+        TypeReference::FeatureSet(target_type) => {
+            if *card ==  DEFAULT_CARDINALITY {
+                (format!("    <<features>> +{name}: {}\n", make_type_reference(type_ref)), true)
+            } else {
+                (
+                    format!(
+                        "  s_{source} {}--> \"+{name}\\n{}\" {}: <<features>>\n",
+                        if by_ref { "o" } else { "*" },
+                        to_uml_string(card, true),
                         make_id(target_type),
                     ),
                     false,
@@ -564,20 +544,21 @@ fn make_member(
         }
         TypeReference::MappingType(_) => (
             format!(
-                "    {name}: {} {}\n",
-                card.to_uml_string(),
+                "    +{name}: {} {}\n",
+                to_uml_string(card, false),
                 make_type_reference(type_ref)
             ),
             true,
         ),
-        TypeReference::Unknown => (format!("    {name}: unknown\n"), true),
+        TypeReference::Unknown => (format!("    +{name}: unknown\n"), true),
     }
 }
 
 fn make_type_reference(type_ref: &TypeReference) -> String {
     match type_ref {
         TypeReference::Unknown => "unknown".to_string(),
-        TypeReference::Reference(v) => v.to_string(),
+        TypeReference::Type(v) => v.to_string(),
+        TypeReference::FeatureSet(v) => v.to_string(),
         TypeReference::MappingType(v) => format!(
             "Mapping<{}, {}>",
             make_type_reference(v.domain()),
@@ -641,37 +622,67 @@ fn format_to_arg(value: OutputFormat) -> CommandArg {
 }
 
 #[inline(always)]
-fn path_to_output<P>(path: P, module_name: &Identifier) -> DiagramOutput
+fn path_to_output<P>(path: P, module_name: &Identifier) -> Result<DiagramOutput, Error>
 where
     P: AsRef<Path>,
 {
+    ::tracing::trace!("path_to_output {:?} {:?}", path.as_ref(), module_name);
     // Note:
     //  PlantUML does not take output file names, it derives the names from the input file names.
     //  However, it will take the path of the directory to put output files in, which needs to be
     //  specified else it is derived from the input path (a temp file name).
+    let current_dir = std::env::current_dir()?;
     let output_dir = path
         .as_ref()
         .parent()
-        .map(|p| p.to_string_lossy().to_string())
-        .unwrap_or_default();
-    DiagramOutput {
+        .unwrap_or_else(|| &current_dir)
+        .canonicalize()?;
+    ::tracing::trace!("path_to_output output_dir = {:?}", output_dir);
+
+    Ok(DiagramOutput {
         file_name: path
             .as_ref()
             .file_stem()
             .map(|s| s.to_string_lossy().to_string())
             .unwrap_or_else(|| module_name.to_string()),
-        output_dir: if output_dir.is_empty() {
-            let default_output = std::env::current_dir()
-                .map(|p| p.to_string_lossy().to_string())
-                .unwrap_or_default();
-            if default_output.is_empty() {
-                String::from(".")
-            } else {
-                default_output
-            }
-        } else {
-            output_dir
-        },
+        output_dir: output_dir.to_string_lossy().to_string(),
+    })
+}
+
+fn to_uml_string(card: &Cardinality, as_association: bool) -> String {
+    let mut constraints: Vec<&str> = Vec::new();
+    if let Some(ordering) = card.ordering() {
+        if ordering == Ordering::Ordered {
+            constraints.push(KW_ORDERING_ORDERED);
+        }
+    }
+    if let Some(uniqueness) = card.uniqueness() {
+        if uniqueness == Uniqueness::Unique {
+            constraints.push(KW_UNIQUENESS_UNIQUE);
+        }
+    }
+    let constraints = if !constraints.is_empty() {
+        format!("{{{}}}", constraints.join(", "))
+    } else {
+        String::new()
+    };
+
+    let range_str = if card.range().is_range() {
+        format!(
+            "{}..{}",
+            card.range().min_occurs(),
+            card.range().max_occurs().map(|i| i.to_string()).unwrap_or_else(|| String::from("*"))
+        )
+    } else {
+        card.range().min_occurs().to_string()
+    };
+
+    if constraints.is_empty() {
+        range_str
+    } else if as_association {
+        format!("{constraints}\\n{range_str}")
+    } else {
+        format!("[{range_str}] {constraints}")
     }
 }
 

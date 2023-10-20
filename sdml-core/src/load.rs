@@ -5,7 +5,7 @@ Provides traits for resolving module names to paths, and loading modules.
 
 use crate::error::Error;
 use crate::model::{identifiers::Identifier, modules::Module};
-use std::cell::{Ref, RefCell, RefMut};
+use std::cell::{RefCell, Ref, RefMut};
 use std::fmt::Debug;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -19,77 +19,83 @@ use std::rc::Rc;
 /// The resolver implements the logic to map module identifiers to file system paths using the
 /// environment variable `SDML_PATH` to contain a search path.
 ///
+/// Note this trait does not require mutability even for clearly mutating operations.
+///
 pub trait ModuleResolver: Debug {
-    fn prepend_to_search_path(&mut self, path: &Path);
+    fn prepend_to_search_path(&self, path: &Path);
 
-    fn append_to_search_path(&mut self, path: &Path);
+    fn append_to_search_path(&self, path: &Path);
 
     fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error>;
 }
 
 // ------------------------------------------------------------------------------------------------
 
-///
-/// TBD
-///
-pub trait ModuleLoader: Debug {
-    fn load(&mut self, name: &Identifier) -> Result<&Module, Error>;
-
-    fn load_from_file(&mut self, file: PathBuf) -> Result<&Module, Error>;
-
-    fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<&Module, Error>;
-
-    fn contains(&self, name: &Identifier) -> bool;
-
-    fn get(&self, name: &Identifier) -> Option<&Module>;
-
-    fn get_source(&self, name: &Identifier) -> Option<&String>;
-
-    fn resolver(&self) -> &dyn ModuleResolver;
-}
+#[derive(Clone, Debug)]
+pub struct ModuleRef(Rc<RefCell<Module>>);
 
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug)]
-pub struct ModuleLoaderRef<T>(Rc<RefCell<T>>)
-where
-    T: ModuleLoader + Clone;
+///
+/// TBD
+///
+/// Note this trait does not require mutability even for clearly mutating operations.
+///
+pub trait ModuleLoader: Debug {
+    fn load(&self, name: &Identifier) -> Result<ModuleRef, Error>;
+
+    fn load_from_file(&self, file: PathBuf) -> Result<ModuleRef, Error>;
+
+    fn load_from_reader(&self, reader: &mut dyn Read) -> Result<ModuleRef, Error>;
+
+    fn adopt_raw(&self, module: Module) {
+        self.adopt(module.into());
+    }
+
+    fn adopt(&self, module: ModuleRef);
+
+    fn contains(&self, name: &Identifier) -> bool;
+
+    fn get(&self, name: &Identifier) -> Option<ModuleRef>;
+
+    fn get_source(&self, name: &Identifier) -> Option<Box<dyn AsRef<str>>>;
+
+    fn resolver(&self) -> Rc<dyn ModuleResolver>;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl<T> From<T> for ModuleLoaderRef<T>
-where
-    T: ModuleLoader + Clone,
-{
-    fn from(value: T) -> Self {
-        Self(Rc::new(RefCell::new(value)))
+impl From<Module> for ModuleRef {
+    fn from(value: Module) -> Self {
+        Self::from(Rc::new(RefCell::new(value)))
     }
 }
 
-impl<T> AsRef<RefCell<T>> for ModuleLoaderRef<T>
-where
-    T: ModuleLoader + Clone,
-{
-    fn as_ref(&self) -> &RefCell<T> {
-        self.0.as_ref()
+impl From<Rc<RefCell<Module>>> for ModuleRef {
+    fn from(value: Rc<RefCell<Module>>) -> Self {
+        Self(value)
     }
 }
 
-impl<T> ModuleLoaderRef<T>
-where
-    T: ModuleLoader + Clone,
-{
-    pub fn borrow(&self) -> Ref<'_, T> {
+impl From<ModuleRef> for Rc<RefCell<Module>> {
+    fn from(value: ModuleRef) -> Self {
+        value.0
+    }
+}
+
+impl ModuleRef {
+    pub fn borrow(&self) -> Ref<'_, Module> {
         self.0.borrow()
     }
 
-    pub fn borrow_mut(&mut self) -> RefMut<'_, T> {
+    pub fn borrow_mut(&self) -> RefMut<'_, Module> {
         self.0.borrow_mut()
     }
 
-    pub fn into_inner(self) -> Option<T> {
-        Rc::into_inner(self.0).map(|ref_cell| ref_cell.into_inner())
+    pub fn get_mut(&mut self) -> Option<&mut Module> {
+        let maybe: Option<&mut RefCell<Module>> = Rc::get_mut(&mut self.0);
+        maybe.map(|v|v.get_mut())
     }
 }

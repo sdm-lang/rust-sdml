@@ -1,50 +1,54 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 64,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 25,
-                end: 33,
-            },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 34,
-                end: 63,
-            },
-        ),
-        imports: [],
-        annotations: [],
-        definitions: [
-            Union(
-                UnionDef {
-                    span: Some(
-                        Span {
-                            start: 40,
-                            end: 58,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 46,
-                                end: 58,
-                            },
-                        ),
-                        value: "VehicleClass",
-                    },
-                    body: None,
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 64,
                 },
             ),
-        ],
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 25,
+                        end: 33,
+                    },
+                ),
+                value: "campaign",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 34,
+                        end: 63,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [
+                    Union(
+                        UnionDef {
+                            span: Some(
+                                Span {
+                                    start: 40,
+                                    end: 58,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 46,
+                                        end: 58,
+                                    },
+                                ),
+                                value: "VehicleClass",
+                            },
+                            body: None,
+                        },
+                    ),
+                ],
+            },
+        },
     },
-}
+)

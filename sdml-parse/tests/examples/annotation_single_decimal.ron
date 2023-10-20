@@ -1,73 +1,77 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 78,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 39,
-                end: 47,
-            },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 48,
-                end: 77,
-            },
-        ),
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 54,
-                            end: 72,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
-                            span: Some(
-                                Span {
-                                    start: 55,
-                                    end: 62,
-                                },
-                            ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 55,
-                                        end: 57,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 58,
-                                        end: 62,
-                                    },
-                                ),
-                                value: "some",
-                            },
-                        },
-                    ),
-                    value: Simple(
-                        Decimal(
-                            102.201,
-                        ),
-                    ),
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 78,
                 },
             ),
-        ],
-        definitions: [],
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 39,
+                        end: 47,
+                    },
+                ),
+                value: "campaign",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 48,
+                        end: 77,
+                    },
+                ),
+                imports: [],
+                annotations: [
+                    Property(
+                        AnnotationProperty {
+                            span: Some(
+                                Span {
+                                    start: 54,
+                                    end: 72,
+                                },
+                            ),
+                            name_reference: QualifiedIdentifier(
+                                QualifiedIdentifier {
+                                    span: Some(
+                                        Span {
+                                            start: 55,
+                                            end: 62,
+                                        },
+                                    ),
+                                    module: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 55,
+                                                end: 57,
+                                            },
+                                        ),
+                                        value: "dc",
+                                    },
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 58,
+                                                end: 62,
+                                            },
+                                        ),
+                                        value: "some",
+                                    },
+                                },
+                            ),
+                            value: Simple(
+                                Decimal(
+                                    102.201,
+                                ),
+                            ),
+                        },
+                    ),
+                ],
+                definitions: [],
+            },
+        },
     },
-}
+)

@@ -1,118 +1,124 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 188,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 38,
-                end: 46,
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 188,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 38,
+                        end: 46,
+                    },
+                ),
+                value: "campaign",
             },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 47,
-                end: 187,
-            },
-        ),
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 53,
-                            end: 182,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 47,
+                        end: 187,
+                    },
+                ),
+                imports: [],
+                annotations: [
+                    Property(
+                        AnnotationProperty {
                             span: Some(
                                 Span {
-                                    start: 54,
-                                    end: 64,
-                                },
-                            ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 54,
-                                        end: 56,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 57,
-                                        end: 64,
-                                    },
-                                ),
-                                value: "seeAlso",
-                            },
-                        },
-                    ),
-                    value: List(
-                        ListOfValues {
-                            span: Some(
-                                Span {
-                                    start: 67,
+                                    start: 53,
                                     end: 182,
                                 },
                             ),
-                            values: [
-                                Simple(
-                                    IriReference(
-                                        Url {
-                                            scheme: "https",
-                                            cannot_be_a_base: false,
-                                            username: "",
-                                            password: None,
-                                            host: Some(
-                                                Domain(
-                                                    "www.dublincore.org",
-                                                ),
-                                            ),
-                                            port: None,
-                                            path: "/",
-                                            query: None,
-                                            fragment: None,
+                            name_reference: QualifiedIdentifier(
+                                QualifiedIdentifier {
+                                    span: Some(
+                                        Span {
+                                            start: 54,
+                                            end: 64,
                                         },
                                     ),
-                                ),
-                                Simple(
-                                    IriReference(
-                                        Url {
-                                            scheme: "https",
-                                            cannot_be_a_base: false,
-                                            username: "",
-                                            password: None,
-                                            host: Some(
-                                                Domain(
-                                                    "www.dublincore.org",
-                                                ),
-                                            ),
-                                            port: None,
-                                            path: "/specifications/dublin-core/dcmi-terms/",
-                                            query: None,
-                                            fragment: None,
+                                    module: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 54,
+                                                end: 56,
+                                            },
+                                        ),
+                                        value: "dc",
+                                    },
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 57,
+                                                end: 64,
+                                            },
+                                        ),
+                                        value: "seeAlso",
+                                    },
+                                },
+                            ),
+                            value: List(
+                                SequenceOfValues {
+                                    span: Some(
+                                        Span {
+                                            start: 67,
+                                            end: 182,
                                         },
                                     ),
-                                ),
-                            ],
+                                    ordering: None,
+                                    uniqueness: None,
+                                    values: [
+                                        Simple(
+                                            IriReference(
+                                                Url {
+                                                    scheme: "https",
+                                                    cannot_be_a_base: false,
+                                                    username: "",
+                                                    password: None,
+                                                    host: Some(
+                                                        Domain(
+                                                            "www.dublincore.org",
+                                                        ),
+                                                    ),
+                                                    port: None,
+                                                    path: "/",
+                                                    query: None,
+                                                    fragment: None,
+                                                },
+                                            ),
+                                        ),
+                                        Simple(
+                                            IriReference(
+                                                Url {
+                                                    scheme: "https",
+                                                    cannot_be_a_base: false,
+                                                    username: "",
+                                                    password: None,
+                                                    host: Some(
+                                                        Domain(
+                                                            "www.dublincore.org",
+                                                        ),
+                                                    ),
+                                                    port: None,
+                                                    path: "/specifications/dublin-core/dcmi-terms/",
+                                                    query: None,
+                                                    fragment: None,
+                                                },
+                                            ),
+                                        ),
+                                    ],
+                                },
+                            ),
                         },
                     ),
-                },
-            ),
-        ],
-        definitions: [],
+                ],
+                definitions: [],
+            },
+        },
     },
-}
+)

@@ -7,7 +7,7 @@ use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_DEF,
     NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF, NODE_KIND_STRUCTURE_DEF,
-    NODE_KIND_UNION_DEF,
+    NODE_KIND_UNION_DEF, NODE_KIND_TYPE_CLASS_DEF,
 };
 use tree_sitter::TreeCursor;
 
@@ -39,14 +39,17 @@ pub(crate) fn parse_definition<'a>(
                     NODE_KIND_EVENT_DEF => {
                         return Ok(parse_event_def(context, &mut node.walk())?.into());
                     }
+                    NODE_KIND_PROPERTY_DEF => {
+                        return Ok(parse_property_def(context, &mut node.walk())?.into());
+                    }
                     NODE_KIND_STRUCTURE_DEF => {
                         return Ok(parse_structure_def(context, &mut node.walk())?.into());
                     }
+                    NODE_KIND_TYPE_CLASS_DEF => {
+                        return Ok(parse_type_class_def(context, &mut node.walk())?.into());
+                    }
                     NODE_KIND_UNION_DEF => {
                         return Ok(parse_union_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_PROPERTY_DEF => {
-                        return Ok(parse_property_def(context, &mut node.walk())?.into());
                     }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
@@ -105,6 +108,9 @@ pub(crate) fn parse_annotation_only_body<'a>(
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
+
+mod classes;
+use classes::parse_type_class_def;
 
 mod datatypes;
 use datatypes::parse_data_type_def;

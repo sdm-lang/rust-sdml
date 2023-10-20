@@ -63,7 +63,14 @@ pub struct FunctionCardinality {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum FunctionTypeReference {
+pub struct FunctionTypeReference {
+    optional: bool,
+    inner: FunctionTypeReferenceInner
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum FunctionTypeReferenceInner {
     Wildcard,
     Reference(IdentifierReference),
     // builtin_simple_type is converted into a reference
@@ -369,19 +376,61 @@ impl FunctionCardinality {
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<IdentifierReference> for FunctionTypeReference {
+impl From<FunctionTypeReferenceInner> for FunctionTypeReference {
+    fn from(inner: FunctionTypeReferenceInner) -> Self {
+        Self {
+            optional: false,
+            inner,
+        }
+    }
+}
+
+impl AsRef<FunctionTypeReferenceInner> for FunctionTypeReference {
+    fn as_ref(&self) -> &FunctionTypeReferenceInner {
+        &self.inner
+    }
+}
+
+impl FunctionTypeReference {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn optional(inner: FunctionTypeReferenceInner) -> Self {
+        Self {
+            optional: true,
+            inner,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_optional(&self) -> bool {
+        self.optional
+    }
+
+    pub fn inner(&self) -> &FunctionTypeReferenceInner {
+        &self.inner
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl From<IdentifierReference> for FunctionTypeReferenceInner {
     fn from(value: IdentifierReference) -> Self {
         Self::Reference(value)
     }
 }
 
-impl From<MappingType> for FunctionTypeReference {
+impl From<MappingType> for FunctionTypeReferenceInner  {
     fn from(value: MappingType) -> Self {
         Self::MappingType(value)
     }
 }
 
-impl FunctionTypeReference {
+impl FunctionTypeReferenceInner  {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------

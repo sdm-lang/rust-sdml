@@ -1,50 +1,54 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 62,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 26,
-                end: 34,
-            },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 35,
-                end: 61,
-            },
-        ),
-        imports: [],
-        annotations: [],
-        definitions: [
-            Entity(
-                EntityDef {
-                    span: Some(
-                        Span {
-                            start: 41,
-                            end: 56,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 48,
-                                end: 56,
-                            },
-                        ),
-                        value: "Campaign",
-                    },
-                    body: None,
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 62,
                 },
             ),
-        ],
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 26,
+                        end: 34,
+                    },
+                ),
+                value: "campaign",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 35,
+                        end: 61,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [
+                    Entity(
+                        EntityDef {
+                            span: Some(
+                                Span {
+                                    start: 41,
+                                    end: 56,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 48,
+                                        end: 56,
+                                    },
+                                ),
+                                value: "Campaign",
+                            },
+                            body: None,
+                        },
+                    ),
+                ],
+            },
+        },
     },
-}
+)

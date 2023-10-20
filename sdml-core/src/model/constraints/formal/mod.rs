@@ -107,15 +107,15 @@ pub use environments::{EnvironmentDef, EnvironmentDefBody};
 mod functions;
 pub use functions::{
     FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference,
+    FunctionTypeReference, FunctionTypeReferenceInner,
 };
 
 mod sentences;
 pub use sentences::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
-    Equation, InequalityRelation, Inequation, IteratorSource, QuantifiedBinding,
-    QuantifiedSentence, QuantifiedVariableBinding, Quantifier, QuantifierBoundNames,
-    SequenceIterator, SimpleSentence, TypeIterator, UnaryBooleanSentence,
+    Equation, InequalityRelation, Inequation, QuantifiedVariable,
+    QuantifiedSentence, QuantifiedVariableBinding, Quantifier, 
+   SimpleSentence, UnaryBooleanSentence,
 };
 
 mod terms;

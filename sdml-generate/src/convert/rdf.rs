@@ -20,7 +20,7 @@ use sdml_core::{
         },
         identifiers::IdentifierReference,
         modules::{Import, Module},
-        HasName, HasNameReference,
+        HasBody, HasName, HasNameReference,
     },
 };
 use std::io::Write;
@@ -95,6 +95,7 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
             Definition::Enum(v) => write_enumeration(v, w)?,
             Definition::Event(v) => write_event(v, w)?,
             Definition::Structure(v) => write_structure(v, w)?,
+            Definition::TypeClass(_) => todo!(),
             Definition::Union(v) => write_union(v, w)?,
             Definition::Property(v) => write_property(v, w)?,
         }

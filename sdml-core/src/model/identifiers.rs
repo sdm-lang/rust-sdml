@@ -342,6 +342,24 @@ impl IdentifierReference {
     is_as_variant!(QualifiedIdentifier (QualifiedIdentifier) => is_qualified_identifier, as_qualified_identifier);
 
     // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+
+    pub fn module(&self) -> Option<&Identifier> {
+        match self {
+            IdentifierReference::Identifier(_) => None,
+            IdentifierReference::QualifiedIdentifier(v) => Some(v.module()),
+        }
+    }
+
+    pub fn member(&self) -> &Identifier {
+        match self {
+            IdentifierReference::Identifier(v) => v,
+            IdentifierReference::QualifiedIdentifier(v) => v.member(),
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
     // Helpers
     // --------------------------------------------------------------------------------------------
 

@@ -1,92 +1,96 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 101,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 54,
-                end: 62,
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 101,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 54,
+                        end: 62,
+                    },
+                ),
+                value: "campaign",
             },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 63,
-                end: 100,
-            },
-        ),
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 69,
-                            end: 95,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 63,
+                        end: 100,
+                    },
+                ),
+                imports: [],
+                annotations: [
+                    Property(
+                        AnnotationProperty {
                             span: Some(
                                 Span {
-                                    start: 70,
-                                    end: 78,
+                                    start: 69,
+                                    end: 95,
                                 },
                             ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 70,
-                                        end: 72,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 73,
-                                        end: 78,
-                                    },
-                                ),
-                                value: "title",
-                            },
-                        },
-                    ),
-                    value: Simple(
-                        String(
-                            LanguageString {
-                                span: Some(
-                                    Span {
-                                        start: 81,
-                                        end: 95,
-                                    },
-                                ),
-                                value: "a test",
-                                language: Some(
-                                    LanguageTag {
+                            name_reference: QualifiedIdentifier(
+                                QualifiedIdentifier {
+                                    span: Some(
+                                        Span {
+                                            start: 70,
+                                            end: 78,
+                                        },
+                                    ),
+                                    module: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 89,
+                                                start: 70,
+                                                end: 72,
+                                            },
+                                        ),
+                                        value: "dc",
+                                    },
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 73,
+                                                end: 78,
+                                            },
+                                        ),
+                                        value: "title",
+                                    },
+                                },
+                            ),
+                            value: Simple(
+                                String(
+                                    LanguageString {
+                                        span: Some(
+                                            Span {
+                                                start: 81,
                                                 end: 95,
                                             },
                                         ),
-                                        value: "en-US",
+                                        value: "a test",
+                                        language: Some(
+                                            LanguageTag {
+                                                span: Some(
+                                                    Span {
+                                                        start: 89,
+                                                        end: 95,
+                                                    },
+                                                ),
+                                                value: "en-US",
+                                            },
+                                        ),
                                     },
                                 ),
-                            },
-                        ),
+                            ),
+                        },
                     ),
-                },
-            ),
-        ],
-        definitions: [],
+                ],
+                definitions: [],
+            },
+        },
     },
-}
+)

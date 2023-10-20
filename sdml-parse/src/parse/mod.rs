@@ -13,7 +13,7 @@ use crate::error::{
     ErrorCounters, FileId, MEMBER_ALREADY_IMPORTED, MEMBER_NAME_USED, MODULE_ALREADY_IMPORTED,
     TYPE_DEFINITION_NAME_USED,
 };
-use crate::load::ModuleLoader;
+use crate::load::{ModuleLoader, Source};
 use crate::parse::modules::parse_module;
 use codespan_reporting::diagnostic::Label;
 use sdml_core::error::{module_parse_error, Error};
@@ -48,8 +48,9 @@ pub(crate) struct Parsed {
 // ------------------------------------------------------------------------------------------------
 
 // This should only be called by `ModuleLoader`
-pub(crate) fn parse_str(file_id: FileId, loader: &mut ModuleLoader) -> Result<Parsed, Error> {
-    let source = loader.files().get(file_id).unwrap().source();
+pub(crate) fn parse_str(file_id: FileId, loader: &ModuleLoader) -> Result<Parsed, Error> {
+    let file_cache = loader.files();
+    let source = file_cache.get(file_id).unwrap().source();
     let mut parser = Parser::new();
     parser
         .set_language(language())
@@ -83,6 +84,7 @@ pub(crate) fn parse_str(file_id: FileId, loader: &mut ModuleLoader) -> Result<Pa
 pub(crate) struct ParseContext<'a> {
     loader: &'a ModuleLoader,
     file_id: FileId,
+    source: Source,
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
@@ -103,9 +105,12 @@ impl Parsed {
 
 impl<'a> ParseContext<'a> {
     fn new(file_id: FileId, loader: &'a ModuleLoader) -> Self {
+        let file_cache = loader.files();
+        let file = file_cache.get(file_id).unwrap();
         Self {
             file_id,
             loader,
+            source: file.source().clone(),
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
@@ -113,17 +118,8 @@ impl<'a> ParseContext<'a> {
         }
     }
 
-    fn source(&self) -> &[u8] {
-        self.loader
-            .files()
-            .get(self.file_id)
-            .unwrap()
-            .source()
-            .as_bytes()
-    }
-
     fn node_source(&'a self, node: &'a Node<'a>) -> Result<&'a str, Error> {
-        Ok(node.utf8_text(self.source())?)
+        Ok(node.utf8_text(self.source.as_ref())?)
     }
 
     fn check_if_error(&self, node: &Node<'a>, rule: &str) -> Result<(), Error> {
@@ -226,8 +222,6 @@ fn message_expecting_one_of_node(expecting: &[&str]) -> String {
 // ------------------------------------------------------------------------------------------------
 
 mod modules;
-
-mod imports;
 
 mod identifiers;
 

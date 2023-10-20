@@ -1,101 +1,107 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 102,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 41,
-                end: 49,
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 102,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 41,
+                        end: 49,
+                    },
+                ),
+                value: "campaign",
             },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 50,
-                end: 101,
-            },
-        ),
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 56,
-                            end: 96,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 50,
+                        end: 101,
+                    },
+                ),
+                imports: [],
+                annotations: [
+                    Property(
+                        AnnotationProperty {
                             span: Some(
                                 Span {
-                                    start: 57,
-                                    end: 64,
-                                },
-                            ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 57,
-                                        end: 59,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 60,
-                                        end: 64,
-                                    },
-                                ),
-                                value: "some",
-                            },
-                        },
-                    ),
-                    value: List(
-                        ListOfValues {
-                            span: Some(
-                                Span {
-                                    start: 67,
+                                    start: 56,
                                     end: 96,
                                 },
                             ),
-                            values: [
-                                Simple(
-                                    Double(
-                                        OrderedFloat(
-                                            3.1e101,
-                                        ),
+                            name_reference: QualifiedIdentifier(
+                                QualifiedIdentifier {
+                                    span: Some(
+                                        Span {
+                                            start: 57,
+                                            end: 64,
+                                        },
                                     ),
-                                ),
-                                Simple(
-                                    Double(
-                                        OrderedFloat(
-                                            1.2e-10,
+                                    module: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 57,
+                                                end: 59,
+                                            },
                                         ),
-                                    ),
-                                ),
-                                Simple(
-                                    Double(
-                                        OrderedFloat(
-                                            100000000.0,
+                                        value: "dc",
+                                    },
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 60,
+                                                end: 64,
+                                            },
                                         ),
+                                        value: "some",
+                                    },
+                                },
+                            ),
+                            value: List(
+                                SequenceOfValues {
+                                    span: Some(
+                                        Span {
+                                            start: 67,
+                                            end: 96,
+                                        },
                                     ),
-                                ),
-                            ],
+                                    ordering: None,
+                                    uniqueness: None,
+                                    values: [
+                                        Simple(
+                                            Double(
+                                                OrderedFloat(
+                                                    3.1e101,
+                                                ),
+                                            ),
+                                        ),
+                                        Simple(
+                                            Double(
+                                                OrderedFloat(
+                                                    1.2e-10,
+                                                ),
+                                            ),
+                                        ),
+                                        Simple(
+                                            Double(
+                                                OrderedFloat(
+                                                    100000000.0,
+                                                ),
+                                            ),
+                                        ),
+                                    ],
+                                },
+                            ),
                         },
                     ),
-                },
-            ),
-        ],
-        definitions: [],
+                ],
+                definitions: [],
+            },
+        },
     },
-}
+)

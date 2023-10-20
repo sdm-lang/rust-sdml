@@ -15,12 +15,12 @@ use sdml_core::error::Error;
 use sdml_core::generate::GenerateToWriter;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{
-    ByReferenceMemberDef, ByValueMemberDef, Cardinality, HasCardinality, HasType,
-    IdentityMemberDef, MemberKind, TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY,
-    DEFAULT_BY_VALUE_CARDINALITY,
+    Cardinality,
+    TypeReference, DEFAULT_CARDINALITY,
 };
+use sdml_core::load::ModuleLoader;
 use sdml_core::model::modules::{Import, Module};
-use sdml_core::model::walk::{walk_module, ModuleWalker};
+use sdml_core::model::walk::{walk_module_simple, SimpleModuleWalker};
 use sdml_core::model::Span;
 use std::io::Write;
 use tracing::trace;
@@ -62,10 +62,11 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
     fn write_in_format(
         &mut self,
         module: &Module,
+        _loader: Option<&mut dyn ModuleLoader>,
         writer: &mut dyn Write,
         format: OutputFormat,
     ) -> Result<(), Error> {
-        walk_module(module, self)?;
+        walk_module_simple(module, self)?;
 
         if format == OutputFormat::Source {
             writer.write_all(self.buffer.as_bytes())?;
@@ -84,7 +85,7 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
     }
 }
 
-impl ModuleWalker for ErdDiagramGenerator {
+impl SimpleModuleWalker for ErdDiagramGenerator {
     fn start_module(&mut self, _name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
         self.buffer.push_str(
             r#"digraph G {
@@ -129,6 +130,7 @@ impl ModuleWalker for ErdDiagramGenerator {
     fn start_datatype(
         &mut self,
         name: &Identifier,
+        _is_opaque: bool,
         _base_type: &IdentifierReference,
         _: bool,
         _: Option<&Span>,
@@ -187,141 +189,104 @@ impl ModuleWalker for ErdDiagramGenerator {
         Ok(())
     }
 
-    fn start_identity_member(
+    fn start_entity_identity(
         &mut self,
         name: &Identifier,
-        inner: &MemberKind<IdentityMemberDef>,
+        target_type: &TypeReference,
+        _: bool,
         _: Option<&Span>,
     ) -> Result<(), Error> {
-        match inner {
-            MemberKind::PropertyReference(role) => {
-                self.buffer.push_str(&format!(
-                    "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-                    self.entity
-                        .as_deref()
-                        .unwrap_or_default()
-                        .to_lowercase(),
-                    name,
-                    role
-                ));
-            }
-            MemberKind::Definition(def) => {
-                if matches!(def.target_type(), TypeReference::Unknown)
-                    && !self.seen.contains(&"unknown".to_string())
-                {
-                    self.buffer.push_str(
-                        "  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n",
-                    );
-                    self.seen.push("unknown".to_string());
-                }
-                let target_type = if let TypeReference::Reference(target_type) = def.target_type() {
-                    name_to_ref(&target_type.to_string())
-                } else {
-                    "unknown".to_string()
-                    // TODO: mapping types
-                };
-                self.buffer.push_str(&format!(
-                    "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-                    self.entity
-                        .as_deref()
-                        .unwrap_or_default()
-                        .to_lowercase(),
-                    target_type,
-                    name
-                ));
-            }
+        if matches!(target_type, TypeReference::Unknown)
+            && !self.seen.contains(&"unknown".to_string())
+        {
+            self.buffer.push_str(
+                "  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n",
+            );
+            self.seen.push("unknown".to_string());
         }
-
+        let target_type = if let TypeReference::Type(target_type) = target_type {
+            name_to_ref(&target_type.to_string())
+        } else {
+            "unknown".to_string()
+            // TODO: mapping types
+        };
+        self.buffer.push_str(&format!(
+            "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
+            self.entity
+                .as_deref()
+                .unwrap_or_default()
+                .to_lowercase(),
+            target_type,
+            name
+        ));
         Ok(())
     }
 
-    fn start_by_value_member(
+    fn start_entity_identity_role_ref(
         &mut self,
-        name: &Identifier,
-        inner: &MemberKind<ByValueMemberDef>,
+        role_name: &Identifier,
+        in_property: &IdentifierReference,
         _: Option<&Span>,
     ) -> Result<(), Error> {
-        match inner {
-            MemberKind::PropertyReference(role) => {
-                self.buffer.push_str(&format!(
-                    "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-                    self.entity
-                        .as_deref()
-                        .unwrap_or_default()
-                        .to_lowercase(),
-                    name,
-                    role
-                ));
-            }
-            MemberKind::Definition(def) => {
-                let target_type = if let TypeReference::Reference(target_type) = def.target_type() {
-                    name_to_ref(&target_type.to_string())
-                    // TODO: mapping types
-                } else {
-                    "unknown".to_string()
-                };
-                let target_cardinality = def.target_cardinality();
-                let target_cardinality = if *target_cardinality == DEFAULT_BY_VALUE_CARDINALITY {
-                    arrow_end("head", target_cardinality)
-                } else {
-                    String::new()
-                };
-                self.buffer.push_str(&format!(
-                    "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\"{}];\n",
-                    self.entity.as_deref().unwrap_or_default().to_lowercase(),
-                    target_type,
-                    name,
-                    target_cardinality
-                ));
-            }
-        }
-
+        self.buffer.push_str(&format!(
+            "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
+            self.entity
+                .as_deref()
+                .unwrap_or_default()
+                .to_lowercase(),
+            in_property,
+            role_name
+        ));
         Ok(())
     }
 
-    fn start_by_reference_member(
+    fn start_member(
         &mut self,
         name: &Identifier,
-        inner: &MemberKind<ByReferenceMemberDef>,
+        inverse_name: Option<&Identifier>,
+        target_cardinality: &Cardinality,
+        target_type: &TypeReference,
+        _: bool,
         _: Option<&Span>,
     ) -> Result<(), Error> {
-        match inner {
-            MemberKind::PropertyReference(role) => {
-                self.buffer.push_str(&format!(
-                    "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-                    self.entity
-                        .as_deref()
-                        .unwrap_or_default()
-                        .to_lowercase(),
-                    name,
-                    role
-                ));
-            }
-            MemberKind::Definition(def) => {
-                let target_type = if let TypeReference::Reference(target_type) = def.target_type() {
-                    name_to_ref(&target_type.to_string())
-                    // TODO: mapping types
-                } else {
-                    "unknown".to_string()
-                };
-                let target_cardinality = def.target_cardinality();
-                let target_cardinality = if *target_cardinality == DEFAULT_BY_REFERENCE_CARDINALITY
-                {
-                    arrow_end("head", target_cardinality)
-                } else {
-                    String::new()
-                };
-                self.buffer.push_str(&format!(
-                    "  {} -> {} [tooltip=\"{}\";dir=\"both\"{}{}];\n",
-                    self.entity.as_deref().unwrap_or_default().to_lowercase(),
-                    target_type,
-                    name,
-                    "", // TODO: add inverse?
-                    target_cardinality
-                ));
-            }
-        }
+        let target_type = if let TypeReference::Type(target_type) = target_type {
+            name_to_ref(&target_type.to_string())
+            // TODO: mapping types
+        } else {
+            "unknown".to_string()
+        };
+        let target_cardinality = if *target_cardinality == DEFAULT_CARDINALITY
+        {
+            arrow_end("head", target_cardinality)
+        } else {
+            String::new()
+        };
+        self.buffer.push_str(&format!(
+            "  {} -> {} [tooltip=\"{}\";dir=\"both\"{}{}];\n",
+            self.entity.as_deref().unwrap_or_default().to_lowercase(),
+            target_type,
+            name,
+            inverse_name.map(|id|id.to_string()).unwrap_or_default(),
+            target_cardinality
+        ));
+        Ok(())
+    }
 
+    fn start_member_role_ref(
+        &mut self,
+        role_name: &Identifier,
+        in_property: &IdentifierReference,
+        _: Option<&Span>,
+    ) -> Result<(), Error> {
+        self.buffer.push_str(&format!(
+            "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
+            self.entity
+                .as_deref()
+                .unwrap_or_default()
+                .to_lowercase(),
+            in_property,
+            role_name
+        ));
         Ok(())
     }
 

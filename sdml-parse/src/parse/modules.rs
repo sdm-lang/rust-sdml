@@ -1,14 +1,15 @@
 use crate::parse::annotations::parse_annotation;
 use crate::parse::definitions::parse_definition;
-use crate::parse::identifiers::parse_identifier;
-use crate::parse::imports::parse_import_statement;
+use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
 use sdml_core::error::Error;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::modules::{Module, ModuleBody};
+use sdml_core::model::modules::{Import, ImportStatement};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_DEFINITION,
-    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_LINE_COMMENT,  NODE_KIND_MEMBER_IMPORT,
+    NODE_KIND_MODULE_IMPORT,
 };
 use tree_sitter::TreeCursor;
 
@@ -42,43 +43,81 @@ fn parse_module_body<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<ModuleBody, Error> {
     rule_fn!("module_body", cursor.node());
+
     let mut body = ModuleBody::default().with_source_span(cursor.node().into());
-    let mut has_next = cursor.goto_first_child();
-    if has_next {
-        while has_next {
-            let node = cursor.node();
-            context.check_if_error(&node, RULE_NAME)?;
-            if node.is_named() {
-                match node.kind() {
-                    NODE_KIND_IMPORT_STATEMENT => {
-                        body.add_to_imports(parse_import_statement(context, &mut node.walk())?)
-                    }
-                    NODE_KIND_ANNOTATION => {
-                        body.add_to_annotations(parse_annotation(context, &mut node.walk())?)
-                    }
-                    NODE_KIND_DEFINITION => {
-                        body.add_to_definitions(parse_definition(context, &mut node.walk())?)
-                    }
-                    NODE_KIND_LINE_COMMENT => {}
-                    _ => {
-                        unexpected_node!(
-                            context,
-                            RULE_NAME,
-                            node,
-                            [
-                                NODE_KIND_IMPORT_STATEMENT,
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_DEFINITION,
-                            ]
-                        );
-                    }
-                }
+
+    for node in cursor.node().named_children(cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
+        match node.kind() {
+            NODE_KIND_IMPORT_STATEMENT => {
+                body.add_to_imports(parse_import_statement(context, &mut node.walk())?)
             }
-            has_next = cursor.goto_next_sibling();
+            NODE_KIND_ANNOTATION => {
+                body.add_to_annotations(parse_annotation(context, &mut node.walk())?)
+            }
+            NODE_KIND_DEFINITION => {
+                body.add_to_definitions(parse_definition(context, &mut node.walk())?)
+            }
+            NODE_KIND_LINE_COMMENT => {}
+            _ => {
+                unexpected_node!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    [
+                        NODE_KIND_IMPORT_STATEMENT,
+                        NODE_KIND_ANNOTATION,
+                        NODE_KIND_DEFINITION,
+                    ]
+                );
+            }
         }
-        assert!(cursor.goto_parent());
     }
     Ok(body)
+}
+
+
+fn parse_import_statement<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<ImportStatement, Error> {
+    rule_fn!("import_statement", cursor.node());
+
+    let mut import = ImportStatement::default().with_source_span(cursor.node().into());
+
+    for node in cursor.node().named_children(cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
+        match node.kind() {
+            NODE_KIND_MODULE_IMPORT => {
+                let node = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+                context.check_if_error(&node, RULE_NAME)?;
+                let name: Import = parse_identifier(context, &node)?.into();
+                context.add_import(&name)?;
+                import.add_to_imports(name);
+            }
+            NODE_KIND_MEMBER_IMPORT => {
+                let node = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+                context.check_if_error(&node, RULE_NAME)?;
+                let name: Import =
+                    parse_qualified_identifier(context, &mut node.walk())?.into();
+                context.add_import(&name)?;
+                import.add_to_imports(name);
+            }
+            NODE_KIND_LINE_COMMENT => {}
+            _ => {
+                unexpected_node!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    [
+                        NODE_KIND_MODULE_IMPORT,
+                        NODE_KIND_MEMBER_IMPORT,
+                    ]
+                );
+            }
+        }
+    }
+    Ok(import)
 }
 
 // ------------------------------------------------------------------------------------------------

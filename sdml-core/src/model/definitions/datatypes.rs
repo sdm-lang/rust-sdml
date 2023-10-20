@@ -23,6 +23,7 @@ use serde::{Deserialize, Serialize};
 pub struct DatatypeDef {
     span: Option<Span>,
     name: Identifier,
+    opaque: bool,
     /// Corresponds to the grammar rule `data_type_base`.
     base_type: IdentifierReference,
     body: Option<AnnotationOnlyBody>,
@@ -62,6 +63,17 @@ impl DatatypeDef {
         Self {
             span: None,
             name,
+            opaque: false,
+            base_type,
+            body: None,
+        }
+    }
+
+    pub fn new_opaque(name: Identifier, base_type: IdentifierReference) -> Self {
+        Self {
+            span: None,
+            name,
+            opaque: true,
             base_type,
             body: None,
         }
@@ -70,6 +82,14 @@ impl DatatypeDef {
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
+
+    pub fn is_opaque(&self) -> bool {
+        self.opaque
+    }
+
+    pub fn set_opaque(&mut self, opaque: bool) {
+        self.opaque = opaque;
+    }
 
     get_and_set!(pub base_type, set_base_type => IdentifierReference);
 }

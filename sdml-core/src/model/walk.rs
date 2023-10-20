@@ -25,19 +25,16 @@ use crate::error::Error;
 use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EntityGroup, EntityMember, EnumDef, EventDef,
-    FeatureMemberDef, FeatureSetBody, FeatureSetDef, HasGroups, HasMembers, HasVariants,
-    PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, StructureGroup, TypeVariant,
-    UnionDef,
+    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef,
+    HasGroups, HasMembers, HasVariants, PropertyDef, PropertyRole, PropertyRoleDef, StructureDef,
+    TypeVariant, UnionDef,
 };
 use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::members::{
-    ByReferenceMember, ByReferenceMemberDef, ByValueMember, ByValueMemberDef, Cardinality,
-    HasCardinality, HasType, IdentityMember, IdentityMemberDef, Member, MemberKind, TypeReference,
-};
+use crate::model::members::{Cardinality, Member, HasCardinality, MemberGroup, TypeReference};
 use crate::model::modules::{Import, Module};
 use crate::model::values::Value;
 use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
+use super::members::HasType;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -81,6 +78,7 @@ pub trait SimpleModuleWalker {
     fn start_datatype(
         &mut self,
         _name: &Identifier,
+        _is_opaque: bool,
         _base_type: &IdentifierReference,
         _has_body: bool,
         _span: Option<&Span>,
@@ -101,34 +99,47 @@ pub trait SimpleModuleWalker {
         Ok(())
     }
 
-    fn start_identity_member(
+    fn start_entity_identity(
         &mut self,
         _name: &Identifier,
-        _inner: &MemberKind<IdentityMemberDef>,
+        _target_type: &TypeReference,
+        _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_by_value_member(
+    fn start_entity_identity_role_ref(
         &mut self,
-        _name: &Identifier,
-        _inner: &MemberKind<ByValueMemberDef>,
+        _role_name: &Identifier,
+        _in_property: &IdentifierReference,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_by_reference_member(
+    fn start_member(
         &mut self,
         _name: &Identifier,
-        _inner: &MemberKind<ByReferenceMemberDef>,
+        _inverse_name: Option<&Identifier>,
+        _target_cardinality: &Cardinality,
+        _target_type: &TypeReference,
+        _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_member(&mut self, _name: &Identifier) -> Result<(), Error> {
+    fn start_member_role_ref(
+        &mut self,
+        _role_name: &Identifier,
+        _in_property: &IdentifierReference,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_member(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
@@ -148,7 +159,6 @@ pub trait SimpleModuleWalker {
     fn start_value_variant(
         &mut self,
         _identifier: &Identifier,
-        _value: u32,
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
@@ -185,29 +195,6 @@ pub trait SimpleModuleWalker {
         Ok(())
     }
 
-    fn start_feature_set(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_feature_member(
-        &mut self,
-        _name: &Identifier,
-        _target_cardinality: &Cardinality,
-        _target_type: &TypeReference,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_feature_set(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
     fn start_property(
         &mut self,
         _name: &Identifier,
@@ -220,31 +207,26 @@ pub trait SimpleModuleWalker {
     fn start_identity_role(
         &mut self,
         _name: &Identifier,
-        _inner: &IdentityMemberDef,
+        _target_type: &TypeReference,
+        _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_by_reference_role(
+    fn start_member_role(
         &mut self,
         _name: &Identifier,
-        _inner: &ByReferenceMemberDef,
+        _inverse_name: Option<&Identifier>,
+        _target_cardinality: &Cardinality,
+        _target_type: &TypeReference,
+        _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
     }
 
-    fn start_by_value_role(
-        &mut self,
-        _name: &Identifier,
-        _inner: &ByValueMemberDef,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_property_role(&mut self, _name: &Identifier) -> Result<(), Error> {
+    fn end_property_role(&mut self, _name: &Identifier, _has_body: bool) -> Result<(), Error> {
         Ok(())
     }
 
@@ -358,9 +340,9 @@ pub fn walk_module_simple(
             Definition::Entity(def) => walk_entity_def(def, walker)?,
             Definition::Enum(def) => walk_enum_def(def, walker)?,
             Definition::Event(def) => walk_event_def(def, walker)?,
-            Definition::FeatureSet(def) => walk_feature_set_def(def, walker)?,
             Definition::Property(def) => walk_property_def(def, walker)?,
             Definition::Structure(def) => walk_structure_def(def, walker)?,
+            Definition::TypeClass(_) => todo!(),
             Definition::Union(def) => walk_union_def(def, walker)?,
         }
     }
@@ -387,6 +369,7 @@ pub fn walk_module_simple(
 fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
     walker.start_datatype(
         def.name(),
+        def.is_opaque(),
         def.base_type(),
         def.has_body(),
         def.source_span(),
@@ -403,41 +386,20 @@ fn walk_entity_def(def: &EntityDef, walker: &mut impl SimpleModuleWalker) -> Res
     walker.start_entity(def.name(), def.has_body(), def.source_span())?;
 
     if let Some(body) = def.body() {
-        walk_identity_member(body.identity(), walker)?;
+        walk_entity_identity(body.identity(), walker)?;
 
         walk_annotations!(walker, body.annotations());
 
         for member in body.members() {
-            match &member {
-                EntityMember::ByValue(member) => walk_by_value_member(member, walker)?,
-                EntityMember::ByReference(member) => walk_by_reference_member(member, walker)?,
-            }
+            walk_member(member, walker)?;
         }
 
         for group in body.groups() {
-            walk_entity_group(group, walker)?;
+            walk_member_group(group, walker)?;
         }
     }
 
     walker.end_entity(def.name(), def.has_body())
-}
-
-fn walk_entity_group(
-    group: &EntityGroup,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    walker.start_group(group.source_span())?;
-
-    walk_annotations!(walker, group.annotations());
-
-    for member in group.members() {
-        match &member {
-            EntityMember::ByValue(member) => walk_by_value_member(member, walker)?,
-            EntityMember::ByReference(member) => walk_by_reference_member(member, walker)?,
-        }
-    }
-
-    walker.end_group()
 }
 
 fn walk_enum_def(def: &EnumDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
@@ -448,7 +410,6 @@ fn walk_enum_def(def: &EnumDef, walker: &mut impl SimpleModuleWalker) -> Result<
         for variant in body.variants() {
             walker.start_value_variant(
                 variant.name(),
-                variant.value(),
                 variant.has_body(),
                 variant.source_span(),
             )?;
@@ -474,64 +435,15 @@ fn walk_event_def(def: &EventDef, walker: &mut impl SimpleModuleWalker) -> Resul
         walk_annotations!(walker, body.annotations());
 
         for member in body.members() {
-            walk_by_value_member(member, walker)?;
+            walk_member(member, walker)?;
         }
 
         for group in body.groups() {
-            walk_structure_group(group, walker)?;
+            walk_member_group(group, walker)?;
         }
     }
 
     walker.end_event(def.name(), def.has_body())
-}
-
-fn walk_feature_set_def(
-    def: &FeatureSetDef,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    walker.start_feature_set(def.name(), def.has_body(), def.source_span())?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-
-        match body {
-            FeatureSetBody::Conjunctive(v) => {
-                for member in v.members() {
-                    walk_feature_member(member, walker)?;
-                }
-            }
-            FeatureSetBody::Disjunctive(v) => {
-                for variant in v.variants() {
-                    walk_type_variant(variant, walker)?;
-                }
-            }
-            FeatureSetBody::ExclusiveDisjunction(v) => {
-                for variant in v.variants() {
-                    walk_type_variant(variant, walker)?;
-                }
-            }
-        }
-    }
-
-    walker.end_feature_set(def.name(), def.has_body())
-}
-
-fn walk_feature_member(
-    member: &FeatureMemberDef,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    walker.start_feature_member(
-        member.name(),
-        member.target_cardinality(),
-        member.target_type(),
-        member.source_span(),
-    )?;
-
-    if let Some(body) = member.body() {
-        walk_annotations!(walker, body.annotations());
-    }
-
-    walker.end_member(member.name())
 }
 
 fn walk_property_def(def: &PropertyDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
@@ -554,20 +466,32 @@ fn walk_property_role(
 ) -> Result<(), Error> {
     match role.definition() {
         PropertyRoleDef::Identity(inner) => {
-            walker.start_identity_role(role.name(), inner, role.source_span())?
+            walker.start_identity_role(
+                role.name(),
+                inner.target_type(),
+                inner.has_body(),
+                role.source_span()
+            )?
         }
-        PropertyRoleDef::ByReference(inner) => {
-            walker.start_by_reference_role(role.name(), inner, role.source_span())?
+        PropertyRoleDef::Member(inner) => {
+            walker.start_member_role(
+                role.name(),
+                inner.inverse_name(),
+                inner.target_cardinality(),
+                inner.target_type(),
+                inner.has_body(),
+                role.source_span()
+            )?
         }
-        PropertyRoleDef::ByValue(inner) => {
-            walker.start_by_value_role(role.name(), inner, role.source_span())?
-        }
-    }
+    };
 
-    if let Some(body) = role.body() {
+    let had_body = if let Some(body) = role.body() {
         walk_annotations!(walker, body.annotations());
-    }
-    walker.end_property_role(role.name())
+        true
+    } else {
+        false
+    };
+    walker.end_property_role(role.name(), had_body)
 }
 
 fn walk_structure_def(
@@ -580,19 +504,19 @@ fn walk_structure_def(
         walk_annotations!(walker, body.annotations());
 
         for member in body.members() {
-            walk_by_value_member(member, walker)?;
+            walk_member(member, walker)?;
         }
 
         for group in body.groups() {
-            walk_structure_group(group, walker)?;
+            walk_member_group(group, walker)?;
         }
     }
 
     walker.end_structure(def.name(), def.has_body())
 }
 
-fn walk_structure_group(
-    group: &StructureGroup,
+fn walk_member_group(
+    group: &MemberGroup,
     walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
     walker.start_group(group.source_span())?;
@@ -600,7 +524,7 @@ fn walk_structure_group(
     walk_annotations!(walker, group.annotations());
 
     for member in group.members() {
-        walk_by_value_member(member, walker)?;
+        walk_member(member, walker)?;
     }
 
     walker.end_group()
@@ -635,58 +559,52 @@ fn walk_type_variant(
     walker.end_type_variant(variant.name_reference(), variant.has_body())
 }
 
-fn walk_identity_member(
-    member: &IdentityMember,
+fn walk_entity_identity(
+    member: &EntityIdentity,
     walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
-    walker.start_identity_member(member.name(), member.kind(), member.source_span())?;
+    let had_body = if let Some(name) = member.as_property_reference() {
+        walker.start_entity_identity_role_ref(member.name(), name, member.source_span())?;
+        false
+    } else if let Some(defn) = member.as_definition() {
+        walker.start_entity_identity(member.name(), defn.target_type(), defn.has_body(), member.source_span())?;
+        if let Some(body) = defn.body() {
+            walk_annotations!(walker, body.annotations());
+            true
+        } else {
+            false
+        }
+    } else {
+        unreachable!()
+    };
 
-    if let Some(body) = member
-        .kind()
-        .as_definition()
-        .map(|def| def.body())
-        .unwrap_or_default()
-    {
-        walk_annotations!(walker, body.annotations());
-    }
-
-    walker.end_member(member.name())
+    walker.end_member(member.name(), had_body)
 }
 
-fn walk_by_value_member(
-    member: &ByValueMember,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    walker.start_by_value_member(member.name(), member.kind(), member.source_span())?;
+fn walk_member(member: &Member, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
+    let had_body = if let Some(name) = member.as_property_reference() {
+        walker.start_member_role_ref(member.name(), name, member.source_span())?;
+        false
+    } else if let Some(defn) = member.as_definition() {
+        walker.start_member(
+            member.name(),
+            defn.inverse_name(),
+            defn.target_cardinality(),
+            defn.target_type(),
+            defn.has_body(),
+            member.source_span()
+        )?;
+        if let Some(body) = defn.body() {
+            walk_annotations!(walker, body.annotations());
+            true
+        } else {
+            false
+        }
+    } else {
+        unreachable!()
+    };
 
-    if let Some(body) = member
-        .kind()
-        .as_definition()
-        .map(|def| def.body())
-        .unwrap_or_default()
-    {
-        walk_annotations!(walker, body.annotations());
-    }
-
-    walker.end_member(member.name())
-}
-
-fn walk_by_reference_member(
-    member: &ByReferenceMember,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    walker.start_by_reference_member(member.name(), member.kind(), member.source_span())?;
-
-    if let Some(body) = member
-        .kind()
-        .as_definition()
-        .map(|def| def.body())
-        .unwrap_or_default()
-    {
-        walk_annotations!(walker, body.annotations());
-    }
-
-    walker.end_member(member.name())
+    walker.end_member(member.name(), had_body)
 }
 
 // ------------------------------------------------------------------------------------------------

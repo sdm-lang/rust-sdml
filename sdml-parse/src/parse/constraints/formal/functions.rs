@@ -5,7 +5,7 @@ use crate::parse::ParseContext;
 use sdml_core::error::{invalid_value_for_type, Error};
 use sdml_core::model::constraints::{
     FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference,
+    FunctionTypeReference, FunctionTypeReferenceInner,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{Ordering, Uniqueness, CardinalityRange};
@@ -28,7 +28,7 @@ pub(crate) fn parse_function_def<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<FunctionDef, Error> {
     let node = cursor.node();
-    rule_fn!("parse_function_def", node);
+    rule_fn!("function_def", node);
 
     let child = node.child_by_field_name(FIELD_NAME_SIGNATURE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
@@ -41,12 +41,12 @@ pub(crate) fn parse_function_def<'a>(
     Ok(FunctionDef::new(signature, body))
 }
 
-fn parse_function_signature<'a>(
+pub(crate) fn parse_function_signature<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
 ) -> Result<FunctionSignature, Error> {
     let node = cursor.node();
-    rule_fn!("parse_function_signature", node);
+    rule_fn!("function_signature", node);
 
     let parameters = {
         let mut parameters: Vec<FunctionParameter> = Default::default();
@@ -73,7 +73,7 @@ fn parse_function_parameter<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<FunctionParameter, Error> {
     let node = cursor.node();
-    rule_fn!("parse_function_parameter", node);
+    rule_fn!("function_parameter", node);
 
     let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
     let name = parse_identifier(context, &child)?;
@@ -91,12 +91,12 @@ fn parse_function_parameter<'a>(
     Ok(FunctionParameter::new(name, fn_type))
 }
 
-fn parse_function_cardinality_expression<'a>(
+pub(crate) fn parse_function_cardinality_expression<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
 ) -> Result<FunctionCardinality, Error> {
     let node = cursor.node();
-    rule_fn!("parse_function_cardinality_expression", node);
+    rule_fn!("function_cardinality_expression", node);
 
     let ordering = if let Some(child) = node.child_by_field_name(FIELD_NAME_ORDERING) {
         context.check_if_error(&child, RULE_NAME)?;
@@ -143,26 +143,26 @@ fn parse_function_type_reference<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<FunctionTypeReference, Error> {
     let node = cursor.node();
-    rule_fn!("parse_function_type_reference", node);
+    rule_fn!("function_type_reference", node);
 
     let child = node.named_child(0).unwrap();
 
     match child.kind() {
-        NODE_KIND_WILDCARD => Ok(FunctionTypeReference::Wildcard),
+        NODE_KIND_WILDCARD => Ok(FunctionTypeReferenceInner::Wildcard.into()),
         NODE_KIND_IDENTIFIER_REFERENCE => {
             let ident = parse_identifier_reference(context, &mut child.walk())?;
-            Ok(FunctionTypeReference::Reference(ident))
+            Ok(FunctionTypeReferenceInner::Reference(ident).into())
         }
         NODE_KIND_BUILTIN_SIMPLE_TYPE => {
             let module = Identifier::new_unchecked(NAME_SDML);
             let member = parse_identifier(context, &child)?.with_source_span(child.into());
             let ident =
                 IdentifierReference::QualifiedIdentifier(QualifiedIdentifier::new(module, member));
-            Ok(FunctionTypeReference::Reference(ident))
+            Ok(FunctionTypeReferenceInner::Reference(ident).into())
         }
         NODE_KIND_MAPPING_TYPE => {
             let mapping_type = parse_mapping_type(context, &mut child.walk())?;
-            Ok(FunctionTypeReference::MappingType(mapping_type))
+            Ok(FunctionTypeReferenceInner::MappingType(mapping_type).into())
         }
         //        NODE_KIND_LINE_COMMENT => {}
         _ => {

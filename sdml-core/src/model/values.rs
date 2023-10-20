@@ -1,4 +1,4 @@
-use super::{IdentifierReference, Span};
+use crate::model::{IdentifierReference, Span, members::{Ordering, Uniqueness}};
 use crate::error::invalid_language_tag_error;
 use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
@@ -23,8 +23,8 @@ use serde::{Deserialize, Serialize};
 pub enum Value {
     Simple(SimpleValue),
     ValueConstructor(ValueConstructor),
-    Reference(IdentifierReference),
     Mapping(MappingValue),
+    Reference(IdentifierReference),
     List(SequenceOfValues),
 }
 
@@ -32,19 +32,28 @@ pub enum Value {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum SimpleValue {
-    /// Corresponds to the grammar rule `string`.
-    String(LanguageString),
+    /// Corresponds to the grammar rule `boolean`.
+    Boolean(bool),
     /// Corresponds to the grammar rule `double`.
     Double(OrderedFloat<f64>),
     /// Corresponds to the grammar rule `decimal`.
     Decimal(Decimal),
     /// Corresponds to the grammar rule `integer`.
     Integer(i64),
-    /// Corresponds to the grammar rule `boolean`.
-    Boolean(bool),
+    /// Corresponds to the grammar rule `unsigned`.
+    Unsigned(u64),
+    /// Corresponds to the grammar rule `string`.
+    String(LanguageString),
     /// Corresponds to the grammar rule `iri_reference`.
     IriReference(Url),
+    /// Corresponds to the grammar rule `binary`.
+    Binary(Binary),
 }
+
+/// Corresponds to the grammar rule `binary`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct Binary(Vec<u8>);
 
 /// Corresponds to the grammar rule `string`.
 #[derive(Clone, Debug)]
@@ -78,6 +87,8 @@ pub struct MappingValue {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct SequenceOfValues {
     span: Option<Span>,
+    ordering: Option<Ordering>,
+    uniqueness: Option<Uniqueness>,
     values: Vec<SequenceMember>,
 }
 
@@ -157,6 +168,24 @@ impl From<i64> for Value {
     }
 }
 
+impl From<i32> for Value {
+    fn from(v: i32) -> Self {
+        Self::Simple(SimpleValue::Integer(v as i64))
+    }
+}
+
+impl From<u64> for Value {
+    fn from(v: u64) -> Self {
+        Self::Simple(SimpleValue::Unsigned(v))
+    }
+}
+
+impl From<u32> for Value {
+    fn from(v: u32) -> Self {
+        Self::Simple(SimpleValue::Unsigned(v as u64))
+    }
+}
+
 impl From<bool> for Value {
     fn from(v: bool) -> Self {
         Self::Simple(SimpleValue::Boolean(v))
@@ -168,6 +197,18 @@ impl From<Url> for Value {
         Self::Simple(SimpleValue::IriReference(v))
     }
 }
+
+impl From<Binary> for Value {
+    fn from(v: Binary) -> Self {
+        Self::Simple(SimpleValue::Binary(v))
+    }
+}
+
+//impl From<Box<Binary>> for Value {
+//    fn from(v: Box<Binary>) -> Self {
+//        Self::Simple(SimpleValue::Binary(v))
+//    }
+//}
 
 impl From<ValueConstructor> for Value {
     fn from(v: ValueConstructor) -> Self {
@@ -205,11 +246,17 @@ impl_from_for_variant!(SimpleValue, Decimal, Decimal);
 
 impl_from_for_variant!(SimpleValue, Integer, i64);
 
+impl_from_for_variant!(SimpleValue, Unsigned, u64);
+
 impl_from_for_variant!(SimpleValue, Boolean, bool);
 
 impl_from_for_variant!(SimpleValue, IriReference, Url);
 
-enum_display_impl!(SimpleValue => String, Double, Decimal, Integer, Boolean, IriReference);
+impl_from_for_variant!(SimpleValue, Binary, Binary);
+
+enum_display_impl!(
+    SimpleValue => Double, Decimal, Integer, Unsigned, Boolean, IriReference, String, Binary
+);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -358,6 +405,86 @@ impl LanguageTag {
 
 // ------------------------------------------------------------------------------------------------
 
+impl Display for Binary {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[")?;
+        for byte in self.as_bytes() {
+            write!(f, "{:02X}", byte)?;
+        }
+        write!(f, "[")
+    }
+}
+
+impl From<Vec<u8>> for Binary {
+    fn from(v: Vec<u8>) -> Self {
+        Self(v)
+    }
+}
+
+impl FromIterator<u8> for Binary {
+    fn from_iter<T: IntoIterator<Item = u8>>(iter: T) -> Self {
+        Self(Vec::from_iter(iter))
+    }
+}
+
+impl AsRef<Vec<u8>> for Binary {
+    fn as_ref(&self) -> &Vec<u8> {
+        &self.0
+    }
+}
+
+impl Binary {
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_slice()
+    }
+
+    pub fn default_format(&self) -> String {
+        self.format(1, 2)
+    }
+
+    pub fn format(&self, indent_level: u8, indent_spaces: u8) -> String {
+        let mut buffer = String::new();
+        let n = (indent_level * indent_spaces) as usize;
+        let indent_outer = format!("{:n$}", "");
+        let n = ((indent_level + 1) * indent_spaces) as usize;
+        let indent_inner = format!("{:n$}", "");
+        if self.0.len() <= 16 {
+            buffer.push_str("#[");
+            buffer.push_str(&format_byte_block(self.0.as_slice(), &indent_inner));
+            buffer.push(']');
+        } else {
+            buffer.push_str(&format!("#[\n{indent_outer}"));
+            buffer.push_str(&format_byte_block(self.0.as_slice(), &indent_inner));
+            buffer.push_str(&format!("\n{indent_outer}]"));
+        }
+        buffer
+    }
+}
+
+fn format_byte_block(bytes: &[u8], indent: &str) -> String {
+    if bytes.len() <= 8 {
+        bytes
+            .iter()
+            .map(|b| format!("{:02X}", b))
+            .collect::<Vec<String>>()
+            .join(" ")
+    } else if bytes.len() <= 16 {
+        format!(
+            "{}   {}",
+            format_byte_block(&bytes[0..8], indent),
+            format_byte_block(&bytes[9..], indent),
+        )
+    } else {
+        format!(
+            "{indent}{}\n{}",
+            format_byte_block(&bytes[0..16], indent),
+            format_byte_block(&bytes[17..], indent),
+        )
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl Display for MappingValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} -> {}", self.domain, self.range)
@@ -406,7 +533,7 @@ impl Display for SequenceOfValues {
 
 impl From<Vec<SequenceMember>> for SequenceOfValues {
     fn from(values: Vec<SequenceMember>) -> Self {
-        Self { span: None, values }
+        Self { span: None, ordering: None, uniqueness: None, values }
     }
 }
 
@@ -419,6 +546,30 @@ impl FromIterator<SequenceMember> for SequenceOfValues {
 impl_has_source_span_for!(SequenceOfValues);
 
 impl_as_sequence!(pub SequenceOfValues => SequenceMember);
+
+impl SequenceOfValues {
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_ordering(self, ordering: Ordering) -> Self {
+        Self {
+            ordering: Some(ordering),
+            ..self
+        }
+    }
+
+    get_and_set!(pub ordering, set_ordering, unset_ordering => optional has_ordering, Ordering);
+
+    pub fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+        Self {
+            uniqueness: Some(uniqueness),
+            ..self
+        }
+    }
+
+    get_and_set!(pub uniqueness, set_uniqueness, unset_uniqueness => optional has_uniqueness, Uniqueness);
+}
 
 // ------------------------------------------------------------------------------------------------
 

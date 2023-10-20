@@ -1,5 +1,5 @@
 use crate::model::constraints::{PredicateValue, SequenceBuilder};
-use crate::model::identifiers::{Identifier, QualifiedIdentifier};
+use crate::model::identifiers::{Identifier, QualifiedIdentifier, IdentifierReference};
 use crate::model::Span;
 
 #[cfg(feature = "serde")]
@@ -17,12 +17,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Term {
-    Call(FunctionComposition),
-    Variable(Identifier),
-    Type(QualifiedIdentifier),
-    Value(PredicateValue),
-    Function(Box<FunctionalTerm>),
     Sequence(Box<SequenceBuilder>),
+    Function(Box<FunctionalTerm>),
+    Composition(FunctionComposition),
+    Identifier(IdentifierReference),
+    ReservedSelf,
+    Value(PredicateValue),
 }
 
 ///
@@ -76,19 +76,25 @@ pub struct FunctionalTerm {
 
 impl From<FunctionComposition> for Term {
     fn from(v: FunctionComposition) -> Self {
-        Self::Call(v)
+        Self::Composition(v)
+    }
+}
+
+impl From<IdentifierReference> for Term {
+    fn from(v: IdentifierReference) -> Self {
+        Self::Identifier(v)
     }
 }
 
 impl From<Identifier> for Term {
     fn from(v: Identifier) -> Self {
-        Self::Variable(v)
+        Self::Identifier(v.into())
     }
 }
 
 impl From<QualifiedIdentifier> for Term {
     fn from(v: QualifiedIdentifier) -> Self {
-        Self::Type(v)
+        Self::Identifier(v.into())
     }
 }
 
@@ -127,13 +133,15 @@ impl Term {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Call (FunctionComposition) => is_call, as_call);
-
-    is_as_variant!(Variable (Identifier) => is_variable, as_variable);
-
-    is_as_variant!(Value (PredicateValue) => is_value, as_value);
+    is_as_variant!(Sequence (SequenceBuilder) => is_sequence, as_sequence);
 
     is_as_variant!(Function (FunctionalTerm) => is_function, as_function);
+
+    is_as_variant!(Composition (FunctionComposition) => is_call, as_call);
+
+    is_as_variant!(Identifier (IdentifierReference) => is_identifier, as_identifier);
+
+    is_as_variant!(Value (PredicateValue) => is_value, as_value);
 }
 
 // ------------------------------------------------------------------------------------------------

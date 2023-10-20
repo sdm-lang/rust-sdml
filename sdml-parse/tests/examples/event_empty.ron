@@ -1,61 +1,65 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 79,
-        },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 25,
-                end: 33,
-            },
-        ),
-        value: "campaign",
-    },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 34,
-                end: 78,
-            },
-        ),
-        imports: [],
-        annotations: [],
-        definitions: [
-            Event(
-                EventDef {
-                    span: Some(
-                        Span {
-                            start: 40,
-                            end: 73,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 46,
-                                end: 57,
-                            },
-                        ),
-                        value: "NameChanged",
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 79,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 25,
+                        end: 33,
                     },
-                    event_source: Identifier(
-                        Identifier {
+                ),
+                value: "campaign",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 34,
+                        end: 78,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [
+                    Event(
+                        EventDef {
                             span: Some(
                                 Span {
-                                    start: 65,
+                                    start: 40,
                                     end: 73,
                                 },
                             ),
-                            value: "Campaign",
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 46,
+                                        end: 57,
+                                    },
+                                ),
+                                value: "NameChanged",
+                            },
+                            event_source: Identifier(
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 65,
+                                            end: 73,
+                                        },
+                                    ),
+                                    value: "Campaign",
+                                },
+                            ),
+                            body: None,
                         },
                     ),
-                    body: None,
-                },
-            ),
-        ],
+                ],
+            },
+        },
     },
-}
+)

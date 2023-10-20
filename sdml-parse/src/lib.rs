@@ -71,10 +71,8 @@ YYYYY
 
 mod parse;
 
-pub use sdml_core::load::{ModuleLoader, ModuleLoaderRef, ModuleResolver};
+pub use sdml_core::load::{ModuleLoader, ModuleResolver};
 
 pub mod error;
 
 pub mod load;
-
-pub mod resolve;

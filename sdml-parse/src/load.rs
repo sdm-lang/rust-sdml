@@ -12,13 +12,14 @@ YYYYY
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::error::{module_file_not_found, Error};
-use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait};
+use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait, ModuleRef};
 use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
+use std::cell::{RefCell, Ref};
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -36,8 +37,8 @@ use url::Url;
 
 #[derive(Clone, Debug)]
 pub struct ModuleResolver {
-    catalog: Option<Rc<ModuleCatalog>>,
-    search_path: SearchPath,
+    catalog: Option<Rc<RefCell<ModuleCatalog>>>,
+    search_path: Rc<RefCell<SearchPath>>,
 }
 
 pub const SDML_RESOLVER_PATH_VARIABLE: &str = "SDML_PATH";
@@ -50,10 +51,13 @@ pub const SDML_CATALOG_FILE_NAME: &str = "sdml-catalog.json";
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
+pub struct Source(Rc<String>);
+
+#[derive(Clone, Debug)]
 pub struct ModuleLoader {
-    resolver: ModuleResolver,
-    modules: HashMap<Identifier, (Module, usize)>,
-    module_files: SimpleFiles<String, String>,
+    resolver: Rc<ModuleResolver>,
+    modules: Rc<RefCell<HashMap<Identifier, (ModuleRef, usize)>>>,
+    module_files: Rc<RefCell<SimpleFiles<String, Source>>>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -107,46 +111,86 @@ pub struct Item {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
+impl Display for Source {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<String> for Source {
+    fn from(value: String) -> Self {
+        Self(Rc::new(value))
+    }
+}
+
+impl AsRef<str> for Source {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl AsRef<[u8]> for Source {
+    fn as_ref(&self) -> &[u8] {
+        self.as_bytes()
+    }
+}
+
+impl Source {
+    fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+    fn as_bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl Default for ModuleResolver {
     fn default() -> Self {
         let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
         search_path.prepend_cwd();
         let catalog = ModuleCatalog::load_from_current(true);
         Self {
-            catalog: catalog.map(Rc::new),
-            search_path,
+            catalog: catalog.map(|v|Rc::new(RefCell::new(v))),
+            search_path: Rc::new(RefCell::new(search_path)),
         }
     }
 }
 
 impl ResolverTrait for ModuleResolver {
-    fn prepend_to_search_path(&mut self, path: &Path) {
-        self.search_path.prepend(PathBuf::from(path));
+    fn prepend_to_search_path(&self, path: &Path) {
+        self.search_path.borrow_mut().append(PathBuf::from(path));
     }
 
-    fn append_to_search_path(&mut self, path: &Path) {
-        self.search_path.append(PathBuf::from(path));
+    fn append_to_search_path(&self, path: &Path) {
+        self.search_path.borrow_mut().append(PathBuf::from(path));
     }
 
     fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
         trace!("ModuleResolver::name_to_path({name:?})");
         if let Some(catalog) = &self.catalog {
             let name: String = name.to_string();
-            if let Some(path) = catalog.resolve_local_path(&name) {
+            if let Some(path) = catalog.borrow().resolve_local_path(&name) {
                 trace!("Found module in catalog, path: {path:?}");
                 return Ok(path);
             }
         }
         self.search_path
+            .borrow()
             .find(format!("{}.{}", name, SDML_FILE_EXTENSION).as_ref())
             .or_else(|| {
                 self.search_path
+                    .borrow()
                     .find(format!("{}/{}.{}", name, name, SDML_FILE_EXTENSION).as_ref())
                     .or_else(|| {
                         self.search_path
+                            .borrow()
                             .find(format!("{}.{}", name, SDML_FILE_EXTENSION_LONG).as_ref())
                             .or_else(|| {
-                                self.search_path.find(
+                                self.search_path
+                                    .borrow()
+                                    .find(
                                     format!("{}/{}.{}", name, name, SDML_FILE_EXTENSION_LONG)
                                         .as_ref(),
                                 )
@@ -161,10 +205,16 @@ impl ResolverTrait for ModuleResolver {
 
 impl From<ModuleResolver> for ModuleLoader {
     fn from(resolver: ModuleResolver) -> Self {
+        Self::from(Rc::new(resolver))
+    }
+}
+
+impl From<Rc<ModuleResolver>> for ModuleLoader {
+    fn from(resolver: Rc<ModuleResolver>) -> Self {
         Self {
             resolver,
-            modules: Default::default(),
-            module_files: SimpleFiles::new(),
+            modules: Rc::new(RefCell::new(Default::default())),
+            module_files: Rc::new(RefCell::new(SimpleFiles::new())),
         }
     }
 }
@@ -172,16 +222,16 @@ impl From<ModuleResolver> for ModuleLoader {
 impl Default for ModuleLoader {
     fn default() -> Self {
         Self {
-            resolver: Default::default(),
-            modules: Default::default(),
-            module_files: SimpleFiles::new(),
+            resolver: Rc::new(Default::default()),
+            modules: Rc::new(RefCell::new(Default::default())),
+            module_files: Rc::new(RefCell::new(SimpleFiles::new())),
         }
     }
 }
 
 impl LoaderTrait for ModuleLoader {
-    fn load(&mut self, name: &Identifier) -> Result<&Module, Error> {
-        let exists = self.modules.contains_key(name);
+    fn load(&self, name: &Identifier) -> Result<ModuleRef, Error> {
+        let exists = self.modules.borrow().contains_key(name);
         if exists {
             Ok(self.get(name).unwrap())
         } else {
@@ -190,20 +240,20 @@ impl LoaderTrait for ModuleLoader {
         }
     }
 
-    fn load_from_file(&mut self, file: PathBuf) -> Result<&Module, Error> {
+    fn load_from_file(&self, file: PathBuf) -> Result<ModuleRef, Error> {
         let mut reader = File::open(&file)?;
         let catalog = self.resolver.catalog.clone();
         let module = self.load_inner(&mut reader, Some(file.clone()))?;
-        if !module.has_base() {
+        if !module.borrow().has_base() {
             if let Some(catalog) = catalog {
-                let name = module.name().to_string();
-                if let Some(url) = catalog.resolve_uri(&name) {
-                    module.set_base(url);
+                let name = module.borrow().name().to_string();
+                if let Some(url) = catalog.borrow().resolve_uri(&name) {
+                    module.borrow_mut().set_base(url);
                 }
             } else {
                 let file = file.canonicalize()?;
                 match Url::from_file_path(file) {
-                    Ok(base) => module.set_base(base),
+                    Ok(base) => module.borrow_mut().set_base(base),
                     Err(_) => warn!("Could not construct a base URI"),
                 }
             }
@@ -211,44 +261,58 @@ impl LoaderTrait for ModuleLoader {
         Ok(module)
     }
 
-    fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<&Module, Error> {
+    fn load_from_reader(&self, reader: &mut dyn Read) -> Result<ModuleRef, Error> {
         Ok(self.load_inner(reader, None)?)
     }
 
+    fn adopt(&self, module: ModuleRef) {
+        let name = module.borrow().name().clone();
+        let _ = self.modules.borrow_mut().insert(name, (module, 0));
+    }
+
     fn contains(&self, name: &Identifier) -> bool {
-        self.modules.contains_key(name)
+        self.modules.borrow().contains_key(name)
     }
 
-    fn get(&self, name: &Identifier) -> Option<&Module> {
-        self.modules.get(name).map(|m| &m.0)
+    fn get(&self, name: &Identifier) -> Option<ModuleRef> {
+        self.modules.borrow().get(name).map(|m| m.0.clone())
     }
 
-    fn get_source(&self, name: &Identifier) -> Option<&String> {
-        if let Some(module) = self.modules.get(name) {
-            Some(self.module_files.get(module.1).unwrap().source())
+    fn get_source(&self, name: &Identifier) -> Option<Box<dyn AsRef<str>>> {
+        if let Some(module) = self.modules.borrow().get(name) {
+            if module.1 == 0 {
+                None
+            } else {
+                match self.module_files.borrow().get(module.1 - 1) {
+                    Ok(file) => Some(Box::new(file.source().clone())),
+                    Err(err) => {
+                        error!("Could not retrieve module: {module:?}, error: {err}");
+                        None
+                    },
+                }
+            }
         } else {
             None
         }
     }
 
-    fn resolver(&self) -> &dyn ResolverTrait {
-        &self.resolver
+    fn resolver(&self) -> Rc<dyn ResolverTrait> {
+        self.resolver.clone()
     }
 }
 
 impl ModuleLoader {
     fn load_inner(
-        &mut self,
+        &self,
         reader: &mut dyn Read,
         file: Option<PathBuf>,
-    ) -> Result<&mut Module, Error> {
+    ) -> Result<ModuleRef, Error> {
         let mut source = String::new();
         reader.read_to_string(&mut source)?;
         let file_name: String = file
             .map(|p| p.to_string_lossy().into_owned())
             .unwrap_or_default();
-        // Insert into the codespan cache
-        let file_id = self.module_files.add(file_name, source);
+        let file_id = self.module_files.borrow_mut().add(file_name, source.into());
 
         let (module, counters) = parse_str(file_id, self)?.into_inner();
 
@@ -256,16 +320,12 @@ impl ModuleLoader {
         counters.display(&name)?;
 
         // save codespan file ID with module
-        let _ = self.modules.insert(name.clone(), (module, file_id));
-        Ok(self.get_mut(&name).unwrap())
+        let _ = self.modules.borrow_mut().insert(name.clone(), (module.into(), file_id));
+        Ok(self.get(&name).unwrap())
     }
 
-    fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module> {
-        self.modules.get_mut(name).map(|m| &mut m.0)
-    }
-
-    pub(crate) fn files(&self) -> &SimpleFiles<String, String> {
-        &self.module_files
+    pub(crate) fn files(&self) -> Ref<'_, SimpleFiles<String, Source>> {
+        self.module_files.borrow()
     }
 }
 
@@ -327,6 +387,7 @@ impl ModuleCatalog {
     pub fn base(&self) -> &Url {
         &self.base
     }
+
     pub fn set_base(&mut self, base: Url) {
         self.base = base;
     }

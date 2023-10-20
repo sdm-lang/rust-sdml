@@ -19,7 +19,7 @@ macro_rules! impl_has_source_span_for {
     };
     ($type: ty, $inner: ident) => {
         impl $crate::model::HasSourceSpan for $type {
-            fn with_source_span(self, span: Span) -> Self {
+            fn with_source_span(self, span: $crate::model::Span) -> Self {
                 let mut self_mut = self;
                 self_mut.span = Some(span);
                 self_mut
@@ -41,7 +41,7 @@ macro_rules! impl_has_source_span_for {
     ($type: ty => variants $($varname: ident),+) => {
         impl $crate::model::HasSourceSpan for $type {
             #[inline]
-            fn with_source_span(self, span: Span) -> Self {
+            fn with_source_span(self, span: $crate::model::Span) -> Self {
                 match self {
                     $(
                         Self::$varname(v) => Self::$varname(v.with_source_span(span)),
@@ -328,28 +328,6 @@ macro_rules! impl_has_optional_body_for {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros ❱ trait Member
-// ------------------------------------------------------------------------------------------------
-
-#[allow(unused_macros)]
-macro_rules! impl_member_for {
-    ($type: ty, $deftype: ty) => {
-        impl_member_for!($type, $deftype, kind);
-    };
-    ($type: ty, $deftype: ty, $inner: ident) => {
-        impl<'a> $crate::model::members::Member<'a, $deftype> for $type {
-            fn kind(&'a self) -> &'a MemberKind<$deftype> {
-                &self.$inner
-            }
-
-            fn set_kind(&mut self, kind: MemberKind<$deftype>) {
-                self.$inner = kind;
-            }
-        }
-    };
-}
-
-// ------------------------------------------------------------------------------------------------
 // Public Macros ❱ trait References
 // ------------------------------------------------------------------------------------------------
 
@@ -436,17 +414,17 @@ macro_rules! impl_validate_for {
             }
         }
     };
-    ($type: ty => delegate $inner: ident) => {
-        impl $crate::model::check::Validate for $type {
-            fn is_complete(&self, top: &$crate::model::modules::Module) -> Result<bool, $crate::error::Error> {
-                self.$inner.is_complete(top)
-            }
-
-            fn is_valid(&self, check_constraints: bool, top: &$crate::model::modules::Module) -> Result<bool, $crate::error::Error> {
-                self.$inner.is_valid(check_constraints, top)
-            }
-        }
-    };
+    // ($type: ty => delegate $inner: ident) => {
+    //     impl $crate::model::check::Validate for $type {
+    //         fn is_complete(&self, top: &$crate::model::modules::Module) -> Result<bool, $crate::error::Error> {
+    //             self.$inner.is_complete(top)
+    //         }
+    //
+    //         fn is_valid(&self, check_constraints: bool, top: &$crate::model::modules::Module) -> Result<bool, $crate::error::Error> {
+    //             self.$inner.is_valid(check_constraints, top)
+    //         }
+    //     }
+    // };
     ($type: ty => delegate optional $inner: ident, $def_complete: expr, $def_valid: expr) => {
         impl $crate::model::check::Validate for $type {
             fn is_complete(&self, top: &$crate::model::modules::Module) -> Result<bool, $crate::error::Error> {
@@ -471,22 +449,34 @@ macro_rules! impl_validate_for_annotations_and_members {
         impl Validate for $type {
             fn is_complete(&self, top: &Module) -> Result<bool, Error> {
                 Ok(self
-                    .annotations()
-                    .map(|ann| ann.is_complete(top))
-                    .chain(self.members().map(|m| m.is_complete(top)))
-                    .collect::<Result<Vec<bool>, Error>>()?
-                    .into_iter()
-                    .all(::std::convert::identity))
+                   .annotations()
+                   .map(|ann| ann.is_complete(top))
+                   .chain(self.members().map(|m| m.is_complete(top)))
+                   .collect::<Result<Vec<bool>, Error>>()?
+                   .into_iter()
+                   // reduce vector of booleans
+                   .all(::std::convert::identity))
             }
 
             fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
                 Ok(self
-                    .annotations()
-                    .map(|ann| ann.is_valid(check_constraints, top))
-                    .chain(self.members().map(|m| m.is_complete(top)))
-                    .collect::<Result<Vec<bool>, Error>>()?
-                    .into_iter()
-                    .all(::std::convert::identity))
+                   .annotations()
+                   .map(|ann| ann.is_valid(check_constraints, top))
+                   .chain(self.members().map(|m| m.is_complete(top)))
+                   .collect::<Result<Vec<bool>, Error>>()?
+                   .into_iter()
+                   // reduce vector of booleans
+                   .all(::std::convert::identity))
+            }
+
+            fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+                for inner in self.annotations() {
+                    inner.validate(check_constraints, top, errors)?;
+                }
+                for inner in self.members() {
+                    inner.validate(check_constraints, top, errors)?;
+                }
+                Ok(())
             }
         }
     };
@@ -513,6 +503,16 @@ macro_rules! impl_validate_for_annotations_and_variants {
                     .collect::<Result<Vec<bool>, Error>>()?
                     .into_iter()
                     .all(::std::convert::identity))
+            }
+
+            fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+                for inner in self.annotations() {
+                    inner.validate(check_constraints, top, errors)?;
+                }
+                for inner in self.variants() {
+                    inner.validate(check_constraints, top, errors)?;
+                }
+                Ok(())
             }
         }
     };
@@ -562,62 +562,61 @@ macro_rules! impl_has_annotations_for {
                 self.$inner.extend(extension.into_iter())
             }
         }
-    };
-    ($type: ty => variants $($varname: ident),+) => {
-        impl HasAnnotations for $type {
-            fn has_annotations(&self) -> bool {
-                match self {
-                    $(
-                        Self::$varname(v) => v.has_annotations(),
-                    )+
-                }
-            }
-
-            fn annotations_len(&self) -> usize {
-                match self {
-                    $(
-                        Self::$varname(v) => v.annotations_len(),
-                    )+
-                }
-            }
-
-            fn annotations(&self) -> Box<dyn Iterator<Item = &Annotation> + '_> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.annotations(),
-                    )+
-                }
-            }
-
-            fn annotations_mut(&mut self) -> Box<dyn Iterator<Item = &mut Annotation> + '_> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.annotations_mut(),
-                    )+
-                }
-            }
-
-            fn add_to_annotations<I>(&mut self, value: I)
-            where
-                I: Into<Annotation> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.add_to_annotations(value),
-                    )+
-                }
-            }
-
-            fn extend_annotations<I>(&mut self, extension: I)
-            where
-                I: IntoIterator<Item = Annotation> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.extend_annotations(extension),
-                    )+
-                }
-            }
-        }
-    };
+    }; // ($type: ty => variants $($varname: ident),+) => {
+       //     impl HasAnnotations for $type {
+       //         fn has_annotations(&self) -> bool {
+       //             match self {
+       //                 $(
+       //                     Self::$varname(v) => v.has_annotations(),
+       //                 )+
+       //             }
+       //         }
+       //
+       //         fn annotations_len(&self) -> usize {
+       //             match self {
+       //                 $(
+       //                     Self::$varname(v) => v.annotations_len(),
+       //                 )+
+       //             }
+       //         }
+       //
+       //         fn annotations(&self) -> Box<dyn Iterator<Item = &Annotation> + '_> {
+       //             match self {
+       //                 $(
+       //                     Self::$varname(v) => v.annotations(),
+       //                 )+
+       //             }
+       //         }
+       //
+       //         fn annotations_mut(&mut self) -> Box<dyn Iterator<Item = &mut Annotation> + '_> {
+       //             match self {
+       //                 $(
+       //                     Self::$varname(v) => v.annotations_mut(),
+       //                 )+
+       //             }
+       //         }
+       //
+       //         fn add_to_annotations<I>(&mut self, value: I)
+       //         where
+       //             I: Into<Annotation> {
+       //             match self {
+       //                 $(
+       //                     Self::$varname(v) => v.add_to_annotations(value),
+       //                 )+
+       //             }
+       //         }
+       //
+       //         fn extend_annotations<I>(&mut self, extension: I)
+       //         where
+       //             I: IntoIterator<Item = Annotation> {
+       //             match self {
+       //                 $(
+       //                     Self::$varname(v) => v.extend_annotations(extension),
+       //                 )+
+       //             }
+       //         }
+       //     }
+       // };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -625,11 +624,11 @@ macro_rules! impl_has_annotations_for {
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! impl_has_members_for {
-    ($type: ty, $membertype: ty) => {
-        impl_has_members_for!($type, $membertype, members);
+    ($type: ty) => {
+        impl_has_members_for!($type, members);
     };
-    ($type: ty, $membertype: ty, $inner: ident) => {
-        impl $crate::model::definitions::HasMembers<$membertype> for $type {
+    ($type: ty, $inner: ident) => {
+        impl $crate::model::definitions::HasMembers for $type {
             fn has_members(&self) -> bool {
                 !self.$inner.is_empty()
             }
@@ -638,21 +637,23 @@ macro_rules! impl_has_members_for {
                 self.$inner.len()
             }
 
-            fn members(&self) -> Box<dyn Iterator<Item = &$membertype> + '_> {
+            fn members(&self) -> Box<dyn Iterator<Item = &$crate::model::members::Member> + '_> {
                 Box::new(self.$inner.iter())
             }
 
-            fn members_mut(&mut self) -> Box<dyn Iterator<Item = &mut $membertype> + '_> {
+            fn members_mut(
+                &mut self,
+            ) -> Box<dyn Iterator<Item = &mut $crate::model::members::Member> + '_> {
                 Box::new(self.$inner.iter_mut())
             }
 
-            fn add_to_members(&mut self, value: $membertype) {
+            fn add_to_members(&mut self, value: $crate::model::members::Member) {
                 self.$inner.push(value.into())
             }
 
             fn extend_members<I>(&mut self, extension: I)
             where
-                I: IntoIterator<Item = $membertype>,
+                I: IntoIterator<Item = $crate::model::members::Member>,
             {
                 self.$inner.extend(extension.into_iter())
             }
@@ -705,11 +706,11 @@ macro_rules! impl_has_variants_for {
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! impl_has_groups_for {
-    ($type: ty, $grouptype: ty, $membertype: ty) => {
-        impl_has_groups_for!($type, $grouptype, $membertype, groups);
+    ($type: ty) => {
+        impl_has_groups_for!($type, groups);
     };
-    ($type: ty, $grouptype: ty, $membertype: ty, $inner: ident) => {
-        impl $crate::model::definitions::HasGroups<$grouptype, $membertype> for $type {
+    ($type: ty, $inner: ident) => {
+        impl $crate::model::definitions::HasGroups for $type {
             fn has_groups(&self) -> bool {
                 !self.$inner.is_empty()
             }
@@ -718,21 +719,25 @@ macro_rules! impl_has_groups_for {
                 self.$inner.len()
             }
 
-            fn groups(&self) -> Box<dyn Iterator<Item = &$grouptype> + '_> {
+            fn groups(
+                &self,
+            ) -> Box<dyn Iterator<Item = &$crate::model::members::MemberGroup> + '_> {
                 Box::new(self.$inner.iter())
             }
 
-            fn groups_mut(&mut self) -> Box<dyn Iterator<Item = &mut $grouptype> + '_> {
+            fn groups_mut(
+                &mut self,
+            ) -> Box<dyn Iterator<Item = &mut $crate::model::members::MemberGroup> + '_> {
                 Box::new(self.$inner.iter_mut())
             }
 
-            fn add_to_groups(&mut self, value: $grouptype) {
+            fn add_to_groups(&mut self, value: $crate::model::members::MemberGroup) {
                 self.$inner.push(value.into())
             }
 
             fn extend_groups<I>(&mut self, extension: I)
             where
-                I: IntoIterator<Item = $grouptype>,
+                I: IntoIterator<Item = $crate::model::members::MemberGroup>,
             {
                 self.$inner.extend(extension.into_iter())
             }
@@ -757,11 +762,11 @@ macro_rules! getter {
     //($vis: vis $fieldname: ident => copy $fieldtype: ty) => {
     //    getter!($vis $fieldname => copy $fieldname, $fieldtype);
     //};
-    ($vis: vis $fieldname: ident => copy $fnname: ident, $fieldtype: ty) => {
-        $vis const fn $fnname(&self) -> $fieldtype {
-            self.$fieldname
-        }
-    };
+    // ($vis: vis $fieldname: ident => copy $fnname: ident, $fieldtype: ty) => {
+    //     $vis const fn $fnname(&self) -> $fieldtype {
+    //         self.$fieldname
+    //     }
+    // };
     // --------------------------------------------------------------------------------------------
     //($vis: vis $fieldname: ident => optional $has_fnname: ident, $fieldtype: ty) => {
     //    getter!($vis $fieldname => optional $has_fnname: ident, $fieldname, $fieldtype);
@@ -851,13 +856,13 @@ macro_rules! get_and_set {
         setter!($vis $set_fnname => $fieldname, into $fieldtype);
     };
     // --------------------------------------------------------------------------------------------
-    ($vis: vis $fieldname: ident, $set_fnname: ident => copy $fieldtype: ty) => {
-        get_and_set!($vis $fieldname, $fieldname, $set_fnname => copy $fieldtype);
-    };
-    ($vis: vis $fieldname: ident, $get_fnname: ident, $set_fnname: ident => copy $fieldtype: ty) => {
-        getter!($vis $fieldname => copy $get_fnname, $fieldtype);
-        setter!($vis $set_fnname => $fieldname, $fieldtype);
-    };
+    // ($vis: vis $fieldname: ident, $set_fnname: ident => copy $fieldtype: ty) => {
+    //     get_and_set!($vis $fieldname, $fieldname, $set_fnname => copy $fieldtype);
+    // };
+    // ($vis: vis $fieldname: ident, $get_fnname: ident, $set_fnname: ident => copy $fieldtype: ty) => {
+    //     getter!($vis $fieldname => copy $get_fnname, $fieldtype);
+    //     setter!($vis $set_fnname => $fieldname, $fieldtype);
+    // };
     // --------------------------------------------------------------------------------------------
     ($vis: vis $fieldname: ident, $set_fnname: ident => boxed $fieldtype: ty) => {
         get_and_set!($vis $fieldname, $fieldname, $set_fnname => boxed $fieldtype);
@@ -1017,6 +1022,14 @@ macro_rules! impl_from_for_variant {
             }
         }
     };
+    //($tyname: ty, $varname: ident, boxed $vartype: ty) => {
+    //    impl_from_for_variant!($tyname, $varname, Box<$vartype>);
+    //    impl From<$vartype> for $tyname {
+    //        fn from(v: $vartype) -> Self {
+    //            Self::$varname(Box::new(v))
+    //        }
+    //    }
+    //};
 }
 
 macro_rules! enum_display_impl {

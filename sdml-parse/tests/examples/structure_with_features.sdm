@@ -1,0 +1,13 @@
+module example is
+
+  structure Car is
+    engine -> features Engine
+  end
+
+  union Engine of
+    FourCylinder
+    SixCylinder
+    SixCylinderTurbo
+  end
+
+end

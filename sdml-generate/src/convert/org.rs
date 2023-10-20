@@ -10,17 +10,10 @@ YYYYY
 */
 
 use sdml_core::generate::{GenerateToWriter, NoFormatOptions};
-use sdml_core::load::{ModuleLoader, ModuleLoaderRef};
-use sdml_core::model::constraints::ControlledLanguageTag;
-use sdml_core::model::identifiers::{Identifier, IdentifierReference};
-use sdml_core::model::members::{
-    ByReferenceMemberDef, ByValueMemberDef, IdentityMemberDef, MemberKind,
-};
-use sdml_core::model::modules::{Import, Module};
-use sdml_core::model::values::Value;
-use sdml_core::model::walk::ModuleWalker;
-use sdml_core::model::Span;
-use sdml_core::{error::Error, model::walk::walk_module};
+use sdml_core::load::ModuleLoader;
+use sdml_core::model::modules::Module;
+use sdml_core::model::HasName;
+use sdml_core::error::Error;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -32,13 +25,7 @@ use std::io::Write;
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Default)]
-pub struct OrgFileGenerator<T>
-where
-    T: ModuleLoader + Clone,
-{
-    buffer: String,
-    loader: Option<ModuleLoaderRef<T>>,
-}
+pub struct OrgFileGenerator {}
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -56,40 +43,27 @@ where
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl<T> GenerateToWriter<NoFormatOptions> for OrgFileGenerator<T>
-where
-    T: ModuleLoader + Clone,
-{
+impl GenerateToWriter<NoFormatOptions> for OrgFileGenerator {
     fn write_in_format(
         &mut self,
         module: &Module,
+        loader: Option<&mut dyn ModuleLoader>,
         writer: &mut dyn Write,
         _: NoFormatOptions,
     ) -> Result<(), Error> {
-        walk_module(module, self)?;
-        writer.write_all(self.buffer.as_bytes())?;
-        Ok(())
+        write_module(module, loader, writer)
     }
 }
 
-impl<T> OrgFileGenerator<T>
-where
-    T: ModuleLoader + Clone,
-{
-    pub fn with_loader(self, loader: ModuleLoaderRef<T>) -> Self {
-        let mut self_mut = self;
-        self_mut.loader = Some(loader);
-        self_mut
-    }
-}
+// ------------------------------------------------------------------------------------------------
+// Private Functions
+// ------------------------------------------------------------------------------------------------
 
-impl<T> ModuleWalker for OrgFileGenerator<T>
-where
-    T: ModuleLoader + Clone,
+fn write_module(me: &Module, loader: Option<&mut dyn ModuleLoader>, writer: &mut dyn Write) -> Result<(), Error>
 {
-    fn start_module(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
-        self.buffer.push_str(&format!(
-            r#"#+TITLE: Module {name}
+    let name = me.name();
+    writer.write_all(format!(
+        r#"#+TITLE: Module {name}
 #+LANGUAGE: en
 #+STARTUP: overview hidestars inlineimages entitiespretty
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
@@ -98,250 +72,28 @@ where
 #+OPTIONS: toc:3
 
 "#
-        ));
-        Ok(())
-    }
+    ).as_bytes())?;
 
-    fn import(&mut self, _imported: &[Import], _span: Option<&Span>) -> Result<(), Error> {
-        Ok(())
-    }
+    // imports
+    // definitions
 
-    fn annotation_property(
-        &mut self,
-        _name: &IdentifierReference,
-        _value: &Value,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn informal_constraint(
-        &mut self,
-        _name: &Identifier,
-        _value: &str,
-        _language: Option<&ControlledLanguageTag>,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_datatype(
-        &mut self,
-        _name: &Identifier,
-        _base_type: &IdentifierReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_datatype(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_entity(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_identity_member(
-        &mut self,
-        _name: &Identifier,
-        _inner: &MemberKind<IdentityMemberDef>,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_by_value_member(
-        &mut self,
-        _name: &Identifier,
-        _inner: &MemberKind<ByValueMemberDef>,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_by_reference_member(
-        &mut self,
-        _name: &Identifier,
-        _inner: &MemberKind<ByReferenceMemberDef>,
-        _span: Option<&sdml_core::model::Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_member(&mut self, _name: &Identifier) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_entity(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_enum(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_value_variant(
-        &mut self,
-        _identifier: &Identifier,
-        _value: u32,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_value_variant(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_enum(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_event(
-        &mut self,
-        _name: &Identifier,
-        _source: &IdentifierReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_group(&mut self, _span: Option<&Span>) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_group(&mut self) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_event(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_structure(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_structure(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_union(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_type_variant(
-        &mut self,
-        _identifier: &IdentifierReference,
-        _rename: Option<&Identifier>,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_type_variant(
-        &mut self,
-        _name: &IdentifierReference,
-        _had_body: bool,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_union(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_property(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_identity_role(
-        &mut self,
-        _name: &Identifier,
-        _inner: &IdentityMemberDef,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_by_reference_role(
-        &mut self,
-        _name: &Identifier,
-        _inner: &ByReferenceMemberDef,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_by_value_role(
-        &mut self,
-        _name: &Identifier,
-        _inner: &ByValueMemberDef,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_property_role(&mut self, _name: &Identifier) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_property(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_module(&mut self, name: &Identifier) -> Result<(), Error> {
-        if let Some(loader) = &self.loader {
-            let loader = loader.borrow();
-            let source = loader.get_source(name).unwrap();
-            self.buffer.push_str(&format!(
-                r#"* Appendix: Module Source
+    if let Some(loader) = loader {
+        let source: Box<dyn AsRef<str>> = loader.get_source(name).unwrap();
+        writer.write_all(&format!(
+            r#"* Appendix: Module Source
 
 #+NAME: lst:module-source
 #+CAPTION: Module Source
 #+BEGIN_SRC sdml :noeval
-{source}
+{}
 #+END_SRC
-"#
-            ));
-        }
-        Ok(())
+"#,
+            source.as_ref().as_ref()
+        ).as_bytes())?;
     }
-}
 
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
+    Ok(())
+}
 
 // ------------------------------------------------------------------------------------------------
 // Modules

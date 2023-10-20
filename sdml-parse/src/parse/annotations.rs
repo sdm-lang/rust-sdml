@@ -20,33 +20,26 @@ pub(crate) fn parse_annotation<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<Annotation, Error> {
     rule_fn!("annotation", cursor.node());
-    let mut has_next = cursor.goto_first_child();
-    if has_next {
-        while has_next {
-            let node = cursor.node();
-            context.check_if_error(&node, RULE_NAME)?;
-            if node.is_named() {
-                match node.kind() {
-                    NODE_KIND_ANNOTATION_PROPERTY => {
-                        return Ok(parse_annotation_property(context, &mut node.walk())?.into())
-                    }
-                    NODE_KIND_CONSTRAINT => {
-                        return Ok(parse_constraint(context, &mut node.walk())?.into())
-                    }
-                    NODE_KIND_LINE_COMMENT => {}
-                    _ => {
-                        unexpected_node!(
-                            context,
-                            RULE_NAME,
-                            node,
-                            [NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_CONSTRAINT,]
-                        );
-                    }
-                }
+
+    for node in cursor.node().named_children(cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
+        match node.kind() {
+            NODE_KIND_ANNOTATION_PROPERTY => {
+                return Ok(parse_annotation_property(context, &mut node.walk())?.into())
             }
-            has_next = cursor.goto_next_sibling();
+            NODE_KIND_CONSTRAINT => {
+                return Ok(parse_constraint(context, &mut node.walk())?.into())
+            }
+            NODE_KIND_LINE_COMMENT => {}
+            _ => {
+                unexpected_node!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    [NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_CONSTRAINT,]
+                );
+            }
         }
-        assert!(cursor.goto_parent());
     }
     rule_unreachable!(RULE_NAME, cursor);
 }

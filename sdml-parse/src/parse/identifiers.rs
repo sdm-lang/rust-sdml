@@ -43,31 +43,24 @@ pub(crate) fn parse_identifier_reference<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<IdentifierReference, Error> {
     rule_fn!("identifier_reference", cursor.node());
-    let mut has_next = cursor.goto_first_child();
-    if has_next {
-        while has_next {
-            let node = cursor.node();
-            context.check_if_error(&node, RULE_NAME)?;
-            if node.is_named() {
-                match node.kind() {
-                    NODE_KIND_IDENTIFIER => return Ok(parse_identifier(context, &node)?.into()),
-                    NODE_KIND_QUALIFIED_IDENTIFIER => {
-                        return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_LINE_COMMENT => {}
-                    _ => {
-                        unexpected_node!(
-                            context,
-                            RULE_NAME,
-                            node,
-                            [NODE_KIND_IDENTIFIER, NODE_KIND_QUALIFIED_IDENTIFIER,]
-                        );
-                    }
-                }
+
+    for node in cursor.node().named_children(cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
+        match node.kind() {
+            NODE_KIND_IDENTIFIER => return Ok(parse_identifier(context, &node)?.into()),
+            NODE_KIND_QUALIFIED_IDENTIFIER => {
+                return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
             }
-            has_next = cursor.goto_next_sibling();
+            NODE_KIND_LINE_COMMENT => {}
+            _ => {
+                unexpected_node!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    [NODE_KIND_IDENTIFIER, NODE_KIND_QUALIFIED_IDENTIFIER,]
+                );
+            }
         }
-        assert!(cursor.goto_parent());
     }
     rule_unreachable!(RULE_NAME, cursor);
 }

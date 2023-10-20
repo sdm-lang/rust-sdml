@@ -1,5 +1,5 @@
 use crate::model::identifiers::IdentifierReference;
-use crate::model::values::SimpleValue;
+use crate::model::values::{ValueConstructor, MappingValue, SimpleValue};
 use crate::model::Span;
 use std::fmt::Display;
 
@@ -32,6 +32,8 @@ pub struct SequenceOfPredicateValues {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum PredicateSequenceMember {
     Simple(SimpleValue),
+    ValueConstructor(ValueConstructor),
+    Mapping(MappingValue),
     Reference(IdentifierReference),
 }
 
@@ -105,6 +107,8 @@ impl Display for PredicateSequenceMember {
             "{}",
             match self {
                 PredicateSequenceMember::Simple(v) => v.to_string(),
+                PredicateSequenceMember::ValueConstructor(v) => v.to_string(),
+                PredicateSequenceMember::Mapping(v) => v.to_string(),
                 PredicateSequenceMember::Reference(v) => v.to_string(),
             }
         )

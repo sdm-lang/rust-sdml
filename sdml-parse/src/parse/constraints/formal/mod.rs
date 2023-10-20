@@ -1,5 +1,4 @@
 use crate::parse::constraints::formal::environments::parse_constraint_environment;
-use crate::parse::constraints::formal::sentences::parse_constraint_sentence;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::model::constraints::{EnvironmentDef, FormalConstraint};
@@ -54,15 +53,15 @@ pub(crate) fn parse_formal_constraint<'a>(
 mod environments;
 
 mod functions;
+pub(crate) use functions::{parse_function_signature, parse_function_cardinality_expression};
 
 mod sentences;
-pub(crate) use sentences::parse_quantified_variable_binding;
+pub(crate) use sentences::{parse_constraint_sentence, parse_quantified_sentence};
 
 mod sequences;
 pub(crate) use sequences::parse_sequence_builder;
 
 mod terms;
-pub(crate) use terms::parse_function_composition;
 
 mod values;
 pub(crate) use values::parse_predicate_value;

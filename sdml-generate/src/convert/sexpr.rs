@@ -17,21 +17,21 @@ use sdml_core::model::constraints::{
     AtomicSentence, BooleanSentence, ConnectiveOperator, Constraint, ConstraintBody,
     ConstraintSentence, EnvironmentDef, EnvironmentDefBody, Equation, FormalConstraint,
     FunctionComposition, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionalTerm, InequalityRelation, Inequation, IteratorSource,
-    PredicateSequenceMember, PredicateValue, QuantifiedBinding, QuantifiedSentence,
-    QuantifiedVariableBinding, Quantifier, QuantifierBoundNames, SequenceBuilder, SequenceIterator,
-    SequenceOfPredicateValues, SimpleSentence, Subject, Term, TypeIterator, Variables,
+    FunctionTypeReferenceInner, FunctionalTerm, InequalityRelation, Inequation,
+    PredicateSequenceMember, PredicateValue, QuantifiedVariable, QuantifiedSentence,
+    QuantifiedVariableBinding, Quantifier, SequenceBuilder,
+    SequenceOfPredicateValues, SimpleSentence, Subject, Term, Variables,
 };
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityBody, EntityDef, EntityGroup, EntityMember, EnumBody, EnumDef,
+    DatatypeDef, Definition, EntityBody, EntityDef, EntityIdentity, EnumBody, EnumDef,
     EventDef, HasGroups, HasMembers, HasVariants, PropertyBody, PropertyDef, PropertyRoleDef,
-    StructureBody, StructureDef, StructureGroup, TypeVariant, UnionBody, UnionDef, ValueVariant,
+    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant, EntityIdentityDef,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{
-    ByReferenceMember, ByReferenceMemberDef, ByValueMember, ByValueMemberDef, Cardinality,
-    HasCardinality, HasType, IdentityMember, IdentityMemberDef, MappingType, Member, MemberKind,
-    TypeReference, DEFAULT_BY_REFERENCE_CARDINALITY, DEFAULT_BY_VALUE_CARDINALITY,
+    Member, MemberDef, Cardinality,
+    HasCardinality, HasType, MemberGroup, MappingType,
+    TypeReference, DEFAULT_CARDINALITY,
 };
 use sdml_core::model::modules::{Import, ImportStatement, Module, ModuleBody};
 use sdml_core::model::values::{
@@ -53,29 +53,29 @@ use sdml_core::syntax::{
     NODE_KIND_CONJUNCTION, NODE_KIND_CONSTRAINT, NODE_KIND_CONSTRAINT_ENVIRONMENT,
     NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_CONTROLLED_LANGUAGE_TAG, NODE_KIND_DATA_TYPE_DEF,
     NODE_KIND_DECIMAL, NODE_KIND_DISJUNCTION, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_BODY,
-    NODE_KIND_ENTITY_DEF, NODE_KIND_ENTITY_GROUP, NODE_KIND_ENUM_BODY, NODE_KIND_ENUM_DEF,
-    NODE_KIND_ENVIRONMENT_DEFINITION, NODE_KIND_EQUATION, NODE_KIND_EVENT_DEF,
+    NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_BODY, NODE_KIND_ENUM_DEF,
+    NODE_KIND_ENVIRONMENT_DEF, NODE_KIND_EQUATION, NODE_KIND_EVENT_DEF,
     NODE_KIND_EXCLUSIVE_DISJUNCTION, NODE_KIND_EXISTENTIAL, NODE_KIND_FORMAL_CONSTRAINT,
     NODE_KIND_FUNCTIONAL_TERM, NODE_KIND_FUNCTION_COMPOSITION, NODE_KIND_FUNCTION_DEF,
     NODE_KIND_FUNCTION_PARAMETER, NODE_KIND_FUNCTION_SIGNATURE, NODE_KIND_GREATER_THAN,
     NODE_KIND_GREATER_THAN_OR_EQUAL, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-    NODE_KIND_IDENTITY_MEMBER, NODE_KIND_IDENTITY_ROLE, NODE_KIND_IMPLICATION, NODE_KIND_IMPORT,
+    NODE_KIND_IDENTITY_ROLE, NODE_KIND_IMPLICATION,
     NODE_KIND_INEQUATION, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
-    NODE_KIND_IRI_REFERENCE, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LESS_THAN,
+    NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LESS_THAN,
     NODE_KIND_LESS_THAN_OR_EQUAL, NODE_KIND_MAPPING_TYPE, NODE_KIND_MAPPING_VARIABLE,
-    NODE_KIND_MEMBER_BY_REFERENCE, NODE_KIND_MEMBER_BY_VALUE, NODE_KIND_MEMBER_IMPORT,
+    NODE_KIND_MEMBER, NODE_KIND_MEMBER_GROUP, NODE_KIND_MEMBER_IMPORT,
     NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT, NODE_KIND_NAMED_VARIABLE_SET,
     NODE_KIND_NEGATION, NODE_KIND_NOT_EQUAL, NODE_KIND_PREDICATE_VALUE, NODE_KIND_PROPERTY_BODY,
     NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUANTIFIED_SENTENCE,
-    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_QUANTIFIER_BOUND_NAMES,
-    NODE_KIND_QUOTED_STRING, NODE_KIND_RESERVED_SELF, NODE_KIND_RESERVED_SELF_TYPE,
-    NODE_KIND_ROLE_BY_REFERENCE, NODE_KIND_ROLE_BY_VALUE, NODE_KIND_SEQUENCE_BUILDER,
-    NODE_KIND_SEQUENCE_ITERATOR, NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES,
+    NODE_KIND_QUOTED_STRING, NODE_KIND_RESERVED_SELF,
+    NODE_KIND_ROLE_BY_REFERENCE, NODE_KIND_SEQUENCE_BUILDER,
+    NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES,
     NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_STRING,
-    NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF, NODE_KIND_STRUCTURE_GROUP, NODE_KIND_TERM,
-    NODE_KIND_TYPE_ITERATOR, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
+    NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF, NODE_KIND_TERM,
+    NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
     NODE_KIND_UNIVERSAL, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_VALUE_CONSTRUCTOR,
-    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD,
+    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD, NODE_KIND_ENTITY_IDENTITY, NODE_KIND_UNSIGNED,
+    NODE_KIND_BINARY, NODE_KIND_QUANTIFIED_VARIABLE, NODE_KIND_QUANTIFIED_VARIABLE_BINDING,
 };
 use std::fmt::Display;
 use std::io::Write;
@@ -359,7 +359,7 @@ fn write_module_body<W: Write>(me: &ModuleBody, w: &mut Writer<W>) -> Result<(),
 }
 
 fn write_import_statement<W: Write>(me: &ImportStatement, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_IMPORT)?;
+    w.start_node_indented("import")?;
     w.indent();
 
     write_span!(me, w);
@@ -502,7 +502,7 @@ fn write_environment_definition<W: Write>(
     me: &EnvironmentDef,
     w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_ENVIRONMENT_DEFINITION)?;
+    w.start_node_indented(NODE_KIND_ENVIRONMENT_DEF)?;
     w.indent();
 
     write_span!(me, w);
@@ -591,10 +591,11 @@ fn write_function_type<W: Write>(me: &FunctionType, w: &mut Writer<W>) -> Result
 
     w.newln_and_indentation()?;
     w.field_name(FIELD_NAME_NAME)?;
-    match me.target_type() {
-        FunctionTypeReference::Wildcard => w.node(NODE_KIND_WILDCARD)?,
-        FunctionTypeReference::Reference(v) => write_identifier_reference(v, w)?,
-        FunctionTypeReference::MappingType(v) => write_mapping_type(v, w)?,
+    // TODO: Optional
+    match me.target_type().inner() {
+        FunctionTypeReferenceInner::Wildcard => w.node(NODE_KIND_WILDCARD)?,
+        FunctionTypeReferenceInner::Reference(v) => write_identifier_reference(v, w)?,
+        FunctionTypeReferenceInner::MappingType(v) => write_mapping_type(v, w)?,
     }
 
     Ok(())
@@ -774,11 +775,9 @@ fn write_quantified_sentence<W: Write>(
 
     write_span!(me, w);
 
-    for binding in me.variable_bindings() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_BINDING)?;
-        write_quantified_variable_binding(binding, w)?;
-    }
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_BINDING)?;
+    write_quantified_variable_binding(me.binding(), w)?;
 
     w.newln_and_indentation()?;
     w.field_name(FIELD_NAME_BODY)?;
@@ -805,13 +804,12 @@ fn write_quantified_variable_binding<W: Write>(
         Quantifier::Existential => w.node(NODE_KIND_EXISTENTIAL)?,
     }
 
-    for binding in me.bindings() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_BINDING)?;
-        match binding {
-            QuantifiedBinding::ReservedSelf => w.node(NODE_KIND_RESERVED_SELF)?,
-            QuantifiedBinding::Named(v) => write_quantifier_bound_names(v, w)?,
-        }
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_BINDING)?;
+    if let Some(binding) = me.binding() {
+        write_quantified_variable(binding, w)?;
+    } else {
+        w.node(NODE_KIND_RESERVED_SELF)?;
     }
 
     w.close_paren()?;
@@ -819,65 +817,22 @@ fn write_quantified_variable_binding<W: Write>(
     Ok(())
 }
 
-fn write_quantifier_bound_names<W: Write>(
-    me: &QuantifierBoundNames,
+fn write_quantified_variable<W: Write>(
+    me: &QuantifiedVariable,
     w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.start_node(NODE_KIND_QUANTIFIER_BOUND_NAMES)?;
+    w.start_node(NODE_KIND_QUANTIFIED_VARIABLE)?;
     w.indent();
 
     write_span!(me, w);
 
-    for name in me.names() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_NAME)?;
-        write_identifier(name, w)?;
-    }
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
 
     w.newln_and_indentation()?;
     w.field_name(FIELD_NAME_SOURCE)?;
-    match me.source() {
-        IteratorSource::Type(v) => write_type_iterator(v, w)?,
-        IteratorSource::Sequence(v) => write_sequence_iterator(v, w)?,
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_type_iterator<W: Write>(me: &TypeIterator, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node(NODE_KIND_TYPE_ITERATOR)?;
-    w.indent();
-
-    match me {
-        TypeIterator::SelfType => w.node(NODE_KIND_RESERVED_SELF_TYPE)?,
-        TypeIterator::Type(v) => {
-            w.newln_and_indentation()?;
-            write_identifier_reference(v, w)?
-        }
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_sequence_iterator<W: Write>(
-    me: &SequenceIterator,
-    w: &mut Writer<W>,
-) -> Result<(), Error> {
-    w.start_node(NODE_KIND_SEQUENCE_ITERATOR)?;
-    w.indent();
-
-    match me {
-        SequenceIterator::Call(v) => write_function_composition(v, w)?,
-        SequenceIterator::Variable(v) => {
-            w.newln_and_indentation()?;
-            write_identifier(v, w)?
-        }
-        SequenceIterator::Builder(v) => write_sequence_builder(v, w)?,
-    }
+    write_term(me.source(), w)?;
 
     w.close_paren()?;
     w.outdent();
@@ -891,7 +846,7 @@ fn write_predicate_value<W: Write>(me: &PredicateValue, w: &mut Writer<W>) -> Re
     w.newln_and_indentation()?;
     match me {
         PredicateValue::Simple(v) => write_simple_value(v, w)?,
-        PredicateValue::List(vs) => write_list_of_predicate_values(vs, w)?,
+        PredicateValue::Sequence(vs) => write_list_of_predicate_values(vs, w)?,
     }
 
     w.close_paren()?;
@@ -913,6 +868,8 @@ fn write_list_of_predicate_values<W: Write>(
         match value {
             PredicateSequenceMember::Simple(v) => write_simple_value(v, w)?,
             PredicateSequenceMember::Reference(v) => write_identifier_reference(v, w)?,
+            PredicateSequenceMember::ValueConstructor(v) => write_value_constructor(v, w)?,
+            PredicateSequenceMember::Mapping(v) => write_mapping_value(v, w)?,
         }
     }
 
@@ -925,14 +882,16 @@ fn write_term<W: Write>(me: &Term, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node(NODE_KIND_TERM)?;
     w.indent();
 
-    w.newln_and_indentation()?;
     match me {
-        Term::Call(v) => write_function_composition(v, w)?,
-        Term::Variable(v) => write_identifier(v, w)?,
-        Term::Type(v) => write_qualified_identifier(v, w)?,
-        Term::Value(v) => write_predicate_value(v, w)?,
-        Term::Function(v) => write_functional_term(v, w)?,
         Term::Sequence(v) => write_sequence_builder(v, w)?,
+        Term::Function(v) => write_functional_term(v, w)?,
+        Term::Composition(v) => write_function_composition(v, w)?,
+        Term::Identifier(v) => {
+            w.newln_and_indentation()?;
+            write_identifier_reference(v, w)?
+        },
+        Term::ReservedSelf =>  w.node(NODE_KIND_RESERVED_SELF)?,
+        Term::Value(v) => write_predicate_value(v, w)?,
     }
 
     w.close_paren()?;
@@ -1036,15 +995,9 @@ fn write_sequence_builder<W: Write>(me: &SequenceBuilder, w: &mut Writer<W>) -> 
         }
     }
 
-    for binding in me.bindings() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_BINDING)?;
-        write_quantified_variable_binding(binding, w)?;
-    }
-
     w.newln_and_indentation()?;
     w.field_name(FIELD_NAME_BODY)?;
-    write_constraint_sentence(me.body(), w)?;
+    write_quantified_sentence(me.body(), w)?;
 
     w.close_paren()?;
     w.outdent();
@@ -1086,8 +1039,10 @@ fn write_simple_value<W: Write>(me: &SimpleValue, w: &mut Writer<W>) -> Result<(
         SimpleValue::Integer(v) => w.node_and_value(NODE_KIND_INTEGER, v)?,
         SimpleValue::Boolean(v) => w.node_and_value(NODE_KIND_BOOLEAN, v)?,
         SimpleValue::IriReference(v) => {
-            w.node_and_value(NODE_KIND_IRI_REFERENCE, format!("<{}>", v))?
+            w.node_and_value(NODE_KIND_IRI, format!("<{}>", v))?
         }
+        SimpleValue::Unsigned(v) => w.node_and_value(NODE_KIND_UNSIGNED, v)?,
+        SimpleValue::Binary(v) => w.node_and_value(NODE_KIND_BINARY, v)?,
     }
 
     Ok(())
@@ -1169,9 +1124,10 @@ fn write_type_definition<W: Write>(me: &Definition, w: &mut Writer<W>) -> Result
         Definition::Entity(v) => write_entity_def(v, w)?,
         Definition::Enum(v) => write_enum_def(v, w)?,
         Definition::Event(v) => write_event_def(v, w)?,
-        Definition::Structure(v) => write_structure_def(v, w)?,
-        Definition::Union(v) => write_union_def(v, w)?,
         Definition::Property(v) => write_property_def(v, w)?,
+        Definition::Structure(v) => write_structure_def(v, w)?,
+        Definition::TypeClass(_) => todo!(),
+        Definition::Union(v) => write_union_def(v, w)?,
     }
 
     Ok(())
@@ -1247,45 +1203,18 @@ fn write_entity_body<W: Write>(me: &EntityBody, w: &mut Writer<W>) -> Result<(),
 
     w.newln_and_indentation()?;
     w.field_name(FIELD_NAME_IDENTITY)?;
-    write_identity_member(me.identity(), w)?;
+    write_entity_identity(me.identity(), w)?;
 
     write_annotations!(me.annotations(), w);
 
     for member in me.members() {
         w.newln()?;
-        write_entity_member(member, w)?;
+        write_member(member, w)?;
     }
 
     for group in me.groups() {
         w.newln()?;
-        write_entity_group(group, w)?
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_entity_member<W: Write>(me: &EntityMember, w: &mut Writer<W>) -> Result<(), Error> {
-    match me {
-        EntityMember::ByValue(v) => write_by_value_member(v, w)?,
-        EntityMember::ByReference(v) => write_by_reference_member(v, w)?,
-    }
-
-    Ok(())
-}
-
-fn write_entity_group<W: Write>(me: &EntityGroup, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_ENTITY_GROUP)?;
-    w.indent();
-
-    write_span!(me, w);
-
-    write_annotations!(me.annotations(), w);
-
-    for member in me.members() {
-        w.newln()?;
-        write_entity_member(member, w)?;
+        write_member_group(group, w)?
     }
 
     w.close_paren()?;
@@ -1410,12 +1339,12 @@ fn write_structure_body<W: Write>(me: &StructureBody, w: &mut Writer<W>) -> Resu
 
     for member in me.members() {
         w.newln()?;
-        write_by_value_member(member, w)?;
+        write_member(member, w)?;
     }
 
     for group in me.groups() {
         w.newln()?;
-        write_structure_group(group, w)?
+        write_member_group(group, w)?
     }
 
     w.close_paren()?;
@@ -1423,8 +1352,8 @@ fn write_structure_body<W: Write>(me: &StructureBody, w: &mut Writer<W>) -> Resu
     Ok(())
 }
 
-fn write_structure_group<W: Write>(me: &StructureGroup, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_STRUCTURE_GROUP)?;
+fn write_member_group<W: Write>(me: &MemberGroup, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_MEMBER_GROUP)?;
     w.indent();
 
     write_span!(me, w);
@@ -1433,7 +1362,7 @@ fn write_structure_group<W: Write>(me: &StructureGroup, w: &mut Writer<W>) -> Re
 
     for member in me.members() {
         w.newln()?;
-        write_by_value_member(member, w)?;
+        write_member(member, w)?;
     }
 
     w.close_paren()?;
@@ -1497,11 +1426,8 @@ fn write_property_body<W: Write>(me: &PropertyBody, w: &mut Writer<W>) -> Result
             PropertyRoleDef::Identity(def) => {
                 write_identity_role(def, role.name(), w)?;
             }
-            PropertyRoleDef::ByReference(def) => {
-                write_by_reference_role(def, role.name(), w)?;
-            }
-            PropertyRoleDef::ByValue(def) => {
-                write_by_value_role(def, role.name(), w)?;
+            PropertyRoleDef::Member(def) => {
+                write_member_role(def, role.name(), w)?;
             }
         }
     }
@@ -1512,7 +1438,7 @@ fn write_property_body<W: Write>(me: &PropertyBody, w: &mut Writer<W>) -> Result
 }
 
 fn write_identity_role<W: Write>(
-    me: &IdentityMemberDef,
+    me: &EntityIdentityDef,
     name: &Identifier,
     w: &mut Writer<W>,
 ) -> Result<(), Error> {
@@ -1538,39 +1464,8 @@ fn write_identity_role<W: Write>(
     Ok(())
 }
 
-fn write_by_value_role<W: Write>(
-    me: &ByValueMemberDef,
-    name: &Identifier,
-    w: &mut Writer<W>,
-) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_ROLE_BY_VALUE)?;
-    w.indent();
-
-    w.newln_and_indentation()?;
-    w.field_name(FIELD_NAME_NAME)?;
-    write_identifier(name, w)?;
-
-    w.newln_and_indentation()?;
-    w.field_name(FIELD_NAME_CARDINALITY)?;
-    write_cardinality(me.target_cardinality(), w)?;
-
-    w.newln_and_indentation()?;
-    w.field_name(FIELD_NAME_TARGET)?;
-    write_type_reference(me.target_type(), w)?;
-
-    if let Some(body) = me.body() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_BODY)?;
-        write_annotation_only_body(body, w)?
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_by_reference_role<W: Write>(
-    me: &ByReferenceMemberDef,
+fn write_member_role<W: Write>(
+    me: &MemberDef,
     name: &Identifier,
     w: &mut Writer<W>,
 ) -> Result<(), Error> {
@@ -1649,33 +1544,32 @@ fn write_type_variant<W: Write>(me: &TypeVariant, w: &mut Writer<W>) -> Result<(
     Ok(())
 }
 
-fn write_identity_member<W: Write>(me: &IdentityMember, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node(NODE_KIND_IDENTITY_MEMBER)?;
+fn write_entity_identity<W: Write>(me: &EntityIdentity, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_ENTITY_IDENTITY)?;
     w.indent();
 
     write_span!(me, w);
 
-    match me.kind() {
-        MemberKind::PropertyReference(property) => {
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_PROPERTY)?;
-            write_identifier_reference(property, w)?;
+    if let Some(property) = me.as_property_reference() {
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_PROPERTY)?;
+        write_identifier_reference(property, w)?;
 
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_identifier(me.name(), w)?;
-        }
-        MemberKind::Definition(def) => {
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_TARGET)?;
-            write_type_reference(def.target_type(), w)?;
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_NAME)?;
+        write_identifier(me.name(), w)?;
+    } else if let Some(def) = me.as_definition() {
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_TARGET)?;
+        write_type_reference(def.target_type(), w)?;
 
-            if let Some(body) = &def.body() {
-                w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_BODY)?;
-                write_annotation_only_body(body, w)?
-            }
+        if let Some(body) = &def.body() {
+            w.newln_and_indentation()?;
+            w.field_name(FIELD_NAME_BODY)?;
+            write_annotation_only_body(body, w)?
         }
+    } else {
+        unreachable!();
     }
 
     w.close_paren()?;
@@ -1683,98 +1577,52 @@ fn write_identity_member<W: Write>(me: &IdentityMember, w: &mut Writer<W>) -> Re
     Ok(())
 }
 
-fn write_by_value_member<W: Write>(me: &ByValueMember, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_MEMBER_BY_VALUE)?;
-    w.indent();
-
-    write_span!(me, w);
-
-    match me.kind() {
-        MemberKind::PropertyReference(property) => {
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_PROPERTY)?;
-            write_identifier_reference(property, w)?;
-
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_identifier(me.name(), w)?;
-        }
-        MemberKind::Definition(def) => {
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_identifier(me.name(), w)?;
-
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_TARGET)?;
-            write_type_reference(def.target_type(), w)?;
-
-            let target_cardinality = def.target_cardinality();
-            if *target_cardinality == DEFAULT_BY_VALUE_CARDINALITY {
-                w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_CARDINALITY)?;
-                write_cardinality(target_cardinality, w)?;
-            }
-
-            if let Some(body) = &def.body() {
-                w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_BODY)?;
-                write_annotation_only_body(body, w)?
-            }
-        }
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_by_reference_member<W: Write>(
-    me: &ByReferenceMember,
+fn write_member<W: Write>(
+    me: &Member,
     w: &mut Writer<W>,
 ) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_MEMBER_BY_REFERENCE)?;
+    w.start_node_indented(NODE_KIND_MEMBER)?;
     w.indent();
 
     write_span!(me, w);
 
-    match me.kind() {
-        MemberKind::PropertyReference(property) => {
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_PROPERTY)?;
-            write_identifier_reference(&property, w)?;
+    if let Some(property) = me.as_property_reference() {
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_PROPERTY)?;
+        write_identifier_reference(&property, w)?;
 
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_NAME)?;
+        write_identifier(me.name(), w)?;
+    } else if let Some(def) = me.as_definition() {
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_NAME)?;
+        write_identifier(me.name(), w)?;
+
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_TARGET)?;
+        write_type_reference(def.target_type(), w)?;
+
+        if let Some(name) = &def.inverse_name() {
             w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_identifier(me.name(), w)?;
+            w.field_name(FIELD_NAME_INVERSE_NAME)?;
+            write_identifier(name, w)?;
         }
-        MemberKind::Definition(def) => {
+
+        let target_cardinality = def.target_cardinality();
+        if *target_cardinality == DEFAULT_CARDINALITY {
             w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_identifier(me.name(), w)?;
-
-            w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_TARGET)?;
-            write_type_reference(def.target_type(), w)?;
-
-            if let Some(name) = &def.inverse_name() {
-                w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_INVERSE_NAME)?;
-                write_identifier(name, w)?;
-            }
-
-            let target_cardinality = def.target_cardinality();
-            if *target_cardinality == DEFAULT_BY_REFERENCE_CARDINALITY {
-                w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_CARDINALITY)?;
-                write_cardinality(target_cardinality, w)?;
-            }
-
-            if let Some(body) = &def.body() {
-                w.newln_and_indentation()?;
-                w.field_name(FIELD_NAME_BODY)?;
-                write_annotation_only_body(body, w)?
-            }
+            w.field_name(FIELD_NAME_CARDINALITY)?;
+            write_cardinality(target_cardinality, w)?;
         }
+
+        if let Some(body) = &def.body() {
+            w.newln_and_indentation()?;
+            w.field_name(FIELD_NAME_BODY)?;
+            write_annotation_only_body(body, w)?
+        }
+    } else {
+        unreachable!();
     }
 
     w.close_paren()?;
@@ -1783,7 +1631,7 @@ fn write_by_reference_member<W: Write>(
 }
 
 fn write_type_reference<W: Write>(me: &TypeReference, w: &mut Writer<W>) -> Result<(), Error> {
-    if let TypeReference::Reference(reference) = me {
+    if let TypeReference::Type(reference) = me {
         write_identifier_reference(reference, w)?;
     } else {
         w.node(NODE_KIND_UNKNOWN_TYPE)?;

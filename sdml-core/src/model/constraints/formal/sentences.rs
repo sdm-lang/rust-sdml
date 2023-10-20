@@ -1,9 +1,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
-
 use crate::error::Error;
-use crate::model::constraints::{FunctionComposition, SequenceBuilder, Term};
-use crate::model::identifiers::{Identifier, IdentifierReference};
+use crate::model::constraints::Term;
+use crate::model::identifiers::Identifier;
 use crate::model::Span;
 use crate::syntax::{
     KW_QUANTIFIER_EXISTS, KW_QUANTIFIER_EXISTS_SYMBOL, KW_QUANTIFIER_FORALL,
@@ -166,7 +165,7 @@ pub enum ConnectiveOperator {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QuantifiedSentence {
     span: Option<Span>,
-    variable_bindings: Vec<QuantifiedVariableBinding>,
+    binding: QuantifiedVariableBinding,
     body: Box<ConstraintSentence>,
 }
 
@@ -175,7 +174,8 @@ pub struct QuantifiedSentence {
 pub struct QuantifiedVariableBinding {
     span: Option<Span>,
     quantifier: Quantifier,
-    bindings: Vec<QuantifiedBinding>, // assert!(!is_empty())
+    // None = `self`
+    binding: Option<QuantifiedVariable>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -190,65 +190,16 @@ pub enum Quantifier {
 }
 
 ///
-/// Corresponds to the grammar rule `quantifier_binding`.
+/// Corresponds to the grammar rule `quantified_variable`.
 ///
-/// A `QuantifierBinding` is either the keyword **`self`** or a *name* and *target* pair.
-///
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum QuantifiedBinding {
-    ReservedSelf,
-    Named(QuantifierBoundNames),
-}
-
-///
-/// Corresponds to the inner part of the grammar rule `quantifier_binding`.
-///
-/// A `QuantifierBinding` is either the keyword **`self`** or a set of *name* and a *target*.
+/// A `QuantifiedVariable` is a *name* and *source* pair.
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct QuantifierBoundNames {
+pub struct QuantifiedVariable {
     span: Option<Span>,
-    names: Vec<Identifier>,
-    source: IteratorSource,
-}
-
-///
-/// Corresponds to the grammar rule `binding_target`.
-///
-/// A `BindingTarget` may be either a [`BindingTypeRef`], or a [`BindingSeqIterator`].
-///
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum IteratorSource {
-    Type(TypeIterator),
-    Sequence(SequenceIterator),
-}
-
-///
-/// Corresponds to the grammar rule `binding_seq_iterator`.
-///
-/// A named binding may target either a [`BindingTypeRef`], or a [`BindingSeqIterator`].
-///
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum SequenceIterator {
-    Call(FunctionComposition),
-    Variable(Identifier),
-    Builder(SequenceBuilder),
-}
-
-///
-/// Corresponds to the grammar rule `binding_type_reference`.
-///
-/// A `BindingTypeRef` is either the keyword **`Self`** or an [`IdentifierReference`].
-///
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum TypeIterator {
-    SelfType,
-    Type(IdentifierReference),
+    name: Identifier,
+    source: Term,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -710,14 +661,13 @@ impl QuantifiedSentence {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new<B, S>(bindings: B, body: S) -> Self
+    pub fn new<S>(binding: QuantifiedVariableBinding, body: S) -> Self
     where
-        B: Into<Vec<QuantifiedVariableBinding>>,
         S: Into<ConstraintSentence>,
     {
         Self {
             span: Default::default(),
-            variable_bindings: bindings.into(),
+            binding,
             body: Box::new(body.into()),
         }
     }
@@ -726,16 +676,7 @@ impl QuantifiedSentence {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_vec!(
-        pub
-        has has_variable_bindings,
-        variable_bindings_len,
-        variable_bindings,
-        variable_bindings_mut,
-        add_to_variable_bindings,
-        extend_variable_bindings
-            => variable_bindings, QuantifiedVariableBinding
-    );
+    get_and_set!(pub binding, set_binding => QuantifiedVariableBinding);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -785,29 +726,32 @@ impl QuantifiedVariableBinding {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new<B>(quantifier: Quantifier, bindings: B) -> Self
-    where
-        B: Into<Vec<QuantifiedBinding>>,
+    pub fn new(quantifier: Quantifier, binding: QuantifiedVariable) -> Self
     {
         Self {
             span: Default::default(),
             quantifier,
-            bindings: bindings.into(),
+            binding: Some(binding),
         }
     }
 
-    pub fn new_existential<B>(bindings: B) -> Self
-    where
-        B: Into<Vec<QuantifiedBinding>>,
+    pub fn new_self(quantifier: Quantifier) -> Self
     {
-        Self::new(Quantifier::Existential, bindings)
+        Self {
+            span: Default::default(),
+            quantifier,
+            binding: None,
+        }
     }
 
-    pub fn new_universal<B>(bindings: B) -> Self
-    where
-        B: Into<Vec<QuantifiedBinding>>,
+    pub fn new_existential(binding: QuantifiedVariable) -> Self
     {
-        Self::new(Quantifier::Universal, bindings)
+        Self::new(Quantifier::Existential, binding)
+    }
+
+    pub fn new_universal(binding: QuantifiedVariable) -> Self
+    {
+        Self::new(Quantifier::Universal, binding)
     }
 
     // --------------------------------------------------------------------------------------------
@@ -826,64 +770,45 @@ impl QuantifiedVariableBinding {
         self.quantifier == Quantifier::Universal
     }
 
-    get_and_set_vec!(
-        pub
-        has has_bindings,
-        bindings_len,
-        bindings,
-        bindings_mut,
-        add_to_bindings,
-        extend_bindings
-            => bindings, QuantifiedBinding
-    );
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl From<QuantifierBoundNames> for QuantifiedBinding {
-    fn from(v: QuantifierBoundNames) -> Self {
-        Self::Named(v)
+    pub fn binding(&self) -> Option<&QuantifiedVariable> {
+        self.binding.as_ref()
     }
-}
 
-impl QuantifiedBinding {
-    // --------------------------------------------------------------------------------------------
-    // Variants
-    // --------------------------------------------------------------------------------------------
+    pub fn is_bound_to_variable(&self) -> bool {
+        self.binding.is_some()
+    }
 
-    is_variant!(ReservedSelf => is_self_instance);
+    pub fn set_binding_to_variable(&mut self, binding: QuantifiedVariable) {
+        self.binding = Some(binding);
+    }
 
-    is_as_variant!(Named (QuantifierBoundNames) => is_named, as_named);
+    pub fn is_bound_to_self(&self) -> bool {
+        self.binding.is_none()
+    }
 
-    // --------------------------------------------------------------------------------------------
-    // FromStr helper
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_valid_str(s: &str) -> bool {
-        s == KW_QUANTIFIER_EXISTS
-            || s == KW_QUANTIFIER_EXISTS_SYMBOL
-            || s == KW_QUANTIFIER_FORALL
-            || s == KW_QUANTIFIER_FORALL_SYMBOL
+    pub fn set_binding_to_self(&mut self) {
+        self.binding = None;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(QuantifierBoundNames);
+impl_has_source_span_for!(QuantifiedVariable);
 
-impl QuantifierBoundNames {
+impl_has_name_for!(QuantifiedVariable);
+
+impl QuantifiedVariable {
     // --------------------------------------------------------------------------------------------
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new<N, B>(names: N, source: B) -> Self
+    pub fn new<T>(name: Identifier, source: T) -> Self
     where
-        N: IntoIterator<Item = Identifier>,
-        B: Into<IteratorSource>,
+        T: Into<Term>
     {
         Self {
             span: Default::default(),
-            names: Vec::from_iter(names),
+            name,
             source: source.into(),
         }
     }
@@ -892,92 +817,5 @@ impl QuantifierBoundNames {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub source, set_source => IteratorSource);
-
-    get_and_set_vec!(
-        pub
-        has has_names,
-        names_len,
-        names,
-        names_mut,
-        add_to_names,
-        extend_names
-            => names, Identifier
-    );
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl From<TypeIterator> for IteratorSource {
-    fn from(v: TypeIterator) -> Self {
-        Self::Type(v)
-    }
-}
-
-impl From<SequenceIterator> for IteratorSource {
-    fn from(v: SequenceIterator) -> Self {
-        Self::Sequence(v)
-    }
-}
-
-impl IteratorSource {
-    // --------------------------------------------------------------------------------------------
-    // Variants
-    // --------------------------------------------------------------------------------------------
-
-    is_as_variant!(Type (TypeIterator) => is_type_iterator, as_type_iterator);
-
-    is_as_variant!(Sequence (SequenceIterator) => is_sequence_iterator, as_sequence_iterator);
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl From<FunctionComposition> for SequenceIterator {
-    fn from(v: FunctionComposition) -> Self {
-        Self::Call(v)
-    }
-}
-
-impl From<Identifier> for SequenceIterator {
-    fn from(v: Identifier) -> Self {
-        Self::Variable(v)
-    }
-}
-
-impl From<SequenceBuilder> for SequenceIterator {
-    fn from(v: SequenceBuilder) -> Self {
-        Self::Builder(v)
-    }
-}
-
-impl SequenceIterator {
-    // --------------------------------------------------------------------------------------------
-    // Variants
-    // --------------------------------------------------------------------------------------------
-
-    is_as_variant!(Call (FunctionComposition) => is_call_path, as_call_path);
-
-    is_as_variant!(Variable (Identifier) => is_variable, as_variable);
-
-    is_as_variant!(Builder (SequenceBuilder) => is_sequence_builder, as_sequence_builder);
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl From<IdentifierReference> for TypeIterator {
-    fn from(v: IdentifierReference) -> Self {
-        Self::Type(v)
-    }
-}
-
-impl TypeIterator {
-    // --------------------------------------------------------------------------------------------
-    // Variants
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_self_type(&self) -> bool {
-        matches!(self, Self::SelfType)
-    }
-
-    is_as_variant!(Type (IdentifierReference) => is_type_name, as_type_name);
+    get_and_set!(pub source, set_source => into Term);
 }

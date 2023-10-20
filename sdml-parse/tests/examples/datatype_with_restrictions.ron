@@ -1,0 +1,137 @@
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 92,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 7,
+                        end: 14,
+                    },
+                ),
+                value: "example",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 15,
+                        end: 91,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [
+                    Datatype(
+                        DatatypeDef {
+                            span: Some(
+                                Span {
+                                    start: 21,
+                                    end: 86,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 30,
+                                        end: 40,
+                                    },
+                                ),
+                                value: "unixUserId",
+                            },
+                            opaque: false,
+                            base_type: QualifiedIdentifier(
+                                QualifiedIdentifier {
+                                    span: Some(
+                                        Span {
+                                            start: 44,
+                                            end: 54,
+                                        },
+                                    ),
+                                    module: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 44,
+                                                end: 47,
+                                            },
+                                        ),
+                                        value: "xsd",
+                                    },
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 48,
+                                                end: 54,
+                                            },
+                                        ),
+                                        value: "string",
+                                    },
+                                },
+                            ),
+                            body: Some(
+                                AnnotationOnlyBody {
+                                    span: Some(
+                                        Span {
+                                            start: 55,
+                                            end: 86,
+                                        },
+                                    ),
+                                    annotations: [
+                                        Property(
+                                            AnnotationProperty {
+                                                span: Some(
+                                                    Span {
+                                                        start: 62,
+                                                        end: 80,
+                                                    },
+                                                ),
+                                                name_reference: QualifiedIdentifier(
+                                                    QualifiedIdentifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 63,
+                                                                end: 76,
+                                                            },
+                                                        ),
+                                                        module: Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 63,
+                                                                    end: 66,
+                                                                },
+                                                            ),
+                                                            value: "xsd",
+                                                        },
+                                                        member: Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 67,
+                                                                    end: 76,
+                                                                },
+                                                            ),
+                                                            value: "maxLength",
+                                                        },
+                                                    },
+                                                ),
+                                                value: Simple(
+                                                    Integer(
+                                                        8,
+                                                    ),
+                                                ),
+                                            },
+                                        ),
+                                    ],
+                                },
+                            ),
+                        },
+                    ),
+                ],
+            },
+        },
+    },
+)

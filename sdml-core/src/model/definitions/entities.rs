@@ -1,11 +1,13 @@
 use crate::error::Error;
+use crate::model::annotations::AnnotationOnlyBody;
+use crate::model::members::TypeReference;
 use crate::model::References;
 use crate::model::{
     annotations::{Annotation, HasAnnotations},
     check::Validate,
     definitions::{HasGroups, HasMembers},
     identifiers::{Identifier, IdentifierReference},
-    members::{ByReferenceMember, ByValueMember, IdentityMember},
+    members::{Cardinality, Member, MemberGroup, DEFAULT_CARDINALITY},
     modules::Module,
     Span,
 };
@@ -36,31 +38,39 @@ pub struct EntityDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityBody {
     span: Option<Span>,
-    identity: IdentityMember,
+    identity: EntityIdentity,
     annotations: Vec<Annotation>,
-    members: Vec<EntityMember>,
-    groups: Vec<EntityGroup>,
+    members: Vec<Member>,
+    groups: Vec<MemberGroup>,
 }
 
-/// Corresponds to the inner part of the grammar rule `entity_group`.
+/// Corresponds to the grammar rules `member` and `entity_identity`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum EntityMember {
-    ByValue(ByValueMember),
-    ByReference(ByReferenceMember),
+pub struct EntityIdentity {
+    span: Option<Span>,
+    name: Identifier,
+    kind: MemberKind,
 }
 
-/// Corresponds to the grammar rule `entity_group`.
-#[derive(Clone, Debug, Default)]
+/// Corresponds to the definition component within grammar rule `entity_identity`.
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct EntityGroup {
+pub struct EntityIdentityDef {
     span: Option<Span>,
-    annotations: Vec<Annotation>,
-    members: Vec<EntityMember>, // assert!(!members.is_empty());
+    target_type: TypeReference,
+    body: Option<AnnotationOnlyBody>,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+enum MemberKind {
+    PropertyReference(IdentifierReference),
+    Definition(EntityIdentityDef),
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Entities
+// Implementations ❱ Type Definitions ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
 impl_has_name_for!(EntityDef);
@@ -91,9 +101,9 @@ impl EntityDef {
 
 impl_has_annotations_for!(EntityBody);
 
-impl_has_groups_for!(EntityBody, EntityGroup, EntityMember);
+impl_has_groups_for!(EntityBody);
 
-impl_has_members_for!(EntityBody, EntityMember);
+impl_has_members_for!(EntityBody);
 
 impl_has_source_span_for!(EntityBody);
 
@@ -115,7 +125,7 @@ impl EntityBody {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(identity: IdentityMember) -> Self {
+    pub fn new(identity: EntityIdentity) -> Self {
         Self {
             span: None,
             identity,
@@ -129,13 +139,13 @@ impl EntityBody {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub identity, set_identity => IdentityMember);
+    get_and_set!(pub identity, set_identity => EntityIdentity);
 
     // --------------------------------------------------------------------------------------------
     // Helpers
     // --------------------------------------------------------------------------------------------
 
-    pub fn flat_members(&self) -> impl Iterator<Item = &EntityMember> {
+    pub fn flat_members(&self) -> impl Iterator<Item = &Member> {
         self.members()
             .chain(self.groups().flat_map(|g| g.members()))
     }
@@ -143,52 +153,165 @@ impl EntityBody {
 
 // ------------------------------------------------------------------------------------------------
 
-impl_from_for_variant!(EntityMember, ByValue, ByValueMember);
+impl_has_name_for!(EntityIdentity);
 
-impl_from_for_variant!(EntityMember, ByReference, ByReferenceMember);
+impl_has_source_span_for!(EntityIdentity);
 
-impl_has_name_for!(EntityMember => variants ByValue, ByReference);
+impl Validate for EntityIdentity {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        match &self.kind {
+            MemberKind::PropertyReference(_) => {
+                // TODO: check this is a property reference
+                Ok(true)
+            }
+            MemberKind::Definition(v) => v.is_complete(top),
+        }
+    }
 
-impl_references_for!(EntityMember => variants ByValue, ByReference);
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        match &self.kind {
+            MemberKind::PropertyReference(_) => {
+                // TODO: check this is a property reference
+                Ok(true)
+            }
+            MemberKind::Definition(v) => v.is_valid(check_constraints, top),
+        }
+    }
+}
 
-//impl_has_type_for!(EntityMember => variants ByValue, ByReference);
+impl References for EntityIdentity {
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        match &self.kind {
+            MemberKind::PropertyReference(v) => {
+                names.insert(v);
+            }
+            MemberKind::Definition(v) => v.referenced_annotations(names),
+        }
+    }
 
-impl_validate_for!(EntityMember => variants ByValue, ByReference);
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        match &self.kind {
+            MemberKind::PropertyReference(v) => {
+                names.insert(v);
+            }
+            MemberKind::Definition(v) => v.referenced_types(names),
+        }
+    }
+}
 
-impl EntityMember {
+impl EntityIdentity {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn new_property_reference(role: Identifier, in_property: IdentifierReference) -> Self {
+        Self {
+            span: None,
+            name: role,
+            kind: MemberKind::PropertyReference(in_property),
+        }
+    }
+
+    pub fn new_definition(name: Identifier, definition: EntityIdentityDef) -> Self {
+        Self {
+            span: None,
+            name,
+            kind: MemberKind::Definition(definition),
+        }
+    }
+
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(ByValue (ByValueMember) => is_by_value, as_by_value);
+    pub fn is_property_reference(&self) -> bool {
+        matches!(self.kind, MemberKind::PropertyReference(_))
+    }
 
-    is_as_variant!(ByReference (ByReferenceMember) => is_by_reference, as_by_reference);
+    pub fn as_property_reference(&self) -> Option<&IdentifierReference> {
+        if let MemberKind::PropertyReference(v) = &self.kind {
+            Some(v)
+        } else {
+            None
+        }
+    }
+
+    pub fn is_definition(&self) -> bool {
+        matches!(self.kind, MemberKind::Definition(_))
+    }
+
+    pub fn as_definition(&self) -> Option<&EntityIdentityDef> {
+        if let MemberKind::Definition(v) = &self.kind {
+            Some(v)
+        } else {
+            None
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(EntityGroup);
+// No need for an implementation of Cardinality trait.
 
-impl_has_annotations_for!(EntityGroup);
+impl_has_optional_body_for!(EntityIdentityDef);
 
-impl_has_members_for!(EntityGroup, EntityMember);
+impl_has_source_span_for!(EntityIdentityDef);
 
-impl_validate_for_annotations_and_members!(EntityGroup);
+impl_has_type_for!(EntityIdentityDef);
 
-impl References for EntityGroup {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.members().for_each(|m| m.referenced_types(names));
-    }
-
+impl References for EntityIdentityDef {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.members().for_each(|m| m.referenced_annotations(names));
+        self.body
+            .as_ref()
+            .map(|b| b.referenced_annotations(names))
+            .unwrap_or_default()
+    }
+
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.target_type.referenced_types(names);
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
+impl Validate for EntityIdentityDef {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        self.target_type.is_complete(top)
+    }
 
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------
+    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+        // TOD: check type reference
+        Ok(true)
+    }
+}
+
+impl EntityIdentityDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn new<T>(target_type: T) -> Self
+    where
+        T: Into<TypeReference>,
+    {
+        Self {
+            span: None,
+            target_type: target_type.into(),
+            body: None,
+        }
+    }
+
+    pub const fn new_unknown() -> Self {
+        Self {
+            span: None,
+            target_type: TypeReference::Unknown,
+            body: None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn target_cardinality(&self) -> &Cardinality {
+        &DEFAULT_CARDINALITY
+    }
+}

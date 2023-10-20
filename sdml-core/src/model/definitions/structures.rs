@@ -5,7 +5,7 @@ use crate::{
         check::Validate,
         definitions::{HasGroups, HasMembers},
         identifiers::{Identifier, IdentifierReference},
-        members::ByValueMember,
+        members::{Member, MemberGroup},
         modules::Module,
         References, Span,
     },
@@ -38,17 +38,8 @@ pub struct StructureDef {
 pub struct StructureBody {
     span: Option<Span>,
     annotations: Vec<Annotation>,
-    members: Vec<ByValueMember>,
-    groups: Vec<StructureGroup>,
-}
-
-/// Corresponds to the grammar rule `structure_group`.
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct StructureGroup {
-    span: Option<Span>,
-    annotations: Vec<Annotation>,
-    members: Vec<ByValueMember>, // assert!(!members.is_empty());
+    members: Vec<Member>,
+    groups: Vec<MemberGroup>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -83,9 +74,9 @@ impl StructureDef {
 
 impl_has_annotations_for!(StructureBody);
 
-impl_has_groups_for!(StructureBody, StructureGroup, ByValueMember);
+impl_has_groups_for!(StructureBody);
 
-impl_has_members_for!(StructureBody, ByValueMember);
+impl_has_members_for!(StructureBody);
 
 impl_has_source_span_for!(StructureBody);
 
@@ -107,29 +98,13 @@ impl StructureBody {
     // Helpers
     // --------------------------------------------------------------------------------------------
 
-    pub fn flat_members(&self) -> impl Iterator<Item = &ByValueMember> {
+    pub fn flat_members(&self) -> impl Iterator<Item = &Member> {
         self.members()
             .chain(self.groups().flat_map(|g| g.members()))
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-
-impl_has_annotations_for!(StructureGroup);
-
-impl_has_members_for!(StructureGroup, ByValueMember);
-
-impl_has_source_span_for!(StructureGroup);
-
-impl_validate_for_annotations_and_members!(StructureGroup);
-
-impl References for StructureGroup {
-    fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
-
-    fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {
-        // TODO: self plus members
-    }
-}
 
 // ------------------------------------------------------------------------------------------------
 // Private Functions

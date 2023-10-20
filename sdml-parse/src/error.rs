@@ -66,6 +66,18 @@ pub const UNEXPECTED_NODE_KIND: SimpleDiagnostic = SimpleDiagnostic {
     message: "unexpected tree-sitter node",
 };
 
+pub const MISSING_NODE_KIND: SimpleDiagnostic = SimpleDiagnostic {
+    severity: Severity::Error,
+    code: "E012",
+    message: "missing tree-sitter node",
+};
+
+pub const MISSING_NODE_VARIABLE: SimpleDiagnostic = SimpleDiagnostic {
+    severity: Severity::Error,
+    code: "E013",
+    message: "missing tree-sitter variable",
+};
+
 pub const MODULE_ALREADY_IMPORTED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Warning,
     code: "W020",

@@ -1,0 +1,8 @@
+module ddict is
+  property accountId is
+    identifier -> {1} account:AccountId is
+      @skos:definition = "a"@en
+    end
+    reference (inverse_ref) -> {1} account:AccountId
+  end
+end

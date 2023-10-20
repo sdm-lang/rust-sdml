@@ -3,11 +3,9 @@ use crate::{
     model::{
         annotations::{Annotation, AnnotationOnlyBody},
         check::Validate,
+        definitions::EntityIdentityDef,
         identifiers::{Identifier, IdentifierReference},
-        members::{
-            ByReferenceMemberDef, ByValueMemberDef, Cardinality, HasCardinality, HasType,
-            IdentityMemberDef, TypeReference,
-        },
+        members::{Cardinality, HasCardinality, HasType, MemberDef, TypeReference},
         modules::Module,
         HasOptionalBody, References, Span,
     },
@@ -55,9 +53,8 @@ pub struct PropertyRole {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum PropertyRoleDef {
-    Identity(IdentityMemberDef),
-    ByReference(ByReferenceMemberDef),
-    ByValue(ByValueMemberDef),
+    Identity(EntityIdentityDef),
+    Member(MemberDef),
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -177,21 +174,15 @@ impl PropertyRole {
 
 // ------------------------------------------------------------------------------------------------
 
-impl From<IdentityMemberDef> for PropertyRoleDef {
-    fn from(value: IdentityMemberDef) -> Self {
+impl From<EntityIdentityDef> for PropertyRoleDef {
+    fn from(value: EntityIdentityDef) -> Self {
         Self::Identity(value)
     }
 }
 
-impl From<ByValueMemberDef> for PropertyRoleDef {
-    fn from(value: ByValueMemberDef) -> Self {
-        Self::ByValue(value)
-    }
-}
-
-impl From<ByReferenceMemberDef> for PropertyRoleDef {
-    fn from(value: ByReferenceMemberDef) -> Self {
-        Self::ByReference(value)
+impl From<MemberDef> for PropertyRoleDef {
+    fn from(value: MemberDef) -> Self {
+        Self::Member(value)
     }
 }
 
@@ -211,20 +202,18 @@ impl Validate for PropertyRoleDef {
     }
 }
 
-impl_has_type_for!(PropertyRoleDef => variants Identity, ByReference, ByValue);
+impl_has_type_for!(PropertyRoleDef => variants Identity, Member);
 
-impl_has_optional_body_for!(PropertyRoleDef => variants Identity, ByReference, ByValue);
+impl_has_optional_body_for!(PropertyRoleDef => variants Identity, Member);
 
 impl PropertyRoleDef {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Identity (IdentityMemberDef) => is_identity, as_identity);
+    is_as_variant!(Identity (EntityIdentityDef) => is_identity, as_identity);
 
-    is_as_variant!(ByValue (ByValueMemberDef) => is_by_value, as_by_value);
-
-    is_as_variant!(ByReference (ByReferenceMemberDef) => is_by_reference, as_by_reference);
+    is_as_variant!(Member (MemberDef) => is_member, as_member);
 
     // --------------------------------------------------------------------------------------------
     // Delegated
@@ -234,8 +223,7 @@ impl PropertyRoleDef {
     fn target_cardinality(&self) -> &Cardinality {
         match self {
             PropertyRoleDef::Identity(v) => v.target_cardinality(),
-            PropertyRoleDef::ByReference(v) => v.target_cardinality(),
-            PropertyRoleDef::ByValue(v) => v.target_cardinality(),
+            PropertyRoleDef::Member(v) => v.target_cardinality(),
         }
     }
 }

@@ -33,13 +33,13 @@ const HIGHLIGHT_NAMES: &[&str] = &[
     "boolean",
     "comment",
     "constant",
-    "constant.builtin",
     "embedded",
     "error",
     "function.call",
     "function.definition",
     "keyword",
     "operator",
+    "method.definition",
     "module",
     "module.definition",
     "number",
@@ -150,22 +150,32 @@ fn highlight_as_ansi<S: AsRef<[u8]>, W: Write>(
     events: impl Iterator<Item = Result<HighlightEvent, tree_sitter_highlight::Error>>,
 ) -> Result<(), Error> {
     let styles: Vec<Style> = vec![
+        Style::new().fg(Color::Fixed(58)),            // boolean
         Style::new().fg(Color::Fixed(248)).italic(),  // comment
-        Style::new().fg(Color::Fixed(58)),            // constant.builtin
+        Style::new().fg(Color::Fixed(58)),            // constant
+        Style::new().fg(Color::Fixed(248)).italic(),  // embedded
         Style::new().fg(Color::Fixed(9)).underline(), // error
         Style::new().fg(Color::Fixed(26)),            // function.call
+        Style::new().fg(Color::Fixed(26)).bold(),     // function.definition
         Style::new().fg(Color::Fixed(100)),           // keyword
         Style::new().fg(Color::Fixed(239)).bold(),    // operator
-        Style::new().fg(Color::Fixed(25)),            // module
-        Style::new().fg(Color::Fixed(19)),            // module.definition
+        Style::new().fg(Color::Fixed(26)).bold(),     // method.definition
+        Style::new().fg(Color::Fixed(19)),            // module
+        Style::new().fg(Color::Fixed(19)).bold(),     // module.definition
         Style::new().fg(Color::Fixed(58)),            // number
         Style::new().fg(Color::Fixed(160)),           // property
         Style::new().fg(Color::Fixed(239)),           // punctuation.bracket
+        Style::new().fg(Color::Fixed(239)),           // punctuation.delimiter
+        Style::new().fg(Color::Fixed(239)),           // punctuation.separator
         Style::new().fg(Color::Fixed(70)),            // string
         Style::new().fg(Color::Fixed(92)),            // string.special
         Style::new().fg(Color::Fixed(27)),            // type
-        Style::new().fg(Color::Fixed(21)),            // type.definition
+        Style::new().fg(Color::Fixed(21)),            // type.builtin
+        Style::new().fg(Color::Fixed(27)).bold(),     // type.definition
+        Style::new().fg(Color::Fixed(67)),            // variable
+        Style::new().fg(Color::Fixed(67)),            // variable.builtin
         Style::new().fg(Color::Fixed(67)),            // variable.field
+        Style::new().fg(Color::Fixed(67)),            // variable.parameter
     ];
 
     highlight_as_ansi_inner(source, w, &styles, events)

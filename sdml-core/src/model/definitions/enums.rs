@@ -1,8 +1,9 @@
 use crate::{
     error::Error,
     model::{
-        annotations::{Annotation, AnnotationOnlyBody},
+        annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
         check::Validate,
+        definitions::HasVariants,
         identifiers::{Identifier, IdentifierReference},
         modules::Module,
         References, Span,
@@ -45,7 +46,6 @@ pub struct EnumBody {
 pub struct ValueVariant {
     span: Option<Span>,
     name: Identifier,
-    value: u32,
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -96,15 +96,7 @@ impl References for EnumBody {
     }
 }
 
-impl Validate for EnumBody {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
-        todo!()
-    }
-}
+impl_validate_for_annotations_and_variants!(EnumBody);
 
 // ------------------------------------------------------------------------------------------------
 
@@ -113,6 +105,8 @@ impl_has_name_for!(ValueVariant);
 impl_has_optional_body_for!(ValueVariant);
 
 impl_has_source_span_for!(ValueVariant);
+
+impl_validate_for!(ValueVariant => todo!);
 
 impl References for ValueVariant {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -128,29 +122,13 @@ impl ValueVariant {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name: Identifier, value: u32) -> Self {
+    pub fn new(name: Identifier) -> Self {
         Self {
             span: None,
             name,
-            value,
             body: None,
         }
     }
-
-    pub fn new_with(name: Identifier, value: u32, body: AnnotationOnlyBody) -> Self {
-        Self {
-            span: None,
-            name,
-            value,
-            body: Some(body),
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    get_and_set!(pub value, set_value => copy u32);
 }
 
 // ------------------------------------------------------------------------------------------------

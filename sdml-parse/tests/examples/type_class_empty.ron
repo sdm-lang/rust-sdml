@@ -1,0 +1,75 @@
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 42,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 7,
+                        end: 16,
+                    },
+                ),
+                value: "sdml_core",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 17,
+                        end: 41,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [
+                    TypeClass(
+                        TypeClassDef {
+                            span: Some(
+                                Span {
+                                    start: 23,
+                                    end: 36,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 29,
+                                        end: 32,
+                                    },
+                                ),
+                                value: "Any",
+                            },
+                            variables: [
+                                TypeVariable {
+                                    span: Some(
+                                        Span {
+                                            start: 34,
+                                            end: 35,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 34,
+                                                end: 35,
+                                            },
+                                        ),
+                                        value: "T",
+                                    },
+                                    cardinality: None,
+                                    restrictions: [],
+                                },
+                            ],
+                            body: None,
+                        },
+                    ),
+                ],
+            },
+        },
+    },
+)

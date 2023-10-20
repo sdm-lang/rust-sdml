@@ -1,29 +1,33 @@
-Module {
-    span: Some(
-        Span {
-            start: 0,
-            end: 63,
+ModuleRef(
+    RefCell {
+        value: Module {
+            span: Some(
+                Span {
+                    start: 0,
+                    end: 63,
+                },
+            ),
+            name: Identifier {
+                span: Some(
+                    Span {
+                        start: 44,
+                        end: 55,
+                    },
+                ),
+                value: "rental_cars",
+            },
+            base: None,
+            body: ModuleBody {
+                span: Some(
+                    Span {
+                        start: 56,
+                        end: 62,
+                    },
+                ),
+                imports: [],
+                annotations: [],
+                definitions: [],
+            },
         },
-    ),
-    name: Identifier {
-        span: Some(
-            Span {
-                start: 44,
-                end: 55,
-            },
-        ),
-        value: "rental_cars",
     },
-    base: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 56,
-                end: 62,
-            },
-        ),
-        imports: [],
-        annotations: [],
-        definitions: [],
-    },
-}
+)

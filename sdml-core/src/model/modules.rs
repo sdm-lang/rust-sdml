@@ -4,19 +4,18 @@ use crate::model::{
     check::Validate,
     definitions::Definition,
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    HasName, Span,
+    HasName, Span, HasBody,
 };
+use crate::load::ModuleLoader;
 use std::{collections::HashSet, fmt::Debug};
-use tracing::info;
 use url::Url;
+use crate::model::definitions::{
+    DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
+};
+use crate::model::References;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-use super::definitions::{
-    DatatypeDef, EntityDef, EnumDef, EventDef, FeatureSetDef, PropertyDef, StructureDef, UnionDef,
-};
-use super::References;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Modules
@@ -157,6 +156,40 @@ impl Module {
     pub fn is_valid(&self, check_constraints: bool) -> Result<bool, Error> {
         self.body.is_valid(check_constraints, self)
     }
+
+    pub fn validate(&self, check_constraints: bool, errors: &mut Vec<Error>) -> Result<(), Error> {
+        self.body.validate(check_constraints, self, errors)
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Resolver!
+    // --------------------------------------------------------------------------------------------
+
+    pub fn load_imports(&self, loader: &impl ModuleLoader) -> Result<(), Error>
+    {
+        for module in self.body().imported_modules() {
+            loader.load(module)?;
+        }
+        Ok(())
+    }
+
+//     pub fn resolve<'a>(&'a self, name: &IdentifierReference, loader: &'a impl ModuleLoader) -> Option<&Definition>
+//     {
+//         let (module, member) = match name {
+//             IdentifierReference::Identifier(v) => (self.name().clone(), v.clone()),
+//             IdentifierReference::QualifiedIdentifier(v) => (v.module().clone(), v.member().clone())
+//         };
+//
+//         if let Some(module) = loader.get(&module) {
+//             module.resolve_local(&member) <<< This goes badly wrong
+//         } else {
+//             None
+//         }
+//     }
+
+    pub fn resolve_local(&self, name: &Identifier) -> Option<&Definition> {
+        self.body().definitions().find(|def|def.name() == name)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -176,6 +209,34 @@ impl References for ModuleBody {
         self.definitions
             .iter()
             .for_each(|def| def.referenced_annotations(names));
+    }
+}
+
+impl Validate for ModuleBody {
+    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+        let failed: Result<Vec<bool>, Error> =
+            self.annotations().map(|ann| ann.is_complete(top)).collect();
+        Ok(failed?.iter().all(|b| *b))
+    }
+
+    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+        for inner in self.annotations() {
+            inner.is_valid(check_constraints, top)?;
+        }
+        for inner in self.definitions() {
+            inner.is_valid(check_constraints, top)?;
+        }
+        Ok(true)
+    }
+
+     fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+        for annotation in self.annotations() {
+            annotation.validate(check_constraints, top, errors)?;
+        }
+        for definition in self.definitions() {
+            definition.validate(check_constraints, top, errors)?;
+        }
+        Ok(())
     }
 }
 
@@ -253,14 +314,6 @@ impl ModuleBody {
     }
 
     #[inline]
-    pub fn feature_definitions(&self) -> impl Iterator<Item = &FeatureSetDef> {
-        self.definitions.iter().filter_map(|d| match d {
-            Definition::FeatureSet(v) => Some(v),
-            _ => None,
-        })
-    }
-
-    #[inline]
     pub fn property_definitions(&self) -> impl Iterator<Item = &PropertyDef> {
         self.definitions.iter().filter_map(|d| match d {
             Definition::Property(v) => Some(v),
@@ -286,28 +339,6 @@ impl ModuleBody {
 
     pub fn defined_names(&self) -> HashSet<&Identifier> {
         self.definitions().map(|def| def.name()).collect()
-    }
-}
-
-impl Validate for ModuleBody {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        let failed: Result<Vec<bool>, Error> =
-            self.annotations().map(|ann| ann.is_complete(top)).collect();
-        Ok(failed?.iter().all(|b| *b))
-    }
-
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
-        for annotation in self.annotations() {
-            if !annotation.is_valid(check_constraints, top)? {
-                info!("Annotation {annotation:?} is not valid");
-            }
-        }
-        for definition in self.definitions() {
-            if !definition.is_valid(check_constraints, top)? {
-                info!("Definition {} is not valid", definition.name());
-            }
-        }
-        Ok(true)
     }
 }
 

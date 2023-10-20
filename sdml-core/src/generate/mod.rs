@@ -3,7 +3,7 @@ Provides the traits used to define *generators*, types that convert one or more 
 other artifacts.
 */
 
-use crate::{error::Error, model::modules::Module};
+use crate::{error::Error, model::modules::Module, load::ModuleLoader};
 use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path};
 
 // ------------------------------------------------------------------------------------------------
@@ -14,49 +14,52 @@ use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub trait GenerateToFile<F: Default>: Debug {
-    fn write_to_file(&mut self, module: &Module, path: &Path) -> Result<(), Error> {
-        self.write_to_file_in_format(module, path, F::default())
+pub trait GenerateToFile<F: Default> : Debug {
+    fn write_to_file(&mut self, module: &Module, loader: Option<&mut dyn ModuleLoader>, path: &Path) -> Result<(), Error> {
+        self.write_to_file_in_format(module, loader, path, F::default())
     }
 
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
+        loader: Option<&mut dyn ModuleLoader>,
         path: &Path,
         format: F,
     ) -> Result<(), Error>;
 }
 
 pub trait GenerateToWriter<F: Default>: Debug {
-    fn write(&mut self, module: &Module, writer: &mut dyn Write) -> Result<(), Error> {
-        self.write_in_format(module, writer, F::default())
+    fn write(&mut self, module: &Module, loader: Option<&mut dyn ModuleLoader>, writer: &mut dyn Write) -> Result<(), Error> {
+        self.write_in_format(module, loader, writer, F::default())
     }
 
     fn write_in_format(
         &mut self,
         module: &Module,
+        loader: Option<&mut dyn ModuleLoader>,
         writer: &mut dyn Write,
         format: F,
     ) -> Result<(), Error>;
 
-    fn write_to_string(&mut self, module: &Module) -> Result<String, Error> {
+    fn write_to_string(&mut self, module: &Module, loader: Option<&mut dyn ModuleLoader>) -> Result<String, Error> {
         let mut buffer = Cursor::new(Vec::new());
-        self.write(module, &mut buffer)?;
+        self.write(module, loader, &mut buffer)?;
         Ok(String::from_utf8(buffer.into_inner())?)
     }
 
-    fn write_to_file(&mut self, module: &Module, path: &Path) -> Result<(), Error> {
-        self.write_to_file_in_format(module, path, F::default())
+    fn write_to_file(&mut self, module: &Module, loader: Option<&mut dyn ModuleLoader>, path: &Path) -> Result<(), Error> {
+        self.write_to_file_in_format(module, loader, path, F::default())
     }
 
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
+        loader: Option<&mut dyn ModuleLoader>,
         path: &Path,
         format: F,
     ) -> Result<(), Error> {
         let mut file = File::create(path)?;
-        self.write_in_format(module, &mut file, format)?;
+        self.write_in_format(module, loader, &mut file, format)?;
         Ok(())
     }
 }
