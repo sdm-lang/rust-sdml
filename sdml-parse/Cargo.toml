@@ -17,7 +17,7 @@ all-features = true
 sdml-core = { version = "0.1.7", features = [ "serde" ], path = "../sdml-core" }
 codespan-reporting = "0.11.1"
 lazy_static = "1.4.0"
-ordered-float = "3.7.0"
+ordered-float = "4.1.1"
 regex = "1.9.1"
 rust_decimal = "1.30.0"
 search_path = "0.1.4"
