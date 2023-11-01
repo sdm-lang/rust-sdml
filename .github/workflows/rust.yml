@@ -25,7 +25,10 @@ jobs:
     strategy:
       matrix:
         package:
-          - sdml
+          - sdml-core
+          - sdml-parse
+          - sdml-generate
+          - sdml-cli
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
