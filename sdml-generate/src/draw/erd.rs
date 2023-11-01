@@ -318,7 +318,7 @@ fn arrow_end(end: &str, cardinality: &Cardinality) -> String {
 
 #[inline(always)]
 fn name_to_ref(name: &str) -> String {
-    name.replace(':', "-").to_lowercase()
+    name.replace(':', "__").to_lowercase()
 }
 
 // ------------------------------------------------------------------------------------------------

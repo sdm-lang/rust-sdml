@@ -7,6 +7,10 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 
 ## Changes
 
+**Version 0.2.1**
+
+* Fix: replace "-" with "__" as qualified identifier replacement
+
 **Version 0.2.0**
 
 * Feature: Update to latest grammar.
