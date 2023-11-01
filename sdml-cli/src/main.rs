@@ -1,7 +1,8 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml_core::error::{tracing_filter_error, tracing_subscriber_error};
-use sdml_core::model::HasName;use sdml_core::model::identifiers::Identifier;
+use sdml_core::model::identifiers::Identifier;
+use sdml_core::model::HasName;
 use sdml_generate::convert::org::OrgFileGenerator;
 use sdml_generate::{GenerateToFile, GenerateToWriter};
 use sdml_parse::load::{ModuleLoader, ModuleResolver};
@@ -10,7 +11,7 @@ use std::fmt::Display;
 use std::io::Read;
 use std::path::PathBuf;
 use std::str::FromStr;
-use tracing::info;
+use tracing::{debug, info};
 use tracing_subscriber::filter::EnvFilter;
 use tracing_subscriber::FmtSubscriber;
 
@@ -176,6 +177,8 @@ type MainError = Box<dyn std::error::Error>;
 fn main() -> Result<(), MainError> {
     let cli = Cli::parse();
 
+    debug!("arguments: {cli:#?}");
+
     init_logging(cli.verbose)?;
 
     cli.command.execute()
@@ -224,13 +227,15 @@ impl Execute for Commands {
             Commands::Version => {
                 println!("SDML CLI:        {}", CLI_VERSION);
                 println!("SDML grammar:    {}", tree_sitter_sdml::GRAMMAR_VERSION);
-                println!("Tree-Sitter ABI: {}", tree_sitter_sdml::language().version());
+                println!(
+                    "Tree-Sitter ABI: {}",
+                    tree_sitter_sdml::language().version()
+                );
                 Ok(())
-            },
+            }
         }
     }
 }
-
 
 // ------------------------------------------------------------------------------------------------
 // Command Wrappers ❱ File Args
@@ -361,11 +366,21 @@ impl Execute for Convert {
                 if let Some(path) = &self.files.output_file {
                     let mut generator: OrgFileGenerator =
                         sdml_generate::convert::org::OrgFileGenerator::default();
-                    generator.write_to_file_in_format(&model, Some(&mut loader), path, Default::default())?;
+                    generator.write_to_file_in_format(
+                        &model,
+                        Some(&mut loader),
+                        path,
+                        Default::default(),
+                    )?;
                 } else {
                     let mut generator: OrgFileGenerator =
                         sdml_generate::convert::org::OrgFileGenerator::default();
-                    generator.write_in_format(&model, Some(&mut loader), &mut std::io::stdout(), Default::default())?;
+                    generator.write_in_format(
+                        &model,
+                        Some(&mut loader),
+                        &mut std::io::stdout(),
+                        Default::default(),
+                    )?;
                 }
             }
             ConvertFormat::Rdf => {
@@ -420,7 +435,12 @@ impl Execute for Draw {
                 } else {
                     let mut generator =
                         sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    generator.write_in_format(&model, Some(&mut loader), &mut std::io::stdout(), format)?;
+                    generator.write_in_format(
+                        &model,
+                        Some(&mut loader),
+                        &mut std::io::stdout(),
+                        format,
+                    )?;
                 }
             }
             DrawDiagram::EntityRelationship => {
@@ -429,7 +449,12 @@ impl Execute for Draw {
                     generator.write_to_file_in_format(&model, Some(&mut loader), path, format)?;
                 } else {
                     let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    generator.write_in_format(&model, Some(&mut loader), &mut std::io::stdout(), format)?;
+                    generator.write_in_format(
+                        &model,
+                        Some(&mut loader),
+                        &mut std::io::stdout(),
+                        format,
+                    )?;
                 }
             }
             DrawDiagram::UmlClass => {

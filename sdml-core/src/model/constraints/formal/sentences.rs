@@ -1,5 +1,3 @@
-use std::fmt::Display;
-use std::str::FromStr;
 use crate::error::Error;
 use crate::model::constraints::Term;
 use crate::model::identifiers::Identifier;
@@ -11,6 +9,8 @@ use crate::syntax::{
     KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL, KW_RELATION_NOT_EQUAL,
     KW_RELATION_NOT_EQUAL_SYMBOL,
 };
+use std::fmt::Display;
+use std::str::FromStr;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -726,8 +726,7 @@ impl QuantifiedVariableBinding {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(quantifier: Quantifier, binding: QuantifiedVariable) -> Self
-    {
+    pub fn new(quantifier: Quantifier, binding: QuantifiedVariable) -> Self {
         Self {
             span: Default::default(),
             quantifier,
@@ -735,8 +734,7 @@ impl QuantifiedVariableBinding {
         }
     }
 
-    pub fn new_self(quantifier: Quantifier) -> Self
-    {
+    pub fn new_self(quantifier: Quantifier) -> Self {
         Self {
             span: Default::default(),
             quantifier,
@@ -744,13 +742,11 @@ impl QuantifiedVariableBinding {
         }
     }
 
-    pub fn new_existential(binding: QuantifiedVariable) -> Self
-    {
+    pub fn new_existential(binding: QuantifiedVariable) -> Self {
         Self::new(Quantifier::Existential, binding)
     }
 
-    pub fn new_universal(binding: QuantifiedVariable) -> Self
-    {
+    pub fn new_universal(binding: QuantifiedVariable) -> Self {
         Self::new(Quantifier::Universal, binding)
     }
 
@@ -804,7 +800,7 @@ impl QuantifiedVariable {
 
     pub fn new<T>(name: Identifier, source: T) -> Self
     where
-        T: Into<Term>
+        T: Into<Term>,
     {
         Self {
             span: Default::default(),

@@ -9,11 +9,11 @@ YYYYY
 
 */
 
+use sdml_core::error::Error;
 use sdml_core::generate::{GenerateToWriter, NoFormatOptions};
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
-use sdml_core::error::Error;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
@@ -59,11 +59,15 @@ impl GenerateToWriter<NoFormatOptions> for OrgFileGenerator {
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
-fn write_module(me: &Module, loader: Option<&mut dyn ModuleLoader>, writer: &mut dyn Write) -> Result<(), Error>
-{
+fn write_module(
+    me: &Module,
+    loader: Option<&mut dyn ModuleLoader>,
+    writer: &mut dyn Write,
+) -> Result<(), Error> {
     let name = me.name();
-    writer.write_all(format!(
-        r#"#+TITLE: Module {name}
+    writer.write_all(
+        format!(
+            r#"#+TITLE: Module {name}
 #+LANGUAGE: en
 #+STARTUP: overview hidestars inlineimages entitiespretty
 #+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
@@ -72,15 +76,18 @@ fn write_module(me: &Module, loader: Option<&mut dyn ModuleLoader>, writer: &mut
 #+OPTIONS: toc:3
 
 "#
-    ).as_bytes())?;
+        )
+        .as_bytes(),
+    )?;
 
     // imports
     // definitions
 
     if let Some(loader) = loader {
         let source: Box<dyn AsRef<str>> = loader.get_source(name).unwrap();
-        writer.write_all(&format!(
-            r#"* Appendix: Module Source
+        writer.write_all(
+            &format!(
+                r#"* Appendix: Module Source
 
 #+NAME: lst:module-source
 #+CAPTION: Module Source
@@ -88,8 +95,10 @@ fn write_module(me: &Module, loader: Option<&mut dyn ModuleLoader>, writer: &mut
 {}
 #+END_SRC
 "#,
-            source.as_ref().as_ref()
-        ).as_bytes())?;
+                source.as_ref().as_ref()
+            )
+            .as_bytes(),
+        )?;
     }
 
     Ok(())

@@ -7,8 +7,8 @@ use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{EnumBody, EnumDef, HasVariants, ValueVariant};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE_VARIANT,
+    FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_VALUE_VARIANT,
 };
 use tree_sitter::TreeCursor;
 

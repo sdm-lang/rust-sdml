@@ -13,7 +13,7 @@ use crate::model::annotations::Annotation;
 use crate::model::check::Validate;
 use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
 use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::{Span, References};
+use crate::model::{References, Span};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -106,17 +106,32 @@ impl_has_optional_body_for!(TypeClassDef, TypeClassBody);
 impl_has_source_span_for!(TypeClassDef);
 
 impl References for TypeClassDef {
-    fn referenced_types<'a>(&'a self, _names: &mut std::collections::HashSet<&'a IdentifierReference>) {}
+    fn referenced_types<'a>(
+        &'a self,
+        _names: &mut std::collections::HashSet<&'a IdentifierReference>,
+    ) {
+    }
 
-    fn referenced_annotations<'a>(&'a self, _names: &mut std::collections::HashSet<&'a IdentifierReference>) {}
+    fn referenced_annotations<'a>(
+        &'a self,
+        _names: &mut std::collections::HashSet<&'a IdentifierReference>,
+    ) {
+    }
 }
 
 impl Validate for TypeClassDef {
-    fn is_complete(&self, _top: &crate::model::modules::Module) -> Result<bool, crate::error::Error> {
+    fn is_complete(
+        &self,
+        _top: &crate::model::modules::Module,
+    ) -> Result<bool, crate::error::Error> {
         todo!()
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &crate::model::modules::Module) -> Result<bool, crate::error::Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &crate::model::modules::Module,
+    ) -> Result<bool, crate::error::Error> {
         todo!()
     }
 }

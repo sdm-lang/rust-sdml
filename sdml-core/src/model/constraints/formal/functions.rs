@@ -65,7 +65,7 @@ pub struct FunctionCardinality {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionTypeReference {
     optional: bool,
-    inner: FunctionTypeReferenceInner
+    inner: FunctionTypeReferenceInner,
 }
 
 #[derive(Clone, Debug)]
@@ -424,13 +424,13 @@ impl From<IdentifierReference> for FunctionTypeReferenceInner {
     }
 }
 
-impl From<MappingType> for FunctionTypeReferenceInner  {
+impl From<MappingType> for FunctionTypeReferenceInner {
     fn from(value: MappingType) -> Self {
         Self::MappingType(value)
     }
 }
 
-impl FunctionTypeReferenceInner  {
+impl FunctionTypeReferenceInner {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------

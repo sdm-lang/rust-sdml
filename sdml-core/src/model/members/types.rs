@@ -101,7 +101,6 @@ impl IdentifierReference {
     }
 }
 
-
 impl References for TypeReference {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         match self {

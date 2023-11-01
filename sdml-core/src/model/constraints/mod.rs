@@ -133,11 +133,10 @@ pub use formal::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
     EnvironmentDef, EnvironmentDefBody, Equation, FormalConstraint, FunctionCardinality,
     FunctionComposition, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionalTerm, InequalityRelation, Inequation,
-    MappingVariable, NamedVariables, PredicateSequenceMember, PredicateValue, QuantifiedVariable,
-    QuantifiedSentence, QuantifiedVariableBinding, Quantifier,
-    SequenceBuilder, SequenceOfPredicateValues, SimpleSentence, Subject, Term,
-    UnaryBooleanSentence, Variables, FunctionTypeReferenceInner,
+    FunctionTypeReference, FunctionTypeReferenceInner, FunctionalTerm, InequalityRelation,
+    Inequation, MappingVariable, NamedVariables, PredicateSequenceMember, PredicateValue,
+    QuantifiedSentence, QuantifiedVariable, QuantifiedVariableBinding, Quantifier, SequenceBuilder,
+    SequenceOfPredicateValues, SimpleSentence, Subject, Term, UnaryBooleanSentence, Variables,
 };
 
 mod informal;

@@ -1,5 +1,8 @@
-use crate::model::{IdentifierReference, Span, members::{Ordering, Uniqueness}};
 use crate::error::invalid_language_tag_error;
+use crate::model::{
+    members::{Ordering, Uniqueness},
+    IdentifierReference, Span,
+};
 use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
@@ -533,7 +536,12 @@ impl Display for SequenceOfValues {
 
 impl From<Vec<SequenceMember>> for SequenceOfValues {
     fn from(values: Vec<SequenceMember>) -> Self {
-        Self { span: None, ordering: None, uniqueness: None, values }
+        Self {
+            span: None,
+            ordering: None,
+            uniqueness: None,
+            values,
+        }
     }
 }
 

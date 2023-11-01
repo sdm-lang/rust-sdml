@@ -10,7 +10,7 @@ module Campaign is
 
     c -> Target is
       assert tagged_with_foo is
-        ∀ self self.tags.contains("foo")
+        ∀ self, self.tags.contains("foo")
       end
 
     end

@@ -7,8 +7,7 @@ use sdml_core::model::definitions::HasMembers;
 use sdml_core::model::members::MemberGroup;
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
-    NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_MEMBER, NODE_KIND_STRUCTURE_MEMBER,
+    NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER, NODE_KIND_STRUCTURE_MEMBER,
 };
 use tree_sitter::TreeCursor;
 
@@ -20,12 +19,9 @@ use tree_sitter::TreeCursor;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-
-
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
-
 
 pub(crate) fn parse_member_group<'a>(
     context: &mut ParseContext<'a>,

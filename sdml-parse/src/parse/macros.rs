@@ -72,12 +72,17 @@ macro_rules! unexpected_node {
 
 macro_rules! missing_node {
     ($context: expr, $parse_fn: expr, $parent_node: expr, $variable_name: expr, $node_kind: expr) => {
-        let message = format!("Missing a `{}` in grammar variable named `{}`", $node_kind, $variable_name);
-        let diagnostic = $crate::error::MISSING_NODE_VARIABLE.into_diagnostic()
-            .with_labels(vec![
-                ::codespan_reporting::diagnostic::Label::primary($context.file_id, $parent_node.start_byte()..$parent_node.end_byte())
-                    .with_message(message),
-                ]);
+        let message = format!(
+            "Missing a `{}` in grammar variable named `{}`",
+            $node_kind, $variable_name
+        );
+        let diagnostic = $crate::error::MISSING_NODE_VARIABLE
+            .into_diagnostic()
+            .with_labels(vec![::codespan_reporting::diagnostic::Label::primary(
+                $context.file_id,
+                $parent_node.start_byte()..$parent_node.end_byte(),
+            )
+            .with_message(message)]);
 
         $context.counts.report(diagnostic.severity);
         emit_diagnostic!($context.loader.files(), diagnostic);
@@ -85,7 +90,7 @@ macro_rules! missing_node {
         return Err(::sdml_core::error::missing_node_variable(
             $parse_fn,
             $variable_name,
-            $node_kind
+            $node_kind,
         ))
     };
 }

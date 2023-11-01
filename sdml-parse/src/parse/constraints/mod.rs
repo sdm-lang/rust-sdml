@@ -74,4 +74,7 @@ mod informal;
 pub(crate) use informal::parse_informal_constraint;
 
 mod formal;
-pub(crate) use formal::{parse_formal_constraint, parse_predicate_value, parse_sequence_builder, parse_function_cardinality_expression, parse_function_signature, parse_constraint_sentence};
+pub(crate) use formal::{
+    parse_constraint_sentence, parse_formal_constraint, parse_function_cardinality_expression,
+    parse_function_signature, parse_predicate_value, parse_sequence_builder,
+};

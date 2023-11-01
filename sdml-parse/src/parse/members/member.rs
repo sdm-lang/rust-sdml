@@ -3,11 +3,11 @@ use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::members::{parse_cardinality_expression, parse_type_reference};
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
-use sdml_core::model::members::{Member, MemberDef, HasCardinality};
+use sdml_core::model::members::{HasCardinality, Member, MemberDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_INVERSE_NAME, FIELD_NAME_NAME,
-    FIELD_NAME_PROPERTY, FIELD_NAME_TARGET, NODE_KIND_MEMBER_INVERSE_NAME, FIELD_NAME_FEATURE,
+    FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_FEATURE, FIELD_NAME_INVERSE_NAME,
+    FIELD_NAME_NAME, FIELD_NAME_PROPERTY, FIELD_NAME_TARGET, NODE_KIND_MEMBER_INVERSE_NAME,
 };
 use tree_sitter::TreeCursor;
 
@@ -30,8 +30,7 @@ pub(crate) fn parse_member<'a>(
     if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET) {
         context.check_if_error(&child, RULE_NAME)?;
         let type_reference = parse_type_reference(context, &mut child.walk(), false)?;
-        let mut member_def =
-            MemberDef::new(type_reference).with_source_span(node.into());
+        let mut member_def = MemberDef::new(type_reference).with_source_span(node.into());
 
         if let Some(child) = node.child_by_field_name(FIELD_NAME_INVERSE_NAME) {
             context.check_if_error(&child, RULE_NAME)?;
@@ -65,8 +64,7 @@ pub(crate) fn parse_member<'a>(
     } else if let Some(child) = node.child_by_field_name(FIELD_NAME_FEATURE) {
         context.check_if_error(&child, RULE_NAME)?;
         let type_reference = parse_type_reference(context, &mut child.walk(), true)?;
-        let mut member_def =
-            MemberDef::new(type_reference).with_source_span(node.into());
+        let mut member_def = MemberDef::new(type_reference).with_source_span(node.into());
 
         if let Some(child) = node.child_by_field_name(FIELD_NAME_INVERSE_NAME) {
             context.check_if_error(&child, RULE_NAME)?;

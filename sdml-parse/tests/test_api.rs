@@ -3,7 +3,7 @@ use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::modules::ImportStatement;
 use sdml_core::model::values::{SequenceMember, SimpleValue, Value};
-use sdml_core::model::{HasName, HasBody, HasNameReference};
+use sdml_core::model::{HasBody, HasName, HasNameReference};
 use sdml_parse::load::ModuleLoader;
 use std::io::Cursor;
 use std::str::FromStr;

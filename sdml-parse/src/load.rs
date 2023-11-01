@@ -12,12 +12,12 @@ YYYYY
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::error::{module_file_not_found, Error};
-use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait, ModuleRef};
+use sdml_core::load::{ModuleLoader as LoaderTrait, ModuleRef, ModuleResolver as ResolverTrait};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::HasName;
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
-use std::cell::{RefCell, Ref};
+use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs::File;
@@ -26,10 +26,6 @@ use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use tracing::{error, info, trace, warn};
 use url::Url;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -103,9 +99,32 @@ pub struct Item {
 // Private Macros
 // ------------------------------------------------------------------------------------------------
 
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
+macro_rules! trace_entry {
+    //($fn_name: literal) => {
+    //    let tracing_span = ::tracing::trace_span!($fn_name);
+    //    let _enter_span = tracing_span.enter();
+    //    ::tracing::trace!("{}()", $fn_name);
+    //};
+    ($type_name: literal, $fn_name: literal) => {
+        const FULL_NAME: &str = concat!($type_name, "::", $fn_name);
+        let tracing_span = ::tracing::trace_span!(FULL_NAME);
+        let _enter_span = tracing_span.enter();
+        ::tracing::trace!("{FULL_NAME}()");
+    };
+    //($fn_name: literal => $format: literal, $( $value: expr ),+ ) => {
+    //    let tracing_span = ::tracing::trace_span!($fn_name);
+    //    let _enter_span = tracing_span.enter();
+    //    let arguments = format!($format, $( $value ),+);
+    //    ::tracing::trace!("{}({arguments})", $fn_name);
+    //};
+    ($type_name: literal, $fn_name: literal => $format: literal, $( $value: expr ),+ ) => {
+        const FULL_NAME: &str = concat!($type_name, "::", $fn_name);
+        let tracing_span = ::tracing::trace_span!(FULL_NAME);
+        let _enter_span = tracing_span.enter();
+        let arguments = format!($format, $( $value ),+);
+        ::tracing::trace!("{FULL_NAME}({arguments})");
+    };
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -148,13 +167,20 @@ impl Source {
 
 impl Default for ModuleResolver {
     fn default() -> Self {
+        trace_entry!("ModuleResolver", "default");
+        // 1. Use the standard environment variable as a search path
         let mut search_path = SearchPath::new_or_default(SDML_RESOLVER_PATH_VARIABLE);
+        // 2. Add the current directory to the search path
         search_path.prepend_cwd();
+        // 3. Load any catalog file found in the search path
         let catalog = ModuleCatalog::load_from_current(true);
-        Self {
-            catalog: catalog.map(|v|Rc::new(RefCell::new(v))),
+
+        let _self = Self {
+            catalog: catalog.map(|v| Rc::new(RefCell::new(v))),
             search_path: Rc::new(RefCell::new(search_path)),
-        }
+        };
+        trace!("=> {:?}", _self);
+        _self
     }
 }
 
@@ -168,7 +194,7 @@ impl ResolverTrait for ModuleResolver {
     }
 
     fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
-        trace!("ModuleResolver::name_to_path({name:?})");
+        trace_entry!("ModuleResolver", "name_to_path" => "{}", name);
         if let Some(catalog) = &self.catalog {
             let name: String = name.to_string();
             if let Some(path) = catalog.borrow().resolve_local_path(&name) {
@@ -188,9 +214,7 @@ impl ResolverTrait for ModuleResolver {
                             .borrow()
                             .find(format!("{}.{}", name, SDML_FILE_EXTENSION_LONG).as_ref())
                             .or_else(|| {
-                                self.search_path
-                                    .borrow()
-                                    .find(
+                                self.search_path.borrow().find(
                                     format!("{}/{}.{}", name, name, SDML_FILE_EXTENSION_LONG)
                                         .as_ref(),
                                 )
@@ -231,6 +255,7 @@ impl Default for ModuleLoader {
 
 impl LoaderTrait for ModuleLoader {
     fn load(&self, name: &Identifier) -> Result<ModuleRef, Error> {
+        trace_entry!("ModuleLoader", "load" => "{}", name);
         let exists = self.modules.borrow().contains_key(name);
         if exists {
             Ok(self.get(name).unwrap())
@@ -241,6 +266,7 @@ impl LoaderTrait for ModuleLoader {
     }
 
     fn load_from_file(&self, file: PathBuf) -> Result<ModuleRef, Error> {
+        trace_entry!("ModuleLoader", "load_from_file" => "{:?}", file);
         let mut reader = File::open(&file)?;
         let catalog = self.resolver.catalog.clone();
         let module = self.load_inner(&mut reader, Some(file.clone()))?;
@@ -262,10 +288,12 @@ impl LoaderTrait for ModuleLoader {
     }
 
     fn load_from_reader(&self, reader: &mut dyn Read) -> Result<ModuleRef, Error> {
+        trace_entry!("ModuleLoader", "load_from_reader");
         Ok(self.load_inner(reader, None)?)
     }
 
     fn adopt(&self, module: ModuleRef) {
+        trace_entry!("ModuleLoader", "adopt" => "{}", module.borrow().name());
         let name = module.borrow().name().clone();
         let _ = self.modules.borrow_mut().insert(name, (module, 0));
     }
@@ -288,7 +316,7 @@ impl LoaderTrait for ModuleLoader {
                     Err(err) => {
                         error!("Could not retrieve module: {module:?}, error: {err}");
                         None
-                    },
+                    }
                 }
             }
         } else {
@@ -302,11 +330,8 @@ impl LoaderTrait for ModuleLoader {
 }
 
 impl ModuleLoader {
-    fn load_inner(
-        &self,
-        reader: &mut dyn Read,
-        file: Option<PathBuf>,
-    ) -> Result<ModuleRef, Error> {
+    fn load_inner(&self, reader: &mut dyn Read, file: Option<PathBuf>) -> Result<ModuleRef, Error> {
+        trace!("ModuleLoader::load_inner(..., {file:?})");
         let mut source = String::new();
         reader.read_to_string(&mut source)?;
         let file_name: String = file
@@ -320,7 +345,10 @@ impl ModuleLoader {
         counters.display(&name)?;
 
         // save codespan file ID with module
-        let _ = self.modules.borrow_mut().insert(name.clone(), (module.into(), file_id));
+        let _ = self
+            .modules
+            .borrow_mut()
+            .insert(name.clone(), (module.into(), file_id));
         Ok(self.get(&name).unwrap())
     }
 
@@ -333,6 +361,7 @@ impl ModuleLoader {
 
 impl ModuleCatalog {
     pub fn load_from_current(look_in_parents: bool) -> Option<Self> {
+        trace!("ModuleCatalog::load_from_current({look_in_parents})");
         let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         Self::load_from(&cwd, look_in_parents)
     }
@@ -588,14 +617,6 @@ impl Item {
         self.relative_url = relative_url;
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Unit Tests

@@ -7,6 +7,13 @@ Rust CLI for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.0**
+
+* Feature: Update to latest grammar.
+  * Remove Value Variant numeric values
+  * Update formal constraints
+  * Add type classes
+
 **Version 0.1.6**
 
 * Updated dependencies

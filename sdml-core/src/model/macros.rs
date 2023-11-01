@@ -449,27 +449,32 @@ macro_rules! impl_validate_for_annotations_and_members {
         impl Validate for $type {
             fn is_complete(&self, top: &Module) -> Result<bool, Error> {
                 Ok(self
-                   .annotations()
-                   .map(|ann| ann.is_complete(top))
-                   .chain(self.members().map(|m| m.is_complete(top)))
-                   .collect::<Result<Vec<bool>, Error>>()?
-                   .into_iter()
-                   // reduce vector of booleans
-                   .all(::std::convert::identity))
+                    .annotations()
+                    .map(|ann| ann.is_complete(top))
+                    .chain(self.members().map(|m| m.is_complete(top)))
+                    .collect::<Result<Vec<bool>, Error>>()?
+                    .into_iter()
+                    // reduce vector of booleans
+                    .all(::std::convert::identity))
             }
 
             fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
                 Ok(self
-                   .annotations()
-                   .map(|ann| ann.is_valid(check_constraints, top))
-                   .chain(self.members().map(|m| m.is_complete(top)))
-                   .collect::<Result<Vec<bool>, Error>>()?
-                   .into_iter()
-                   // reduce vector of booleans
-                   .all(::std::convert::identity))
+                    .annotations()
+                    .map(|ann| ann.is_valid(check_constraints, top))
+                    .chain(self.members().map(|m| m.is_complete(top)))
+                    .collect::<Result<Vec<bool>, Error>>()?
+                    .into_iter()
+                    // reduce vector of booleans
+                    .all(::std::convert::identity))
             }
 
-            fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+            fn validate(
+                &self,
+                check_constraints: bool,
+                top: &Module,
+                errors: &mut Vec<Error>,
+            ) -> Result<(), Error> {
                 for inner in self.annotations() {
                     inner.validate(check_constraints, top, errors)?;
                 }
@@ -505,7 +510,12 @@ macro_rules! impl_validate_for_annotations_and_variants {
                     .all(::std::convert::identity))
             }
 
-            fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+            fn validate(
+                &self,
+                check_constraints: bool,
+                top: &Module,
+                errors: &mut Vec<Error>,
+            ) -> Result<(), Error> {
                 for inner in self.annotations() {
                     inner.validate(check_constraints, top, errors)?;
                 }
@@ -1021,15 +1031,14 @@ macro_rules! impl_from_for_variant {
                 Self::$varname(v)
             }
         }
-    };
-    //($tyname: ty, $varname: ident, boxed $vartype: ty) => {
-    //    impl_from_for_variant!($tyname, $varname, Box<$vartype>);
-    //    impl From<$vartype> for $tyname {
-    //        fn from(v: $vartype) -> Self {
-    //            Self::$varname(Box::new(v))
-    //        }
-    //    }
-    //};
+    }; //($tyname: ty, $varname: ident, boxed $vartype: ty) => {
+       //    impl_from_for_variant!($tyname, $varname, Box<$vartype>);
+       //    impl From<$vartype> for $tyname {
+       //        fn from(v: $vartype) -> Self {
+       //            Self::$varname(Box::new(v))
+       //        }
+       //    }
+       //};
 }
 
 macro_rules! enum_display_impl {

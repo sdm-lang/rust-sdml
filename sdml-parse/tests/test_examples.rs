@@ -1,8 +1,8 @@
+use paste::paste;
 use sdml_core::load::ModuleLoader as LoaderTrait;
 use sdml_parse::load::ModuleLoader;
 use std::fs::read_to_string;
 use std::path::PathBuf;
-use paste::paste;
 
 // TODO: Make tests for Windows
 
@@ -78,7 +78,7 @@ macro_rules! test_example {
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     module => (
         module_annotations,
         module_empty,
@@ -92,7 +92,7 @@ test_examples!{
 // Modules ❱ Imports
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     import => (
         import_member_only,
         import_module_only,
@@ -105,7 +105,7 @@ test_examples!{
 // Annotation Properties
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     annotation_property => (
         annotation_single_binary,
         annotation_single_boolean,
@@ -131,7 +131,7 @@ test_examples!{
 // Annotation Constraints
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     informal_constraint => (
         constraint_informal,
         constraint_informal_language,
@@ -143,7 +143,7 @@ test_examples!{
 // Types ❱ Datatype
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     datatype => (
         datatype_empty,
         datatype_from_string,
@@ -155,7 +155,7 @@ test_examples!{
 // Types ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     entity => (
         entity_empty,
         entity_with_constraints,
@@ -170,7 +170,7 @@ test_examples!{
 // Types ❱ Enums
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     r#enum => (
         enum_empty,
         enum_variants
@@ -181,7 +181,7 @@ test_examples!{
 // Types ❱ Events
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     event => (
         event_empty
     )
@@ -191,7 +191,7 @@ test_examples!{
 // Types ❱ Properties
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     property => (
         property_def_empty,
         property_def_some,
@@ -203,7 +203,7 @@ test_examples!{
 // Types ❱ Structures
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     structure => (
         structure_empty,
         structure_mapping_type,
@@ -216,7 +216,7 @@ test_examples!{
 // Types ❱ Type Classes
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     type_class => (
         type_class_empty,
         type_class_methods,
@@ -228,7 +228,7 @@ test_examples!{
 // Types ❱ Unions
 // ------------------------------------------------------------------------------------------------
 
-test_examples!{
+test_examples! {
     union => (
         union_empty,
         union_rename_variant,

@@ -3,12 +3,12 @@ use crate::parse::definitions::parse_definition;
 use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
 use sdml_core::error::Error;
 use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::modules::{Import, ImportStatement};
+use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_DEFINITION,
-    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_LINE_COMMENT,  NODE_KIND_MEMBER_IMPORT,
+    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER_IMPORT,
     NODE_KIND_MODULE_IMPORT,
 };
 use tree_sitter::TreeCursor;
@@ -76,7 +76,6 @@ fn parse_module_body<'a>(
     Ok(body)
 }
 
-
 fn parse_import_statement<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
@@ -98,8 +97,7 @@ fn parse_import_statement<'a>(
             NODE_KIND_MEMBER_IMPORT => {
                 let node = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
                 context.check_if_error(&node, RULE_NAME)?;
-                let name: Import =
-                    parse_qualified_identifier(context, &mut node.walk())?.into();
+                let name: Import = parse_qualified_identifier(context, &mut node.walk())?.into();
                 context.add_import(&name)?;
                 import.add_to_imports(name);
             }
@@ -109,10 +107,7 @@ fn parse_import_statement<'a>(
                     context,
                     RULE_NAME,
                     node,
-                    [
-                        NODE_KIND_MODULE_IMPORT,
-                        NODE_KIND_MEMBER_IMPORT,
-                    ]
+                    [NODE_KIND_MODULE_IMPORT, NODE_KIND_MEMBER_IMPORT,]
                 );
             }
         }

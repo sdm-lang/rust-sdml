@@ -1,18 +1,18 @@
 use crate::error::Error;
+use crate::load::ModuleLoader;
+use crate::model::definitions::{
+    DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
+};
+use crate::model::References;
 use crate::model::{
     annotations::{Annotation, HasAnnotations},
     check::Validate,
     definitions::Definition,
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    HasName, Span, HasBody,
+    HasBody, HasName, Span,
 };
-use crate::load::ModuleLoader;
 use std::{collections::HashSet, fmt::Debug};
 use url::Url;
-use crate::model::definitions::{
-    DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
-};
-use crate::model::References;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -165,30 +165,29 @@ impl Module {
     // Resolver!
     // --------------------------------------------------------------------------------------------
 
-    pub fn load_imports(&self, loader: &impl ModuleLoader) -> Result<(), Error>
-    {
+    pub fn load_imports(&self, loader: &impl ModuleLoader) -> Result<(), Error> {
         for module in self.body().imported_modules() {
             loader.load(module)?;
         }
         Ok(())
     }
 
-//     pub fn resolve<'a>(&'a self, name: &IdentifierReference, loader: &'a impl ModuleLoader) -> Option<&Definition>
-//     {
-//         let (module, member) = match name {
-//             IdentifierReference::Identifier(v) => (self.name().clone(), v.clone()),
-//             IdentifierReference::QualifiedIdentifier(v) => (v.module().clone(), v.member().clone())
-//         };
-//
-//         if let Some(module) = loader.get(&module) {
-//             module.resolve_local(&member) <<< This goes badly wrong
-//         } else {
-//             None
-//         }
-//     }
+    //     pub fn resolve<'a>(&'a self, name: &IdentifierReference, loader: &'a impl ModuleLoader) -> Option<&Definition>
+    //     {
+    //         let (module, member) = match name {
+    //             IdentifierReference::Identifier(v) => (self.name().clone(), v.clone()),
+    //             IdentifierReference::QualifiedIdentifier(v) => (v.module().clone(), v.member().clone())
+    //         };
+    //
+    //         if let Some(module) = loader.get(&module) {
+    //             module.resolve_local(&member) <<< This goes badly wrong
+    //         } else {
+    //             None
+    //         }
+    //     }
 
     pub fn resolve_local(&self, name: &Identifier) -> Option<&Definition> {
-        self.body().definitions().find(|def|def.name() == name)
+        self.body().definitions().find(|def| def.name() == name)
     }
 }
 
@@ -229,7 +228,12 @@ impl Validate for ModuleBody {
         Ok(true)
     }
 
-     fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+    fn validate(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        errors: &mut Vec<Error>,
+    ) -> Result<(), Error> {
         for annotation in self.annotations() {
             annotation.validate(check_constraints, top, errors)?;
         }

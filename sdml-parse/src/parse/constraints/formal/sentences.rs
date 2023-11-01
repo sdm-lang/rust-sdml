@@ -4,20 +4,19 @@ use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::model::constraints::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConstraintSentence, Equation,
-    InequalityRelation, Inequation, QuantifiedVariable, QuantifiedSentence,
-    QuantifiedVariableBinding, Quantifier, SimpleSentence,
-    Term, UnaryBooleanSentence,
+    InequalityRelation, Inequation, QuantifiedSentence, QuantifiedVariable,
+    QuantifiedVariableBinding, Quantifier, SimpleSentence, Term, UnaryBooleanSentence,
 };
 use sdml_core::syntax::{
     FIELD_NAME_ARGUMENT, FIELD_NAME_BINDING, FIELD_NAME_BODY, FIELD_NAME_LHS, FIELD_NAME_NAME,
     FIELD_NAME_OPERATOR, FIELD_NAME_PREDICATE, FIELD_NAME_QUANTIFIER, FIELD_NAME_RELATION,
-    FIELD_NAME_RHS, NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BICONDITIONAL,
+    FIELD_NAME_RHS, FIELD_NAME_SOURCE, NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BICONDITIONAL,
     NODE_KIND_BINARY_BOOLEAN_SENTENCE, NODE_KIND_BOOLEAN_SENTENCE, NODE_KIND_CONJUNCTION,
-    NODE_KIND_DISJUNCTION, NODE_KIND_EQUATION, NODE_KIND_EXCLUSIVE_DISJUNCTION,
-    NODE_KIND_IMPLICATION, NODE_KIND_INEQUATION, NODE_KIND_LINE_COMMENT, NODE_KIND_NEGATION,
-    NODE_KIND_QUANTIFIED_SENTENCE, NODE_KIND_RESERVED_SELF, 
-    NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_QUANTIFIED_VARIABLE_BINDING,
-    NODE_KIND_UNARY_BOOLEAN_SENTENCE, NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_TERM, FIELD_NAME_SOURCE,
+    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_DISJUNCTION, NODE_KIND_EQUATION,
+    NODE_KIND_EXCLUSIVE_DISJUNCTION, NODE_KIND_IMPLICATION, NODE_KIND_INEQUATION,
+    NODE_KIND_LINE_COMMENT, NODE_KIND_NEGATION, NODE_KIND_QUANTIFIED_SENTENCE,
+    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_RESERVED_SELF, NODE_KIND_SIMPLE_SENTENCE,
+    NODE_KIND_TERM, NODE_KIND_UNARY_BOOLEAN_SENTENCE,
 };
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
@@ -188,7 +187,13 @@ pub(crate) fn parse_quantified_sentence<'a>(
     let node = cursor.node();
     rule_fn!("quantified_sentence", node);
 
-    let child = node_child_named!(node, FIELD_NAME_BINDING, NODE_KIND_QUANTIFIED_VARIABLE_BINDING, context, RULE_NAME);
+    let child = node_child_named!(
+        node,
+        FIELD_NAME_BINDING,
+        NODE_KIND_QUANTIFIED_VARIABLE_BINDING,
+        context,
+        RULE_NAME
+    );
     let binding = parse_quantified_variable_binding(context, &mut child.walk())?;
 
     let child = node_child_named!(node, FIELD_NAME_BODY, context, RULE_NAME);
@@ -299,10 +304,7 @@ fn parse_quantified_variable<'a>(
             context,
             RULE_NAME,
             node,
-            [
-                NODE_KIND_RESERVED_SELF,
-                NODE_KIND_TERM,
-            ]
+            [NODE_KIND_RESERVED_SELF, NODE_KIND_TERM,]
         );
     }
 }

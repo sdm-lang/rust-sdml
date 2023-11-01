@@ -6,14 +6,12 @@ use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{EntityIdentityDef, PropertyBody, PropertyDef, PropertyRole};
-use sdml_core::model::members::{
-    MemberDef, HasCardinality,
-};
+use sdml_core::model::members::{HasCardinality, MemberDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_INVERSE_NAME, FIELD_NAME_NAME,
-    FIELD_NAME_TARGET, NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_IDENTITY_ROLE, NODE_KIND_MEMBER_ROLE,
+    FIELD_NAME_TARGET, NODE_KIND_ANNOTATION, NODE_KIND_IDENTITY_ROLE, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_MEMBER_ROLE,
 };
 use tree_sitter::TreeCursor;
 

@@ -1,16 +1,15 @@
-use std::collections::HashSet;
 use crate::parse::constraints::formal::parse_quantified_sentence;
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
-use sdml_core::model::constraints::{
-    MappingVariable, NamedVariables, SequenceBuilder, Variables,
-};
+use sdml_core::model::constraints::{MappingVariable, NamedVariables, SequenceBuilder, Variables};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_DOMAIN, NODE_KIND_IDENTIFIER, FIELD_NAME_RANGE, FIELD_NAME_VARIABLE,
-    NODE_KIND_MAPPING_VARIABLE, NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_LINE_COMMENT, NODE_KIND_QUANTIFIED_SENTENCE,
+    FIELD_NAME_BODY, FIELD_NAME_DOMAIN, FIELD_NAME_RANGE, FIELD_NAME_VARIABLE,
+    NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VARIABLE,
+    NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_QUANTIFIED_SENTENCE,
 };
+use std::collections::HashSet;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------
@@ -53,14 +52,9 @@ pub(crate) fn parse_sequence_builder<'a>(
                 let body = parse_quantified_sentence(context, &mut child.walk())?;
                 return Ok(SequenceBuilder::new(variables, body));
             }
-            NODE_KIND_LINE_COMMENT => {},
+            NODE_KIND_LINE_COMMENT => {}
             _ => {
-                unexpected_node!(
-                    context,
-                    RULE_NAME,
-                    child,
-                    NODE_KIND_QUANTIFIED_SENTENCE
-                );
+                unexpected_node!(context, RULE_NAME, child, NODE_KIND_QUANTIFIED_SENTENCE);
             }
         }
     }
@@ -75,22 +69,14 @@ pub(crate) fn parse_named_variable_set<'a>(
 
     let names = {
         let mut names: HashSet<Identifier> = Default::default();
-        for name in cursor
-            .node()
-            .named_children(cursor)
-        {
+        for name in cursor.node().named_children(cursor) {
             match name.kind() {
                 NODE_KIND_IDENTIFIER => {
                     names.insert(parse_identifier(context, &name)?);
                 }
-                NODE_KIND_LINE_COMMENT => {},
+                NODE_KIND_LINE_COMMENT => {}
                 _ => {
-                    unexpected_node!(
-                        context,
-                        RULE_NAME,
-                        name,
-                        NODE_KIND_IDENTIFIER
-                    );
+                    unexpected_node!(context, RULE_NAME, name, NODE_KIND_IDENTIFIER);
                 }
             }
         }

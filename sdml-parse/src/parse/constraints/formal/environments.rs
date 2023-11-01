@@ -29,10 +29,7 @@ pub(crate) fn parse_constraint_environment<'a>(
         context.check_if_error(&node, RULE_NAME)?;
         match node.kind() {
             NODE_KIND_ENVIRONMENT_DEF => {
-                environment.push(parse_environment_def(
-                    context,
-                    &mut node.walk(),
-                )?);
+                environment.push(parse_environment_def(context, &mut node.walk())?);
             }
             NODE_KIND_CONSTRAINT_ENVIRONMENT_END => {
                 break;

@@ -1,5 +1,5 @@
 use crate::model::identifiers::IdentifierReference;
-use crate::model::values::{ValueConstructor, MappingValue, SimpleValue};
+use crate::model::values::{MappingValue, SimpleValue, ValueConstructor};
 use crate::model::Span;
 use std::fmt::Display;
 

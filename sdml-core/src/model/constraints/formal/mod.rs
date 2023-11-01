@@ -113,9 +113,8 @@ pub use functions::{
 mod sentences;
 pub use sentences::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
-    Equation, InequalityRelation, Inequation, QuantifiedVariable,
-    QuantifiedSentence, QuantifiedVariableBinding, Quantifier, 
-   SimpleSentence, UnaryBooleanSentence,
+    Equation, InequalityRelation, Inequation, QuantifiedSentence, QuantifiedVariable,
+    QuantifiedVariableBinding, Quantifier, SimpleSentence, UnaryBooleanSentence,
 };
 
 mod terms;

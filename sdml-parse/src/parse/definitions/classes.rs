@@ -1,18 +1,22 @@
+use crate::parse::annotations::parse_annotation;
+use crate::parse::constraints::{
+    parse_constraint_sentence, parse_function_cardinality_expression, parse_function_signature,
+};
+use crate::parse::definitions::parse_annotation_only_body;
 use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::ParseContext;
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::annotations::parse_annotation;
-use crate::parse::constraints::{parse_function_signature, parse_function_cardinality_expression, parse_constraint_sentence};
 use sdml_core::error::Error;
 use sdml_core::model::annotations::{Annotation, HasAnnotations};
-use sdml_core::model::definitions::{MethodDef, TypeClassArgument, TypeClassBody, TypeClassDef, TypeClassReference, TypeVariable};
+use sdml_core::model::definitions::{
+    MethodDef, TypeClassArgument, TypeClassBody, TypeClassDef, TypeClassReference, TypeVariable,
+};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_METHOD_DEF,
-    NODE_KIND_LINE_COMMENT, FIELD_NAME_CARDINALITY, 
-    FIELD_NAME_ARGUMENTS, FIELD_NAME_WILDCARD, FIELD_NAME_VARIABLE,FIELD_NAME_SIGNATURE, NODE_KIND_ANNOTATION_ONLY_BODY,
-    NODE_KIND_TYPE_CLASS_REFERENCE, NODE_KIND_IDENTIFIER,
-            NODE_KIND_FUNCTION_CARDINALITY_EXPRESSION,
+    FIELD_NAME_ARGUMENTS, FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_NAME,
+    FIELD_NAME_SIGNATURE, FIELD_NAME_VARIABLE, FIELD_NAME_WILDCARD, NODE_KIND_ANNOTATION,
+    NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_FUNCTION_CARDINALITY_EXPRESSION,
+    NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_METHOD_DEF,
+    NODE_KIND_TYPE_CLASS_REFERENCE,
 };
 use tree_sitter::TreeCursor;
 
@@ -35,9 +39,7 @@ pub(super) fn parse_type_class_def<'a>(
 
     for child in node.children_by_field_name(FIELD_NAME_VARIABLE, cursor) {
         context.check_if_error(&child, RULE_NAME)?;
-        variables.push(
-            parse_type_variable(context, &mut child.walk())?
-        );
+        variables.push(parse_type_variable(context, &mut child.walk())?);
     }
 
     let mut type_class = TypeClassDef::new(name.clone(), variables).with_source_span(node.into());
@@ -78,25 +80,17 @@ fn parse_type_variable<'a>(
         context.check_if_error(&node, RULE_NAME)?;
         match node.kind() {
             NODE_KIND_TYPE_CLASS_REFERENCE => {
-                variable.add_to_restrictions(
-                    parse_type_class_reference(context, &mut node.walk())?
-                );
+                variable
+                    .add_to_restrictions(parse_type_class_reference(context, &mut node.walk())?);
             }
             NODE_KIND_LINE_COMMENT => {}
             NODE_KIND_IDENTIFIER => {}
             NODE_KIND_FUNCTION_CARDINALITY_EXPRESSION => {}
             _ => {
-                unexpected_node!(
-                    context,
-                    RULE_NAME,
-                    node,
-                    [
-                        NODE_KIND_TYPE_CLASS_REFERENCE,
-                    ]
-                );
+                unexpected_node!(context, RULE_NAME, node, [NODE_KIND_TYPE_CLASS_REFERENCE,]);
             }
         }
-     }
+    }
 
     Ok(variable)
 }
@@ -131,7 +125,6 @@ fn parse_type_class_reference<'a>(
     Ok(result)
 }
 
-
 pub(crate) fn parse_type_class_body<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
@@ -154,10 +147,7 @@ pub(crate) fn parse_type_class_body<'a>(
                     context,
                     RULE_NAME,
                     node,
-                    [
-                        NODE_KIND_ANNOTATION,
-                        NODE_KIND_METHOD_DEF,
-                    ]
+                    [NODE_KIND_ANNOTATION, NODE_KIND_METHOD_DEF,]
                 );
             }
         }
@@ -187,9 +177,7 @@ fn parse_method_def<'a>(
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
         context.check_if_error(&child, RULE_NAME)?;
-        method.set_body(
-            parse_constraint_sentence(context, &mut child.walk())?
-        );
+        method.set_body(parse_constraint_sentence(context, &mut child.walk())?);
     }
 
     for child in node.named_children(cursor) {

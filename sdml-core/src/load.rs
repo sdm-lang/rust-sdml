@@ -5,7 +5,7 @@ Provides traits for resolving module names to paths, and loading modules.
 
 use crate::error::Error;
 use crate::model::{identifiers::Identifier, modules::Module};
-use std::cell::{RefCell, Ref, RefMut};
+use std::cell::{Ref, RefCell, RefMut};
 use std::fmt::Debug;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -96,6 +96,6 @@ impl ModuleRef {
 
     pub fn get_mut(&mut self) -> Option<&mut Module> {
         let maybe: Option<&mut RefCell<Module>> = Rc::get_mut(&mut self.0);
-        maybe.map(|v|v.get_mut())
+        maybe.map(|v| v.get_mut())
     }
 }

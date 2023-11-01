@@ -53,7 +53,7 @@ pub(crate) fn parse_formal_constraint<'a>(
 mod environments;
 
 mod functions;
-pub(crate) use functions::{parse_function_signature, parse_function_cardinality_expression};
+pub(crate) use functions::{parse_function_cardinality_expression, parse_function_signature};
 
 mod sentences;
 pub(crate) use sentences::{parse_constraint_sentence, parse_quantified_sentence};

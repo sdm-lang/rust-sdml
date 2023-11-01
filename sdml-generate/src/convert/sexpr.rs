@@ -18,19 +18,18 @@ use sdml_core::model::constraints::{
     ConstraintSentence, EnvironmentDef, EnvironmentDefBody, Equation, FormalConstraint,
     FunctionComposition, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
     FunctionTypeReferenceInner, FunctionalTerm, InequalityRelation, Inequation,
-    PredicateSequenceMember, PredicateValue, QuantifiedVariable, QuantifiedSentence,
-    QuantifiedVariableBinding, Quantifier, SequenceBuilder,
-    SequenceOfPredicateValues, SimpleSentence, Subject, Term, Variables,
+    PredicateSequenceMember, PredicateValue, QuantifiedSentence, QuantifiedVariable,
+    QuantifiedVariableBinding, Quantifier, SequenceBuilder, SequenceOfPredicateValues,
+    SimpleSentence, Subject, Term, Variables,
 };
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityBody, EntityDef, EntityIdentity, EnumBody, EnumDef,
-    EventDef, HasGroups, HasMembers, HasVariants, PropertyBody, PropertyDef, PropertyRoleDef,
-    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant, EntityIdentityDef,
+    DatatypeDef, Definition, EntityBody, EntityDef, EntityIdentity, EntityIdentityDef, EnumBody,
+    EnumDef, EventDef, HasGroups, HasMembers, HasVariants, PropertyBody, PropertyDef,
+    PropertyRoleDef, StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{
-    Member, MemberDef, Cardinality,
-    HasCardinality, HasType, MemberGroup, MappingType,
+    Cardinality, HasCardinality, HasType, MappingType, Member, MemberDef, MemberGroup,
     TypeReference, DEFAULT_CARDINALITY,
 };
 use sdml_core::model::modules::{Import, ImportStatement, Module, ModuleBody};
@@ -49,33 +48,31 @@ use sdml_core::syntax::{
     FIELD_NAME_RHS, FIELD_NAME_SIGNATURE, FIELD_NAME_SOURCE, FIELD_NAME_SUBJECT, FIELD_NAME_TARGET,
     FIELD_NAME_UNIQUENESS, FIELD_NAME_VALUE, FIELD_NAME_VARIABLE, NODE_KIND_ANNOTATION,
     NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BICONDITIONAL,
-    NODE_KIND_BOOLEAN, NODE_KIND_BOOLEAN_SENTENCE, NODE_KIND_CARDINALITY_EXPRESSION,
-    NODE_KIND_CONJUNCTION, NODE_KIND_CONSTRAINT, NODE_KIND_CONSTRAINT_ENVIRONMENT,
-    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_CONTROLLED_LANGUAGE_TAG, NODE_KIND_DATA_TYPE_DEF,
-    NODE_KIND_DECIMAL, NODE_KIND_DISJUNCTION, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_BODY,
-    NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_BODY, NODE_KIND_ENUM_DEF,
-    NODE_KIND_ENVIRONMENT_DEF, NODE_KIND_EQUATION, NODE_KIND_EVENT_DEF,
-    NODE_KIND_EXCLUSIVE_DISJUNCTION, NODE_KIND_EXISTENTIAL, NODE_KIND_FORMAL_CONSTRAINT,
-    NODE_KIND_FUNCTIONAL_TERM, NODE_KIND_FUNCTION_COMPOSITION, NODE_KIND_FUNCTION_DEF,
-    NODE_KIND_FUNCTION_PARAMETER, NODE_KIND_FUNCTION_SIGNATURE, NODE_KIND_GREATER_THAN,
-    NODE_KIND_GREATER_THAN_OR_EQUAL, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-    NODE_KIND_IDENTITY_ROLE, NODE_KIND_IMPLICATION,
-    NODE_KIND_INEQUATION, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
-    NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LESS_THAN,
-    NODE_KIND_LESS_THAN_OR_EQUAL, NODE_KIND_MAPPING_TYPE, NODE_KIND_MAPPING_VARIABLE,
-    NODE_KIND_MEMBER, NODE_KIND_MEMBER_GROUP, NODE_KIND_MEMBER_IMPORT,
-    NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT, NODE_KIND_NAMED_VARIABLE_SET,
-    NODE_KIND_NEGATION, NODE_KIND_NOT_EQUAL, NODE_KIND_PREDICATE_VALUE, NODE_KIND_PROPERTY_BODY,
-    NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUANTIFIED_SENTENCE,
-    NODE_KIND_QUOTED_STRING, NODE_KIND_RESERVED_SELF,
+    NODE_KIND_BINARY, NODE_KIND_BOOLEAN, NODE_KIND_BOOLEAN_SENTENCE,
+    NODE_KIND_CARDINALITY_EXPRESSION, NODE_KIND_CONJUNCTION, NODE_KIND_CONSTRAINT,
+    NODE_KIND_CONSTRAINT_ENVIRONMENT, NODE_KIND_CONSTRAINT_SENTENCE,
+    NODE_KIND_CONTROLLED_LANGUAGE_TAG, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DECIMAL,
+    NODE_KIND_DISJUNCTION, NODE_KIND_DOUBLE, NODE_KIND_ENTITY_BODY, NODE_KIND_ENTITY_DEF,
+    NODE_KIND_ENTITY_IDENTITY, NODE_KIND_ENUM_BODY, NODE_KIND_ENUM_DEF, NODE_KIND_ENVIRONMENT_DEF,
+    NODE_KIND_EQUATION, NODE_KIND_EVENT_DEF, NODE_KIND_EXCLUSIVE_DISJUNCTION,
+    NODE_KIND_EXISTENTIAL, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_FUNCTIONAL_TERM,
+    NODE_KIND_FUNCTION_COMPOSITION, NODE_KIND_FUNCTION_DEF, NODE_KIND_FUNCTION_PARAMETER,
+    NODE_KIND_FUNCTION_SIGNATURE, NODE_KIND_GREATER_THAN, NODE_KIND_GREATER_THAN_OR_EQUAL,
+    NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_ROLE,
+    NODE_KIND_IMPLICATION, NODE_KIND_INEQUATION, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
+    NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LESS_THAN, NODE_KIND_LESS_THAN_OR_EQUAL,
+    NODE_KIND_MAPPING_TYPE, NODE_KIND_MAPPING_VARIABLE, NODE_KIND_MEMBER, NODE_KIND_MEMBER_GROUP,
+    NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT,
+    NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_NEGATION, NODE_KIND_NOT_EQUAL,
+    NODE_KIND_PREDICATE_VALUE, NODE_KIND_PROPERTY_BODY, NODE_KIND_QUALIFIED_IDENTIFIER,
+    NODE_KIND_QUANTIFIED_SENTENCE, NODE_KIND_QUANTIFIED_VARIABLE,
+    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_QUOTED_STRING, NODE_KIND_RESERVED_SELF,
     NODE_KIND_ROLE_BY_REFERENCE, NODE_KIND_SEQUENCE_BUILDER,
-    NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES,
-    NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_STRING,
-    NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF, NODE_KIND_TERM,
-    NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
-    NODE_KIND_UNIVERSAL, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_VALUE_CONSTRUCTOR,
-    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD, NODE_KIND_ENTITY_IDENTITY, NODE_KIND_UNSIGNED,
-    NODE_KIND_BINARY, NODE_KIND_QUANTIFIED_VARIABLE, NODE_KIND_QUANTIFIED_VARIABLE_BINDING,
+    NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES, NODE_KIND_SEQUENCE_OF_VALUES,
+    NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF,
+    NODE_KIND_TERM, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
+    NODE_KIND_UNIVERSAL, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
+    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD,
 };
 use std::fmt::Display;
 use std::io::Write;
@@ -889,8 +886,8 @@ fn write_term<W: Write>(me: &Term, w: &mut Writer<W>) -> Result<(), Error> {
         Term::Identifier(v) => {
             w.newln_and_indentation()?;
             write_identifier_reference(v, w)?
-        },
-        Term::ReservedSelf =>  w.node(NODE_KIND_RESERVED_SELF)?,
+        }
+        Term::ReservedSelf => w.node(NODE_KIND_RESERVED_SELF)?,
         Term::Value(v) => write_predicate_value(v, w)?,
     }
 
@@ -1038,9 +1035,7 @@ fn write_simple_value<W: Write>(me: &SimpleValue, w: &mut Writer<W>) -> Result<(
         SimpleValue::Decimal(v) => w.node_and_value(NODE_KIND_DECIMAL, v)?,
         SimpleValue::Integer(v) => w.node_and_value(NODE_KIND_INTEGER, v)?,
         SimpleValue::Boolean(v) => w.node_and_value(NODE_KIND_BOOLEAN, v)?,
-        SimpleValue::IriReference(v) => {
-            w.node_and_value(NODE_KIND_IRI, format!("<{}>", v))?
-        }
+        SimpleValue::IriReference(v) => w.node_and_value(NODE_KIND_IRI, format!("<{}>", v))?,
         SimpleValue::Unsigned(v) => w.node_and_value(NODE_KIND_UNSIGNED, v)?,
         SimpleValue::Binary(v) => w.node_and_value(NODE_KIND_BINARY, v)?,
     }
@@ -1577,10 +1572,7 @@ fn write_entity_identity<W: Write>(me: &EntityIdentity, w: &mut Writer<W>) -> Re
     Ok(())
 }
 
-fn write_member<W: Write>(
-    me: &Member,
-    w: &mut Writer<W>,
-) -> Result<(), Error> {
+fn write_member<W: Write>(me: &Member, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node_indented(NODE_KIND_MEMBER)?;
     w.indent();
 

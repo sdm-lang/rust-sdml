@@ -1,7 +1,4 @@
-use crate::model::{
-    constraints::QuantifiedSentence,
-    identifiers::Identifier, Span,
-};
+use crate::model::{constraints::QuantifiedSentence, identifiers::Identifier, Span};
 use std::collections::HashSet;
 
 #[cfg(feature = "serde")]

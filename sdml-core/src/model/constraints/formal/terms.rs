@@ -1,5 +1,5 @@
 use crate::model::constraints::{PredicateValue, SequenceBuilder};
-use crate::model::identifiers::{Identifier, QualifiedIdentifier, IdentifierReference};
+use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use crate::model::Span;
 
 #[cfg(feature = "serde")]

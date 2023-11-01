@@ -27,9 +27,7 @@ pub(crate) fn parse_annotation<'a>(
             NODE_KIND_ANNOTATION_PROPERTY => {
                 return Ok(parse_annotation_property(context, &mut node.walk())?.into())
             }
-            NODE_KIND_CONSTRAINT => {
-                return Ok(parse_constraint(context, &mut node.walk())?.into())
-            }
+            NODE_KIND_CONSTRAINT => return Ok(parse_constraint(context, &mut node.walk())?.into()),
             NODE_KIND_LINE_COMMENT => {}
             _ => {
                 unexpected_node!(

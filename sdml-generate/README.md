@@ -7,6 +7,13 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 
 ## Changes
 
+**Version 0.2.0**
+
+* Feature: Update to latest grammar.
+  * Remove Value Variant numeric values
+  * Update formal constraints
+  * Add type classes
+
 **Version 0.1.8**
 
 * Feature: Add mapping type to the *s-expr* and *UML* generators.

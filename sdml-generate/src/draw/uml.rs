@@ -13,11 +13,11 @@ use crate::draw::OutputFormat;
 use crate::exec::{exec_with_temp_input, CommandArg};
 use sdml_core::error::Error;
 use sdml_core::generate::GenerateToFile;
+use sdml_core::load::ModuleLoader;
 use sdml_core::model::constraints::ControlledLanguageTag;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{
-    Cardinality, 
-    TypeReference, DEFAULT_CARDINALITY, Ordering, Uniqueness,
+    Cardinality, Ordering, TypeReference, Uniqueness, DEFAULT_CARDINALITY,
 };
 use sdml_core::model::modules::Module;
 use sdml_core::model::values::Value;
@@ -26,8 +26,7 @@ use sdml_core::model::{HasName, References, Span};
 use sdml_core::syntax::{KW_ORDERING_ORDERED, KW_UNIQUENESS_UNIQUE};
 use std::collections::HashSet;
 use std::path::Path;
-use tracing::debug;
-use sdml_core::load::ModuleLoader;
+use tracing::{debug, trace};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -79,6 +78,13 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
         path: &Path,
         format: OutputFormat,
     ) -> Result<(), Error> {
+        trace_entry!(
+            "UmlDiagramGenerator",
+            "write_to_file_in_format" =>
+            "{}, _, {:?}, {:?}",
+            module.name(),
+            path,
+            format);
         self.imports = make_imports(module);
         self.output = Some(path_to_output(path, module.name())?);
 
@@ -113,6 +119,7 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
 
 impl SimpleModuleWalker for UmlDiagramGenerator {
     fn start_module(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+        trace!("start_module");
         self.buffer.push_str(&format!(
             r#"@startuml {}
 skinparam backgroundColor transparent
@@ -178,15 +185,23 @@ package "{name}" as {} <<module>> {{
 
         // TODO: add opaque as stereotype on restriction
         let restriction = format!("  {} --|> {}\n", make_id(name), make_id(base_type));
-        self.refs = Some(self.refs.clone().map(|r| format!("{r}{restriction}")).unwrap_or(restriction));
+        self.refs = Some(
+            self.refs
+                .clone()
+                .map(|r| format!("{r}{restriction}"))
+                .unwrap_or(restriction),
+        );
         self.emit_annotations = true;
         Ok(())
     }
 
     fn end_datatype(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
         self.buffer.push_str("  }\n");
-        self.buffer
-            .push_str(&format!("  hide {} {}\n", make_id(name), if had_body { "methods" } else { "members" }));
+        self.buffer.push_str(&format!(
+            "  hide {} {}\n",
+            make_id(name),
+            if had_body { "methods" } else { "members" }
+        ));
 
         self.assoc_src = None;
         self.emit_annotations = false;
@@ -200,8 +215,11 @@ package "{name}" as {} <<module>> {{
         has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype(if has_body { "class" } else { "abstract" }, name, "entity"));
+        self.buffer.push_str(&start_type_with_sterotype(
+            if has_body { "class" } else { "abstract" },
+            name,
+            "entity",
+        ));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }
@@ -214,7 +232,8 @@ package "{name}" as {} <<module>> {{
         _: Option<&Span>,
     ) -> Result<(), Error> {
         if let TypeReference::Type(target_type) = target_type {
-            self.buffer.push_str(&format!("    +{name}: {target_type}\n"));
+            self.buffer
+                .push_str(&format!("    +{name}: {target_type}\n"));
         } else {
             self.buffer.push_str("    +{role_name}: ?\n");
         }
@@ -228,7 +247,9 @@ package "{name}" as {} <<module>> {{
         in_property: &IdentifierReference,
         _: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    +{role_name} <<identity>> {{property = {in_property}}}\n"));
+        self.buffer.push_str(&format!(
+            "    +{role_name} <<identity>> {{property = {in_property}}}\n"
+        ));
         self.buffer.push_str("    --\n");
         Ok(())
     }
@@ -280,7 +301,8 @@ package "{name}" as {} <<module>> {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&start_type_with_sterotype("class", name, "enum"));
+        self.buffer
+            .push_str(&start_type_with_sterotype("class", name, "enum"));
         Ok(())
     }
 
@@ -337,7 +359,8 @@ package "{name}" as {} <<module>> {{
         _has_body: bool,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
-        self.buffer.push_str(&&start_type_with_sterotype("class", name, "structure"));
+        self.buffer
+            .push_str(&&start_type_with_sterotype("class", name, "structure"));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }
@@ -434,7 +457,7 @@ package "{name}" as {} <<module>> {{
         target_type: &TypeReference,
         _has_body: bool,
         _span: Option<&Span>,
-     ) -> Result<(), Error> {
+    ) -> Result<(), Error> {
         self.buffer.push_str(&format!("    <<role, ref>> {name}"));
         if let TypeReference::Type(target_type) = target_type {
             self.buffer.push_str(&format!(": {target_type}\n"));
@@ -513,8 +536,11 @@ fn make_member(
 ) -> (String, bool) {
     match type_ref {
         TypeReference::Type(target_type) => {
-            if *card ==  DEFAULT_CARDINALITY {
-                (format!("    +{name}: {}\n", make_type_reference(type_ref)), true)
+            if *card == DEFAULT_CARDINALITY {
+                (
+                    format!("    +{name}: {}\n", make_type_reference(type_ref)),
+                    true,
+                )
             } else {
                 (
                     format!(
@@ -528,8 +554,14 @@ fn make_member(
             }
         }
         TypeReference::FeatureSet(target_type) => {
-            if *card ==  DEFAULT_CARDINALITY {
-                (format!("    <<features>> +{name}: {}\n", make_type_reference(type_ref)), true)
+            if *card == DEFAULT_CARDINALITY {
+                (
+                    format!(
+                        "    <<features>> +{name}: {}\n",
+                        make_type_reference(type_ref)
+                    ),
+                    true,
+                )
             } else {
                 (
                     format!(
@@ -621,27 +653,29 @@ fn format_to_arg(value: OutputFormat) -> CommandArg {
     })
 }
 
+/// Note:
+///  PlantUML does not take output file names, it derives the names from the input file names.
+///  However, it will take the path of the directory to put output files in, which needs to be
+///  specified else it is derived from the input path (a temp file name).
 #[inline(always)]
 fn path_to_output<P>(path: P, module_name: &Identifier) -> Result<DiagramOutput, Error>
 where
     P: AsRef<Path>,
 {
-    ::tracing::trace!("path_to_output {:?} {:?}", path.as_ref(), module_name);
-    // Note:
-    //  PlantUML does not take output file names, it derives the names from the input file names.
-    //  However, it will take the path of the directory to put output files in, which needs to be
-    //  specified else it is derived from the input path (a temp file name).
-    let current_dir = std::env::current_dir()?;
-    let output_dir = path
-        .as_ref()
-        .parent()
-        .unwrap_or_else(|| &current_dir)
-        .canonicalize()?;
-    ::tracing::trace!("path_to_output output_dir = {:?}", output_dir);
+    let path = path.as_ref();
+    trace!("path_to_output({:?}, {})", path, module_name);
+
+    let output_dir = if path.components().count() == 1 {
+        std::env::current_dir()?.canonicalize()?
+    } else {
+        path.parent()
+            .unwrap() // safe due to test above
+            .canonicalize()?
+    };
+    trace!("path_to_output output_dir = {:?}", output_dir);
 
     Ok(DiagramOutput {
         file_name: path
-            .as_ref()
             .file_stem()
             .map(|s| s.to_string_lossy().to_string())
             .unwrap_or_else(|| module_name.to_string()),
@@ -671,7 +705,10 @@ fn to_uml_string(card: &Cardinality, as_association: bool) -> String {
         format!(
             "{}..{}",
             card.range().min_occurs(),
-            card.range().max_occurs().map(|i| i.to_string()).unwrap_or_else(|| String::from("*"))
+            card.range()
+                .max_occurs()
+                .map(|i| i.to_string())
+                .unwrap_or_else(|| String::from("*"))
         )
     } else {
         card.range().min_occurs().to_string()

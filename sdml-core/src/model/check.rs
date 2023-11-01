@@ -31,7 +31,12 @@ pub trait Validate {
     fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error>;
 
     // Find all errors
-    fn validate(&self, check_constraints: bool, top: &Module, errors: &mut Vec<Error>) -> Result<(), Error> {
+    fn validate(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        errors: &mut Vec<Error>,
+    ) -> Result<(), Error> {
         if let Err(e) = self.is_valid(check_constraints, top) {
             errors.push(e);
         }

@@ -1,25 +1,10 @@
-/*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
-
-*/
-
 use std::{
     io::{self, ErrorKind, Write},
     path::Path,
     process::{Command, Output},
 };
 use tempfile::NamedTempFile;
-use tracing::{error, trace};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
+use tracing::error;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -44,7 +29,7 @@ where
     S1: Into<String> + std::fmt::Debug,
     S2: Into<String>,
 {
-    trace!("exec_with_input({:?}, {:?}, ...)", program, args);
+    trace_entry!("exec_with_input" => "{:?}, {:?}, ...", program, args);
     write_to_temp_file(temp_file_contents.into()).and_then(|f| {
         let mut args_mut = args;
         args_mut.push(CommandArg::from_path(f.path()));
@@ -56,7 +41,7 @@ pub(crate) fn exec<S>(program: S, args: Vec<CommandArg>) -> io::Result<String>
 where
     S: Into<String> + std::fmt::Debug,
 {
-    trace!("exec({:?}, {:?})", program, args);
+    trace_entry!("exec" => "{:?}, {:?}", program, args);
     let args = args.into_iter().flat_map(|a| a.into_args()).collect();
     exec_inner(program, args).and_then(|o| {
         if o.status.code().map(|c| c != 0).unwrap_or(true) {
@@ -82,14 +67,6 @@ fn write_to_temp_file(content: String) -> io::Result<NamedTempFile> {
     let mut file = NamedTempFile::new()?;
     file.write_all(content.as_bytes()).map(|_| file)
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -141,11 +118,3 @@ impl CommandArg {
         }
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

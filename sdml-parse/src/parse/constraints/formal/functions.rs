@@ -8,12 +8,12 @@ use sdml_core::model::constraints::{
     FunctionTypeReference, FunctionTypeReferenceInner,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
-use sdml_core::model::members::{Ordering, Uniqueness, CardinalityRange};
+use sdml_core::model::members::{CardinalityRange, Ordering, Uniqueness};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_MAX, FIELD_NAME_MIN,
-    FIELD_NAME_NAME, FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_SIGNATURE,
-    FIELD_NAME_TARGET, FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
+    FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_MAX, FIELD_NAME_MIN, FIELD_NAME_NAME,
+    FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_SIGNATURE, FIELD_NAME_TARGET,
+    FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
 };
 use std::str::FromStr;
@@ -131,7 +131,7 @@ pub(crate) fn parse_function_cardinality_expression<'a>(
         } else {
             CardinalityRange::new_single(min)
         })
-    } else  {
+    } else {
         None
     };
 

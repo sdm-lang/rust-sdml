@@ -7,6 +7,13 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.0**
+
+* Feature: Update to latest grammar.
+  * Remove Value Variant numeric values
+  * Update formal constraints
+  * Add type classes
+
 **Version 0.1.9**
 
 * Added support for `mapping_type` and `mapping_value` rules.

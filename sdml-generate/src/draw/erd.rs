@@ -13,15 +13,12 @@ use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
 use sdml_core::error::Error;
 use sdml_core::generate::GenerateToWriter;
-use sdml_core::model::identifiers::{Identifier, IdentifierReference};
-use sdml_core::model::members::{
-    Cardinality,
-    TypeReference, DEFAULT_CARDINALITY,
-};
 use sdml_core::load::ModuleLoader;
+use sdml_core::model::identifiers::{Identifier, IdentifierReference};
+use sdml_core::model::members::{Cardinality, TypeReference, DEFAULT_CARDINALITY};
 use sdml_core::model::modules::{Import, Module};
 use sdml_core::model::walk::{walk_module_simple, SimpleModuleWalker};
-use sdml_core::model::Span;
+use sdml_core::model::{HasName, Span};
 use std::io::Write;
 use tracing::trace;
 
@@ -66,6 +63,12 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
         writer: &mut dyn Write,
         format: OutputFormat,
     ) -> Result<(), Error> {
+        trace_entry!(
+            "ErdDiagramGenerator",
+            "write_in_format" =>
+                "{}, _, _, {:?}",
+            module.name(),
+            format);
         walk_module_simple(module, self)?;
 
         if format == OutputFormat::Source {
@@ -212,10 +215,7 @@ impl SimpleModuleWalker for ErdDiagramGenerator {
         };
         self.buffer.push_str(&format!(
             "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-            self.entity
-                .as_deref()
-                .unwrap_or_default()
-                .to_lowercase(),
+            self.entity.as_deref().unwrap_or_default().to_lowercase(),
             target_type,
             name
         ));
@@ -230,10 +230,7 @@ impl SimpleModuleWalker for ErdDiagramGenerator {
     ) -> Result<(), Error> {
         self.buffer.push_str(&format!(
             "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-            self.entity
-                .as_deref()
-                .unwrap_or_default()
-                .to_lowercase(),
+            self.entity.as_deref().unwrap_or_default().to_lowercase(),
             in_property,
             role_name
         ));
@@ -255,8 +252,7 @@ impl SimpleModuleWalker for ErdDiagramGenerator {
         } else {
             "unknown".to_string()
         };
-        let target_cardinality = if *target_cardinality == DEFAULT_CARDINALITY
-        {
+        let target_cardinality = if *target_cardinality == DEFAULT_CARDINALITY {
             arrow_end("head", target_cardinality)
         } else {
             String::new()
@@ -266,7 +262,7 @@ impl SimpleModuleWalker for ErdDiagramGenerator {
             self.entity.as_deref().unwrap_or_default().to_lowercase(),
             target_type,
             name,
-            inverse_name.map(|id|id.to_string()).unwrap_or_default(),
+            inverse_name.map(|id| id.to_string()).unwrap_or_default(),
             target_cardinality
         ));
         Ok(())
@@ -280,10 +276,7 @@ impl SimpleModuleWalker for ErdDiagramGenerator {
     ) -> Result<(), Error> {
         self.buffer.push_str(&format!(
             "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-            self.entity
-                .as_deref()
-                .unwrap_or_default()
-                .to_lowercase(),
+            self.entity.as_deref().unwrap_or_default().to_lowercase(),
             in_property,
             role_name
         ));

@@ -14,15 +14,14 @@ use crate::exec::exec_with_temp_input;
 use sdml_core::error::Error;
 use sdml_core::generate::GenerateToWriter;
 use sdml_core::load::ModuleLoader;
-use sdml_core::model::members::{
-    HasCardinality, HasType, TypeReference,
-    DEFAULT_CARDINALITY, Cardinality,
-};
 use sdml_core::model::definitions::Definition;
+use sdml_core::model::members::{
+    Cardinality, HasCardinality, HasType, TypeReference, DEFAULT_CARDINALITY,
+};
 use sdml_core::model::modules::Module;
-use sdml_core::model::{HasBody, HasOptionalBody, HasName};
-use std::io::Write;
+use sdml_core::model::{HasBody, HasName, HasOptionalBody};
 use std::collections::HashSet;
+use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -62,7 +61,7 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
         format: OutputFormat,
     ) -> Result<(), Error> {
         let mut buffer = Vec::new();
-        write_module(module,loader, &mut buffer)?;
+        write_module(module, loader, &mut buffer)?;
 
         if format == OutputFormat::Source {
             writer.write_all(&buffer)?;
@@ -82,8 +81,11 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
     }
 }
 
-fn write_module(me: &Module, _loader: Option<&mut dyn ModuleLoader>, writer: &mut dyn Write) -> Result<(), Error>
-{
+fn write_module(
+    me: &Module,
+    _loader: Option<&mut dyn ModuleLoader>,
+    writer: &mut dyn Write,
+) -> Result<(), Error> {
     writer.write_all(
         r#"digraph G {
   bgcolor="transparent";
@@ -93,7 +95,8 @@ fn write_module(me: &Module, _loader: Option<&mut dyn ModuleLoader>, writer: &mu
   edge [fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
         labelfontcolor="blue"; labeldistance=2.0];
 
-"#.as_bytes()
+"#
+        .as_bytes(),
     )?;
 
     let mut entities: HashSet<String> = Default::default();
@@ -105,8 +108,15 @@ fn write_module(me: &Module, _loader: Option<&mut dyn ModuleLoader>, writer: &mu
         if let Some(body) = entity.body() {
             for member in body.flat_members() {
                 let type_ref = if let Some(property_name) = member.as_property_reference() {
-                    let property = me.body().property_definitions().find(|p|p.name() == property_name.member()).unwrap();
-                    let role = property.body().map(|b|b.roles().find(|r|r.name() == member.name()).unwrap()).unwrap();
+                    let property = me
+                        .body()
+                        .property_definitions()
+                        .find(|p| p.name() == property_name.member())
+                        .unwrap();
+                    let role = property
+                        .body()
+                        .map(|b| b.roles().find(|r| r.name() == member.name()).unwrap())
+                        .unwrap();
                     role.target_type()
                 } else if let Some(definition) = member.as_definition() {
                     definition.target_type()
@@ -126,7 +136,9 @@ fn write_module(me: &Module, _loader: Option<&mut dyn ModuleLoader>, writer: &mu
                             if matches!(definition.target_type(), TypeReference::Unknown) {
                                 entities.insert("unknown".to_string());
                             }
-                            let target_type = if let TypeReference::Type(target_type) = definition.target_type() {
+                            let target_type = if let TypeReference::Type(target_type) =
+                                definition.target_type()
+                            {
                                 target_type.to_string().to_lowercase()
                             } else {
                                 "unknown".to_string()
@@ -154,11 +166,13 @@ fn write_module(me: &Module, _loader: Option<&mut dyn ModuleLoader>, writer: &mu
     }
 
     writer.write_all(
-        entities.iter()
+        entities
+            .iter()
             .map(|name| format!("  {name} [label=\"{name}\"];"))
             .collect::<Vec<String>>()
             .join("\n")
-            .as_bytes())?;
+            .as_bytes(),
+    )?;
 
     writer.write_all(relations.join("\n").as_bytes())?;
 

@@ -21,20 +21,19 @@ walk_module(&some_module, &mut MyModuleWalker::default());
 
 */
 
+use super::members::HasType;
 use crate::error::Error;
 use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef,
-    HasGroups, HasMembers, HasVariants, PropertyDef, PropertyRole, PropertyRoleDef, StructureDef,
-    TypeVariant, UnionDef,
+    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasGroups, HasMembers,
+    HasVariants, PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, TypeVariant, UnionDef,
 };
 use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::members::{Cardinality, Member, HasCardinality, MemberGroup, TypeReference};
+use crate::model::members::{Cardinality, HasCardinality, Member, MemberGroup, TypeReference};
 use crate::model::modules::{Import, Module};
 use crate::model::values::Value;
 use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
-use super::members::HasType;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -465,24 +464,20 @@ fn walk_property_role(
     walker: &mut impl SimpleModuleWalker,
 ) -> Result<(), Error> {
     match role.definition() {
-        PropertyRoleDef::Identity(inner) => {
-            walker.start_identity_role(
-                role.name(),
-                inner.target_type(),
-                inner.has_body(),
-                role.source_span()
-            )?
-        }
-        PropertyRoleDef::Member(inner) => {
-            walker.start_member_role(
-                role.name(),
-                inner.inverse_name(),
-                inner.target_cardinality(),
-                inner.target_type(),
-                inner.has_body(),
-                role.source_span()
-            )?
-        }
+        PropertyRoleDef::Identity(inner) => walker.start_identity_role(
+            role.name(),
+            inner.target_type(),
+            inner.has_body(),
+            role.source_span(),
+        )?,
+        PropertyRoleDef::Member(inner) => walker.start_member_role(
+            role.name(),
+            inner.inverse_name(),
+            inner.target_cardinality(),
+            inner.target_type(),
+            inner.has_body(),
+            role.source_span(),
+        )?,
     };
 
     let had_body = if let Some(body) = role.body() {
@@ -567,7 +562,12 @@ fn walk_entity_identity(
         walker.start_entity_identity_role_ref(member.name(), name, member.source_span())?;
         false
     } else if let Some(defn) = member.as_definition() {
-        walker.start_entity_identity(member.name(), defn.target_type(), defn.has_body(), member.source_span())?;
+        walker.start_entity_identity(
+            member.name(),
+            defn.target_type(),
+            defn.has_body(),
+            member.source_span(),
+        )?;
         if let Some(body) = defn.body() {
             walk_annotations!(walker, body.annotations());
             true
@@ -592,7 +592,7 @@ fn walk_member(member: &Member, walker: &mut impl SimpleModuleWalker) -> Result<
             defn.target_cardinality(),
             defn.target_type(),
             defn.has_body(),
-            member.source_span()
+            member.source_span(),
         )?;
         if let Some(body) = defn.body() {
             walk_annotations!(walker, body.annotations());

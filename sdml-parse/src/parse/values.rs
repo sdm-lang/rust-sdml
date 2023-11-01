@@ -2,16 +2,17 @@ use crate::parse::identifiers::parse_identifier_reference;
 use rust_decimal::Decimal;
 use sdml_core::error::Error;
 use sdml_core::model::values::{
-    LanguageString, LanguageTag, MappingValue, SequenceOfValues, SimpleValue, Value,
-    ValueConstructor, Binary,
+    Binary, LanguageString, LanguageTag, MappingValue, SequenceOfValues, SimpleValue, Value,
+    ValueConstructor,
 };
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
-    FIELD_NAME_DOMAIN, FIELD_NAME_NAME, FIELD_NAME_RANGE, FIELD_NAME_VALUE, NODE_KIND_BOOLEAN,
-    NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_INTEGER,
-    NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_MAPPING_VALUE, NODE_KIND_QUOTED_STRING, NODE_KIND_SEQUENCE_OF_VALUES,
-    NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_VALUE_CONSTRUCTOR, NODE_KIND_UNSIGNED, NODE_KIND_BINARY, FIELD_NAME_BYTE,
+    FIELD_NAME_BYTE, FIELD_NAME_DOMAIN, FIELD_NAME_NAME, FIELD_NAME_RANGE, FIELD_NAME_VALUE,
+    NODE_KIND_BINARY, NODE_KIND_BOOLEAN, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_INTEGER, NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG,
+    NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VALUE, NODE_KIND_QUOTED_STRING,
+    NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_UNSIGNED,
+    NODE_KIND_VALUE_CONSTRUCTOR,
 };
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
@@ -202,7 +203,10 @@ fn parse_binary<'a>(
     rule_fn!("binary", cursor.node());
     let mut result: Vec<u8> = Default::default();
 
-    for node in cursor.node().children_by_field_name(FIELD_NAME_BYTE, cursor) {
+    for node in cursor
+        .node()
+        .children_by_field_name(FIELD_NAME_BYTE, cursor)
+    {
         context.check_if_error(&node, RULE_NAME)?;
         let value = context.node_source(&node)?;
         let value = u8::from_str(value).expect("Invalid value for Byte");
