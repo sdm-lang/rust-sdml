@@ -1,12 +1,23 @@
 /*!
-One-line description.
-
-More detailed description, with
+This module provides an generator that recreates the surface syntax for a module given its
+in-memory representation.
 
 # Example
 
-YYYYY
+```rust
+use sdml_core::generate::source::SourceGenerator;
+use sdml_core::generate::GenerateToWriter;
+use sdml_core::model::identifiers::Identifier;
+use sdml_core::model::modules::Module;
 
+let module = Module::empty(Identifier::new_unchecked("example"));
+
+let mut generator: SourceGenerator = Default::default();
+
+let source = generator.write_to_string(&module, None).unwrap();
+assert_eq!(source.as_str(), "module example is end\n");
+
+```
 */
 
 use crate::error::Error;
@@ -30,9 +41,11 @@ use std::{fmt::Debug, io::Write};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+/// The type that implements the generator.
 #[derive(Debug, Default)]
 pub struct SourceGenerator {}
 
+/// Options that control the generation style or layout.
 #[derive(Debug)]
 pub struct SourceOptions {
     indent_spaces: usize,

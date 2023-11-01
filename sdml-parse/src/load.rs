@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+Provides an implementation of the resolver and loader traits that parse the SDML surface syntax.
 
  */
 
@@ -31,24 +25,38 @@ use url::Url;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// The type that implements the module resolver trait.
+///
 #[derive(Clone, Debug)]
 pub struct ModuleResolver {
     catalog: Option<Rc<RefCell<ModuleCatalog>>>,
     search_path: Rc<RefCell<SearchPath>>,
 }
 
+/// The name of the SDML environment variable that may be used to hold a load path.
 pub const SDML_RESOLVER_PATH_VARIABLE: &str = "SDML_PATH";
 
+/// The recommended file extension for SDML resources.
 pub const SDML_FILE_EXTENSION: &str = "sdm";
+
+/// The alternate file extension for SDML resources.
 pub const SDML_FILE_EXTENSION_LONG: &str = "sdml";
 
+/// The name used for resolver catalog files.
 pub const SDML_CATALOG_FILE_NAME: &str = "sdml-catalog.json";
 
 // ------------------------------------------------------------------------------------------------
 
+///
+/// A wrapper around the source code loaded prior to parsing.
+///
 #[derive(Clone, Debug)]
 pub struct Source(Rc<String>);
 
+///
+/// The type that implements the module loader trait.
+///
 #[derive(Clone, Debug)]
 pub struct ModuleLoader {
     resolver: Rc<ModuleResolver>,
@@ -58,6 +66,9 @@ pub struct ModuleLoader {
 
 // ------------------------------------------------------------------------------------------------
 
+///
+/// This type represents the content of a resolver file.
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct ModuleCatalog {
@@ -67,6 +78,9 @@ pub struct ModuleCatalog {
     entries: HashMap<String, CatalogEntry>,
 }
 
+///
+/// An entry in a resolver catalog file is either an item or group of items.
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CatalogEntry {
@@ -74,6 +88,9 @@ pub enum CatalogEntry {
     Item(Item),
 }
 
+///
+/// A resolver group allows the common configuration of multiple items.
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Group {
@@ -84,6 +101,9 @@ pub struct Group {
     entries: HashMap<String, Item>,
 }
 
+///
+/// A specific resolver item.
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct Item {
@@ -604,6 +624,7 @@ impl Item {
     pub fn relative_path(&self) -> &PathBuf {
         &self.relative_path
     }
+
     pub fn set_relative_path(&mut self, relative_path: PathBuf) {
         self.relative_path = relative_path;
     }
@@ -613,6 +634,7 @@ impl Item {
     pub fn relative_url(&self) -> &String {
         &self.relative_url
     }
+
     pub fn set_relative_url(&mut self, relative_url: String) {
         self.relative_url = relative_url;
     }

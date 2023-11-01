@@ -19,13 +19,23 @@ use serde::{Deserialize, Serialize};
 // Public Types ❱ Traits
 // ------------------------------------------------------------------------------------------------
 
+///
+/// This trait is implemented by types that have a distinct /body/ type.
+///
 pub trait HasBody<T> {
+    /// Get the body of the enclosing type.
     fn body(&self) -> &T;
+    /// Set the body of the enclosing type.
     fn set_body(&mut self, body: T);
 }
 
+///
+/// This trait is implemented by types that have a unique name.
+///
 pub trait HasName {
+    /// Get the name of the enclosing type.
     fn name(&self) -> &Identifier;
+    /// Set the name of the enclosing type.
     fn set_name(&mut self, name: Identifier);
 }
 
@@ -34,6 +44,9 @@ pub trait HasNameReference {
     fn set_name_reference(&mut self, name: IdentifierReference);
 }
 
+///
+/// This trait is implemented by types that have a distinct, but optional, /body/ type.
+///
 pub trait HasOptionalBody<T> {
     fn has_body(&self) -> bool {
         self.body().is_some()
@@ -66,7 +79,8 @@ pub trait References {
 // ------------------------------------------------------------------------------------------------
 
 ///
-/// The source location information from the tree-sitter [`Node`] type.
+/// The source location information from the tree-sitter [`Node`] type. The location is stored as
+/// a start and end position, where the positions are byte indices.
 ///
 #[derive(Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
@@ -108,6 +122,7 @@ impl Span {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
+    /// Create a new span from the `start` byte and `end` byte indices.
     #[inline(always)]
     pub fn new(start: usize, end: usize) -> Self {
         assert!(start <= end);
@@ -118,16 +133,19 @@ impl Span {
     // Fields
     // --------------------------------------------------------------------------------------------
 
+    /// Return the starting byte index of this span.
     #[inline(always)]
     pub fn start(&self) -> usize {
         self.0.start
     }
 
+    /// Return the ending byte index of this span.
     #[inline(always)]
     pub fn end(&self) -> usize {
         self.0.end
     }
 
+    /// Return this span as a `start..end` range.
     #[inline(always)]
     pub fn byte_range(&self) -> Range<usize> {
         self.0.clone()

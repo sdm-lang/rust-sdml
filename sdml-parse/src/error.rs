@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+This crate provides the common resolver, loader, and parser errors.
 
  */
 
@@ -26,8 +20,14 @@ use std::{error::Error, fmt::Display};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// An opaque identifier used to index the source associated with a loaded module.
+///
 pub type FileId = usize;
 
+///
+/// This type captures the constant components of a particular error. 
+///
 #[derive(Clone, Debug)]
 pub struct SimpleDiagnostic {
     severity: Severity,
@@ -35,6 +35,9 @@ pub struct SimpleDiagnostic {
     message: &'static str,
 }
 
+///
+/// This type is used to track the number of emitted diagnostics.
+///
 #[derive(Clone, Debug, Default)]
 pub struct ErrorCounters {
     bugs: u32,
@@ -48,66 +51,99 @@ pub struct ErrorCounters {
 // Public Error Values
 // ------------------------------------------------------------------------------------------------
 
+///
+/// A [SimpleDiagnostic] representing a loader error.
+///
 pub const MODULE_NOT_FOUND: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Bug,
     code: "B001",
     message: "module not found",
 };
 
+///
+/// A [SimpleDiagnostic] representing a tree-sitter error.
+///
 pub const TREE_SITTER_ERROR: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E010",
     message: "tree-sitter parse error",
 };
 
+///
+/// A [SimpleDiagnostic] representing a tree-sitter error.
+///
 pub const UNEXPECTED_NODE_KIND: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E011",
     message: "unexpected tree-sitter node",
 };
 
+///
+/// A [SimpleDiagnostic] representing a tree-sitter error.
+///
 pub const MISSING_NODE_KIND: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E012",
     message: "missing tree-sitter node",
 };
 
+///
+/// A [SimpleDiagnostic] representing a tree-sitter error.
+///
 pub const MISSING_NODE_VARIABLE: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E013",
     message: "missing tree-sitter variable",
 };
 
+///
+/// A [SimpleDiagnostic] representing a parser error.
+///
 pub const MODULE_ALREADY_IMPORTED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Warning,
     code: "W020",
     message: "duplicate import of module",
 };
 
+///
+/// A [SimpleDiagnostic] representing a parser error.
+///
 pub const MEMBER_ALREADY_IMPORTED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Warning,
     code: "W021",
     message: "duplicate import of member",
 };
 
+///
+/// A [SimpleDiagnostic] representing a parser error.
+///
 pub const TYPE_DEFINITION_NAME_USED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E022",
     message: "a type definition with this name already exists",
 };
 
+///
+/// A [SimpleDiagnostic] representing a parser error.
+///
 pub const MEMBER_NAME_USED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E023",
     message: "a member with this name already exists",
 };
 
+///
+/// A [SimpleDiagnostic] representing a parser error.
+///
 pub const VALUE_VARIANT_NAME_USED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E024",
     message: "a value variant with this name already exists",
 };
 
+///
+/// A [SimpleDiagnostic] representing a parser error.
+///
 pub const TYPE_VARIANT_NAME_USED: SimpleDiagnostic = SimpleDiagnostic {
     severity: Severity::Error,
     code: "E025",
@@ -115,31 +151,8 @@ pub const TYPE_VARIANT_NAME_USED: SimpleDiagnostic = SimpleDiagnostic {
 };
 
 // ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
-
-#[inline(always)]
-fn severity_str(severity: Severity) -> &'static str {
-    match severity {
-        Severity::Bug => "bug",
-        Severity::Error => "error",
-        Severity::Warning => "warning",
-        Severity::Note => "note",
-        Severity::Help => "help",
-    }
-}
 
 impl ErrorCounters {
     #[inline(always)]
@@ -265,6 +278,13 @@ impl SimpleDiagnostic {
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------
+#[inline(always)]
+fn severity_str(severity: Severity) -> &'static str {
+    match severity {
+        Severity::Bug => "bug",
+        Severity::Error => "error",
+        Severity::Warning => "warning",
+        Severity::Note => "note",
+        Severity::Help => "help",
+    }
+}

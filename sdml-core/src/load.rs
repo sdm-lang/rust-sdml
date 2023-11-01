@@ -22,38 +22,55 @@ use std::rc::Rc;
 /// Note this trait does not require mutability even for clearly mutating operations.
 ///
 pub trait ModuleResolver: Debug {
+    /// Add the provided path to the beginning of the search list.
     fn prepend_to_search_path(&self, path: &Path);
 
+    /// Add the provided path to the end of the search list.
     fn append_to_search_path(&self, path: &Path);
 
+    /// Return a file system path for the resource that /should/ contain the named module.
     fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error>;
 }
 
 // ------------------------------------------------------------------------------------------------
 
+///
+/// This is the reference type actually held by the loader.
 #[derive(Clone, Debug)]
 pub struct ModuleRef(Rc<RefCell<Module>>);
 
 // ------------------------------------------------------------------------------------------------
 
 ///
-/// TBD
+/// The loader is used to manage the process of creating an in-memory model from file-system resources.
+///
+/// A Module Loader is therefore responsible for:
+///
+/// 1. finding the resource that contains a module definition,
+/// 2. parsing the source into an in-memory representation,
+/// 3. caching the loaded module, and it's source, for future use.
 ///
 /// Note this trait does not require mutability even for clearly mutating operations.
 ///
 pub trait ModuleLoader: Debug {
+    /// Load the named module using the loader's current resolver.
     fn load(&self, name: &Identifier) -> Result<ModuleRef, Error>;
 
+    /// Load a module from the source in `file`.
     fn load_from_file(&self, file: PathBuf) -> Result<ModuleRef, Error>;
 
+    /// Load a module reading the source from `reader`.
     fn load_from_reader(&self, reader: &mut dyn Read) -> Result<ModuleRef, Error>;
 
+    /// Add a module to this loader's cache.
+    fn adopt(&self, module: ModuleRef);
+
+    /// Add a module to this loader's cache, wrapping it in a reference first.
     fn adopt_raw(&self, module: Module) {
         self.adopt(module.into());
     }
 
-    fn adopt(&self, module: ModuleRef);
-
+    /// Returns `true` if the loader's cache contains a module with the name `name`, else `false`.
     fn contains(&self, name: &Identifier) -> bool;
 
     fn get(&self, name: &Identifier) -> Option<ModuleRef>;

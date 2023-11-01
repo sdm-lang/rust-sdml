@@ -1,13 +1,29 @@
 /*!
-One-line description.
+This library provides a parser for the Simple Domain Modeling Language (SDML) and produces an in-memory representation
+using the crate [sdml-core](https://crates.io/crates/sdml-core).
 
-More detailed description, with
+The [ModuleLoader] trait from, `sdml-core`, provides the interface for finding, parsing, and loading modules and the
+[load::ModuleLoader] implementation is provided in this crate for file-system based module definitions.
 
 # Example
 
-YYYYY
+The following example demonstrates the [ModuleLoader] to resolve a module name to a file and parse it.
 
-# Features
+
+```rust,no_run
+use sdml_core::model::identifiers::Identifier;
+use sdml_parse::load::ModuleLoader;
+use sdml_parse::ModuleLoader as ModuleLoaderTrait;
+use std::str::FromStr;
+
+let loader = ModuleLoader::default();
+
+let name = Identifier::from_str("example").unwrap();
+
+let module = loader.load(&name);
+
+assert!(module.is_ok());
+```
 
 */
 
