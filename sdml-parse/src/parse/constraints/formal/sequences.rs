@@ -27,10 +27,8 @@ pub(crate) fn parse_sequence_builder<'a>(
     context.check_if_error(&child, RULE_NAME)?;
 
     let variables: Variables = match child.kind() {
-        NODE_KIND_NAMED_VARIABLE_SET => {
-            parse_named_variable_set(context, &mut child.walk())?.into()
-        }
-        NODE_KIND_MAPPING_VARIABLE => parse_mapping_variable(context, &mut child.walk())?.into(),
+        NODE_KIND_NAMED_VARIABLE_SET => parse_named_variable_set(context, &mut child.walk())?,
+        NODE_KIND_MAPPING_VARIABLE => parse_mapping_variable(context, &mut child.walk())?,
         // should check for NODE_KIND_LINE_COMMENT => {},
         _ => {
             unexpected_node!(

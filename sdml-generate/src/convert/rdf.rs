@@ -59,7 +59,7 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
     for statement in body.imports() {
         for import in statement.imports() {
             let name = match import {
-                Import::Module(v) => &v,
+                Import::Module(v) => v,
                 Import::Member(v) => v.module(),
             };
             w.write_all(format!("@prefix {name}: <> .\n").as_bytes())?;
@@ -71,7 +71,7 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
     for statement in body.imports() {
         for import in statement.imports() {
             let _name = match import {
-                Import::Module(v) => &v,
+                Import::Module(v) => v,
                 Import::Member(v) => v.module(),
             };
             w.write_all(format!("    owl:imports <{}> .\n", "").as_bytes())?;

@@ -70,7 +70,7 @@ fn parse_entity_body<'a>(
                         body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER => {
-                        body.add_to_members(parse_member(context, &mut node.walk())?.into());
+                        body.add_to_members(parse_member(context, &mut node.walk())?);
                     }
                     NODE_KIND_MEMBER_GROUP => {
                         body.add_to_groups(parse_member_group(context, &mut node.walk())?);

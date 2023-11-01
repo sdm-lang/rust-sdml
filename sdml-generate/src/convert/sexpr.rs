@@ -1581,7 +1581,7 @@ fn write_member<W: Write>(me: &Member, w: &mut Writer<W>) -> Result<(), Error> {
     if let Some(property) = me.as_property_reference() {
         w.newln_and_indentation()?;
         w.field_name(FIELD_NAME_PROPERTY)?;
-        write_identifier_reference(&property, w)?;
+        write_identifier_reference(property, w)?;
 
         w.newln_and_indentation()?;
         w.field_name(FIELD_NAME_NAME)?;

@@ -360,7 +360,7 @@ package "{name}" as {} <<module>> {{
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         self.buffer
-            .push_str(&&start_type_with_sterotype("class", name, "structure"));
+            .push_str(&start_type_with_sterotype("class", name, "structure"));
         self.assoc_src = Some(name.to_string());
         Ok(())
     }

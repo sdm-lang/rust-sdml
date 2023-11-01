@@ -35,7 +35,7 @@ pub(crate) fn parse_constraint_sentence<'a>(
         context.check_if_error(&node, RULE_NAME)?;
         match node.kind() {
             NODE_KIND_CONSTRAINT_SENTENCE => {
-                return Ok(parse_constraint_sentence(context, &mut node.walk())?);
+                return parse_constraint_sentence(context, &mut node.walk());
             }
             NODE_KIND_SIMPLE_SENTENCE => {
                 return Ok(parse_simple_sentence(context, &mut node.walk())?.into());

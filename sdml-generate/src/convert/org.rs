@@ -86,7 +86,7 @@ fn write_module(
     if let Some(loader) = loader {
         let source: Box<dyn AsRef<str>> = loader.get_source(name).unwrap();
         writer.write_all(
-            &format!(
+            format!(
                 r#"* Appendix: Module Source
 
 #+NAME: lst:module-source

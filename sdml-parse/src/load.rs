@@ -289,7 +289,7 @@ impl LoaderTrait for ModuleLoader {
 
     fn load_from_reader(&self, reader: &mut dyn Read) -> Result<ModuleRef, Error> {
         trace_entry!("ModuleLoader", "load_from_reader");
-        Ok(self.load_inner(reader, None)?)
+        self.load_inner(reader, None)
     }
 
     fn adopt(&self, module: ModuleRef) {
@@ -647,7 +647,7 @@ mod tests {
     #[test]
     fn test_parse_catalog() {
         let _: ModuleCatalog = serde_json::from_str(
-            r##"{
+            r#"{
   "base": "https://example.org/rentals/",
   "entries": {
     "vehicle": {
@@ -657,7 +657,7 @@ mod tests {
       }
     }
   }
-}"##,
+}"#,
         )
         .unwrap();
     }
@@ -665,7 +665,7 @@ mod tests {
     #[test]
     fn test_parse_catalog_with_group() {
         let _: ModuleCatalog = serde_json::from_str(
-            r##"{
+            r#"{
   "base": "https://example.org/rentals/",
   "entries": {
     "rentals": {
@@ -681,7 +681,7 @@ mod tests {
       }
     }
   }
-}"##,
+}"#,
         )
         .unwrap();
     }

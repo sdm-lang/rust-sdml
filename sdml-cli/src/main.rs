@@ -247,7 +247,7 @@ impl FileArgs {
         if let Some(base) = &self.base_path {
             resolver.prepend_to_search_path(base)
         }
-        ModuleLoader::from(resolver).into()
+        ModuleLoader::from(resolver)
     }
 
     fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {
