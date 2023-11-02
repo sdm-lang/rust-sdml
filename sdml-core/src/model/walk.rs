@@ -21,7 +21,8 @@ walk_module(&some_module, &mut MyModuleWalker::default());
 
 */
 
-use super::members::HasType;
+use crate::model::constraints::{EnvironmentDef, ConstraintSentence};
+use crate::model::members::HasType;
 use crate::error::Error;
 use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
@@ -69,6 +70,16 @@ pub trait SimpleModuleWalker {
         _name: &Identifier,
         _value: &str,
         _language: Option<&ControlledLanguageTag>,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn formal_constraint<'a>(
+        &'a mut self,
+        _name: &Identifier,
+        _environment: &impl Iterator<Item = &'a EnvironmentDef>,
+        _body: &ConstraintSentence,
         _span: Option<&Span>,
     ) -> Result<(), Error> {
         Ok(())
@@ -303,11 +314,18 @@ macro_rules! walk_annotations {
                             cons.name(),
                             body.value(),
                             body.language(),
-                            cons.source_span(),
+                            body.source_span(),
                         )?;
                     }
-                    ConstraintBody::Formal(_) => todo!(),
-                },
+                    ConstraintBody::Formal(body) => {
+                        $walker.formal_constraint(
+                            cons.name(),
+                            &body.definitions(),
+                            body.body(),
+                            body.source_span(),
+                        )?;
+                    }
+                }
             }
         }
     };
