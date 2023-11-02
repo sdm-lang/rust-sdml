@@ -21,16 +21,16 @@ walk_module(&some_module, &mut MyModuleWalker::default());
 
 */
 
-use crate::model::constraints::{EnvironmentDef, ConstraintSentence};
-use crate::model::members::HasType;
 use crate::error::Error;
 use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
+use crate::model::constraints::{ConstraintSentence, EnvironmentDef};
 use crate::model::definitions::{
     DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasGroups, HasMembers,
     HasVariants, PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, TypeVariant, UnionDef,
 };
 use crate::model::identifiers::{Identifier, IdentifierReference};
+use crate::model::members::HasType;
 use crate::model::members::{Cardinality, HasCardinality, Member, MemberGroup, TypeReference};
 use crate::model::modules::{Import, Module};
 use crate::model::values::Value;
@@ -325,7 +325,7 @@ macro_rules! walk_annotations {
                             body.source_span(),
                         )?;
                     }
-                }
+                },
             }
         }
     };

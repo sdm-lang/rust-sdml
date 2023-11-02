@@ -26,7 +26,7 @@ use std::{error::Error, fmt::Display};
 pub type FileId = usize;
 
 ///
-/// This type captures the constant components of a particular error. 
+/// This type captures the constant components of a particular error.
 ///
 #[derive(Clone, Debug)]
 pub struct SimpleDiagnostic {

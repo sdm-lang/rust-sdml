@@ -33,7 +33,6 @@ macro_rules! trace_entry {
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///
 pub trait GenerateToFile<F: Default + Debug>: Debug {
-
     ///
     /// Generate from the given module into the provided file path. This method uses the
     /// default value of the format type `F`.
@@ -126,7 +125,7 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     ///
     /// Generate from the given module, in the requested format, into a string.
     ///
-     fn write_to_string_in_format(
+    fn write_to_string_in_format(
         &mut self,
         module: &Module,
         loader: Option<&mut dyn ModuleLoader>,
