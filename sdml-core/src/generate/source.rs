@@ -45,10 +45,19 @@ use std::{fmt::Debug, io::Write};
 #[derive(Debug, Default)]
 pub struct SourceGenerator {}
 
+#[derive(Debug, Default, PartialEq, Eq)]
+pub enum SourceGenerateLevel {
+    #[default]
+    All,
+    MembersUnknown,
+    DefinitionsUnknown,
+}
+
 /// Options that control the generation style or layout.
 #[derive(Debug)]
 pub struct SourceOptions {
     indent_spaces: usize,
+    level: SourceGenerateLevel,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -79,20 +88,40 @@ const MEMBER_ANNOTATION_INDENT: usize = 3;
 
 impl Default for SourceOptions {
     fn default() -> Self {
-        Self { indent_spaces: 2 }
+        Self::new(2)
     }
 }
 
 impl SourceOptions {
-    pub fn indent_spaces(self, value: usize) -> Self {
-        let mut self_mut = self;
-        self_mut.indent_spaces = value;
-        self_mut
+    pub fn new(indent_space_count: usize) -> Self {
+        Self {
+            indent_spaces: indent_space_count,
+            level: SourceGenerateLevel::All
+        }
+    }
+
+    pub fn new_with_level(indent_space_count: usize, level: SourceGenerateLevel) -> Self {
+        Self {
+            indent_spaces: indent_space_count,
+            level
+        }
     }
 
     fn indentation(&self, level: usize) -> String {
         let n = level * self.indent_spaces;
         format!("{:n$}", "")
+    }
+
+    fn generate_definition_bodies(&self) -> bool {
+        self.level == SourceGenerateLevel::All || self.level == SourceGenerateLevel::MembersUnknown
+    }
+
+    fn generate_member_bodies(&self) -> bool {
+        self.level == SourceGenerateLevel::All
+    }
+
+    fn generate_variant_bodies(&self) -> bool {
+        self.level == SourceGenerateLevel::All
     }
 }
 
@@ -277,19 +306,21 @@ impl SourceGenerator {
             .as_bytes(),
         )?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -304,21 +335,23 @@ impl SourceGenerator {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
         writer.write_all(format!("{indentation}entity {}", defn.name()).as_bytes())?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                // TODO: members
+                // TODO: groups
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            // TODO: members
-            // TODO: groups
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -333,25 +366,28 @@ impl SourceGenerator {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
         writer.write_all(format!("{indentation}enum {}", defn.name()).as_bytes())?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" of\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
-            }
-            if body.has_variants() {
-                writer.write_all(b"\n")?;
-                for variant in body.variants() {
-                    self.write_value_variant(variant, writer, options)?;
+
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" of\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
                 }
+                if body.has_variants() {
+                    writer.write_all(b"\n")?;
+                    for variant in body.variants() {
+                        self.write_value_variant(variant, writer, options)?;
+                    }
+                }
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -366,19 +402,21 @@ impl SourceGenerator {
         let indentation = options.indentation(DEFINITION_MEMBER_INDENT);
         writer.write_all(format!("{indentation}{}", variant.name()).as_bytes())?;
 
-        if let Some(body) = variant.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    MEMBER_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_member_bodies() {
+            if let Some(body) = variant.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        MEMBER_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -400,21 +438,23 @@ impl SourceGenerator {
             .as_bytes(),
         )?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                // TODO: members
+                // TODO: groups
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            // TODO: members
-            // TODO: groups
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -429,20 +469,22 @@ impl SourceGenerator {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
         writer.write_all(format!("{indentation}property {}", defn.name()).as_bytes())?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                // TODO: roles
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            // TODO: roles
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -457,21 +499,23 @@ impl SourceGenerator {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
         writer.write_all(format!("{indentation}structure {}", defn.name()).as_bytes())?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                // TODO: members
+                // TODO: groups
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            // TODO: members
-            // TODO: groups
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -486,25 +530,27 @@ impl SourceGenerator {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
         writer.write_all(format!("{indentation}union {}", defn.name()).as_bytes())?;
 
-        if let Some(body) = defn.body() {
-            writer.write_all(b" of\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    DEFINITION_ANNOTATION_INDENT,
-                    options,
-                )?;
-            }
-            if body.has_variants() {
-                writer.write_all(b"\n")?;
-                for variant in body.variants() {
-                    self.write_type_variant(variant, writer, options)?;
+        if options.generate_definition_bodies() {
+            if let Some(body) = defn.body() {
+                writer.write_all(b" of\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                        options,
+                    )?;
                 }
+                if body.has_variants() {
+                    writer.write_all(b"\n")?;
+                    for variant in body.variants() {
+                        self.write_type_variant(variant, writer, options)?;
+                    }
+                }
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())
@@ -523,19 +569,21 @@ impl SourceGenerator {
             writer.write_all(format!(" as {rename}").as_bytes())?;
         }
 
-        if let Some(body) = variant.body() {
-            writer.write_all(b" is\n")?;
-            if body.has_annotations() {
-                self.write_annotations(
-                    body.annotations(),
-                    writer,
-                    MEMBER_ANNOTATION_INDENT,
-                    options,
-                )?;
+        if options.generate_variant_bodies() {
+            if let Some(body) = variant.body() {
+                writer.write_all(b" is\n")?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        MEMBER_ANNOTATION_INDENT,
+                        options,
+                    )?;
+                }
+                writer.write_all(format!("{indentation}end\n").as_bytes())?;
+            } else {
+                writer.write_all(b"\n")?;
             }
-            writer.write_all(format!("{indentation}end\n").as_bytes())?;
-        } else {
-            writer.write_all(b"\n")?;
         }
 
         Ok(())

@@ -93,8 +93,20 @@ enum HighlightFormat {
 
 #[derive(Args, Debug)]
 struct Tags {
+    /// Format to convert into
+    #[arg(short = 'f', long)]
+    #[arg(value_enum)]
+    #[arg(default_value_t = TagFileFormat::CTags)]
+    output_format: TagFileFormat,
+
     #[command(flatten)]
     files: FileArgs,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+enum TagFileFormat {
+    /// ctags format
+    CTags,
 }
 
 #[derive(Args, Debug)]
@@ -310,15 +322,16 @@ impl Execute for Highlight {
 impl Execute for Tags {
     fn execute(&self) -> Result<(), MainError> {
         let loader = self.files.loader();
-        let model = if let Some(module_name) = &self.files.module {
-            loader.load(module_name)?
+
+        let file_name: PathBuf = if let Some(module_name) = &self.files.module {
+            loader.resolver().name_to_path(module_name)?
         } else if let Some(module_file) = &self.files.input_file {
-            loader.load_from_file(module_file.clone())?
+            module_file.clone()
         } else {
-            let stdin = std::io::stdin();
-            let mut handle = stdin.lock();
-            loader.load_from_reader(&mut handle)?
+            unimplemented!("nope");
         };
+
+        let model = loader.load_from_file(file_name.clone())?;
         let model = model.borrow();
 
         info!(
@@ -329,7 +342,10 @@ impl Execute for Tags {
 
         let mut writer = self.files.output_writer()?;
 
-        sdml_generate::actions::tags::write_tags(&model, &mut writer)?;
+        match self.output_format {
+            TagFileFormat::CTags =>
+                sdml_generate::actions::tags::write_ctags(&model, file_name, &mut writer)?,
+        }
 
         Ok(())
     }
