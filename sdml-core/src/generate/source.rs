@@ -96,14 +96,14 @@ impl SourceOptions {
     pub fn new(indent_space_count: usize) -> Self {
         Self {
             indent_spaces: indent_space_count,
-            level: SourceGenerateLevel::All
+            level: SourceGenerateLevel::All,
         }
     }
 
     pub fn new_with_level(indent_space_count: usize, level: SourceGenerateLevel) -> Self {
         Self {
             indent_spaces: indent_space_count,
-            level
+            level,
         }
     }
 
@@ -365,7 +365,6 @@ impl SourceGenerator {
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
         writer.write_all(format!("{indentation}enum {}", defn.name()).as_bytes())?;
-
 
         if options.generate_definition_bodies() {
             if let Some(body) = defn.body() {

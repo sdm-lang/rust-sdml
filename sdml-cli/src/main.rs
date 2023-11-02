@@ -343,8 +343,9 @@ impl Execute for Tags {
         let mut writer = self.files.output_writer()?;
 
         match self.output_format {
-            TagFileFormat::CTags =>
-                sdml_generate::actions::tags::write_ctags(&model, file_name, &mut writer)?,
+            TagFileFormat::CTags => {
+                sdml_generate::actions::tags::write_ctags(&model, file_name, &mut writer)?
+            }
         }
 
         Ok(())

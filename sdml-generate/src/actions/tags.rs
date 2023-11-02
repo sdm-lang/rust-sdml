@@ -10,12 +10,12 @@ YYYYY
 */
 
 use sdml_core::error::Error;
-use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::{HasBody, HasName, HasOptionalBody, HasSourceSpan};
 use sdml_core::model::definitions::{Definition, HasVariants};
+use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
+use sdml_core::model::{HasBody, HasName, HasOptionalBody, HasSourceSpan};
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{PathBuf, Path};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -30,13 +30,13 @@ use std::path::PathBuf;
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> Result<(), Error> {
-    let mut tags: Vec<(String,String)> = Default::default();
+    let mut tags: Vec<(String, String)> = Default::default();
     tags.push(ctag_line(module, &file_name));
 
     for defn in module.body().definitions() {
         tags.push(ctag_line(defn, &file_name));
         match defn {
-            Definition::Datatype(_) => {},
+            Definition::Datatype(_) => {}
             Definition::Entity(v) => {
                 if let Some(body) = v.body() {
                     tags.push(ctag_line(body.identity(), &file_name));
@@ -45,7 +45,7 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
                     }
                 }
             }
-            Definition::Enum(v) =>  {
+            Definition::Enum(v) => {
                 if let Some(body) = v.body() {
                     for variant in body.variants() {
                         tags.push(ctag_line(variant, &file_name));
@@ -118,14 +118,21 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
 // ------------------------------------------------------------------------------------------------
 
 #[inline(always)]
-fn ctag_line(named: &impl HasName, file_name: &PathBuf) -> (String, String) {
+fn ctag_line(named: &impl HasName, file_name: &Path) -> (String, String) {
     ctag_line_from(named.name(), file_name)
 }
 
 #[inline(always)]
-fn ctag_line_from(name: &Identifier, file_name: &PathBuf) -> (String, String) {
+fn ctag_line_from(name: &Identifier, file_name: &Path) -> (String, String) {
     let file_name = file_name.to_str().unwrap();
-    (name.to_string(), format!("{}\t{}go", file_name, name.source_span().unwrap().start() + 1))
+    (
+        name.to_string(),
+        format!(
+            "{}\t{}go",
+            file_name,
+            name.source_span().unwrap().start() + 1
+        ),
+    )
 }
 
 // ------------------------------------------------------------------------------------------------
