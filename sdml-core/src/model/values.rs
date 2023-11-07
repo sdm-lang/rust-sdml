@@ -207,12 +207,6 @@ impl From<Binary> for Value {
     }
 }
 
-//impl From<Box<Binary>> for Value {
-//    fn from(v: Box<Binary>) -> Self {
-//        Self::Simple(SimpleValue::Binary(v))
-//    }
-//}
-
 impl From<ValueConstructor> for Value {
     fn from(v: ValueConstructor) -> Self {
         Self::ValueConstructor(v)
@@ -239,9 +233,105 @@ impl From<SequenceOfValues> for Value {
 
 enum_display_impl!(Value => Simple, ValueConstructor, Reference, Mapping, List);
 
+impl Value {
+    is_as_variant!(Simple (SimpleValue) => is_simple, as_simple);
+    is_as_variant!(ValueConstructor (ValueConstructor) => is_value_constructor, as_value_constructor);
+    is_as_variant!(Mapping (MappingValue) => is_mapping_value, as_mapping_value);
+    is_as_variant!(Reference (IdentifierReference) => is_reference, as_reference);
+    is_as_variant!(List (SequenceOfValues) => is_sequence, as_sequence);
+
+    pub fn is_boolean(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::Boolean(_)))
+    }
+
+    pub fn as_boolean(&self) -> Option<bool> {
+        match self {
+            Self::Simple(SimpleValue::Boolean(v)) => Some(*v),
+            _ => None,
+        }
+    }
+
+    pub fn is_double(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::Double(_)))
+    }
+
+    pub fn as_double(&self) -> Option<OrderedFloat<f64>> {
+        match self {
+            Self::Simple(SimpleValue::Double(v)) => Some(*v),
+            _ => None,
+        }
+    }
+
+    pub fn is_decimal(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::Decimal(_)))
+    }
+
+    pub fn as_decimal(&self) -> Option<Decimal> {
+        match self {
+            Self::Simple(SimpleValue::Decimal(v)) => Some(*v),
+            _ => None,
+        }
+    }
+
+    pub fn is_integer(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::Integer(_)))
+    }
+
+    pub fn as_integer(&self) -> Option<i64> {
+        match self {
+            Self::Simple(SimpleValue::Integer(v)) => Some(*v),
+            _ => None,
+        }
+    }
+
+    pub fn is_unsigned(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::Unsigned(_)))
+    }
+
+    pub fn as_unsigned(&self) -> Option<u64> {
+        match self {
+            Self::Simple(SimpleValue::Unsigned(v)) => Some(*v),
+            _ => None,
+        }
+    }
+
+    pub fn is_string(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::String(_)))
+    }
+
+    pub fn as_string(&self) -> Option<&LanguageString> {
+        match self {
+            Self::Simple(SimpleValue::String(v)) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_iri(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::IriReference(_)))
+    }
+
+    pub fn as_iri(&self) -> Option<&Url> {
+        match self {
+            Self::Simple(SimpleValue::IriReference(v)) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_binary(&self) -> bool {
+        matches!(self, Self::Simple(SimpleValue::Binary(_)))
+    }
+
+    pub fn as_binary(&self) -> Option<&Binary> {
+        match self {
+            Self::Simple(SimpleValue::Binary(v)) => Some(v),
+            _ => None,
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
-impl_from_for_variant!(SimpleValue, String, LanguageString);
+impl_from_for_variant!(SimpleValue, Boolean, bool);
 
 impl_from_for_variant!(SimpleValue, Double, OrderedFloat<f64>);
 
@@ -251,7 +341,7 @@ impl_from_for_variant!(SimpleValue, Integer, i64);
 
 impl_from_for_variant!(SimpleValue, Unsigned, u64);
 
-impl_from_for_variant!(SimpleValue, Boolean, bool);
+impl_from_for_variant!(SimpleValue, String, LanguageString);
 
 impl_from_for_variant!(SimpleValue, IriReference, Url);
 
@@ -260,6 +350,17 @@ impl_from_for_variant!(SimpleValue, Binary, Binary);
 enum_display_impl!(
     SimpleValue => Double, Decimal, Integer, Unsigned, Boolean, IriReference, String, Binary
 );
+
+impl SimpleValue {
+    is_as_variant!(Boolean (bool) => is_boolean, as_boolean);
+    is_as_variant!(Double (OrderedFloat<f64>) => is_double, as_double);
+    is_as_variant!(Decimal (Decimal) => is_decimal, as_decimal);
+    is_as_variant!(Integer (i64) => is_integer, as_integer);
+    is_as_variant!(Unsigned (u64) => is_unsigned, as_unsigned);
+    is_as_variant!(String (LanguageString) => is_string, as_string);
+    is_as_variant!(IriReference (Url) => is_iri, as_iri);
+    is_as_variant!(Binary (Binary) => is_binary, as_binary);
+}
 
 // ------------------------------------------------------------------------------------------------
 

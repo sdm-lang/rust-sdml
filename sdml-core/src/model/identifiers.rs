@@ -1,5 +1,6 @@
 use super::Span;
 use crate::error::invalid_identifier_error;
+use convert_case::{Case, Casing};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -88,7 +89,7 @@ const RESERVED_KEYWORDS: [&str; 19] = [
     "unknown",
 ];
 const RESERVED_TYPES: [&str; 6] = ["string", "double", "decimal", "integer", "boolean", "iri"];
-const RESERVED_MODULES: [&str; 6] = ["owl", "rdf", "rdfs", "sdml", "xml", "xsd"];
+const RESERVED_MODULES: [&str; 8] = ["dc", "owl", "rdf", "rdfs", "sdml", "skos", "xml", "xsd"];
 
 // ------------------------------------------------------------------------------------------------
 
@@ -145,6 +146,18 @@ impl PartialEq for Identifier {
 
 impl Eq for Identifier {}
 
+impl PartialOrd for Identifier {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.value.partial_cmp(&other.value)
+    }
+}
+
+impl Ord for Identifier {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.value.cmp(&other.value)
+    }
+}
+
 impl Hash for Identifier {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         // ignore: self.span.hash(state);
@@ -196,13 +209,33 @@ impl Identifier {
     }
 
     #[inline(always)]
-    pub fn is_reserved_module_name(s: &str) -> bool {
+    pub fn is_library_module_name(s: &str) -> bool {
         RESERVED_MODULES.contains(&s)
     }
 
     #[inline(always)]
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
+    }
+
+    #[inline(always)]
+    pub fn to_type_label(&self) -> String {
+        self.value.to_case(Case::Title)
+    }
+
+    #[inline(always)]
+    pub fn to_variant_label(&self) -> String {
+        self.to_type_label()
+    }
+
+    #[inline(always)]
+    pub fn to_member_label(&self) -> String {
+        self.value.to_case(Case::Lower)
+    }
+
+    #[inline(always)]
+    pub fn to_module_label(&self) -> String {
+        self.to_member_label()
     }
 }
 
@@ -379,3 +412,43 @@ impl IdentifierReference {
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::Identifier;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_type_label() {
+        assert_eq!("Foo", Identifier::new_unchecked("Foo").to_type_label());
+        assert_eq!(
+            "Foo Bar",
+            Identifier::new_unchecked("FooBar").to_type_label()
+        );
+        assert_eq!(
+            "Foo Bar Baz",
+            Identifier::new_unchecked("FooBarBaz").to_type_label()
+        );
+        assert_eq!(
+            "Foo Bar Baz",
+            Identifier::new_unchecked("Foo_Bar_Baz").to_type_label()
+        );
+    }
+
+    #[test]
+    fn test_member_label() {
+        assert_eq!("foo", Identifier::new_unchecked("Foo").to_member_label());
+        assert_eq!(
+            "foo bar",
+            Identifier::new_unchecked("FooBar").to_member_label()
+        );
+        assert_eq!(
+            "foo bar baz",
+            Identifier::new_unchecked("FooBarBaz").to_member_label()
+        );
+        assert_eq!(
+            "foo bar baz",
+            Identifier::new_unchecked("Foo_Bar_Baz").to_member_label()
+        );
+    }
+}

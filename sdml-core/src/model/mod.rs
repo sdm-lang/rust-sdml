@@ -40,12 +40,50 @@ pub trait HasName {
 }
 
 pub trait HasNameReference {
+    /// Get the name reference for the enclosing type.
     fn name_reference(&self) -> &IdentifierReference;
+    /// Set the name reference for the enclosing type.
     fn set_name_reference(&mut self, name: IdentifierReference);
 }
 
+pub trait Namespace<T>
+where
+    T: HasName,
+{
+    /// Returns `true` of the namespace contains any members, else `false`.
+    fn has_members(&self) -> bool;
+
+    /// Returns the number of members in the namespace.
+    fn member_count(&self) -> usize;
+
+    /// Returns `true` if the namespace contains a member named `name`, else `false`.
+    fn contains_member(&self, name: &Identifier) -> bool;
+
+    /// Return the member with the name `name`, if present.
+    fn member(&self, name: &Identifier) -> Option<&T>;
+
+    /// Returns an iterator over all members in the namespace.
+    fn members(&self) -> Box<dyn Iterator<Item = &T> + '_>;
+
+    /// Returns an iterator over mutable members in the namespace.
+    fn members_mut(&mut self) -> Box<dyn Iterator<Item = &mut T> + '_>;
+
+    /// Returns an iterator over the names of namespace members.
+    fn member_names(&self) -> Box<dyn Iterator<Item = &Identifier> + '_>;
+
+    /// Add a member to the namespace. If a member already existed with the same name it
+    /// will be returned.
+    fn add_to_members(&mut self, value: T) -> Option<T>;
+
+    /// Add the members of the extension to the namespace. Any existing members with
+    /// the same names will be replaced.
+    fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = T>;
+}
+
 ///
-/// This trait is implemented by types that have a distinct, but optional, /body/ type.
+/// This trait is implemented by types that have a distinct, but optional, *body* type.
 ///
 pub trait HasOptionalBody<T> {
     fn has_body(&self) -> bool {

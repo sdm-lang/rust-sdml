@@ -11,9 +11,8 @@ YYYYY
 
 use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
+use crate::GenerateToWriter;
 use sdml_core::error::Error;
-use sdml_core::generate::GenerateToWriter;
-use sdml_core::load::ModuleLoader;
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::members::{
     Cardinality, HasCardinality, HasType, TypeReference, DEFAULT_CARDINALITY,
@@ -56,12 +55,11 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
     fn write_in_format(
         &mut self,
         module: &Module,
-        loader: Option<&mut dyn ModuleLoader>,
         writer: &mut dyn Write,
         format: OutputFormat,
     ) -> Result<(), Error> {
         let mut buffer = Vec::new();
-        write_module(module, loader, &mut buffer)?;
+        write_module(module, &mut buffer)?;
 
         if format == OutputFormat::Source {
             writer.write_all(&buffer)?;
@@ -81,11 +79,7 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
     }
 }
 
-fn write_module(
-    me: &Module,
-    _loader: Option<&mut dyn ModuleLoader>,
-    writer: &mut dyn Write,
-) -> Result<(), Error> {
+fn write_module(me: &Module, writer: &mut dyn Write) -> Result<(), Error> {
     writer.write_all(
         r#"digraph G {
   bgcolor="transparent";

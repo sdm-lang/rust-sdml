@@ -61,11 +61,9 @@ generators.
 // Modules
 // ------------------------------------------------------------------------------------------------
 
+pub mod cache;
+
 pub mod error;
-
-pub mod generate;
-
-pub mod load;
 
 pub mod model;
 

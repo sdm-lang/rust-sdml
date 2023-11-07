@@ -8,7 +8,8 @@ use std::{collections::HashSet, fmt::Debug};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use super::References;
+use super::values::{LanguageString, LanguageTag};
+use super::{HasName, References};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Traits
@@ -39,6 +40,38 @@ pub trait HasAnnotations {
         Box::new(
             self.annotations()
                 .filter_map(|a| a.as_annotation_property()),
+        )
+    }
+
+    fn preferred_label(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
+        Box::new(
+            self.annotation_properties()
+                .filter(|ann| ann.name_reference() == "skos:prefLabel")
+                .filter_map(|ann| ann.value().as_string()),
+        )
+    }
+
+    fn alternate_labels(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
+        Box::new(
+            self.annotation_properties()
+                .filter(|ann| ann.name_reference() == "skos:altLabel")
+                .filter_map(|ann| ann.value().as_string()),
+        )
+    }
+
+    fn descriptions(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
+        Box::new(
+            self.annotation_properties()
+                .filter(|ann| ann.name_reference() == "dc:description")
+                .filter_map(|ann| ann.value().as_string()),
+        )
+    }
+
+    fn definition(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
+        Box::new(
+            self.annotation_properties()
+                .filter(|ann| ann.name_reference() == "skos:definition")
+                .filter_map(|ann| ann.value().as_string()),
         )
     }
 
@@ -81,16 +114,19 @@ pub struct AnnotationOnlyBody {
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn skos_pref_label(element: &impl HasAnnotations) -> impl Iterator<Item = &AnnotationProperty> {
-    element
-        .annotation_properties()
-        .filter(|ann| ann.name_reference() == "skos:prefLabel")
-}
+pub fn preferred_type_label<T: HasAnnotations + HasName>(
+    element: T,
+    _for_language: Option<LanguageTag>,
+) -> String {
+    let labels: Vec<&LanguageString> = element.preferred_label().collect();
 
-pub fn skos_alt_label(element: &impl HasAnnotations) -> impl Iterator<Item = &AnnotationProperty> {
-    element
-        .annotation_properties()
-        .filter(|ann| ann.name_reference() == "skos:altLabel")
+    // TODO: match by language
+
+    if labels.is_empty() {
+        element.name().to_type_label()
+    } else {
+        element.name().to_string()
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

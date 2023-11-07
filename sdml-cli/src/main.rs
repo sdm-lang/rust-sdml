@@ -1,16 +1,14 @@
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
+use sdml_core::cache::ModuleCache;
 use sdml_core::error::{tracing_filter_error, tracing_subscriber_error};
 use sdml_core::model::identifiers::Identifier;
+use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
-use sdml_generate::convert::org::OrgFileGenerator;
 use sdml_generate::{GenerateToFile, GenerateToWriter};
-use sdml_parse::load::{ModuleLoader, ModuleResolver};
-use sdml_parse::{ModuleLoader as LoaderTrait, ModuleResolver as ResolverTrait};
-use std::fmt::Display;
+use sdml_parse::load::{load_module_dependencies, ModuleLoader, ModuleResolver};
 use std::io::Read;
 use std::path::PathBuf;
-use std::str::FromStr;
 use tracing::{debug, info};
 use tracing_subscriber::filter::EnvFilter;
 use tracing_subscriber::FmtSubscriber;
@@ -36,17 +34,23 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Highlight an SDML source file
-    Highlight(Highlight),
-    /// Extract tags from an SDML Module
+    /// Document a module
+    Doc(Doc),
+    /// Show module dependencies
+    Deps(Deps),
+    /// Extract tags from a module
     Tags(Tags),
-    /// Convert SDML modules into other formats
+    /// Syntax highlight a module source
+    Highlight(Highlight),
+    /// Convert a module into other formats
     Convert(Convert),
-    /// Draw diagrams from SDML modules
+    /// Draw diagrams from a module
     Draw(Draw),
     /// Show tool and library versions.
     Version,
 }
+
+// ------------------------------------------------------------------------------------------------
 
 #[derive(Args, Debug)]
 struct FileArgs {
@@ -68,6 +72,8 @@ struct FileArgs {
     #[arg(short, long, conflicts_with = "module")]
     input_file: Option<PathBuf>,
 }
+
+// ------------------------------------------------------------------------------------------------
 
 #[derive(Args, Debug)]
 struct Highlight {
@@ -91,6 +97,58 @@ enum HighlightFormat {
     HtmlStandalone,
 }
 
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Args, Debug)]
+struct Deps {
+    /// Format to convert into
+    #[arg(short = 'f', long)]
+    #[arg(value_enum)]
+    #[arg(default_value_t = DepsFormat::Tree)]
+    output_format: DepsFormat,
+
+    /// Depth to traverse imports
+    #[arg(short = 'd', long)]
+    depth: usize,
+
+    #[command(flatten)]
+    files: FileArgs,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+enum DepsFormat {
+    /// hierarchical tree format
+    Tree,
+    /// GraphViz DOT format
+    Graph,
+    /// as RDF/OWL import triples
+    Rdf,
+}
+
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Args, Debug)]
+struct Doc {
+    /// Format to convert into
+    #[arg(short = 'f', long)]
+    #[arg(value_enum)]
+    #[arg(default_value_t = DocFormat::OrgMode)]
+    output_format: DocFormat,
+
+    #[command(flatten)]
+    files: FileArgs,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+enum DocFormat {
+    /// Emacs org-mode
+    OrgMode,
+    /// Markdown
+    Markdown,
+}
+
+// ------------------------------------------------------------------------------------------------
+
 #[derive(Args, Debug)]
 struct Tags {
     /// Format to convert into
@@ -108,6 +166,8 @@ enum TagFileFormat {
     /// ctags format
     CTags,
 }
+
+// ------------------------------------------------------------------------------------------------
 
 #[derive(Args, Debug)]
 struct Convert {
@@ -130,13 +190,13 @@ struct Convert {
 
 #[derive(ValueEnum, Clone, Debug)]
 enum ConvertFormat {
-    /// Emacs Org Mode Documentation
-    Org,
     /// RDF Abstract Model
     Rdf,
     /// S-Expressions
     SExpr,
 }
+
+// ------------------------------------------------------------------------------------------------
 
 #[derive(Args, Debug)]
 struct Draw {
@@ -233,6 +293,8 @@ impl Execute for Commands {
     fn execute(&self) -> Result<(), MainError> {
         match self {
             Commands::Highlight(cmd) => cmd.execute(),
+            Commands::Doc(cmd) => cmd.execute(),
+            Commands::Deps(cmd) => cmd.execute(),
             Commands::Tags(cmd) => cmd.execute(),
             Commands::Convert(cmd) => cmd.execute(),
             Commands::Draw(cmd) => cmd.execute(),
@@ -255,11 +317,11 @@ impl Execute for Commands {
 
 impl FileArgs {
     fn loader(&self) -> ModuleLoader {
-        let resolver = ModuleResolver::default();
+        let mut resolver = ModuleResolver::default();
         if let Some(base) = &self.base_path {
             resolver.prepend_to_search_path(base)
         }
-        ModuleLoader::from(resolver)
+        ModuleLoader::default().with_resolver(resolver)
     }
 
     fn output_writer(&self) -> Result<Box<dyn std::io::Write>, MainError> {
@@ -316,12 +378,68 @@ impl Execute for Highlight {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Command Wrappers ❱ Tags
+// Command Wrappers ❱ Dependencies
 // ------------------------------------------------------------------------------------------------
 
-impl Execute for Tags {
+impl Execute for Deps {
     fn execute(&self) -> Result<(), MainError> {
-        let loader = self.files.loader();
+        let mut cache = ModuleCache::default().with_stdlib();
+        let mut loader = self.files.loader();
+
+        let file_name: PathBuf = if let Some(module_name) = &self.files.module {
+            loader.resolver().name_to_path(module_name)?
+        } else if let Some(module_file) = &self.files.input_file {
+            module_file.clone()
+        } else {
+            unimplemented!("nope");
+        };
+
+        let module = loader.load_from_file(file_name.clone())?;
+
+        info!(
+            "Loaded module: {}, is_complete: {:?}",
+            module.name(),
+            module.is_complete()
+        );
+
+        if self.depth > 1 {
+            load_module_dependencies(&module, true, &mut cache, &mut loader)?;
+        }
+
+        let mut writer = self.files.output_writer()?;
+
+        match self.output_format {
+            DepsFormat::Tree => sdml_generate::actions::deps::write_dependency_tree(
+                &module,
+                &cache,
+                self.depth,
+                &mut writer,
+            )?,
+            DepsFormat::Graph => sdml_generate::actions::deps::write_dependency_graph(
+                &module,
+                &cache,
+                self.depth,
+                &mut writer,
+            )?,
+            DepsFormat::Rdf => sdml_generate::actions::deps::write_dependency_rdf(
+                &module,
+                &cache,
+                self.depth,
+                &mut writer,
+            )?,
+        }
+
+        Ok(())
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Command Wrappers ❱ Document
+// ------------------------------------------------------------------------------------------------
+
+impl Execute for Doc {
+    fn execute(&self) -> Result<(), MainError> {
+        let mut loader = self.files.loader();
 
         let file_name: PathBuf = if let Some(module_name) = &self.files.module {
             loader.resolver().name_to_path(module_name)?
@@ -332,7 +450,64 @@ impl Execute for Tags {
         };
 
         let model = loader.load_from_file(file_name.clone())?;
-        let model = model.borrow();
+
+        info!(
+            "Loaded module: {}, is_complete: {:?}",
+            model.name(),
+            model.is_complete()
+        );
+
+        match self.output_format {
+            DocFormat::OrgMode => {
+                let source = loader.get_source(model.name());
+                if let Some(source) = source {
+                    let mut generator =
+                        sdml_generate::convert::org::OrgFileGenerator::with_source(source.as_ref());
+                    self.write_org(&model, &mut generator)?;
+                } else {
+                    let mut generator = sdml_generate::convert::org::OrgFileGenerator::default();
+                    self.write_org(&model, &mut generator)?;
+                };
+            }
+            DocFormat::Markdown => {}
+        }
+
+        Ok(())
+    }
+}
+
+impl Doc {
+    fn write_org(
+        &self,
+        model: &Module,
+        generator: &mut sdml_generate::convert::org::OrgFileGenerator,
+    ) -> Result<(), MainError> {
+        if let Some(path) = &self.files.output_file {
+            generator.write_to_file_in_format(&model, path, Default::default())?;
+        } else {
+            generator.write_in_format(&model, &mut std::io::stdout(), Default::default())?;
+        }
+        Ok(())
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Command Wrappers ❱ Tags
+// ------------------------------------------------------------------------------------------------
+
+impl Execute for Tags {
+    fn execute(&self) -> Result<(), MainError> {
+        let mut loader = self.files.loader();
+
+        let file_name: PathBuf = if let Some(module_name) = &self.files.module {
+            loader.resolver().name_to_path(module_name)?
+        } else if let Some(module_file) = &self.files.input_file {
+            module_file.clone()
+        } else {
+            unimplemented!("nope");
+        };
+
+        let model = loader.load_from_file(file_name.clone())?;
 
         info!(
             "Loaded module: {}, is_complete: {:?}",
@@ -358,6 +533,7 @@ impl Execute for Tags {
 
 impl Execute for Convert {
     fn execute(&self) -> Result<(), MainError> {
+        //let cache = ModuleCache::default().with_stdlib();
         let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
             loader.load(module_name)?
@@ -368,7 +544,6 @@ impl Execute for Convert {
             let mut handle = stdin.lock();
             loader.load_from_reader(&mut handle)?
         };
-        let model = model.borrow();
 
         info!(
             "loaded module: {}, is_complete: {:?}",
@@ -379,27 +554,6 @@ impl Execute for Convert {
         let mut writer = self.files.output_writer()?;
 
         match self.output_format {
-            ConvertFormat::Org => {
-                if let Some(path) = &self.files.output_file {
-                    let mut generator: OrgFileGenerator =
-                        sdml_generate::convert::org::OrgFileGenerator::default();
-                    generator.write_to_file_in_format(
-                        &model,
-                        Some(&mut loader),
-                        path,
-                        Default::default(),
-                    )?;
-                } else {
-                    let mut generator: OrgFileGenerator =
-                        sdml_generate::convert::org::OrgFileGenerator::default();
-                    generator.write_in_format(
-                        &model,
-                        Some(&mut loader),
-                        &mut std::io::stdout(),
-                        Default::default(),
-                    )?;
-                }
-            }
             ConvertFormat::Rdf => {
                 sdml_generate::convert::rdf::write_as_rdf(&model, &mut writer)?;
             }
@@ -418,6 +572,7 @@ impl Execute for Convert {
 
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
+        //let cache = ModuleCache::default().with_stdlib();
         let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
             let loader = &mut loader;
@@ -431,7 +586,6 @@ impl Execute for Draw {
             let mut handle = stdin.lock();
             loader.load_from_reader(&mut handle)?
         };
-        let model = model.borrow();
 
         info!(
             "loaded module: {}, is_complete: {:?}",
@@ -448,36 +602,26 @@ impl Execute for Draw {
                 if let Some(path) = &self.files.output_file {
                     let mut generator =
                         sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    generator.write_to_file_in_format(&model, Some(&mut loader), path, format)?;
+                    generator.write_to_file_in_format(&model, path, format)?;
                 } else {
                     let mut generator =
                         sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    generator.write_in_format(
-                        &model,
-                        Some(&mut loader),
-                        &mut std::io::stdout(),
-                        format,
-                    )?;
+                    generator.write_in_format(&model, &mut std::io::stdout(), format)?;
                 }
             }
             DrawDiagram::EntityRelationship => {
                 if let Some(path) = &self.files.output_file {
                     let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    generator.write_to_file_in_format(&model, Some(&mut loader), path, format)?;
+                    generator.write_to_file_in_format(&model, path, format)?;
                 } else {
                     let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    generator.write_in_format(
-                        &model,
-                        Some(&mut loader),
-                        &mut std::io::stdout(),
-                        format,
-                    )?;
+                    generator.write_in_format(&model, &mut std::io::stdout(), format)?;
                 }
             }
             DrawDiagram::UmlClass => {
                 if let Some(path) = &self.files.output_file {
                     let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default();
-                    generator.write_to_file_in_format(&model, Some(&mut loader), path, format)?;
+                    generator.write_to_file_in_format(&model, path, format)?;
                 } else {
                     panic!();
                 }
@@ -489,105 +633,12 @@ impl Execute for Draw {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Formats ❱ Conversion
-// ------------------------------------------------------------------------------------------------
-
-// TODO: default?
-
-impl Display for ConvertFormat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Org => "org",
-                Self::Rdf => "rdf",
-                Self::SExpr => "s-expr",
-            }
-        )
-    }
-}
-
-impl FromStr for ConvertFormat {
-    type Err = sdml_core::error::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "org" => Ok(Self::Org),
-            "rdf" => Ok(Self::Rdf),
-            "s-expr" => Ok(Self::SExpr),
-            _ => panic!(),
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Formats ❱ Diagram Kind
-// ------------------------------------------------------------------------------------------------
-
-// TODO: default?
-
-//impl Display for DrawDiagram {
-//    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//        write!(
-//            f,
-//            "{}",
-//            match self {
-//                Self::Concepts => "concepts",
-//                Self::EntityRelationship => "entity-relationship",
-//                Self::UmlClass => "uml-class",
-//            }
-//        )
-//    }
-//}
-//
-//impl FromStr for DrawDiagram {
-//    type Err = sdml_core::error::Error;
-//
-//    fn from_str(s: &str) -> Result<Self, Self::Err> {
-//        match s {
-//            "concepts" => Ok(Self::Concepts),
-//            "entity-relationship" | "erd" => Ok(Self::EntityRelationship),
-//            "uml-class" | "uml" => Ok(Self::UmlClass),
-//            _ => panic!(),
-//        }
-//    }
-//}
-
-// ------------------------------------------------------------------------------------------------
 // Formats ❱ Diagram Format
 // ------------------------------------------------------------------------------------------------
 
 impl Default for HighlightFormat {
     fn default() -> Self {
         Self::Ansi
-    }
-}
-
-impl Display for HighlightFormat {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Ansi => "ansi",
-                Self::Html => "html",
-                Self::HtmlStandalone => "html-standalone",
-            }
-        )
-    }
-}
-
-impl FromStr for HighlightFormat {
-    type Err = sdml_core::error::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "ansi" => Ok(Self::Ansi),
-            "html" => Ok(Self::Html),
-            "html-standalone" => Ok(Self::HtmlStandalone),
-            _ => panic!(),
-        }
     }
 }
 
@@ -598,35 +649,6 @@ impl Default for DiagramFormat {
         Self::Source
     }
 }
-
-//impl Display for DiagramFormat {
-//    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//        write!(
-//            f,
-//            "{}",
-//            match self {
-//                Self::Source => "src",
-//                Self::Jpeg => "jpg",
-//                Self::Png => "png",
-//                Self::Svg => "svg",
-//            }
-//        )
-//    }
-//}
-//
-//impl FromStr for DiagramFormat {
-//    type Err = sdml_core::error::Error;
-//
-//    fn from_str(s: &str) -> Result<Self, Self::Err> {
-//        match s {
-//            "src" | "source" => Ok(Self::Source),
-//            "jpg" | "jpeg" => Ok(Self::Jpeg),
-//            "png" => Ok(Self::Png),
-//            "svg" => Ok(Self::Svg),
-//            _ => panic!(),
-//        }
-//    }
-//}
 
 impl From<DiagramFormat> for sdml_generate::draw::OutputFormat {
     fn from(v: DiagramFormat) -> Self {

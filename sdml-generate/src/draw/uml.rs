@@ -11,9 +11,8 @@ YYYYY
 
 use crate::draw::OutputFormat;
 use crate::exec::{exec_with_temp_input, CommandArg};
+use crate::GenerateToFile;
 use sdml_core::error::Error;
-use sdml_core::generate::GenerateToFile;
-use sdml_core::load::ModuleLoader;
 use sdml_core::model::constraints::ControlledLanguageTag;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{
@@ -74,7 +73,6 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
-        _loader: Option<&mut dyn ModuleLoader>,
         path: &Path,
         format: OutputFormat,
     ) -> Result<(), Error> {
