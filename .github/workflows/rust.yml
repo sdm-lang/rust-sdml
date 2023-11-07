@@ -217,6 +217,8 @@ jobs:
       
     - name: Generate documentation
       uses: actions-rs/cargo@v1
+      env:
+        RUSTDOCFLAGS: -D warnings
       with:
         command: doc
         args: --workspace --all-features --no-deps
