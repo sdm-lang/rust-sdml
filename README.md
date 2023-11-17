@@ -1,19 +1,6 @@
 # Project SDML 
 
-```
-        ___          _____          ___ 
-       /  /\        /  /::\        /__/\ 
-      /  /:/_      /  /:/\:\      |  |::\ 
-     /  /:/ /\    /  /:/  \:\     |  |:|:\    ___     ___ 
-    /  /:/ /::\  /__/:/ \__\:|  __|__|:|\:\  /__/\   /  /\ 
-   /__/:/ /:/\:\ \  \:\ /  /:/ /__/::::| \:\ \  \:\ /  /:/ 
-   \  \:\/:/~/:/  \  \:\  /:/  \  \:\~~\__\/  \  \:\  /:/ 
-    \  \::/ /:/    \  \:\/:/    \  \:\         \  \:\/:/ 
-     \__\/ /:/      \  \::/      \  \:\         \  \::/ 
-       /__/:/        \__\/        \  \:\         \__\/ 
-       \__\/          Domain       \__\/          Language
-        Simple                      Modeling
-```
+![SDML Logo Text](https://raw.githubusercontent.com/sdm-lang/.github/main/profile/horizontal-text.svg)
 
 Rust Library and Tools for the Simple Domain Modeling Language (SDML).
 
@@ -68,6 +55,10 @@ Finally, if no module name is specified the tool will read from `stdin`.
 | highlight | html-standalone     | **Complete** |
 | tags      |                     | Not started  |
 | check     |                     | Not started  |
+
+## License
+
+This package is released under the Apache License, Version 2.0. See LICENSE file for details.
 
 # Changes
 
