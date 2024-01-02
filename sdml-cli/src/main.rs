@@ -19,6 +19,10 @@ const CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
 // Command-Line Arguments
 // ------------------------------------------------------------------------------------------------
 
+// TODO: Consider adding build.rs for man-file generation using https://crates.io/crates/clap_mangen
+
+// TODO: Add support for external sub-commands https://docs.rs/clap/latest/clap/struct.Command.html#method.allow_external_subcommands
+
 /// Command-Line Interface (CLI) for the SDML language, primarily for verification and translation
 /// from SDML source to other formats.
 #[derive(Parser, Debug)]
@@ -31,6 +35,8 @@ struct Cli {
     #[command(subcommand)]
     command: Commands,
 }
+
+// TODO: Consider using crate https://docs.rs/clap_complete to add completion generation.
 
 #[derive(Subcommand, Debug)]
 enum Commands {
@@ -51,6 +57,7 @@ enum Commands {
 }
 
 // ------------------------------------------------------------------------------------------------
+// TODO: Consider using crate https://docs.rs/clio instead
 
 #[derive(Args, Debug)]
 struct FileArgs {
@@ -483,9 +490,9 @@ impl Doc {
         generator: &mut sdml_generate::convert::org::OrgFileGenerator,
     ) -> Result<(), MainError> {
         if let Some(path) = &self.files.output_file {
-            generator.write_to_file_in_format(&model, path, Default::default())?;
+            generator.write_to_file_in_format(model, path, Default::default())?;
         } else {
-            generator.write_in_format(&model, &mut std::io::stdout(), Default::default())?;
+            generator.write_in_format(model, &mut std::io::stdout(), Default::default())?;
         }
         Ok(())
     }
