@@ -1,18 +1,19 @@
-module Campaign is
+module constraints is
 
-  entity Campaign is
+  entity Constrained is
 
-    identity a -> CampaignId
+    identity id -> string
 
-    b -> xsd:string is
-      assert not_null = "self is not null"
+    is_thing -> boolean
+
+    has_thing -> {0..1} string is
+      assert not_null = "if is_thing then has_thing is not null"
     end
 
-    ref c -> Target is
-      assert check_tags is
-        ∀ self (contains(self.tags "foo"))
+    has_other_thing -> {0..1} string is
+      assert also_not_null is
+        ∀ self, has_thing(container(self)) ==> not empty(self)
       end
-
     end
 
   end
