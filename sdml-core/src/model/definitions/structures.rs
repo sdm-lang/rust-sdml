@@ -85,8 +85,7 @@ impl References for StructureBody {
     }
 
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.members()
-            .for_each(|m| m.referenced_annotations(names));
+        self.members().for_each(|m| m.referenced_annotations(names));
     }
 }
 

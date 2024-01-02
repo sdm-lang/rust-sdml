@@ -108,8 +108,7 @@ impl_validate_for_annotations_and_members!(EntityBody);
 
 impl References for EntityBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.members()
-            .for_each(|m| m.referenced_annotations(names))
+        self.members().for_each(|m| m.referenced_annotations(names))
     }
 
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {

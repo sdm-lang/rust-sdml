@@ -38,7 +38,6 @@ pub const NODE_KIND_DOUBLE: &str = "double";
 
 pub const NODE_KIND_ENTITY_BODY: &str = "entity_body";
 pub const NODE_KIND_ENTITY_DEF: &str = "entity_def";
-pub const NODE_KIND_ENTITY_GROUP: &str = "entity_group";
 pub const NODE_KIND_ENTITY_IDENTITY: &str = "entity_identity";
 pub const NODE_KIND_ENUM_BODY: &str = "enum_body";
 pub const NODE_KIND_ENUM_DEF: &str = "enum_def";
@@ -81,7 +80,6 @@ pub const NODE_KIND_MAPPING_TYPE: &str = "mapping_type";
 pub const NODE_KIND_MAPPING_VALUE: &str = "mapping_value";
 pub const NODE_KIND_MAPPING_VARIABLE: &str = "mapping_variable";
 pub const NODE_KIND_MEMBER: &str = "member";
-pub const NODE_KIND_MEMBER_GROUP: &str = "member_group";
 pub const NODE_KIND_MEMBER_IMPORT: &str = "member_import";
 pub const NODE_KIND_MEMBER_INVERSE_NAME: &str = "member_inverse_name";
 pub const NODE_KIND_MEMBER_ROLE: &str = "member_role";
@@ -122,7 +120,6 @@ pub const NODE_KIND_SIMPLE_VALUE: &str = "simple_value";
 pub const NODE_KIND_STRING: &str = "string";
 pub const NODE_KIND_STRUCTURE_BODY: &str = "structure_body";
 pub const NODE_KIND_STRUCTURE_DEF: &str = "structure_def";
-pub const NODE_KIND_STRUCTURE_GROUP: &str = "structure_group";
 pub const NODE_KIND_STRUCTURE_MEMBER: &str = "structure_member";
 
 pub const NODE_KIND_TERM: &str = "term";

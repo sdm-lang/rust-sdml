@@ -26,8 +26,8 @@ use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
 use crate::model::constraints::{ConstraintSentence, EnvironmentDef};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasMembers,
-    HasVariants, PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, TypeVariant, UnionDef,
+    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasMembers, HasVariants,
+    PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, TypeVariant, UnionDef,
 };
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::members::HasType;
