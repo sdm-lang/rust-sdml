@@ -1,4 +1,4 @@
-use crate::model::members::{Member, MemberGroup};
+use crate::model::members::Member;
 use std::fmt::Debug;
 
 #[cfg(feature = "serde")]
@@ -38,22 +38,6 @@ pub trait HasVariants<T> {
     fn extend_variants<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = T>;
-}
-
-pub trait HasGroups {
-    fn has_groups(&self) -> bool;
-
-    fn groups_len(&self) -> usize;
-
-    fn groups(&self) -> Box<dyn Iterator<Item = &MemberGroup> + '_>;
-
-    fn groups_mut(&mut self) -> Box<dyn Iterator<Item = &mut MemberGroup> + '_>;
-
-    fn add_to_groups(&mut self, value: MemberGroup);
-
-    fn extend_groups<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = MemberGroup>;
 }
 
 // ------------------------------------------------------------------------------------------------

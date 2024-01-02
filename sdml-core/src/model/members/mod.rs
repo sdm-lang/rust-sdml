@@ -229,8 +229,5 @@ pub use cardinality::{
     TYPE_MAYBE_CARDINALITY, TYPE_ORDERED_SET_CARDINALITY, TYPE_SET_CARDINALITY,
 };
 
-mod groups;
-pub use groups::MemberGroup;
-
 mod types;
 pub use types::{HasType, MappingType, TypeReference};

@@ -3,9 +3,9 @@ use crate::{
     model::{
         annotations::{Annotation, HasAnnotations},
         check::Validate,
-        definitions::{HasGroups, HasMembers},
+        definitions::HasMembers,
         identifiers::{Identifier, IdentifierReference},
-        members::{Member, MemberGroup},
+        members::Member,
         modules::Module,
         References, Span,
     },
@@ -39,7 +39,6 @@ pub struct StructureBody {
     span: Option<Span>,
     annotations: Vec<Annotation>,
     members: Vec<Member>,
-    groups: Vec<MemberGroup>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -74,8 +73,6 @@ impl StructureDef {
 
 impl_has_annotations_for!(StructureBody);
 
-impl_has_groups_for!(StructureBody);
-
 impl_has_members_for!(StructureBody);
 
 impl_has_source_span_for!(StructureBody);
@@ -84,23 +81,12 @@ impl_validate_for_annotations_and_members!(StructureBody);
 
 impl References for StructureBody {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.flat_members().for_each(|m| m.referenced_types(names));
+        self.members().for_each(|m| m.referenced_types(names));
     }
 
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.flat_members()
-            .for_each(|m| m.referenced_annotations(names));
-    }
-}
-
-impl StructureBody {
-    // --------------------------------------------------------------------------------------------
-    // Helpers
-    // --------------------------------------------------------------------------------------------
-
-    pub fn flat_members(&self) -> impl Iterator<Item = &Member> {
         self.members()
-            .chain(self.groups().flat_map(|g| g.members()))
+            .for_each(|m| m.referenced_annotations(names));
     }
 }
 

@@ -712,50 +712,6 @@ macro_rules! impl_has_variants_for {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros ❱ trait HasGroups
-// ------------------------------------------------------------------------------------------------
-
-macro_rules! impl_has_groups_for {
-    ($type: ty) => {
-        impl_has_groups_for!($type, groups);
-    };
-    ($type: ty, $inner: ident) => {
-        impl $crate::model::definitions::HasGroups for $type {
-            fn has_groups(&self) -> bool {
-                !self.$inner.is_empty()
-            }
-
-            fn groups_len(&self) -> usize {
-                self.$inner.len()
-            }
-
-            fn groups(
-                &self,
-            ) -> Box<dyn Iterator<Item = &$crate::model::members::MemberGroup> + '_> {
-                Box::new(self.$inner.iter())
-            }
-
-            fn groups_mut(
-                &mut self,
-            ) -> Box<dyn Iterator<Item = &mut $crate::model::members::MemberGroup> + '_> {
-                Box::new(self.$inner.iter_mut())
-            }
-
-            fn add_to_groups(&mut self, value: $crate::model::members::MemberGroup) {
-                self.$inner.push(value.into())
-            }
-
-            fn extend_groups<I>(&mut self, extension: I)
-            where
-                I: IntoIterator<Item = $crate::model::members::MemberGroup>,
-            {
-                self.$inner.extend(extension.into_iter())
-            }
-        }
-    };
-}
-
-// ------------------------------------------------------------------------------------------------
 // Public Macros ❱ Fields
 // ------------------------------------------------------------------------------------------------
 

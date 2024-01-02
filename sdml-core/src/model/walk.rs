@@ -26,12 +26,12 @@ use crate::model::annotations::{Annotation, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
 use crate::model::constraints::{ConstraintSentence, EnvironmentDef};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasGroups, HasMembers,
+    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasMembers,
     HasVariants, PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, TypeVariant, UnionDef,
 };
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::members::HasType;
-use crate::model::members::{Cardinality, HasCardinality, Member, MemberGroup, TypeReference};
+use crate::model::members::{Cardinality, HasCardinality, Member, TypeReference};
 use crate::model::modules::{Import, Module};
 use crate::model::values::Value;
 use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
@@ -410,10 +410,6 @@ fn walk_entity_def(def: &EntityDef, walker: &mut impl SimpleModuleWalker) -> Res
         for member in body.members() {
             walk_member(member, walker)?;
         }
-
-        for group in body.groups() {
-            walk_member_group(group, walker)?;
-        }
     }
 
     walker.end_entity(def.name(), def.has_body())
@@ -453,10 +449,6 @@ fn walk_event_def(def: &EventDef, walker: &mut impl SimpleModuleWalker) -> Resul
 
         for member in body.members() {
             walk_member(member, walker)?;
-        }
-
-        for group in body.groups() {
-            walk_member_group(group, walker)?;
         }
     }
 
@@ -519,28 +511,9 @@ fn walk_structure_def(
         for member in body.members() {
             walk_member(member, walker)?;
         }
-
-        for group in body.groups() {
-            walk_member_group(group, walker)?;
-        }
     }
 
     walker.end_structure(def.name(), def.has_body())
-}
-
-fn walk_member_group(
-    group: &MemberGroup,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    walker.start_group(group.source_span())?;
-
-    walk_annotations!(walker, group.annotations());
-
-    for member in group.members() {
-        walk_member(member, walker)?;
-    }
-
-    walker.end_group()
 }
 
 fn walk_union_def(def: &UnionDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {

@@ -34,7 +34,6 @@ generators.
 #![deny(
     // ---------- Public
     exported_private_dependencies,
-    private_in_public,
     // ---------- Deprecated
     anonymous_parameters,
     bare_trait_objects,

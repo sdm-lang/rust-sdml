@@ -83,14 +83,14 @@ impl ModuleCache {
     }
 
     pub fn get_by_uri(&self, uri: &Url) -> Option<&Module> {
-        match self.uri_map.get(&uri) {
+        match self.uri_map.get(uri) {
             Some(name) => self.get(name),
             _ => None,
         }
     }
 
     pub fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module> {
-        let name = self.uri_map.get_mut(&uri).map(|n| n.clone());
+        let name = self.uri_map.get_mut(uri).map(|n| n.clone());
         match name {
             Some(name) => self.get_mut(&name),
             _ => None,

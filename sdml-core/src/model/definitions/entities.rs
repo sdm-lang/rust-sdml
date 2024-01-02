@@ -5,9 +5,9 @@ use crate::model::References;
 use crate::model::{
     annotations::{Annotation, HasAnnotations},
     check::Validate,
-    definitions::{HasGroups, HasMembers},
+    definitions::HasMembers,
     identifiers::{Identifier, IdentifierReference},
-    members::{Cardinality, Member, MemberGroup, DEFAULT_CARDINALITY},
+    members::{Cardinality, Member, DEFAULT_CARDINALITY},
     modules::Module,
     Span,
 };
@@ -41,7 +41,6 @@ pub struct EntityBody {
     identity: EntityIdentity,
     annotations: Vec<Annotation>,
     members: Vec<Member>,
-    groups: Vec<MemberGroup>,
 }
 
 /// Corresponds to the grammar rules `member` and `entity_identity`.
@@ -101,8 +100,6 @@ impl EntityDef {
 
 impl_has_annotations_for!(EntityBody);
 
-impl_has_groups_for!(EntityBody);
-
 impl_has_members_for!(EntityBody);
 
 impl_has_source_span_for!(EntityBody);
@@ -111,12 +108,12 @@ impl_validate_for_annotations_and_members!(EntityBody);
 
 impl References for EntityBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.flat_members()
+        self.members()
             .for_each(|m| m.referenced_annotations(names))
     }
 
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.flat_members().for_each(|m| m.referenced_types(names))
+        self.members().for_each(|m| m.referenced_types(names))
     }
 }
 
@@ -131,7 +128,6 @@ impl EntityBody {
             identity,
             annotations: Default::default(),
             members: Default::default(),
-            groups: Default::default(),
         }
     }
 
@@ -140,15 +136,6 @@ impl EntityBody {
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub identity, set_identity => EntityIdentity);
-
-    // --------------------------------------------------------------------------------------------
-    // Helpers
-    // --------------------------------------------------------------------------------------------
-
-    pub fn flat_members(&self) -> impl Iterator<Item = &Member> {
-        self.members()
-            .chain(self.groups().flat_map(|g| g.members()))
-    }
 }
 
 // ------------------------------------------------------------------------------------------------

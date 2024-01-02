@@ -67,7 +67,7 @@ pub trait HasAnnotations {
         )
     }
 
-    fn definition(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
+    fn definitions(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
         Box::new(
             self.annotation_properties()
                 .filter(|ann| ann.name_reference() == "skos:definition")
