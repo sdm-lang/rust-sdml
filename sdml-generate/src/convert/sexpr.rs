@@ -24,13 +24,13 @@ use sdml_core::model::constraints::{
 };
 use sdml_core::model::definitions::{
     DatatypeDef, Definition, EntityBody, EntityDef, EntityIdentity, EntityIdentityDef, EnumBody,
-    EnumDef, EventDef, HasGroups, HasMembers, HasVariants, PropertyBody, PropertyDef,
-    PropertyRoleDef, StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant,
+    EnumDef, EventDef, HasMembers, HasVariants, PropertyBody, PropertyDef, PropertyRoleDef,
+    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{
-    Cardinality, HasCardinality, HasType, MappingType, Member, MemberDef, MemberGroup,
-    TypeReference, DEFAULT_CARDINALITY,
+    Cardinality, HasCardinality, HasType, MappingType, Member, MemberDef, TypeReference,
+    DEFAULT_CARDINALITY,
 };
 use sdml_core::model::modules::{Import, ImportStatement, Module, ModuleBody};
 use sdml_core::model::values::{
@@ -61,11 +61,10 @@ use sdml_core::syntax::{
     NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_IDENTITY_ROLE,
     NODE_KIND_IMPLICATION, NODE_KIND_INEQUATION, NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_INTEGER,
     NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LESS_THAN, NODE_KIND_LESS_THAN_OR_EQUAL,
-    NODE_KIND_MAPPING_TYPE, NODE_KIND_MAPPING_VARIABLE, NODE_KIND_MEMBER, NODE_KIND_MEMBER_GROUP,
-    NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT,
-    NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_NEGATION, NODE_KIND_NOT_EQUAL,
-    NODE_KIND_PREDICATE_VALUE, NODE_KIND_PROPERTY_BODY, NODE_KIND_QUALIFIED_IDENTIFIER,
-    NODE_KIND_QUANTIFIED_SENTENCE, NODE_KIND_QUANTIFIED_VARIABLE,
+    NODE_KIND_MAPPING_TYPE, NODE_KIND_MAPPING_VARIABLE, NODE_KIND_MEMBER, NODE_KIND_MEMBER_IMPORT,
+    NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT, NODE_KIND_NAMED_VARIABLE_SET,
+    NODE_KIND_NEGATION, NODE_KIND_NOT_EQUAL, NODE_KIND_PREDICATE_VALUE, NODE_KIND_PROPERTY_BODY,
+    NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUANTIFIED_SENTENCE, NODE_KIND_QUANTIFIED_VARIABLE,
     NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_QUOTED_STRING, NODE_KIND_RESERVED_SELF,
     NODE_KIND_ROLE_BY_REFERENCE, NODE_KIND_SEQUENCE_BUILDER,
     NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES, NODE_KIND_SEQUENCE_OF_VALUES,
@@ -1207,11 +1206,6 @@ fn write_entity_body<W: Write>(me: &EntityBody, w: &mut Writer<W>) -> Result<(),
         write_member(member, w)?;
     }
 
-    for group in me.groups() {
-        w.newln()?;
-        write_member_group(group, w)?
-    }
-
     w.close_paren()?;
     w.outdent();
     Ok(())
@@ -1326,29 +1320,6 @@ fn write_structure_def<W: Write>(me: &StructureDef, w: &mut Writer<W>) -> Result
 
 fn write_structure_body<W: Write>(me: &StructureBody, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node(NODE_KIND_STRUCTURE_BODY)?;
-    w.indent();
-
-    write_span!(me, w);
-
-    write_annotations!(me.annotations(), w);
-
-    for member in me.members() {
-        w.newln()?;
-        write_member(member, w)?;
-    }
-
-    for group in me.groups() {
-        w.newln()?;
-        write_member_group(group, w)?
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_member_group<W: Write>(me: &MemberGroup, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_MEMBER_GROUP)?;
     w.indent();
 
     write_span!(me, w);

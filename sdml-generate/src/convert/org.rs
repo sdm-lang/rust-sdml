@@ -126,17 +126,14 @@ impl GenerateToWriter<NoFormatOptions> for OrgFileGenerator<'_> {
 
         if self.source.is_some() {
             writer.write_all(
-                format!(
-                    r#"* Appendix: Module Source
+                b"* Appendix: Module Source
 
 #+NAME: lst:module-output-source
 #+CAPTION: Original Module Source
 #+BEGIN_SRC sdml :exports code :noweb yes
 <<lst:module-input-source>>
 #+END_SRC
-"#
-                )
-                .as_bytes(),
+",
             )?;
         }
 
@@ -176,14 +173,14 @@ fn write_definitions<'a>(
 ) -> Result<(), Error> {
     for definition in definitions {
         match definition {
-            Definition::Datatype(v) => write_datatype(&v, writer)?,
-            Definition::Entity(v) => write_entity(&v, writer)?,
-            Definition::Enum(v) => write_enum(&v, writer)?,
-            Definition::Event(v) => write_event(&v, writer)?,
-            Definition::Property(v) => write_property(&v, writer)?,
-            Definition::Structure(v) => write_structure(&v, writer)?,
-            Definition::TypeClass(v) => write_typeclass(&v, writer)?,
-            Definition::Union(v) => write_union(&v, writer)?,
+            Definition::Datatype(v) => write_datatype(v, writer)?,
+            Definition::Entity(v) => write_entity(v, writer)?,
+            Definition::Enum(v) => write_enum(v, writer)?,
+            Definition::Event(v) => write_event(v, writer)?,
+            Definition::Property(v) => write_property(v, writer)?,
+            Definition::Structure(v) => write_structure(v, writer)?,
+            Definition::TypeClass(v) => write_typeclass(v, writer)?,
+            Definition::Union(v) => write_union(v, writer)?,
         }
     }
     Ok(())

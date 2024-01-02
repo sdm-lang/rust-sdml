@@ -14,9 +14,10 @@ use crate::exec::exec_with_temp_input;
 use crate::GenerateToWriter;
 use sdml_core::error::Error;
 use sdml_core::model::definitions::Definition;
-use sdml_core::model::members::{
-    Cardinality, HasCardinality, HasType, TypeReference, DEFAULT_CARDINALITY,
-};
+use sdml_core::model::definitions::HasMembers;
+use sdml_core::model::members::HasCardinality;
+use sdml_core::model::members::HasType;
+use sdml_core::model::members::{Cardinality, TypeReference, DEFAULT_CARDINALITY};
 use sdml_core::model::modules::Module;
 use sdml_core::model::{HasBody, HasName, HasOptionalBody};
 use std::collections::HashSet;
@@ -100,7 +101,7 @@ fn write_module(me: &Module, writer: &mut dyn Write) -> Result<(), Error> {
         entities.insert(current.clone());
 
         if let Some(body) = entity.body() {
-            for member in body.flat_members() {
+            for member in body.members() {
                 let type_ref = if let Some(property_name) = member.as_property_reference() {
                     let property = me
                         .body()

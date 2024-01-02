@@ -10,6 +10,7 @@ YYYYY
 */
 
 use sdml_core::error::Error;
+use sdml_core::model::definitions::HasMembers;
 use sdml_core::model::definitions::{Definition, HasVariants};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
@@ -40,7 +41,7 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
             Definition::Entity(v) => {
                 if let Some(body) = v.body() {
                     tags.push(ctag_line(body.identity(), &file_name));
-                    for member in body.flat_members() {
+                    for member in body.members() {
                         tags.push(ctag_line(member, &file_name));
                     }
                 }
@@ -54,7 +55,7 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
             }
             Definition::Event(v) => {
                 if let Some(body) = v.body() {
-                    for member in body.flat_members() {
+                    for member in body.members() {
                         tags.push(ctag_line(member, &file_name));
                     }
                 }
@@ -68,7 +69,7 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
             }
             Definition::Structure(v) => {
                 if let Some(body) = v.body() {
-                    for member in body.flat_members() {
+                    for member in body.members() {
                         tags.push(ctag_line(member, &file_name));
                     }
                 }

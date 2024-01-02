@@ -33,6 +33,7 @@ const HIGHLIGHT_NAMES: &[&str] = &[
     "boolean",
     "comment",
     "constant",
+    //    "constant.builtin",
     "embedded",
     "error",
     "function.call",
@@ -219,7 +220,7 @@ fn highlight_as_html<S: AsRef<[u8]>, W: Write>(
 ) -> Result<(), Error> {
     let css_classes: Vec<String> = HIGHLIGHT_NAMES
         .iter()
-        .map(|s| format!("class=\"sdml-{}\"", s.replace('.', "-")))
+        .map(|s| format!("class=\"{}\"", s.replace('.', "-")))
         .collect();
 
     if stand_alone {

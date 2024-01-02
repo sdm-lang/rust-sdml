@@ -127,7 +127,7 @@ pub fn write_dependency_rdf<W: Write>(
 struct Node<'a> {
     name: &'a Identifier,
     base: Option<&'a Url>,
-    children: Option<Vec<Box<Node<'a>>>>,
+    children: Option<Vec<Node<'a>>>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -141,17 +141,17 @@ impl<'a> Node<'a> {
         cache: &'a ModuleCache,
         depth: usize,
     ) -> Self {
-        let mut children: Vec<Box<Node<'a>>> = Default::default();
+        let mut children: Vec<Node<'a>> = Default::default();
         for imported in module.imported_modules() {
             let cached = cache.get(imported);
             if depth == 1 || seen.contains(&imported) {
                 if let Some(cached) = cached {
-                    children.push(Self::from_name(imported, cached.base()).into());
+                    children.push(Self::from_name(imported, cached.base()));
                 } else {
-                    children.push(Self::from_name_only(imported).into());
+                    children.push(Self::from_name_only(imported));
                 }
             } else {
-                children.push(Self::from_module(cached.unwrap(), seen, cache, depth - 1).into());
+                children.push(Self::from_module(cached.unwrap(), seen, cache, depth - 1));
             }
             seen.insert(imported);
         }
@@ -195,7 +195,7 @@ fn make_tree_node<'a>(node: Node<'a>) -> TreeNode<&'a Identifier> {
     let children = if let Some(children) = node.children {
         children
             .into_iter()
-            .map(|n| make_tree_node(*n))
+            .map(|n| make_tree_node(n))
             .collect::<Vec<TreeNode<&'a Identifier>>>()
     } else {
         Default::default()
