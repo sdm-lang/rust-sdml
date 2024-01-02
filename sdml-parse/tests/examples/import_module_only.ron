@@ -1,55 +1,51 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 69,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 38,
-                        end: 46,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 69,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 38,
+                end: 46,
             },
-            base: None,
-            body: ModuleBody {
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 47,
+                end: 68,
+            },
+        ),
+        imports: [
+            ImportStatement {
                 span: Some(
                     Span {
-                        start: 47,
-                        end: 68,
+                        start: 53,
+                        end: 63,
                     },
                 ),
                 imports: [
-                    ImportStatement {
-                        span: Some(
-                            Span {
-                                start: 53,
-                                end: 63,
-                            },
-                        ),
-                        imports: [
-                            Module(
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 60,
-                                            end: 63,
-                                        },
-                                    ),
-                                    value: "xsd",
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 60,
+                                    end: 63,
                                 },
                             ),
-                        ],
-                    },
+                            value: "xsd",
+                        },
+                    ),
                 ],
-                annotations: [],
-                definitions: [],
             },
-        },
+        ],
+        annotations: [],
+        definitions: [],
     },
-)
+}

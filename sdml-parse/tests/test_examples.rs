@@ -1,5 +1,4 @@
 use paste::paste;
-use sdml_core::load::ModuleLoader as LoaderTrait;
 use sdml_parse::load::ModuleLoader;
 use std::fs::read_to_string;
 use std::path::PathBuf;
@@ -51,7 +50,7 @@ macro_rules! test_example {
                     ));
 
                 println!("Reading test example from {:?}", input);
-                let loader = ModuleLoader::default();
+                let mut loader = ModuleLoader::default();
                 let module = loader.load_from_file(input);
                 if let Err(e) = module {
                     panic!("parse error: {}", e);
@@ -160,7 +159,6 @@ test_examples! {
         entity_empty,
         entity_with_constraints,
         entity_with_diff_members,
-        entity_with_groups,
         entity_with_members,
         entity_with_unknowns
     )

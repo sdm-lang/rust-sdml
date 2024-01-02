@@ -1,108 +1,104 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 98,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 33,
-                        end: 41,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 98,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 33,
+                end: 41,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 42,
-                        end: 97,
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 42,
+                end: 97,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Union(
+                UnionDef {
+                    span: Some(
+                        Span {
+                            start: 48,
+                            end: 92,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 54,
+                                end: 66,
+                            },
+                        ),
+                        value: "VehicleClass",
                     },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    Union(
-                        UnionDef {
+                    body: Some(
+                        UnionBody {
                             span: Some(
                                 Span {
-                                    start: 48,
+                                    start: 67,
                                     end: 92,
                                 },
                             ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 54,
-                                        end: 66,
-                                    },
-                                ),
-                                value: "VehicleClass",
-                            },
-                            body: Some(
-                                UnionBody {
+                            annotations: [],
+                            variants: [
+                                TypeVariant {
                                     span: Some(
                                         Span {
-                                            start: 67,
-                                            end: 92,
+                                            start: 74,
+                                            end: 77,
                                         },
                                     ),
-                                    annotations: [],
-                                    variants: [
-                                        TypeVariant {
+                                    name_reference: Identifier(
+                                        Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 74,
                                                     end: 77,
                                                 },
                                             ),
-                                            name_reference: Identifier(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 74,
-                                                            end: 77,
-                                                        },
-                                                    ),
-                                                    value: "Car",
-                                                },
-                                            ),
-                                            rename: None,
-                                            body: None,
+                                            value: "Car",
                                         },
-                                        TypeVariant {
+                                    ),
+                                    rename: None,
+                                    body: None,
+                                },
+                                TypeVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 82,
+                                            end: 86,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 82,
                                                     end: 86,
                                                 },
                                             ),
-                                            name_reference: Identifier(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 82,
-                                                            end: 86,
-                                                        },
-                                                    ),
-                                                    value: "Boat",
-                                                },
-                                            ),
-                                            rename: None,
-                                            body: None,
+                                            value: "Boat",
                                         },
-                                    ],
+                                    ),
+                                    rename: None,
+                                    body: None,
                                 },
-                            ),
+                            ],
                         },
                     ),
-                ],
-            },
-        },
+                },
+            ),
+        ],
     },
-)
+}

@@ -139,8 +139,5 @@ pub(crate) fn parse_mapping_type<'a>(
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-mod groups;
-pub(crate) use groups::parse_member_group;
-
 mod member;
 pub(crate) use member::parse_member;

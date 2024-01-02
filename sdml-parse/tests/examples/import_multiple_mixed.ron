@@ -1,122 +1,118 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 95,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 34,
-                        end: 42,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 95,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 34,
+                end: 42,
             },
-            base: None,
-            body: ModuleBody {
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 43,
+                end: 94,
+            },
+        ),
+        imports: [
+            ImportStatement {
                 span: Some(
                     Span {
-                        start: 43,
-                        end: 94,
+                        start: 49,
+                        end: 89,
                     },
                 ),
                 imports: [
-                    ImportStatement {
-                        span: Some(
-                            Span {
-                                start: 49,
-                                end: 89,
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 64,
+                                },
+                            ),
+                            value: "target",
+                        },
+                    ),
+                    Member(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 65,
+                                    end: 73,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 65,
+                                        end: 68,
+                                    },
+                                ),
+                                value: "xsd",
                             },
-                        ),
-                        imports: [
-                            Module(
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 58,
-                                            end: 64,
-                                        },
-                                    ),
-                                    value: "target",
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 69,
+                                        end: 73,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        },
+                    ),
+                    Member(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 74,
+                                    end: 82,
                                 },
                             ),
-                            Member(
-                                QualifiedIdentifier {
-                                    span: Some(
-                                        Span {
-                                            start: 65,
-                                            end: 73,
-                                        },
-                                    ),
-                                    module: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 65,
-                                                end: 68,
-                                            },
-                                        ),
-                                        value: "xsd",
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 74,
+                                        end: 77,
                                     },
-                                    member: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 69,
-                                                end: 73,
-                                            },
-                                        ),
-                                        value: "base",
+                                ),
+                                value: "xml",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 78,
+                                        end: 82,
                                     },
+                                ),
+                                value: "lang",
+                            },
+                        },
+                    ),
+                    Module(
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 83,
+                                    end: 87,
                                 },
                             ),
-                            Member(
-                                QualifiedIdentifier {
-                                    span: Some(
-                                        Span {
-                                            start: 74,
-                                            end: 82,
-                                        },
-                                    ),
-                                    module: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 74,
-                                                end: 77,
-                                            },
-                                        ),
-                                        value: "xml",
-                                    },
-                                    member: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 78,
-                                                end: 82,
-                                            },
-                                        ),
-                                        value: "lang",
-                                    },
-                                },
-                            ),
-                            Module(
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 83,
-                                            end: 87,
-                                        },
-                                    ),
-                                    value: "skos",
-                                },
-                            ),
-                        ],
-                    },
+                            value: "skos",
+                        },
+                    ),
                 ],
-                annotations: [],
-                definitions: [],
             },
-        },
+        ],
+        annotations: [],
+        definitions: [],
     },
-)
+}

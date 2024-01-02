@@ -1,119 +1,115 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 53,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 7,
-                        end: 16,
-                    },
-                ),
-                value: "sdml_core",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 53,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 16,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 17,
-                        end: 52,
+        ),
+        value: "sdml_core",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 17,
+                end: 52,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            TypeClass(
+                TypeClassDef {
+                    span: Some(
+                        Span {
+                            start: 23,
+                            end: 47,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 29,
+                                end: 32,
+                            },
+                        ),
+                        value: "Any",
                     },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    TypeClass(
-                        TypeClassDef {
+                    variables: [
+                        TypeVariable {
                             span: Some(
                                 Span {
-                                    start: 23,
-                                    end: 47,
+                                    start: 34,
+                                    end: 46,
                                 },
                             ),
                             name: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 29,
-                                        end: 32,
+                                        start: 34,
+                                        end: 35,
                                     },
                                 ),
-                                value: "Any",
+                                value: "T",
                             },
-                            variables: [
-                                TypeVariable {
+                            cardinality: None,
+                            restrictions: [
+                                TypeClassReference {
                                     span: Some(
                                         Span {
-                                            start: 34,
+                                            start: 39,
                                             end: 46,
                                         },
                                     ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 34,
-                                                end: 35,
-                                            },
-                                        ),
-                                        value: "T",
-                                    },
-                                    cardinality: None,
-                                    restrictions: [
-                                        TypeClassReference {
+                                    name: Identifier(
+                                        Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 39,
-                                                    end: 46,
+                                                    end: 43,
                                                 },
                                             ),
-                                            name: Identifier(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 39,
-                                                            end: 43,
-                                                        },
-                                                    ),
-                                                    value: "None",
-                                                },
-                                            ),
-                                            arguments: [
-                                                Reference(
-                                                    TypeClassReference {
+                                            value: "None",
+                                        },
+                                    ),
+                                    arguments: [
+                                        Reference(
+                                            TypeClassReference {
+                                                span: Some(
+                                                    Span {
+                                                        start: 44,
+                                                        end: 45,
+                                                    },
+                                                ),
+                                                name: Identifier(
+                                                    Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 44,
                                                                 end: 45,
                                                             },
                                                         ),
-                                                        name: Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 44,
-                                                                        end: 45,
-                                                                    },
-                                                                ),
-                                                                value: "T",
-                                                            },
-                                                        ),
-                                                        arguments: [],
+                                                        value: "T",
                                                     },
                                                 ),
-                                            ],
-                                        },
+                                                arguments: [],
+                                            },
+                                        ),
                                     ],
                                 },
                             ],
-                            body: None,
                         },
-                    ),
-                ],
-            },
-        },
+                    ],
+                    body: None,
+                },
+            ),
+        ],
     },
-)
+}

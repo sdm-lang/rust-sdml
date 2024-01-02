@@ -1,15 +1,14 @@
 use crate::parse::annotations::parse_annotation;
 use crate::parse::identifiers::parse_identifier;
-use crate::parse::members::{parse_member, parse_member_group};
+use crate::parse::members::parse_member;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{HasGroups, HasMembers, StructureBody, StructureDef};
+use sdml_core::model::definitions::{HasMembers, StructureBody, StructureDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_MEMBER, NODE_KIND_MEMBER_GROUP, NODE_KIND_STRUCTURE_GROUP,
-    NODE_KIND_STRUCTURE_MEMBER,
+    NODE_KIND_MEMBER, NODE_KIND_STRUCTURE_MEMBER,
 };
 use tree_sitter::TreeCursor;
 
@@ -60,20 +59,13 @@ pub(crate) fn parse_structure_body<'a>(
                     NODE_KIND_MEMBER => {
                         body.add_to_members(parse_member(context, &mut node.walk())?);
                     }
-                    NODE_KIND_MEMBER_GROUP => {
-                        body.add_to_groups(parse_member_group(context, &mut node.walk())?);
-                    }
                     NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,
                             RULE_NAME,
                             node,
-                            [
-                                NODE_KIND_ANNOTATION,
-                                NODE_KIND_STRUCTURE_MEMBER,
-                                NODE_KIND_STRUCTURE_GROUP,
-                            ]
+                            [NODE_KIND_ANNOTATION, NODE_KIND_STRUCTURE_MEMBER,]
                         );
                     }
                 }

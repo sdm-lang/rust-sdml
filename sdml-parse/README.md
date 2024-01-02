@@ -7,6 +7,10 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.1**
+
+* Feature: Remove member groups.
+
 **Version 0.2.0**
 
 * Feature: Update to latest grammar.

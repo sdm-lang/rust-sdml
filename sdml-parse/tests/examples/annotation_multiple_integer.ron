@@ -1,101 +1,97 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 86,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 42,
-                        end: 50,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 86,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 42,
+                end: 50,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 51,
-                        end: 85,
-                    },
-                ),
-                imports: [],
-                annotations: [
-                    Property(
-                        AnnotationProperty {
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 51,
+                end: 85,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 57,
+                            end: 80,
+                        },
+                    ),
+                    name_reference: QualifiedIdentifier(
+                        QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 57,
+                                    start: 58,
+                                    end: 68,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 58,
+                                        end: 60,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 61,
+                                        end: 68,
+                                    },
+                                ),
+                                value: "version",
+                            },
+                        },
+                    ),
+                    value: List(
+                        SequenceOfValues {
+                            span: Some(
+                                Span {
+                                    start: 71,
                                     end: 80,
                                 },
                             ),
-                            name_reference: QualifiedIdentifier(
-                                QualifiedIdentifier {
-                                    span: Some(
-                                        Span {
-                                            start: 58,
-                                            end: 68,
-                                        },
+                            ordering: None,
+                            uniqueness: None,
+                            values: [
+                                Simple(
+                                    Integer(
+                                        1,
                                     ),
-                                    module: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 58,
-                                                end: 60,
-                                            },
-                                        ),
-                                        value: "dc",
-                                    },
-                                    member: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 61,
-                                                end: 68,
-                                            },
-                                        ),
-                                        value: "version",
-                                    },
-                                },
-                            ),
-                            value: List(
-                                SequenceOfValues {
-                                    span: Some(
-                                        Span {
-                                            start: 71,
-                                            end: 80,
-                                        },
+                                ),
+                                Simple(
+                                    Integer(
+                                        2,
                                     ),
-                                    ordering: None,
-                                    uniqueness: None,
-                                    values: [
-                                        Simple(
-                                            Integer(
-                                                1,
-                                            ),
-                                        ),
-                                        Simple(
-                                            Integer(
-                                                2,
-                                            ),
-                                        ),
-                                        Simple(
-                                            Integer(
-                                                3,
-                                            ),
-                                        ),
-                                    ],
-                                },
-                            ),
+                                ),
+                                Simple(
+                                    Integer(
+                                        3,
+                                    ),
+                                ),
+                            ],
                         },
                     ),
-                ],
-                definitions: [],
-            },
-        },
+                },
+            ),
+        ],
+        definitions: [],
     },
-)
+}

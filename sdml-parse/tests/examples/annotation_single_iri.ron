@@ -1,91 +1,87 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 99,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 35,
-                        end: 43,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 99,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 35,
+                end: 43,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 44,
-                        end: 98,
-                    },
-                ),
-                imports: [],
-                annotations: [
-                    Property(
-                        AnnotationProperty {
-                            span: Some(
-                                Span {
-                                    start: 50,
-                                    end: 93,
-                                },
-                            ),
-                            name_reference: QualifiedIdentifier(
-                                QualifiedIdentifier {
-                                    span: Some(
-                                        Span {
-                                            start: 51,
-                                            end: 61,
-                                        },
-                                    ),
-                                    module: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 51,
-                                                end: 53,
-                                            },
-                                        ),
-                                        value: "dc",
-                                    },
-                                    member: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 54,
-                                                end: 61,
-                                            },
-                                        ),
-                                        value: "seeAlso",
-                                    },
-                                },
-                            ),
-                            value: Simple(
-                                IriReference(
-                                    Url {
-                                        scheme: "https",
-                                        cannot_be_a_base: false,
-                                        username: "",
-                                        password: None,
-                                        host: Some(
-                                            Domain(
-                                                "www.dublincore.org",
-                                            ),
-                                        ),
-                                        port: None,
-                                        path: "/",
-                                        query: None,
-                                        fragment: None,
-                                    },
-                                ),
-                            ),
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 44,
+                end: 98,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 50,
+                            end: 93,
                         },
                     ),
-                ],
-                definitions: [],
-            },
-        },
+                    name_reference: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 51,
+                                    end: 61,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 51,
+                                        end: 53,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 54,
+                                        end: 61,
+                                    },
+                                ),
+                                value: "seeAlso",
+                            },
+                        },
+                    ),
+                    value: Simple(
+                        IriReference(
+                            Url {
+                                scheme: "https",
+                                cannot_be_a_base: false,
+                                username: "",
+                                password: None,
+                                host: Some(
+                                    Domain(
+                                        "www.dublincore.org",
+                                    ),
+                                ),
+                                port: None,
+                                path: "/",
+                                query: None,
+                                fragment: None,
+                            },
+                        ),
+                    ),
+                },
+            ),
+        ],
+        definitions: [],
     },
-)
+}

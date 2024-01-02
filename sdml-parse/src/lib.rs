@@ -13,10 +13,9 @@ The following example demonstrates the [ModuleLoader] to resolve a module name t
 ```rust,no_run
 use sdml_core::model::identifiers::Identifier;
 use sdml_parse::load::ModuleLoader;
-use sdml_parse::ModuleLoader as ModuleLoaderTrait;
 use std::str::FromStr;
 
-let loader = ModuleLoader::default();
+let mut loader = ModuleLoader::default();
 
 let name = Identifier::from_str("example").unwrap();
 
@@ -56,7 +55,6 @@ assert!(module.is_ok());
 #![deny(
     // ---------- Public
     exported_private_dependencies,
-    private_in_public,
     // ---------- Deprecated
     anonymous_parameters,
     bare_trait_objects,

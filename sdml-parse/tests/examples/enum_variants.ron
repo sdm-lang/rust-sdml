@@ -1,102 +1,98 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 101,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 32,
-                        end: 40,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 101,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 32,
+                end: 40,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 41,
-                        end: 100,
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 41,
+                end: 100,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Enum(
+                EnumDef {
+                    span: Some(
+                        Span {
+                            start: 47,
+                            end: 95,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 52,
+                                end: 60,
+                            },
+                        ),
+                        value: "NameKind",
                     },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    Enum(
-                        EnumDef {
+                    body: Some(
+                        EnumBody {
                             span: Some(
                                 Span {
-                                    start: 47,
+                                    start: 61,
                                     end: 95,
                                 },
                             ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 52,
-                                        end: 60,
-                                    },
-                                ),
-                                value: "NameKind",
-                            },
-                            body: Some(
-                                EnumBody {
+                            annotations: [],
+                            variants: [
+                                ValueVariant {
                                     span: Some(
                                         Span {
-                                            start: 61,
-                                            end: 95,
+                                            start: 68,
+                                            end: 76,
                                         },
                                     ),
-                                    annotations: [],
-                                    variants: [
-                                        ValueVariant {
-                                            span: Some(
-                                                Span {
-                                                    start: 68,
-                                                    end: 76,
-                                                },
-                                            ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 68,
-                                                        end: 76,
-                                                    },
-                                                ),
-                                                value: "Internal",
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 68,
+                                                end: 76,
                                             },
-                                            body: None,
-                                        },
-                                        ValueVariant {
-                                            span: Some(
-                                                Span {
-                                                    start: 81,
-                                                    end: 89,
-                                                },
-                                            ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 81,
-                                                        end: 89,
-                                                    },
-                                                ),
-                                                value: "External",
-                                            },
-                                            body: None,
-                                        },
-                                    ],
+                                        ),
+                                        value: "Internal",
+                                    },
+                                    body: None,
                                 },
-                            ),
+                                ValueVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 81,
+                                            end: 89,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 81,
+                                                end: 89,
+                                            },
+                                        ),
+                                        value: "External",
+                                    },
+                                    body: None,
+                                },
+                            ],
                         },
                     ),
-                ],
-            },
-        },
+                },
+            ),
+        ],
     },
-)
+}

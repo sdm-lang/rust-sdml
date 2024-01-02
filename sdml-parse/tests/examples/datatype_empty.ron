@@ -1,83 +1,79 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 83,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 29,
-                        end: 37,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 83,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 29,
+                end: 37,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 38,
-                        end: 82,
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 38,
+                end: 82,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Datatype(
+                DatatypeDef {
+                    span: Some(
+                        Span {
+                            start: 44,
+                            end: 77,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 53,
+                                end: 63,
+                            },
+                        ),
+                        value: "nameString",
                     },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    Datatype(
-                        DatatypeDef {
+                    opaque: false,
+                    base_type: QualifiedIdentifier(
+                        QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 44,
+                                    start: 67,
                                     end: 77,
                                 },
                             ),
-                            name: Identifier {
+                            module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 53,
-                                        end: 63,
+                                        start: 67,
+                                        end: 70,
                                     },
                                 ),
-                                value: "nameString",
+                                value: "xsd",
                             },
-                            opaque: false,
-                            base_type: QualifiedIdentifier(
-                                QualifiedIdentifier {
-                                    span: Some(
-                                        Span {
-                                            start: 67,
-                                            end: 77,
-                                        },
-                                    ),
-                                    module: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 67,
-                                                end: 70,
-                                            },
-                                        ),
-                                        value: "xsd",
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 71,
+                                        end: 77,
                                     },
-                                    member: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 71,
-                                                end: 77,
-                                            },
-                                        ),
-                                        value: "string",
-                                    },
-                                },
-                            ),
-                            body: None,
+                                ),
+                                value: "string",
+                            },
                         },
                     ),
-                ],
-            },
-        },
+                    body: None,
+                },
+            ),
+        ],
     },
-)
+}

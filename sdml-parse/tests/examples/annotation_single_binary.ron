@@ -1,79 +1,75 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 169,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 7,
-                        end: 15,
-                    },
-                ),
-                value: "Campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 169,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 16,
-                        end: 168,
-                    },
-                ),
-                imports: [],
-                annotations: [
-                    Property(
-                        AnnotationProperty {
-                            span: Some(
-                                Span {
-                                    start: 22,
-                                    end: 163,
-                                },
-                            ),
-                            name_reference: QualifiedIdentifier(
-                                QualifiedIdentifier {
-                                    span: Some(
-                                        Span {
-                                            start: 23,
-                                            end: 32,
-                                        },
-                                    ),
-                                    module: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 23,
-                                                end: 25,
-                                            },
-                                        ),
-                                        value: "dc",
-                                    },
-                                    member: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 26,
-                                                end: 32,
-                                            },
-                                        ),
-                                        value: "author",
-                                    },
-                                },
-                            ),
-                            value: Simple(
-                                Binary(
-                                    Binary(
-                                        [],
-                                    ),
-                                ),
-                            ),
+        ),
+        value: "Campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 168,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 22,
+                            end: 163,
                         },
                     ),
-                ],
-                definitions: [],
-            },
-        },
+                    name_reference: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 23,
+                                    end: 32,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 23,
+                                        end: 25,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 26,
+                                        end: 32,
+                                    },
+                                ),
+                                value: "author",
+                            },
+                        },
+                    ),
+                    value: Simple(
+                        Binary(
+                            Binary(
+                                [],
+                            ),
+                        ),
+                    ),
+                },
+            ),
+        ],
+        definitions: [],
     },
-)
+}

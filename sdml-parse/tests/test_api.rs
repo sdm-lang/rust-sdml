@@ -1,4 +1,3 @@
-use sdml_core::load::ModuleLoader as LoaderTrait;
 use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::modules::ImportStatement;
@@ -11,20 +10,19 @@ use url::Url;
 
 #[test]
 fn test_parse_empty_module() {
-    let loader = ModuleLoader::default();
+    let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(b"module foo is end"));
     println!("{:#?}", module);
     assert!(module.is_ok());
 
     let module = module.unwrap();
-    let module = module.borrow();
     let name = module.name();
     assert_eq!(name.as_ref(), "foo");
 }
 
 #[test]
 fn test_parse_module_with_imports() {
-    let loader = ModuleLoader::default();
+    let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
 
@@ -40,7 +38,6 @@ end"#
     assert!(module.is_ok());
 
     let module = module.unwrap();
-    let module = module.borrow();
     let body = module.body();
 
     let imports: Vec<&ImportStatement> = body.imports().collect();
@@ -53,7 +50,7 @@ end"#
 
 #[test]
 fn test_parse_module_with_annotations() {
-    let loader = ModuleLoader::default();
+    let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
 
@@ -73,7 +70,6 @@ end"#
     assert!(module.is_ok());
 
     let module = module.unwrap();
-    let module = module.borrow();
     let body = module.body();
 
     let annotations: Vec<&AnnotationProperty> = body.annotation_properties().collect();
@@ -93,7 +89,7 @@ end"#
         "dc:version"
     );
     if let Value::Simple(SimpleValue::Integer(value)) = annotation.value() {
-        assert_eq!(value, &2);
+        assert_eq!(*value, 2);
     } else {
         panic!();
     }
@@ -130,7 +126,7 @@ end"#
 
 #[test]
 fn test_parse_datatype() {
-    let loader = ModuleLoader::default();
+    let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
 
@@ -143,7 +139,6 @@ end"#
     assert!(module.is_ok());
 
     let module = module.unwrap();
-    let module = module.borrow();
     let body = module.body();
 
     let types: Vec<&Definition> = body.definitions().collect();

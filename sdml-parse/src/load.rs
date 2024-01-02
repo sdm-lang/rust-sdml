@@ -1,8 +1,5 @@
 /*!
 
-1. Resolver
-2.
-
 */
 
 use crate::parse::parse_str;
@@ -136,7 +133,7 @@ pub fn load_module_dependencies(
     let dependencies = module
         .imported_modules()
         .into_iter()
-        .map(|id| id.clone())
+        .cloned()
         .collect::<Vec<Identifier>>();
     load_module_dependencies_named(&dependencies, recursive, cache, loader)
 }
@@ -155,7 +152,7 @@ pub fn load_module_dependencies_named(
             let dependencies = dependency_module
                 .imported_modules()
                 .into_iter()
-                .map(|id| id.clone())
+                .cloned()
                 .collect::<Vec<Identifier>>();
             cache.insert(dependency_module);
             if recursive {
@@ -352,7 +349,7 @@ impl ModuleLoader {
     /// Load a module reading the source from `reader`.
     pub fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<Module, Error> {
         trace_entry!("ModuleLoader", "load_from_reader");
-        Ok(self.load_inner(reader, None)?)
+        self.load_inner(reader, None)
     }
 
     pub fn get_source(&self, name: &Identifier) -> Option<Source> {

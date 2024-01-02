@@ -1,60 +1,56 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 81,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 7,
-                        end: 14,
-                    },
-                ),
-                value: "Example",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 81,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 14,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 15,
-                        end: 80,
-                    },
-                ),
-                imports: [],
-                annotations: [
-                    Constraint(
-                        Constraint {
-                            span: None,
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 27,
-                                        end: 41,
-                                    },
-                                ),
-                                value: "no_definitions",
+        ),
+        value: "Example",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 15,
+                end: 80,
+            },
+        ),
+        imports: [],
+        annotations: [
+            Constraint(
+                Constraint {
+                    span: None,
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 27,
+                                end: 41,
                             },
-                            body: Informal(
-                                ControlledLanguageString {
-                                    span: Some(
-                                        Span {
-                                            start: 42,
-                                            end: 76,
-                                        },
-                                    ),
-                                    value: " \"This module has no definitions",
-                                    language: None,
+                        ),
+                        value: "no_definitions",
+                    },
+                    body: Informal(
+                        ControlledLanguageString {
+                            span: Some(
+                                Span {
+                                    start: 42,
+                                    end: 76,
                                 },
                             ),
+                            value: " \"This module has no definitions",
+                            language: None,
                         },
                     ),
-                ],
-                definitions: [],
-            },
-        },
+                },
+            ),
+        ],
+        definitions: [],
     },
-)
+}

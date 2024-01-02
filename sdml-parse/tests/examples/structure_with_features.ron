@@ -1,216 +1,211 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 158,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 7,
-                        end: 14,
-                    },
-                ),
-                value: "example",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 158,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 14,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 15,
-                        end: 157,
+        ),
+        value: "example",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 15,
+                end: 157,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Structure(
+                StructureDef {
+                    span: Some(
+                        Span {
+                            start: 21,
+                            end: 73,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 31,
+                                end: 34,
+                            },
+                        ),
+                        value: "Car",
                     },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    Structure(
-                        StructureDef {
+                    body: Some(
+                        StructureBody {
                             span: Some(
                                 Span {
-                                    start: 21,
+                                    start: 35,
                                     end: 73,
                                 },
                             ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 31,
-                                        end: 34,
-                                    },
-                                ),
-                                value: "Car",
-                            },
-                            body: Some(
-                                StructureBody {
+                            annotations: [],
+                            members: [
+                                Member {
                                     span: Some(
                                         Span {
-                                            start: 35,
-                                            end: 73,
+                                            start: 42,
+                                            end: 67,
                                         },
                                     ),
-                                    annotations: [],
-                                    members: [
-                                        Member {
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 42,
+                                                end: 48,
+                                            },
+                                        ),
+                                        value: "engine",
+                                    },
+                                    kind: Definition(
+                                        MemberDef {
                                             span: Some(
                                                 Span {
                                                     start: 42,
                                                     end: 67,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 42,
-                                                        end: 48,
-                                                    },
-                                                ),
-                                                value: "engine",
-                                            },
-                                            kind: Definition(
-                                                MemberDef {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 42,
-                                                            end: 67,
-                                                        },
+                                            inverse_name: None,
+                                            target_cardinality: Cardinality {
+                                                span: None,
+                                                ordering: None,
+                                                uniqueness: None,
+                                                range: CardinalityRange {
+                                                    span: None,
+                                                    min: 0,
+                                                    max: Some(
+                                                        1,
                                                     ),
-                                                    inverse_name: None,
-                                                    target_cardinality: Cardinality {
-                                                        span: None,
-                                                        ordering: None,
-                                                        uniqueness: None,
-                                                        range: CardinalityRange {
-                                                            span: None,
-                                                            min: 0,
-                                                            max: Some(
-                                                                1,
-                                                            ),
-                                                        },
-                                                    },
-                                                    target_type: FeatureSet(
-                                                        Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 61,
-                                                                        end: 67,
-                                                                    },
-                                                                ),
-                                                                value: "Engine",
+                                                },
+                                            },
+                                            target_type: FeatureSet(
+                                                Identifier(
+                                                    Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 61,
+                                                                end: 67,
                                                             },
                                                         ),
-                                                    ),
-                                                    body: None,
-                                                },
+                                                        value: "Engine",
+                                                    },
+                                                ),
                                             ),
+                                            body: None,
                                         },
-                                    ],
-                                    groups: [],
+                                    ),
                                 },
-                            ),
+                            ],
                         },
                     ),
-                    Union(
-                        UnionDef {
+                },
+            ),
+            Union(
+                UnionDef {
+                    span: Some(
+                        Span {
+                            start: 77,
+                            end: 152,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 83,
+                                end: 89,
+                            },
+                        ),
+                        value: "Engine",
+                    },
+                    body: Some(
+                        UnionBody {
                             span: Some(
                                 Span {
-                                    start: 77,
+                                    start: 90,
                                     end: 152,
                                 },
                             ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 83,
-                                        end: 89,
-                                    },
-                                ),
-                                value: "Engine",
-                            },
-                            body: Some(
-                                UnionBody {
+                            annotations: [],
+                            variants: [
+                                TypeVariant {
                                     span: Some(
                                         Span {
-                                            start: 90,
-                                            end: 152,
+                                            start: 97,
+                                            end: 109,
                                         },
                                     ),
-                                    annotations: [],
-                                    variants: [
-                                        TypeVariant {
+                                    name_reference: Identifier(
+                                        Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 97,
                                                     end: 109,
                                                 },
                                             ),
-                                            name_reference: Identifier(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 97,
-                                                            end: 109,
-                                                        },
-                                                    ),
-                                                    value: "FourCylinder",
-                                                },
-                                            ),
-                                            rename: None,
-                                            body: None,
+                                            value: "FourCylinder",
                                         },
-                                        TypeVariant {
+                                    ),
+                                    rename: None,
+                                    body: None,
+                                },
+                                TypeVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 114,
+                                            end: 125,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 114,
                                                     end: 125,
                                                 },
                                             ),
-                                            name_reference: Identifier(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 114,
-                                                            end: 125,
-                                                        },
-                                                    ),
-                                                    value: "SixCylinder",
-                                                },
-                                            ),
-                                            rename: None,
-                                            body: None,
+                                            value: "SixCylinder",
                                         },
-                                        TypeVariant {
+                                    ),
+                                    rename: None,
+                                    body: None,
+                                },
+                                TypeVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 130,
+                                            end: 146,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 130,
                                                     end: 146,
                                                 },
                                             ),
-                                            name_reference: Identifier(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 130,
-                                                            end: 146,
-                                                        },
-                                                    ),
-                                                    value: "SixCylinderTurbo",
-                                                },
-                                            ),
-                                            rename: None,
-                                            body: None,
+                                            value: "SixCylinderTurbo",
                                         },
-                                    ],
+                                    ),
+                                    rename: None,
+                                    body: None,
                                 },
-                            ),
+                            ],
                         },
                     ),
-                ],
-            },
-        },
+                },
+            ),
+        ],
     },
-)
+}

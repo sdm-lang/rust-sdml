@@ -1,54 +1,50 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 42,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 7,
-                        end: 12,
-                    },
-                ),
-                value: "ddict",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 42,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 12,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 13,
-                        end: 41,
-                    },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    Property(
-                        PropertyDef {
-                            span: Some(
-                                Span {
-                                    start: 18,
-                                    end: 37,
-                                },
-                            ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 27,
-                                        end: 37,
-                                    },
-                                ),
-                                value: "accountIdd",
-                            },
-                            body: None,
+        ),
+        value: "ddict",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 13,
+                end: 41,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Property(
+                PropertyDef {
+                    span: Some(
+                        Span {
+                            start: 18,
+                            end: 37,
                         },
                     ),
-                ],
-            },
-        },
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 27,
+                                end: 37,
+                            },
+                        ),
+                        value: "accountIdd",
+                    },
+                    body: None,
+                },
+            ),
+        ],
     },
-)
+}

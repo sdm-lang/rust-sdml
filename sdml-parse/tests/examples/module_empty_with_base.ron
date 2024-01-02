@@ -1,33 +1,29 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 62,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 7,
-                        end: 15,
-                    },
-                ),
-                value: "Campaign",
-            },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 55,
-                        end: 61,
-                    },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [],
-            },
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 62,
         },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "Campaign",
     },
-)
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 55,
+                end: 61,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [],
+    },
+}

@@ -1,54 +1,50 @@
-ModuleRef(
-    RefCell {
-        value: Module {
-            span: Some(
-                Span {
-                    start: 0,
-                    end: 58,
-                },
-            ),
-            name: Identifier {
-                span: Some(
-                    Span {
-                        start: 24,
-                        end: 32,
-                    },
-                ),
-                value: "campaign",
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 58,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 24,
+                end: 32,
             },
-            base: None,
-            body: ModuleBody {
-                span: Some(
-                    Span {
-                        start: 33,
-                        end: 57,
-                    },
-                ),
-                imports: [],
-                annotations: [],
-                definitions: [
-                    Enum(
-                        EnumDef {
-                            span: Some(
-                                Span {
-                                    start: 39,
-                                    end: 52,
-                                },
-                            ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 44,
-                                        end: 52,
-                                    },
-                                ),
-                                value: "NameKind",
-                            },
-                            body: None,
+        ),
+        value: "campaign",
+    },
+    base: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 33,
+                end: 57,
+            },
+        ),
+        imports: [],
+        annotations: [],
+        definitions: [
+            Enum(
+                EnumDef {
+                    span: Some(
+                        Span {
+                            start: 39,
+                            end: 52,
                         },
                     ),
-                ],
-            },
-        },
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 44,
+                                end: 52,
+                            },
+                        ),
+                        value: "NameKind",
+                    },
+                    body: None,
+                },
+            ),
+        ],
     },
-)
+}
