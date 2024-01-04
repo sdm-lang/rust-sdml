@@ -7,6 +7,17 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.2**
+
+* Feature: Add initial support for versioned modules.
+  * Remove `base` keyword
+  * Add new optional `version` keyword after module URI with:
+    * optional version string that becomes `owl:versionInfo`
+    * version URI that becomes `owl:verionIRI`
+* Feature: Add new RDF structure/property definitions.
+  * Add new keyword `rdf` followed by either `structure` or `property` with name and annotation body.
+  * Extended `SimpleModuleWalker` with support for RDF class/property definitions.
+
 **Version 0.2.1**
 
 * Feature: Remove member groups.

@@ -36,6 +36,8 @@ use crate::model::modules::{Import, Module};
 use crate::model::values::Value;
 use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
 
+use super::definitions::RdfDef;
+
 // ------------------------------------------------------------------------------------------------
 // Public Macros
 // ------------------------------------------------------------------------------------------------
@@ -193,14 +195,6 @@ pub trait SimpleModuleWalker {
         Ok(())
     }
 
-    fn start_group(&mut self, _span: Option<&Span>) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_group(&mut self) -> Result<(), Error> {
-        Ok(())
-    }
-
     fn end_event(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
         Ok(())
     }
@@ -254,6 +248,26 @@ pub trait SimpleModuleWalker {
     }
 
     fn end_structure(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn start_rdf_class(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_rdf_class(&mut self, _name: &Identifier) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn start_rdf_property(
+        &mut self,
+        _name: &Identifier,
+        _span: Option<&Span>,
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn end_rdf_property(&mut self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
 
@@ -358,6 +372,7 @@ pub fn walk_module_simple(
             Definition::Enum(def) => walk_enum_def(def, walker)?,
             Definition::Event(def) => walk_event_def(def, walker)?,
             Definition::Property(def) => walk_property_def(def, walker)?,
+            Definition::Rdf(def) => walk_rdf_def(def, walker)?,
             Definition::Structure(def) => walk_structure_def(def, walker)?,
             Definition::TypeClass(_) => todo!(),
             Definition::Union(def) => walk_union_def(def, walker)?,
@@ -514,6 +529,21 @@ fn walk_structure_def(
     }
 
     walker.end_structure(def.name(), def.has_body())
+}
+
+fn walk_rdf_def(def: &RdfDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
+    match def {
+        RdfDef::Class(v) => {
+            walker.start_rdf_class(v.name(), v.source_span())?;
+            walk_annotations!(walker, v.body().annotations());
+            walker.end_rdf_class(v.name())
+        }
+        RdfDef::Property(v) => {
+            walker.start_rdf_property(v.name(), v.source_span())?;
+            walk_annotations!(walker, v.body().annotations());
+            walker.end_rdf_property(v.name())
+        }
+    }
 }
 
 fn walk_union_def(def: &UnionDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {

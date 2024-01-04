@@ -9,9 +9,8 @@ YYYYY
 
 */
 
-use url::Url;
-
 use crate::model::{identifiers::Identifier, modules::Module};
+use url::Url;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros

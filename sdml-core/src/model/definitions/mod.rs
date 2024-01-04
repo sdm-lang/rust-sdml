@@ -53,6 +53,7 @@ pub enum Definition {
     Enum(EnumDef),
     Event(EventDef),
     Property(PropertyDef),
+    Rdf(RdfDef),
     Structure(StructureDef),
     TypeClass(TypeClassDef),
     Union(UnionDef),
@@ -84,19 +85,21 @@ impl_from_for_variant!(Definition, Event, EventDef);
 
 impl_from_for_variant!(Definition, Property, PropertyDef);
 
+impl_from_for_variant!(Definition, Rdf, RdfDef);
+
 impl_from_for_variant!(Definition, Structure, StructureDef);
 
 impl_from_for_variant!(Definition, TypeClass, TypeClassDef);
 
 impl_from_for_variant!(Definition, Union, UnionDef);
 
-impl_has_name_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Structure, TypeClass, Union);
+impl_has_name_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_has_source_span_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Structure, TypeClass, Union);
+impl_has_source_span_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Structure, TypeClass, Union);
+impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Structure, TypeClass, Union);
+impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
 // ------------------------------------------------------------------------------------------------
 // Private Functions
@@ -131,3 +134,6 @@ pub use structures::{StructureBody, StructureDef};
 
 mod unions;
 pub use unions::{TypeVariant, UnionBody, UnionDef};
+
+mod rdf;
+pub use rdf::{RdfDef, RdfDefBody};

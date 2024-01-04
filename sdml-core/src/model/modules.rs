@@ -10,6 +10,7 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
     HasBody, HasName, Span,
 };
+use std::fmt::Display;
 use std::{collections::HashSet, fmt::Debug};
 use url::Url;
 
@@ -29,6 +30,8 @@ pub struct Module {
     span: Option<Span>,
     name: Identifier,
     base: Option<Url>,
+    version_info: Option<String>,
+    version_uri: Option<Url>,
     body: ModuleBody,
 }
 
@@ -65,9 +68,20 @@ pub struct ImportStatement {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Import {
     /// Corresponds to the grammar rule `module_import`.
-    Module(Identifier),
+    Module(ModuleImport),
     /// Corresponds to the grammar rule `member_import`.
     Member(QualifiedIdentifier),
+}
+
+///
+/// Corresponds the grammar rule `module_import`.
+///
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ModuleImport {
+    span: Option<Span>,
+    name: Identifier,
+    version_uri: Option<Url>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -111,7 +125,9 @@ impl Module {
         Self {
             span: None,
             name,
-            base: None,
+            base: Default::default(),
+            version_info: Default::default(),
+            version_uri: Default::default(),
             body: Default::default(),
         }
     }
@@ -120,7 +136,9 @@ impl Module {
         Self {
             span: None,
             name,
-            base: None,
+            base: Default::default(),
+            version_info: Default::default(),
+            version_uri: Default::default(),
             body,
         }
     }
@@ -136,7 +154,28 @@ impl Module {
         }
     }
 
+    pub fn with_version_info<S>(self, version_info: S) -> Self
+    where
+        S: Into<String>,
+    {
+        Self {
+            version_info: Some(version_info.into()),
+            ..self
+        }
+    }
+
+    pub fn with_version_uri(self, version_uri: Url) -> Self {
+        Self {
+            version_uri: Some(version_uri),
+            ..self
+        }
+    }
+
     get_and_set!(pub base, set_base, unset_base => optional has_base, Url);
+
+    get_and_set!(pub version_info, set_version_info, unset_version_info => optional has_version_info, String);
+
+    get_and_set!(pub version_uri, set_version_uri, unset_version_uri => optional has_version_uri, Url);
 
     // --------------------------------------------------------------------------------------------
 
@@ -334,7 +373,7 @@ impl FromIterator<Import> for ImportStatement {
     }
 }
 
-impl_has_source_span_for!(ImportStatement);
+impl_has_source_span_for! {ImportStatement}
 
 impl ImportStatement {
     // --------------------------------------------------------------------------------------------
@@ -374,7 +413,7 @@ impl ImportStatement {
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
         self.imports()
             .map(|imp| match imp {
-                Import::Module(v) => v,
+                Import::Module(v) => v.name(),
                 Import::Member(v) => v.module(),
             })
             .collect()
@@ -397,6 +436,12 @@ impl ImportStatement {
 
 impl From<Identifier> for Import {
     fn from(v: Identifier) -> Self {
+        Self::Module(ModuleImport::from(v))
+    }
+}
+
+impl From<ModuleImport> for Import {
+    fn from(v: ModuleImport) -> Self {
         Self::Module(v)
     }
 }
@@ -410,6 +455,51 @@ impl From<QualifiedIdentifier> for Import {
 enum_display_impl!(Import => Module, Member);
 
 impl_has_source_span_for!(Import => variants Module, Member);
+
+// ------------------------------------------------------------------------------------------------
+
+impl Display for ModuleImport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            if let Some(version_uri) = self.version_uri() {
+                format!("{} version {}", self.name(), version_uri)
+            } else {
+                self.name().to_string()
+            }
+        )
+    }
+}
+
+impl From<Identifier> for ModuleImport {
+    fn from(value: Identifier) -> Self {
+        Self::new(value)
+    }
+}
+
+impl_has_source_span_for!(ModuleImport);
+
+impl ModuleImport {
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            span: Default::default(),
+            name,
+            version_uri: Default::default(),
+        }
+    }
+
+    pub fn with_version_uri(self, version_uri: Url) -> Self {
+        Self {
+            version_uri: Some(version_uri),
+            ..self
+        }
+    }
+
+    get_and_set!(pub name, set_name => Identifier);
+
+    get_and_set!(pub version_uri, set_version_uri, unset_version_uri => optional has_version_uri, Url);
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Functions
