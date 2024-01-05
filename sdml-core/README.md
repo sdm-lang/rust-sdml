@@ -7,6 +7,10 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.3**
+
+* Feature: Update to latest grammar for version URIs and RDF definitions.
+
 **Version 0.2.2**
 
 * Feature: Add initial support for versioned modules.

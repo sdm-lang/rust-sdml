@@ -68,7 +68,7 @@ impl ModuleCache {
     }
 
     pub fn insert(&mut self, module: Module) {
-        if let Some(base_uri) = module.base() {
+        if let Some(base_uri) = module.base_uri() {
             self.uri_map.insert(base_uri.clone(), module.name().clone());
         }
         self.modules.insert(module.name().clone(), module);

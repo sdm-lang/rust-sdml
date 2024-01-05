@@ -29,7 +29,7 @@ use serde::{Deserialize, Serialize};
 pub struct Module {
     span: Option<Span>,
     name: Identifier,
-    base: Option<Url>,
+    base_uri: Option<Url>,
     version_info: Option<String>,
     version_uri: Option<Url>,
     body: ModuleBody,
@@ -125,7 +125,7 @@ impl Module {
         Self {
             span: None,
             name,
-            base: Default::default(),
+            base_uri: Default::default(),
             version_info: Default::default(),
             version_uri: Default::default(),
             body: Default::default(),
@@ -136,7 +136,7 @@ impl Module {
         Self {
             span: None,
             name,
-            base: Default::default(),
+            base_uri: Default::default(),
             version_info: Default::default(),
             version_uri: Default::default(),
             body,
@@ -147,9 +147,9 @@ impl Module {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_base(self, base: Url) -> Self {
+    pub fn with_base_uri(self, base_uri: Url) -> Self {
         Self {
-            base: Some(base),
+            base_uri: Some(base_uri),
             ..self
         }
     }
@@ -171,7 +171,7 @@ impl Module {
         }
     }
 
-    get_and_set!(pub base, set_base, unset_base => optional has_base, Url);
+    get_and_set!(pub base_uri, set_base_uri, unset_base_uri => optional has_base_uri, Url);
 
     get_and_set!(pub version_info, set_version_info, unset_version_info => optional has_version_info, String);
 

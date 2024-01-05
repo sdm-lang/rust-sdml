@@ -72,42 +72,42 @@ pub fn library_module(name: &Identifier) -> Option<Module> {
 
 pub fn dc() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_DC))
-        .with_base(Url::parse(MODULE_URL_DC).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_DC).unwrap())
 }
 
 pub fn dc_terms() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_DC_TERMS))
-        .with_base(Url::parse(MODULE_URL_DC_TERMS).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_DC_TERMS).unwrap())
 }
 
 pub fn owl() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_OWL))
-        .with_base(Url::parse(MODULE_URL_OWL).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_OWL).unwrap())
 }
 
 pub fn rdf() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_RDF))
-        .with_base(Url::parse(MODULE_URL_RDF).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_RDF).unwrap())
 }
 
 pub fn rdfs() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_RDFS))
-        .with_base(Url::parse(MODULE_URL_RDFS).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_RDFS).unwrap())
 }
 
 pub fn sdml() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_SDML))
-        .with_base(Url::parse(MODULE_URL_SDML).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_SDML).unwrap())
 }
 
 pub fn skos() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_SKOS))
-        .with_base(Url::parse(MODULE_URL_SKOS).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_SKOS).unwrap())
 }
 
 pub fn xsd() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME_XSD))
-        .with_base(Url::parse(MODULE_URL_XSD).unwrap())
+        .with_base_uri(Url::parse(MODULE_URL_XSD).unwrap())
 }
 
 // ------------------------------------------------------------------------------------------------

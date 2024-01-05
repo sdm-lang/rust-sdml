@@ -106,6 +106,9 @@ pub const NODE_KIND_QUANTIFIED_VARIABLE: &str = "quantified_variable";
 pub const NODE_KIND_QUANTIFIED_VARIABLE_BINDING: &str = "quantified_variable_binding";
 pub const NODE_KIND_QUOTED_STRING: &str = "quoted_string";
 
+pub const NODE_KIND_RDF_DEF: &str = "rdf_def";
+pub const NODE_KIND_RDF_TYPE_CLASS: &str = "structure";
+pub const NODE_KIND_RDF_TYPE_PROPERTY: &str = "property";
 pub const NODE_KIND_RESERVED_SELF: &str = "reserved_self";
 pub const NODE_KIND_ROLE_BY_REFERENCE: &str = "role_by_reference";
 pub const NODE_KIND_ROLE_BY_VALUE: &str = "role_by_value";
@@ -198,12 +201,15 @@ pub const FIELD_NAME_SOURCE: &str = "source";
 pub const FIELD_NAME_SUBJECT: &str = "subject";
 
 pub const FIELD_NAME_TARGET: &str = "target";
+pub const FIELD_NAME_TYPE: &str = "type";
 
 pub const FIELD_NAME_UNARY: &str = "unary";
 pub const FIELD_NAME_UNIQUENESS: &str = "uniqueness";
 
 pub const FIELD_NAME_VALUE: &str = "value";
 pub const FIELD_NAME_VARIABLE: &str = "variable";
+pub const FIELD_NAME_VERSION_INFO: &str = "version_info";
+pub const FIELD_NAME_VERSION_URI: &str = "version_uri";
 
 pub const FIELD_NAME_WILDCARD: &str = "wildcard";
 
