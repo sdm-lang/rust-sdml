@@ -1,1 +1,1 @@
-module Campaign base <https://example.org/v/Campaign#> is end
+module Campaign <https://example.org/v/Campaign#> is end

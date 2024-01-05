@@ -43,7 +43,7 @@ end"#
     let imports: Vec<&ImportStatement> = body.imports().collect();
     assert_eq!(imports.len(), 3);
 
-    let import = imports.get(0).unwrap();
+    let import = imports.first().unwrap();
     let imported: Vec<String> = import.imports().map(|i| i.to_string()).collect();
     assert_eq!(imported, ["foo"]);
 }
@@ -75,7 +75,7 @@ end"#
     let annotations: Vec<&AnnotationProperty> = body.annotation_properties().collect();
     assert_eq!(annotations.len(), 3);
 
-    let annotation = annotations.get(0).unwrap();
+    let annotation = annotations.first().unwrap();
     assert_eq!(annotation.name_reference().to_string().as_str(), "xml:base");
     if let Value::Simple(SimpleValue::IriReference(value)) = annotation.value() {
         assert_eq!(value, &Url::from_str("https://example.org/").unwrap());
@@ -104,7 +104,7 @@ end"#
             let values: Vec<&SequenceMember> = list.iter().collect();
             assert_eq!(values.len(), 2);
 
-            if let Some(SequenceMember::Simple(SimpleValue::String(value))) = values.get(0) {
+            if let Some(SequenceMember::Simple(SimpleValue::String(value))) = values.first() {
                 assert_eq!(value.value().as_str(), "aa");
                 assert_eq!(value.language().unwrap().as_ref(), "en");
             } else {
@@ -144,7 +144,7 @@ end"#
     let types: Vec<&Definition> = body.definitions().collect();
     assert_eq!(types.len(), 1);
 
-    if let Some(Definition::Datatype(definition)) = types.get(0) {
+    if let Some(Definition::Datatype(definition)) = types.first() {
         assert_eq!(definition.name().as_ref(), "Name");
         assert_eq!(definition.base_type().to_string().as_str(), "xsd:string");
     } else {

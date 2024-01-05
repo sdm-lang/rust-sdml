@@ -1,0 +1,75 @@
+Module {
+    span: Some(
+        Span {
+            start: 0,
+            end: 78,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: None,
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 77,
+            },
+        ),
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 22,
+                        end: 72,
+                    },
+                ),
+                imports: [
+                    Module(
+                        ModuleImport {
+                            span: None,
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 29,
+                                        end: 37,
+                                    },
+                                ),
+                                value: "customer",
+                            },
+                            version_uri: Some(
+                                Url {
+                                    scheme: "https",
+                                    cannot_be_a_base: false,
+                                    username: "",
+                                    password: None,
+                                    host: Some(
+                                        Domain(
+                                            "example.org",
+                                        ),
+                                    ),
+                                    port: None,
+                                    path: "/v2/Customer",
+                                    query: None,
+                                    fragment: Some(
+                                        "",
+                                    ),
+                                },
+                            ),
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

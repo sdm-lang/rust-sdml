@@ -329,16 +329,16 @@ impl ModuleLoader {
         let mut reader = File::open(&file)?;
         let catalog = self.resolver.catalog.clone();
         let mut module = self.load_inner(&mut reader, Some(file.clone()))?;
-        if !module.has_base() {
+        if !module.has_base_uri() {
             if let Some(catalog) = catalog {
                 let name = module.name().to_string();
                 if let Some(url) = catalog.resolve_uri(&name) {
-                    module.set_base(url);
+                    module.set_base_uri(url);
                 }
             } else {
                 let file = file.canonicalize()?;
                 match Url::from_file_path(file) {
-                    Ok(base) => module.set_base(base),
+                    Ok(base) => module.set_base_uri(base),
                     Err(_) => warn!("Could not construct a base URI"),
                 }
             }

@@ -6,8 +6,8 @@ use sdml_core::model::definitions::Definition;
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_DEF,
-    NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF, NODE_KIND_STRUCTURE_DEF,
-    NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
+    NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF, NODE_KIND_RDF_DEF,
+    NODE_KIND_STRUCTURE_DEF, NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
 };
 use tree_sitter::TreeCursor;
 
@@ -41,6 +41,9 @@ pub(crate) fn parse_definition<'a>(
                     }
                     NODE_KIND_PROPERTY_DEF => {
                         return Ok(parse_property_def(context, &mut node.walk())?.into());
+                    }
+                    NODE_KIND_RDF_DEF => {
+                        return Ok(parse_rdf_def(context, &mut node.walk())?.into());
                     }
                     NODE_KIND_STRUCTURE_DEF => {
                         return Ok(parse_structure_def(context, &mut node.walk())?.into());
@@ -124,11 +127,14 @@ use enums::parse_enum_def;
 mod events;
 use events::parse_event_def;
 
+mod properties;
+use properties::parse_property_def;
+
+mod rdf;
+use rdf::parse_rdf_def;
+
 mod structures;
 use structures::parse_structure_def;
 
 mod unions;
 use unions::parse_union_def;
-
-mod properties;
-use properties::parse_property_def;

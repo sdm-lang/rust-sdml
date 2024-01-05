@@ -14,7 +14,9 @@ Module {
         ),
         value: "annx",
     },
-    base: None,
+    base_uri: None,
+    version_info: None,
+    version_uri: None,
     body: ModuleBody {
         span: Some(
             Span {

@@ -1,0 +1,28 @@
+module rdfs <http://www.w3.org/2000/01/rdf-schema#> is
+
+  import [ owl rdf ]
+
+  rdf structure Resource is ;; assumed: @rdf:type = Class
+    @isDefinedBy = rdfs
+    @label = "Resource"@en
+    @comment = "The class resource, everything."
+  end
+
+  rdf property subClassOf is ;; assumed: @rdf:type = rdf:Property
+    @domain = Class
+    @range = Class
+    @isDefinedBy = rdfs
+    @label = "subClassOf"
+    @comment = "The subject is a subclass of a class."
+  end
+
+  rdf property comment is ;; assumed: @rdf:type = rdf:Property
+    @rdf:type = owl:AnnotationProperty
+    @domain = Resource
+    @range = Literal
+    @isDefinedBy = rdfs
+    @label = "comment"
+    @comment = "A description of the subject resource."
+  end
+
+end

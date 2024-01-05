@@ -1,4 +1,5 @@
 use paste::paste;
+use sdml_core::model::HasName;
 use sdml_parse::load::ModuleLoader;
 use std::fs::read_to_string;
 use std::path::PathBuf;
@@ -53,19 +54,18 @@ macro_rules! test_example {
                 let mut loader = ModuleLoader::default();
                 let module = loader.load_from_file(input);
                 if let Err(e) = module {
-                    panic!("parse error: {}", e);
+                    panic!("Load/Parse error: {}", e);
                 }
-                println!("1");
                 let module = module.unwrap();
+                println!("Module {} loaded.", module.name());
 
                 let module_as_string = format!("{:#?}\n", module);
 
-                println!("Comparing to result in {:?}", expected);
+                println!("Comparing to result in file {:?}", expected);
                 let expected_string = read_to_string(expected);
                 if let Err(e) = expected_string {
-                    panic!("io error: {}", e);
+                    panic!("IO error reading expected: {}", e);
                 }
-                println!("2");
 
                 pretty_assertions::assert_eq!(module_as_string, expected_string.unwrap());
             }
@@ -83,6 +83,7 @@ test_examples! {
         module_empty,
         module_empty_with_base,
         module_empty_with_comments,
+        module_empty_with_version,
         module_with_underscore
     )
 }
@@ -95,8 +96,11 @@ test_examples! {
     import => (
         import_member_only,
         import_module_only,
+        import_module_version,
+        import_multiple_members,
         import_multiple_mixed,
-        import_multiple_modules
+        import_multiple_modules,
+        import_multiple_module_version
     )
 }
 
@@ -123,6 +127,16 @@ test_examples! {
         annotation_multiple_language_string,
         annotation_multiple_separate,
         annotation_multiple_string
+    )
+}
+
+// ------------------------------------------------------------------------------------------------
+// Annotation Properties ❱ RDF
+// ------------------------------------------------------------------------------------------------
+
+test_examples! {
+    rdf => (
+        rdf_definitions
     )
 }
 

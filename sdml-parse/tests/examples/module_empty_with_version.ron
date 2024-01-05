@@ -2,7 +2,7 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 57,
+            end: 106,
         },
     ),
     name: Identifier {
@@ -33,13 +33,33 @@ Module {
             ),
         },
     ),
-    version_info: None,
-    version_uri: None,
+    version_info: Some(
+        "2",
+    ),
+    version_uri: Some(
+        Url {
+            scheme: "https",
+            cannot_be_a_base: false,
+            username: "",
+            password: None,
+            host: Some(
+                Domain(
+                    "example.org",
+                ),
+            ),
+            port: None,
+            path: "/v2/Campaign",
+            query: None,
+            fragment: Some(
+                "",
+            ),
+        },
+    ),
     body: ModuleBody {
         span: Some(
             Span {
-                start: 50,
-                end: 56,
+                start: 99,
+                end: 105,
             },
         ),
         imports: [],

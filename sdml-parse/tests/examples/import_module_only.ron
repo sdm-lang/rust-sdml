@@ -14,7 +14,9 @@ Module {
         ),
         value: "campaign",
     },
-    base: None,
+    base_uri: None,
+    version_info: None,
+    version_uri: None,
     body: ModuleBody {
         span: Some(
             Span {
@@ -32,14 +34,18 @@ Module {
                 ),
                 imports: [
                     Module(
-                        Identifier {
-                            span: Some(
-                                Span {
-                                    start: 60,
-                                    end: 63,
-                                },
-                            ),
-                            value: "xsd",
+                        ModuleImport {
+                            span: None,
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 60,
+                                        end: 63,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            version_uri: None,
                         },
                     ),
                 ],
