@@ -1,7 +1,6 @@
 module campaign base <https://advertising.amazon.com/api-model> is
 
-  import [xsd skos xml:base dc]
-  import foo
+  import [xsd skos dc]
 
   @skos:version = xsd:decimal(2)
 
@@ -19,7 +18,7 @@ module campaign base <https://advertising.amazon.com/api-model> is
 
   structure Tag is
     key -> xsd:NMTOKEN
-    value -> {0..} rdfs:langStrings
+    value -> {0..} rdfs:langString
   end
 
   entity Campaign is
