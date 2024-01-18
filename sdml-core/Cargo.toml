@@ -21,7 +21,6 @@ serde = ["dep:serde"]
 [dependencies]
 codespan-reporting = "0.11.1"
 convert_case = "0.6.0"
-indent_write = "2.2.0"
 lazy_static = "1.4.0"
 ordered-float = { version = "4.2.0", features = ["serde"] }
 regex = "1.10.2"
