@@ -7,6 +7,14 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 
 ## Changes
 
+**Version 0.2.3**
+
+* Feature: Update to latest grammar for version URIs and RDF definitions.
+  * Add support for base URI on modules
+  * Add support for version info and URI on modules
+  * Add support for version URI on module import
+  * Parse RDF definitions for classes and properties.
+
 **Version 0.2.2**
 
 * Feature: Remove member groups.
