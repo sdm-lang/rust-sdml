@@ -26,7 +26,7 @@ lazy_static = "1.4.0"
 ordered-float = { version = "4.2.0", features = ["serde"] }
 regex = "1.10.2"
 rust_decimal = { version = "1.33.1", features = ["serde"] }
-serde = { version = "1.0.190", features = ["derive"], optional = true }
+serde = { version = "1.0.195", features = ["derive"], optional = true }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tree-sitter = "0.20.10"
