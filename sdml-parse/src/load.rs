@@ -120,6 +120,13 @@ pub struct Item {
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Given a `module` instance, load all it's dependencies (imported modules). If `recursive` is
+/// `true` the same operation is performed on all loaded dependencies.
+///
+/// This requires a module `cache` to hold the loaded dependencies and a `loader` to perform the
+/// actual parsing.
+///
 pub fn load_module_dependencies(
     module: &Module,
     recursive: bool,
@@ -138,6 +145,14 @@ pub fn load_module_dependencies(
     load_module_dependencies_named(&dependencies, recursive, cache, loader)
 }
 
+
+///
+/// Given a `module` instance, load the list of `dependencies`. If `recursive` is
+/// `true` the same operation is performed on all loaded dependencies.
+///
+/// This requires a module `cache` to hold the loaded dependencies and a `loader` to perform the
+/// actual parsing.
+///
 pub fn load_module_dependencies_named(
     dependencies: &[Identifier],
     recursive: bool,
@@ -169,23 +184,12 @@ pub fn load_module_dependencies_named(
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! trace_entry {
-    //($fn_name: literal) => {
-    //    let tracing_span = ::tracing::trace_span!($fn_name);
-    //    let _enter_span = tracing_span.enter();
-    //    ::tracing::trace!("{}()", $fn_name);
-    //};
     ($type_name: literal, $fn_name: literal) => {
         const FULL_NAME: &str = concat!($type_name, "::", $fn_name);
         let tracing_span = ::tracing::trace_span!(FULL_NAME);
         let _enter_span = tracing_span.enter();
         ::tracing::trace!("{FULL_NAME}()");
     };
-    //($fn_name: literal => $format: literal, $( $value: expr ),+ ) => {
-    //    let tracing_span = ::tracing::trace_span!($fn_name);
-    //    let _enter_span = tracing_span.enter();
-    //    let arguments = format!($format, $( $value ),+);
-    //    ::tracing::trace!("{}({arguments})", $fn_name);
-    //};
     ($type_name: literal, $fn_name: literal => $format: literal, $( $value: expr ),+ ) => {
         const FULL_NAME: &str = concat!($type_name, "::", $fn_name);
         let tracing_span = ::tracing::trace_span!(FULL_NAME);
@@ -402,12 +406,22 @@ impl ModuleLoader {
 // ------------------------------------------------------------------------------------------------
 
 impl ModuleCatalog {
+    ///
+    /// Load a resolver catalog file from the current directory.
+    ///
+    /// If the parameter `look_in_parents` is `true` this will check parent directories.
+    ///
     pub fn load_from_current(look_in_parents: bool) -> Option<Self> {
         trace!("ModuleCatalog::load_from_current({look_in_parents})");
         let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         Self::load_from(&cwd, look_in_parents)
     }
 
+    ///
+    /// Load a resolver catalog file from the `path`.
+    ///
+    /// If the parameter `look_in_parents` is `true` this will check parent directories.
+    ///
     pub fn load_from(path: &Path, look_in_parents: bool) -> Option<Self> {
         trace!("ModuleCatalog::load_from({path:?}, {look_in_parents})");
         if path.is_file() {
@@ -433,6 +447,10 @@ impl ModuleCatalog {
         }
     }
 
+    ///
+    /// Load from the `file` path, this has been found by one of the methods above and so it should
+    /// exist.
+    ///
     fn load_from_file(file: &Path) -> Option<Self> {
         match std::fs::read_to_string(file) {
             Ok(source) => match serde_json::from_str::<ModuleCatalog>(&source) {
