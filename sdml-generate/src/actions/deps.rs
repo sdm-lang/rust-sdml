@@ -146,7 +146,7 @@ impl<'a> Node<'a> {
             let cached = cache.get(imported);
             if depth == 1 || seen.contains(&imported) {
                 if let Some(cached) = cached {
-                    children.push(Self::from_name(imported, cached.base()));
+                    children.push(Self::from_name(imported, cached.base_uri()));
                 } else {
                     children.push(Self::from_name_only(imported));
                 }
@@ -158,7 +158,7 @@ impl<'a> Node<'a> {
 
         Self {
             name: module.name(),
-            base: module.base(),
+            base: module.base_uri(),
             children: Some(children),
         }
     }

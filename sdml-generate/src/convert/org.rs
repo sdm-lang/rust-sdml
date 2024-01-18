@@ -178,6 +178,7 @@ fn write_definitions<'a>(
             Definition::Enum(v) => write_enum(v, writer)?,
             Definition::Event(v) => write_event(v, writer)?,
             Definition::Property(v) => write_property(v, writer)?,
+            Definition::Rdf(_) => todo!(),
             Definition::Structure(v) => write_structure(v, writer)?,
             Definition::TypeClass(v) => write_typeclass(v, writer)?,
             Definition::Union(v) => write_union(v, writer)?,

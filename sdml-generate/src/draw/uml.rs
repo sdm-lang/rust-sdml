@@ -340,11 +340,6 @@ package "{name}" as {} <<module>> {{
         Ok(())
     }
 
-    fn start_group(&mut self, _span: Option<&Span>) -> Result<(), Error> {
-        self.buffer.push_str("    --\n");
-        Ok(())
-    }
-
     fn end_event(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
         self.buffer.push_str(&end_type(name, had_body));
         self.assoc_src = None;

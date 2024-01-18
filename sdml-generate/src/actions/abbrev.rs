@@ -78,9 +78,6 @@ const MODULE_DEFINITION_INDENT: usize = 1;
 const DEFINITION_ANNOTATION_INDENT: usize = 2;
 const DEFINITION_MEMBER_INDENT: usize = 2;
 const MEMBER_ANNOTATION_INDENT: usize = 3;
-//const GROUP_ANNOTATION_INDENT: usize = 4;
-//const GROUP_MEMBER_INDENT: usize = 4;
-//const GROUP_MEMBER_ANNOTATION_INDENT: usize = 5;
 
 // ------------------------------------------------------------------------------------------------
 // Implementations

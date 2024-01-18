@@ -25,7 +25,7 @@ use sdml_core::model::constraints::{
 use sdml_core::model::definitions::{
     DatatypeDef, Definition, EntityBody, EntityDef, EntityIdentity, EntityIdentityDef, EnumBody,
     EnumDef, EventDef, HasMembers, HasVariants, PropertyBody, PropertyDef, PropertyRoleDef,
-    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant,
+    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant, RdfDef,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{
@@ -71,7 +71,7 @@ use sdml_core::syntax::{
     NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF,
     NODE_KIND_TERM, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
     NODE_KIND_UNIVERSAL, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
-    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD,
+    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD, FIELD_NAME_VERSION_INFO, FIELD_NAME_VERSION_URI, NODE_KIND_RDF_DEF, NODE_KIND_RDF_TYPE_CLASS, NODE_KIND_RDF_TYPE_PROPERTY,
 };
 use std::fmt::Display;
 use std::io::Write;
@@ -322,6 +322,21 @@ fn write_module<W: Write>(me: &Module, w: &mut Writer<W>) -> Result<(), Error> {
     w.newln_and_indentation()?;
     w.field(FIELD_NAME_NAME, me.name())?;
 
+    if let Some(uri) = me.base_uri() {
+        w.newln_and_indentation()?;
+        w.field(FIELD_NAME_BASE, uri)?;
+    }
+
+    if let Some(version_info) = me.version_info() {
+        w.newln_and_indentation()?;
+        w.field(FIELD_NAME_VERSION_INFO, version_info)?;
+    }
+
+    if let Some(version_uri) = me.version_uri() {
+        w.newln_and_indentation()?;
+        w.field(FIELD_NAME_VERSION_URI, version_uri)?;
+    }
+
     w.newln_and_indentation()?;
     w.field_name(FIELD_NAME_BODY)?;
     write_module_body(me.body(), w)?;
@@ -379,8 +394,11 @@ fn write_import<W: Write>(me: &Import, w: &mut Writer<W>) -> Result<(), Error> {
             write_span!(v, w);
 
             w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_identifier(v, w)?;
+            w.field(FIELD_NAME_NAME, v.name())?;
+            if let Some(version_uri) = v.version_uri() {
+                w.newln_and_indentation()?;
+                w.field(FIELD_NAME_NAME, version_uri)?;
+            }
         }
         Import::Member(v) => {
             w.start_node_indented(NODE_KIND_MEMBER_IMPORT)?;
@@ -389,8 +407,7 @@ fn write_import<W: Write>(me: &Import, w: &mut Writer<W>) -> Result<(), Error> {
             write_span!(v, w);
 
             w.newln_and_indentation()?;
-            w.field_name(FIELD_NAME_NAME)?;
-            write_qualified_identifier(v, w)?;
+            w.field(FIELD_NAME_NAME, v)?;
         }
     };
 
@@ -413,8 +430,7 @@ fn write_annotation_property<W: Write>(
     write_identifier_reference(me.name_reference(), w)?;
 
     w.newln_and_indentation()?;
-    w.field_name(FIELD_NAME_VALUE)?;
-    write_value(me.value(), w)?;
+    w.field(FIELD_NAME_VALUE, me.value())?;
 
     w.close_paren()?;
     w.outdent();
@@ -1119,6 +1135,7 @@ fn write_type_definition<W: Write>(me: &Definition, w: &mut Writer<W>) -> Result
         Definition::Enum(v) => write_enum_def(v, w)?,
         Definition::Event(v) => write_event_def(v, w)?,
         Definition::Property(v) => write_property_def(v, w)?,
+        Definition::Rdf(v) => write_rdf_def(v, w)?,
         Definition::Structure(v) => write_structure_def(v, w)?,
         Definition::TypeClass(_) => todo!(),
         Definition::Union(v) => write_union_def(v, w)?,
@@ -1297,66 +1314,6 @@ fn write_event_def<W: Write>(me: &EventDef, w: &mut Writer<W>) -> Result<(), Err
     Ok(())
 }
 
-fn write_structure_def<W: Write>(me: &StructureDef, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_STRUCTURE_DEF)?;
-    w.indent();
-
-    write_span!(me, w);
-
-    w.newln_and_indentation()?;
-    w.field_name(FIELD_NAME_NAME)?;
-    write_identifier(me.name(), w)?;
-
-    if let Some(body) = me.body() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_BODY)?;
-        write_structure_body(body, w)?
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_structure_body<W: Write>(me: &StructureBody, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node(NODE_KIND_STRUCTURE_BODY)?;
-    w.indent();
-
-    write_span!(me, w);
-
-    write_annotations!(me.annotations(), w);
-
-    for member in me.members() {
-        w.newln()?;
-        write_member(member, w)?;
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
-fn write_union_def<W: Write>(me: &UnionDef, w: &mut Writer<W>) -> Result<(), Error> {
-    w.start_node_indented(NODE_KIND_UNION_DEF)?;
-    w.indent();
-
-    write_span!(me, w);
-
-    w.newln_and_indentation()?;
-    w.field_name(FIELD_NAME_NAME)?;
-    write_identifier(me.name(), w)?;
-
-    if let Some(body) = &me.body() {
-        w.newln_and_indentation()?;
-        w.field_name(FIELD_NAME_BODY)?;
-        write_union_body(body, w)?
-    }
-
-    w.close_paren()?;
-    w.outdent();
-    Ok(())
-}
-
 fn write_property_def<W: Write>(me: &PropertyDef, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node_indented(NODE_KIND_UNION_DEF)?;
     w.indent();
@@ -1460,6 +1417,98 @@ fn write_member_role<W: Write>(
         w.newln_and_indentation()?;
         w.field_name(FIELD_NAME_BODY)?;
         write_annotation_only_body(body, w)?
+    }
+
+    w.close_paren()?;
+    w.outdent();
+    Ok(())
+}
+
+fn write_rdf_def<W: Write>(me: &RdfDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_RDF_DEF)?;
+    w.indent();
+
+    let me = match me {
+        RdfDef::Class(v) => {
+            w.start_node_indented(NODE_KIND_RDF_TYPE_CLASS)?;
+            w.indent();
+            v
+        }
+        RdfDef::Property(v) => {
+            w.start_node_indented(NODE_KIND_RDF_TYPE_PROPERTY)?;
+            w.indent();
+            v
+        }
+    };
+
+    write_span!(me, w);
+
+    w.newln_and_indentation()?;
+    w.field(FIELD_NAME_NAME, me.name())?;
+
+    write_annotations!(me.body().annotations(), w);
+
+    w.close_paren()?;
+    w.outdent();
+
+    w.close_paren()?;
+    w.outdent();
+    Ok(())
+}
+
+fn write_structure_def<W: Write>(me: &StructureDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_STRUCTURE_DEF)?;
+    w.indent();
+
+    write_span!(me, w);
+
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
+
+    if let Some(body) = me.body() {
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_structure_body(body, w)?
+    }
+
+    w.close_paren()?;
+    w.outdent();
+    Ok(())
+}
+
+fn write_structure_body<W: Write>(me: &StructureBody, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node(NODE_KIND_STRUCTURE_BODY)?;
+    w.indent();
+
+    write_span!(me, w);
+
+    write_annotations!(me.annotations(), w);
+
+    for member in me.members() {
+        w.newln()?;
+        write_member(member, w)?;
+    }
+
+    w.close_paren()?;
+    w.outdent();
+    Ok(())
+}
+
+fn write_union_def<W: Write>(me: &UnionDef, w: &mut Writer<W>) -> Result<(), Error> {
+    w.start_node_indented(NODE_KIND_UNION_DEF)?;
+    w.indent();
+
+    write_span!(me, w);
+
+    w.newln_and_indentation()?;
+    w.field_name(FIELD_NAME_NAME)?;
+    write_identifier(me.name(), w)?;
+
+    if let Some(body) = &me.body() {
+        w.newln_and_indentation()?;
+        w.field_name(FIELD_NAME_BODY)?;
+        write_union_body(body, w)?
     }
 
     w.close_paren()?;

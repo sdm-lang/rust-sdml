@@ -4,7 +4,7 @@ description = "Simple Domain Modeling Language (SDML) generated Artifacts"
 version = "0.2.2"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
-license = "MIT"
+license-file = "../LICENSE"
 readme = "README.md"
 edition = "2021"
 publish = true
@@ -25,7 +25,7 @@ rust_decimal = "1.30.0"
 tempfile = "3.8.1"
 text_trees = "0.1.2"
 tracing = "0.1.40"
-tracing-subscriber = { version = "0.3", features = [ "env-filter" ] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tree-sitter = "0.20.10"
 tree-sitter-highlight = "0.20.1"
 tree-sitter-sdml = "0.2"

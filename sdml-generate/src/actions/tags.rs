@@ -67,6 +67,7 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
                     }
                 }
             }
+            Definition::Rdf(_) => {}
             Definition::Structure(v) => {
                 if let Some(body) = v.body() {
                     for member in body.members() {

@@ -41,7 +41,7 @@ pub struct RdfModelGenerator {}
 // ------------------------------------------------------------------------------------------------
 
 pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
-    if let Some(base) = module.base() {
+    if let Some(base) = module.base_uri() {
         w.write_all(format!(r#"@base <{base}> .\n@prefix : <{base}> .\n"#).as_bytes())?;
     }
 
@@ -53,13 +53,14 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
 "#
         .as_bytes(),
     )?;
+    // TODO: base
 
     let body = module.body();
 
     for statement in body.imports() {
         for import in statement.imports() {
             let name = match import {
-                Import::Module(v) => v,
+                Import::Module(v) => v.name(),
                 Import::Member(v) => v.module(),
             };
             w.write_all(format!("@prefix {name}: <> .\n").as_bytes())?;
@@ -67,11 +68,17 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
     }
 
     w.write_all(b": rdf:type owl:Ontology, sdml:Module ;\n")?;
+    if let Some(version_info) = module.version_info() {
+        w.write_all(format!("    owl:versionInfo {version_info:?} ;\n").as_bytes())?;
+    }
+    if let Some(version_uri) = module.version_uri() {
+        w.write_all(format!("    owl:versionIRI <{version_uri}> ;\n").as_bytes())?;
+    }
 
     for statement in body.imports() {
         for import in statement.imports() {
             let _name = match import {
-                Import::Module(v) => v,
+                Import::Module(v) => v.name(),
                 Import::Member(v) => v.module(),
             };
             w.write_all(format!("    owl:imports <{}> .\n", "").as_bytes())?;
@@ -94,10 +101,11 @@ pub fn write_as_rdf<W: Write>(module: &Module, w: &mut W) -> Result<(), Error> {
             Definition::Entity(v) => write_entity(v, w)?,
             Definition::Enum(v) => write_enumeration(v, w)?,
             Definition::Event(v) => write_event(v, w)?,
+            Definition::Property(v) => write_property(v, w)?,
+            Definition::Rdf(_) => todo!(),
             Definition::Structure(v) => write_structure(v, w)?,
             Definition::TypeClass(_) => todo!(),
             Definition::Union(v) => write_union(v, w)?,
-            Definition::Property(v) => write_property(v, w)?,
         }
     }
 
