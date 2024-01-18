@@ -579,7 +579,7 @@ impl Execute for Convert {
 
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
-        //let cache = ModuleCache::default().with_stdlib();
+        let mut cache = ModuleCache::default().with_stdlib();
         let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
             let loader = &mut loader;
@@ -593,6 +593,8 @@ impl Execute for Draw {
             let mut handle = stdin.lock();
             loader.load_from_reader(&mut handle)?
         };
+
+        load_module_dependencies(&model, true, &mut cache, &mut loader)?;
 
         info!(
             "loaded module: {}, is_complete: {:?}",
@@ -630,7 +632,7 @@ impl Execute for Draw {
                     let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default();
                     generator.write_to_file_in_format(&model, path, format)?;
                 } else {
-                    panic!();
+                    println!("Sorry, writing UML diagrams requires an explicit output file");
                 }
             }
         }
