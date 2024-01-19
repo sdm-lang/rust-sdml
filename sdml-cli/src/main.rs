@@ -5,6 +5,7 @@ use sdml_core::error::{tracing_filter_error, tracing_subscriber_error};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
+use sdml_core::stdlib;
 use sdml_generate::{GenerateToFile, GenerateToWriter};
 use sdml_parse::load::{load_module_dependencies, ModuleLoader, ModuleResolver};
 use std::io::Read;
@@ -348,8 +349,14 @@ impl Execute for Highlight {
     fn execute(&self) -> Result<(), MainError> {
         let loader = self.files.loader();
         let resolver = loader.resolver();
+
         let source = if let Some(module_name) = &self.files.module {
-            std::fs::read_to_string(resolver.name_to_path(module_name)?)?
+            if stdlib::is_library_module(module_name) {
+                println!("Sorry, can't currently highlight stdlib modules");
+                return Ok(());
+            } else {
+                std::fs::read_to_string(resolver.name_to_path(module_name)?)?
+            }
         } else if let Some(module_file) = &self.files.input_file {
             std::fs::read_to_string(module_file)?
         } else {
@@ -390,18 +397,14 @@ impl Execute for Highlight {
 
 impl Execute for Deps {
     fn execute(&self) -> Result<(), MainError> {
-        let mut cache = ModuleCache::default().with_stdlib();
         let mut loader = self.files.loader();
-
-        let file_name: PathBuf = if let Some(module_name) = &self.files.module {
-            loader.resolver().name_to_path(module_name)?
-        } else if let Some(module_file) = &self.files.input_file {
-            module_file.clone()
+        let module = if let Some(module_name) = &self.files.module {
+            loader.load(module_name)?
+        } else if let Some(file_name) = &self.files.input_file {
+            loader.load_from_file(file_name.clone())?
         } else {
             unimplemented!("nope");
         };
-
-        let module = loader.load_from_file(file_name.clone())?;
 
         info!(
             "Loaded module: {}, is_complete: {:?}",
@@ -409,27 +412,31 @@ impl Execute for Deps {
             module.is_complete()
         );
 
+        let name = module.name().clone();
+        let mut cache = ModuleCache::default()
+            .with_stdlib()
+            .with(module);
         if self.depth > 1 {
-            load_module_dependencies(&module, true, &mut cache, &mut loader)?;
+            load_module_dependencies(&name, true, &mut cache, &mut loader)?;
         }
 
         let mut writer = self.files.output_writer()?;
 
         match self.output_format {
             DepsFormat::Tree => sdml_generate::actions::deps::write_dependency_tree(
-                &module,
+                cache.get(&name).unwrap(),
                 &cache,
                 self.depth,
                 &mut writer,
             )?,
             DepsFormat::Graph => sdml_generate::actions::deps::write_dependency_graph(
-                &module,
+                cache.get(&name).unwrap(),
                 &cache,
                 self.depth,
                 &mut writer,
             )?,
             DepsFormat::Rdf => sdml_generate::actions::deps::write_dependency_rdf(
-                &module,
+                cache.get(&name).unwrap(),
                 &cache,
                 self.depth,
                 &mut writer,
@@ -447,33 +454,30 @@ impl Execute for Deps {
 impl Execute for Doc {
     fn execute(&self) -> Result<(), MainError> {
         let mut loader = self.files.loader();
-
-        let file_name: PathBuf = if let Some(module_name) = &self.files.module {
-            loader.resolver().name_to_path(module_name)?
-        } else if let Some(module_file) = &self.files.input_file {
-            module_file.clone()
+        let module = if let Some(module_name) = &self.files.module {
+            loader.load(module_name)?
+        } else if let Some(file_name) = &self.files.input_file {
+            loader.load_from_file(file_name.clone())?
         } else {
             unimplemented!("nope");
         };
 
-        let model = loader.load_from_file(file_name.clone())?;
-
         info!(
             "Loaded module: {}, is_complete: {:?}",
-            model.name(),
-            model.is_complete()
+            module.name(),
+            module.is_complete()
         );
 
         match self.output_format {
             DocFormat::OrgMode => {
-                let source = loader.get_source(model.name());
+                let source = loader.get_source(module.name());
                 if let Some(source) = source {
                     let mut generator =
                         sdml_generate::convert::org::OrgFileGenerator::with_source(source.as_ref());
-                    self.write_org(&model, &mut generator)?;
+                    self.write_org(&module, &mut generator)?;
                 } else {
                     let mut generator = sdml_generate::convert::org::OrgFileGenerator::default();
-                    self.write_org(&model, &mut generator)?;
+                    self.write_org(&module, &mut generator)?;
                 };
             }
             DocFormat::Markdown => {}
@@ -505,28 +509,25 @@ impl Doc {
 impl Execute for Tags {
     fn execute(&self) -> Result<(), MainError> {
         let mut loader = self.files.loader();
-
-        let file_name: PathBuf = if let Some(module_name) = &self.files.module {
+        let file_name = if let Some(module_name) = &self.files.module {
             loader.resolver().name_to_path(module_name)?
-        } else if let Some(module_file) = &self.files.input_file {
-            module_file.clone()
+        } else if let Some(file_name) = &self.files.input_file {
+            file_name.clone()
         } else {
             unimplemented!("nope");
         };
-
-        let model = loader.load_from_file(file_name.clone())?;
-
+        let module = loader.load_from_file(file_name.clone())?;
         info!(
             "Loaded module: {}, is_complete: {:?}",
-            model.name(),
-            model.is_complete()
+            module.name(),
+            module.is_complete()
         );
 
         let mut writer = self.files.output_writer()?;
 
         match self.output_format {
             TagFileFormat::CTags => {
-                sdml_generate::actions::tags::write_ctags(&model, file_name, &mut writer)?
+                sdml_generate::actions::tags::write_ctags(&module, file_name, &mut writer)?
             }
         }
 
@@ -540,7 +541,6 @@ impl Execute for Tags {
 
 impl Execute for Convert {
     fn execute(&self) -> Result<(), MainError> {
-        //let cache = ModuleCache::default().with_stdlib();
         let mut loader = self.files.loader();
         let model = if let Some(module_name) = &self.files.module {
             loader.load(module_name)?
@@ -579,9 +579,8 @@ impl Execute for Convert {
 
 impl Execute for Draw {
     fn execute(&self) -> Result<(), MainError> {
-        let mut cache = ModuleCache::default().with_stdlib();
         let mut loader = self.files.loader();
-        let model = if let Some(module_name) = &self.files.module {
+        let module = if let Some(module_name) = &self.files.module {
             let loader = &mut loader;
             loader.load(module_name)?
         } else if let Some(module_file) = &self.files.input_file {
@@ -593,14 +592,15 @@ impl Execute for Draw {
             let mut handle = stdin.lock();
             loader.load_from_reader(&mut handle)?
         };
-
-        load_module_dependencies(&model, true, &mut cache, &mut loader)?;
-
         info!(
             "loaded module: {}, is_complete: {:?}",
-            model.name(),
-            model.is_complete()
+            module.name(),
+            module.is_complete()
         );
+
+        let name = module.name().clone();
+        let mut cache = ModuleCache::default().with_stdlib().with(module);
+        load_module_dependencies(&name, true, &mut cache, &mut loader)?;
 
         let format = self.output_format.clone().unwrap_or_default().into();
 
@@ -611,26 +611,26 @@ impl Execute for Draw {
                 if let Some(path) = &self.files.output_file {
                     let mut generator =
                         sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    generator.write_to_file_in_format(&model, path, format)?;
+                    generator.write_to_file_in_format(cache.get(&name).unwrap(), path, format)?;
                 } else {
                     let mut generator =
                         sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    generator.write_in_format(&model, &mut std::io::stdout(), format)?;
+                    generator.write_in_format(cache.get(&name).unwrap(), &mut std::io::stdout(), format)?;
                 }
             }
             DrawDiagram::EntityRelationship => {
                 if let Some(path) = &self.files.output_file {
                     let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    generator.write_to_file_in_format(&model, path, format)?;
+                    generator.write_to_file_in_format(cache.get(&name).unwrap(), path, format)?;
                 } else {
                     let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    generator.write_in_format(&model, &mut std::io::stdout(), format)?;
+                    generator.write_in_format(cache.get(&name).unwrap(), &mut std::io::stdout(), format)?;
                 }
             }
             DrawDiagram::UmlClass => {
                 if let Some(path) = &self.files.output_file {
                     let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default();
-                    generator.write_to_file_in_format(&model, path, format)?;
+                    generator.write_to_file_in_format(cache.get(&name).unwrap(), path, format)?;
                 } else {
                     println!("Sorry, writing UML diagrams requires an explicit output file");
                 }

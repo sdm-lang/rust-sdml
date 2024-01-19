@@ -244,6 +244,10 @@ macro_rules! impl_has_body_for {
                 &self.$inner
             }
 
+            fn body_mut(&mut self) -> &mut $bodytype {
+                &mut self.$inner
+            }
+
             fn set_body(&mut self, body: $bodytype) {
                 self.$inner = body;
             }
@@ -256,6 +260,10 @@ macro_rules! impl_has_body_for {
         impl $crate::model::HasBody<$bodytype> for $type {
             fn body(&self) -> &$bodytype {
                 &self.$inner
+            }
+
+            fn body_mut(&mut self) -> &mut $bodytype {
+                &mut self.$inner
             }
 
             fn set_body(&mut self, body: $bodytype) {
@@ -282,6 +290,10 @@ macro_rules! impl_has_optional_body_for {
                 self.$inner.as_ref()
             }
 
+            fn body_mut(&mut self) -> Option<&mut $bodytype> {
+                self.$inner.as_mut()
+            }
+
             fn set_body(&mut self, body: $bodytype) {
                 self.$inner = Some(body);
             }
@@ -304,6 +316,14 @@ macro_rules! impl_has_optional_body_for {
                 match self {
                     $(
                         Self::$varname(v) => v.body(),
+                    )+
+                }
+            }
+
+            fn body_mut(&mut self) -> Option<&mut $bodytype> {
+                match self {
+                    $(
+                        Self::$varname(v) => v.body_mut(),
                     )+
                 }
             }

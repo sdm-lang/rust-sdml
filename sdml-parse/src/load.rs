@@ -9,6 +9,7 @@ use sdml_core::error::{module_file_not_found, Error};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
+use sdml_core::stdlib;
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -128,11 +129,12 @@ pub struct Item {
 /// actual parsing.
 ///
 pub fn load_module_dependencies(
-    module: &Module,
+    module: &Identifier,
     recursive: bool,
     cache: &mut ModuleCache,
     loader: &mut ModuleLoader,
 ) -> Result<(), Error> {
+    let module = cache.get(module).unwrap();
     trace!(
         "load_module_dependencies({}, {recursive}, _, _)",
         module.name()
@@ -323,8 +325,12 @@ impl ModuleLoader {
     /// Load the named module using the loader's current resolver.
     pub fn load(&mut self, name: &Identifier) -> Result<Module, Error> {
         trace_entry!("ModuleLoader", "load" => "{}", name);
-        let file = self.resolver.name_to_path(name)?;
-        self.load_from_file(file)
+        if let Some(module) = stdlib::library_module(name) {
+            Ok(module)
+        } else {
+            let file = self.resolver.name_to_path(name)?;
+            self.load_from_file(file)
+        }
     }
 
     /// Load a module from the source in `file`.

@@ -49,12 +49,18 @@ pub struct ModuleCache {
 impl ModuleCache {
     pub fn with_stdlib(self) -> Self {
         let mut self_mut = self;
-        self_mut.insert(stdlib::dc());
-        self_mut.insert(stdlib::rdf());
-        self_mut.insert(stdlib::rdfs());
-        self_mut.insert(stdlib::sdml());
-        self_mut.insert(stdlib::skos());
-        self_mut.insert(stdlib::xsd());
+        self_mut.insert(stdlib::dc::module());
+        self_mut.insert(stdlib::rdf::module());
+        self_mut.insert(stdlib::rdfs::module());
+        self_mut.insert(stdlib::sdml::module());
+        self_mut.insert(stdlib::skos::module());
+        self_mut.insert(stdlib::xsd::module());
+        self_mut
+    }
+
+    pub fn with(self, module: Module) -> Self {
+        let mut self_mut = self;
+        self_mut.insert(module);
         self_mut
     }
 

@@ -1,9 +1,9 @@
 use crate::{
     error::Error,
     model::{
-        annotations::AnnotationOnlyBody, check::Validate, identifiers::Identifier, modules::Module,
-        Span,
-    },
+        annotations::{AnnotationOnlyBody, HasAnnotations, AnnotationProperty}, check::Validate, identifiers::{Identifier, IdentifierReference, QualifiedIdentifier}, modules::Module,
+        HasBody, Span, values::Value,
+    }, stdlib,
 };
 
 #[cfg(feature = "serde")]
@@ -107,6 +107,33 @@ impl RdfDefBody {
         _top: &Module,
     ) -> Result<bool, Error> {
         todo!()
+    }
+
+    pub fn with_predicate(self, predicate: IdentifierReference, value: Value) -> Self {
+        let mut self_mut = self;
+        self_mut.body_mut().add_to_annotations(AnnotationProperty::new(predicate, value));
+        self_mut
+    }
+
+    pub fn with_type(self, name: IdentifierReference) -> Self {
+        self.with_predicate(QualifiedIdentifier::new(
+            Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
+            Identifier::new_unchecked(stdlib::rdf::PROP_TYPE_NAME)
+        ).into(), name.into())
+    }
+
+    pub fn with_super_class(self, name: IdentifierReference) -> Self {
+        self.with_predicate(QualifiedIdentifier::new(
+            Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+            Identifier::new_unchecked(stdlib::rdfs::PROP_SUB_CLASS_OF_NAME)
+        ).into(), name.into())
+    }
+
+    pub fn with_super_property(self, name: IdentifierReference) -> Self {
+        self.with_predicate(QualifiedIdentifier::new(
+            Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+            Identifier::new_unchecked(stdlib::rdfs::PROP_SUB_PROPERTY_OF_NAME)
+        ).into(), name.into())
     }
 }
 

@@ -367,6 +367,12 @@ impl ModuleBody {
 // Implementations ❱ Modules ❱ Imports
 // ------------------------------------------------------------------------------------------------
 
+impl From<Import> for ImportStatement {
+    fn from(value: Import) -> Self {
+        Self::new(vec![value])
+    }
+}
+
 impl FromIterator<Import> for ImportStatement {
     fn from_iter<T: IntoIterator<Item = Import>>(iter: T) -> Self {
         Self::new(Vec::from_iter(iter))
@@ -384,6 +390,20 @@ impl ImportStatement {
         Self {
             span: None,
             imports,
+        }
+    }
+
+    pub fn new_module(import: Identifier) -> Self {
+        Self {
+            span: None,
+            imports: vec![Import::from(ModuleImport::from(import))],
+        }
+    }
+
+    pub fn new_member(import: QualifiedIdentifier) -> Self {
+        Self {
+            span: None,
+            imports: vec![Import::from(import)],
         }
     }
 

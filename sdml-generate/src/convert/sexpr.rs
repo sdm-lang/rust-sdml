@@ -1427,6 +1427,7 @@ fn write_member_role<W: Write>(
 fn write_rdf_def<W: Write>(me: &RdfDef, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node_indented(NODE_KIND_RDF_DEF)?;
     w.indent();
+    w.newln()?;
 
     let me = match me {
         RdfDef::Class(v) => {

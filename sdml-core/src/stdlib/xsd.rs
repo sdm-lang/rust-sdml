@@ -1,14 +1,8 @@
-/*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
-
+/*
+This Rust module contains the SDML model of the SDML library module `xsd`.
 */
 
+use url::Url;
 use crate::model::{identifiers::Identifier, modules::Module};
 
 // ------------------------------------------------------------------------------------------------
@@ -19,36 +13,16 @@ use crate::model::{identifiers::Identifier, modules::Module};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+pub const MODULE_NAME: &str = "xsd";
+pub const MODULE_URL: &str = "http://www.w3.org/2001/XMLSchema#";
+
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn is_library_module(name: &Identifier) -> bool {
-    [
-        dc::MODULE_NAME,
-        dc::terms::MODULE_NAME,
-        owl::MODULE_NAME,
-        rdf::MODULE_NAME,
-        rdfs::MODULE_NAME,
-        sdml::MODULE_NAME,
-        skos::MODULE_NAME,
-        xsd::MODULE_NAME,
-    ]
-    .contains(&name.as_ref())
-}
-
-pub fn library_module(name: &Identifier) -> Option<Module> {
-    match name.as_ref() {
-        dc::MODULE_NAME => Some(dc::module()),
-        dc::terms::MODULE_NAME => Some(dc::terms::module()),
-        owl::MODULE_NAME => Some(owl::module()),
-        rdf::MODULE_NAME => Some(rdf::module()),
-        rdfs::MODULE_NAME => Some(rdfs::module()),
-        sdml::MODULE_NAME => Some(sdml::module()),
-        skos::MODULE_NAME => Some(skos::module()),
-        xsd::MODULE_NAME => Some(xsd::module()),
-        _ => None,
-    }
+pub fn module() -> Module {
+    Module::empty(Identifier::new_unchecked(MODULE_NAME))
+        .with_base_uri(Url::parse(MODULE_URL).unwrap())
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -70,17 +44,3 @@ pub fn library_module(name: &Identifier) -> Option<Module> {
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
-
-pub mod dc;
-
-pub mod owl;
-
-pub mod rdf;
-
-pub mod rdfs;
-
-pub mod sdml;
-
-pub mod skos;
-
-pub mod xsd;

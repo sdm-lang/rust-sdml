@@ -25,6 +25,8 @@ use serde::{Deserialize, Serialize};
 pub trait HasBody<T> {
     /// Get the body of the enclosing type.
     fn body(&self) -> &T;
+    /// Get a mutable reference to the body of the enclosing type.
+    fn body_mut(&mut self) -> &mut T;
     /// Set the body of the enclosing type.
     fn set_body(&mut self, body: T);
 }
@@ -90,6 +92,7 @@ pub trait HasOptionalBody<T> {
         self.body().is_some()
     }
     fn body(&self) -> Option<&T>;
+    fn body_mut(&mut self) -> Option<&mut T>;
     fn set_body(&mut self, body: T);
     fn unset_body(&mut self);
 }
