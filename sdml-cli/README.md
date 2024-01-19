@@ -7,6 +7,11 @@ Rust CLI for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.3**
+
+* Feature: add new stdlib modules with standard layout.
+* Feature: minor refactor of cache and loader.
+
 **Version 0.2.2**
 
 * Feature: Update to latest grammar for version URIs and RDF definitions.
