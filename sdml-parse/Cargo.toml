@@ -14,7 +14,7 @@ targets = ["x86_64-unknown-linux-gnu"]
 all-features = true
 
 [dependencies]
-sdml-core = { version = "0.2.1", features = ["serde"], path = "../sdml-core" }
+sdml-core = { version = "0.2.4", features = ["serde"], path = "../sdml-core" }
 codespan-reporting = "0.11.1"
 lazy_static = "1.4.0"
 ordered-float = "4.2.0"
