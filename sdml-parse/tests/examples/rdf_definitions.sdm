@@ -2,13 +2,13 @@ module rdfs <http://www.w3.org/2000/01/rdf-schema#> is
 
   import [ owl rdf ]
 
-  rdf structure Resource is ;; assumed: @rdf:type = Class
+  rdf Resource is
     @isDefinedBy = rdfs
     @label = "Resource"@en
     @comment = "The class resource, everything."
   end
 
-  rdf property subClassOf is ;; assumed: @rdf:type = rdf:Property
+  rdf subClassOf type rdf:Property is
     @domain = Class
     @range = Class
     @isDefinedBy = rdfs
@@ -16,8 +16,7 @@ module rdfs <http://www.w3.org/2000/01/rdf-schema#> is
     @comment = "The subject is a subclass of a class."
   end
 
-  rdf property comment is ;; assumed: @rdf:type = rdf:Property
-    @rdf:type = owl:AnnotationProperty
+  rdf comment type [ rdf:Property owl:AnnotationProperty ] is
     @domain = Resource
     @range = Literal
     @isDefinedBy = rdfs

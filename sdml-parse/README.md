@@ -7,6 +7,11 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.4**
+
+* Fix: parsing new `rdf_def` rules now works correctly.
+  * Updated test cases.
+
 **Version 0.2.3**
 
 * Feature: add new stdlib modules with standard layout.

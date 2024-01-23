@@ -7,7 +7,6 @@ use codespan_reporting::files::SimpleFiles;
 use sdml_core::cache::ModuleCache;
 use sdml_core::error::{module_file_not_found, Error};
 use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
 use sdml_core::stdlib;
 use search_path::SearchPath;
@@ -120,66 +119,6 @@ pub struct Item {
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
-
-///
-/// Given a `module` instance, load all it's dependencies (imported modules). If `recursive` is
-/// `true` the same operation is performed on all loaded dependencies.
-///
-/// This requires a module `cache` to hold the loaded dependencies and a `loader` to perform the
-/// actual parsing.
-///
-pub fn load_module_dependencies(
-    module: &Identifier,
-    recursive: bool,
-    cache: &mut ModuleCache,
-    loader: &mut ModuleLoader,
-) -> Result<(), Error> {
-    let module = cache.get(module).unwrap();
-    trace!(
-        "load_module_dependencies({}, {recursive}, _, _)",
-        module.name()
-    );
-    let dependencies = module
-        .imported_modules()
-        .into_iter()
-        .cloned()
-        .collect::<Vec<Identifier>>();
-    load_module_dependencies_named(&dependencies, recursive, cache, loader)
-}
-
-
-///
-/// Given a `module` instance, load the list of `dependencies`. If `recursive` is
-/// `true` the same operation is performed on all loaded dependencies.
-///
-/// This requires a module `cache` to hold the loaded dependencies and a `loader` to perform the
-/// actual parsing.
-///
-pub fn load_module_dependencies_named(
-    dependencies: &[Identifier],
-    recursive: bool,
-    cache: &mut ModuleCache,
-    loader: &mut ModuleLoader,
-) -> Result<(), Error> {
-    trace!("load_module_dependencies_named({dependencies:?}, {recursive}, _, _)");
-
-    for dependency in dependencies {
-        if !cache.contains(dependency) {
-            let dependency_module = loader.load(dependency)?;
-            let dependencies = dependency_module
-                .imported_modules()
-                .into_iter()
-                .cloned()
-                .collect::<Vec<Identifier>>();
-            cache.insert(dependency_module);
-            if recursive {
-                load_module_dependencies_named(&dependencies, recursive, cache, loader)?;
-            }
-        }
-    }
-
-    Ok(())
-}
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros
@@ -323,22 +262,34 @@ impl ModuleLoader {
     }
 
     /// Load the named module using the loader's current resolver.
-    pub fn load(&mut self, name: &Identifier) -> Result<Module, Error> {
+    pub fn load(
+        &mut self,
+        name: &Identifier,
+        cache: &mut ModuleCache,
+        recursive: bool,
+    ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load" => "{}", name);
-        if let Some(module) = stdlib::library_module(name) {
-            Ok(module)
+        if stdlib::library_module(name).is_some() {
+            Ok(name.clone())
         } else {
             let file = self.resolver.name_to_path(name)?;
-            self.load_from_file(file)
+            self.load_from_file(file, cache, recursive)
         }
     }
 
     /// Load a module from the source in `file`.
-    pub fn load_from_file(&mut self, file: PathBuf) -> Result<Module, Error> {
+    pub fn load_from_file(
+        &mut self,
+        file: PathBuf,
+        cache: &mut ModuleCache,
+        recursive: bool,
+    ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load_from_file" => "{:?}", file);
         let mut reader = File::open(&file)?;
         let catalog = self.resolver.catalog.clone();
-        let mut module = self.load_inner(&mut reader, Some(file.clone()))?;
+        let module_name = self.load_inner(&mut reader, Some(file.clone()), cache, recursive)?;
+        let module = cache.get_mut(&module_name).unwrap();
+        module.set_source_file(file.clone());
         if !module.has_base_uri() {
             if let Some(catalog) = catalog {
                 let name = module.name().to_string();
@@ -353,13 +304,18 @@ impl ModuleLoader {
                 }
             }
         }
-        Ok(module)
+        Ok(module_name)
     }
 
     /// Load a module reading the source from `reader`.
-    pub fn load_from_reader(&mut self, reader: &mut dyn Read) -> Result<Module, Error> {
+    pub fn load_from_reader(
+        &mut self,
+        reader: &mut dyn Read,
+        cache: &mut ModuleCache,
+        recursive: bool,
+    ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load_from_reader");
-        self.load_inner(reader, None)
+        self.load_inner(reader, None, cache, recursive)
     }
 
     pub fn get_source(&self, name: &Identifier) -> Option<Source> {
@@ -380,8 +336,10 @@ impl ModuleLoader {
         &mut self,
         reader: &mut dyn Read,
         file: Option<PathBuf>,
-    ) -> Result<Module, Error> {
-        trace!("ModuleLoader::load_inner(..., {file:?})");
+        cache: &mut ModuleCache,
+        recursive: bool,
+    ) -> Result<Identifier, Error> {
+        trace!("ModuleLoader::load_inner(..., {file:?}, ..., {recursive})");
         let mut source = String::new();
         reader.read_to_string(&mut source)?;
         let file_name: String = file
@@ -394,8 +352,27 @@ impl ModuleLoader {
         let name = module.name().clone();
         counters.display(&name)?;
 
-        let _ = self.module_file_ids.insert(name, file_id);
-        Ok(module)
+        let _ = self.module_file_ids.insert(name.clone(), file_id);
+
+        cache.insert(module);
+
+        if recursive {
+            let dependencies = {
+                let module = cache.get(&name).unwrap();
+                module
+                    .imported_modules()
+                    .into_iter()
+                    .cloned()
+                    .collect::<Vec<Identifier>>()
+            };
+            for name in &dependencies {
+                if !cache.contains(name) {
+                    self.load(name, cache, recursive)?;
+                }
+            }
+        }
+
+        Ok(name)
     }
 
     #[inline(always)]
