@@ -44,6 +44,8 @@ pub struct EntityBody {
     members: Vec<Member>,
 }
 
+// TODO make this just Member!
+
 /// Corresponds to the grammar rules `member` and `entity_identity`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
@@ -82,6 +84,8 @@ impl_has_source_span_for!(EntityDef);
 impl_references_for!(EntityDef => delegate optional body);
 
 impl_validate_for!(EntityDef => delegate optional body, false, true);
+
+impl_annotation_builder!(EntityDef, optional body);
 
 impl EntityDef {
     // --------------------------------------------------------------------------------------------

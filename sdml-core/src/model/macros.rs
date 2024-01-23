@@ -404,26 +404,6 @@ macro_rules! impl_references_for {
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! impl_validate_for {
-    ($type: ty => todo!) => {
-        impl $crate::model::check::Validate for $type {
-            fn is_complete(
-                &self,
-                _: &$crate::model::modules::Module,
-                _: &$crate::cache::ModuleCache
-            ) -> Result<bool, $crate::error::Error> {
-                todo!();
-            }
-
-            fn is_valid(
-                &self,
-                _: bool,
-                _: &$crate::model::modules::Module,
-                _: &$crate::cache::ModuleCache
-            ) -> Result<bool, $crate::error::Error> {
-                todo!();
-            }
-        }
-    };
     ($type: ty => variants $($varname: ident),+) => {
         impl $crate::model::check::Validate for $type {
             fn is_complete(
@@ -628,61 +608,61 @@ macro_rules! impl_has_annotations_for {
                 self.$inner.extend(extension.into_iter())
             }
         }
-    }; // ($type: ty => variants $($varname: ident),+) => {
-       //     impl HasAnnotations for $type {
-       //         fn has_annotations(&self) -> bool {
-       //             match self {
-       //                 $(
-       //                     Self::$varname(v) => v.has_annotations(),
-       //                 )+
-       //             }
-       //         }
-       //
-       //         fn annotations_len(&self) -> usize {
-       //             match self {
-       //                 $(
-       //                     Self::$varname(v) => v.annotations_len(),
-       //                 )+
-       //             }
-       //         }
-       //
-       //         fn annotations(&self) -> Box<dyn Iterator<Item = &Annotation> + '_> {
-       //             match self {
-       //                 $(
-       //                     Self::$varname(v) => v.annotations(),
-       //                 )+
-       //             }
-       //         }
-       //
-       //         fn annotations_mut(&mut self) -> Box<dyn Iterator<Item = &mut Annotation> + '_> {
-       //             match self {
-       //                 $(
-       //                     Self::$varname(v) => v.annotations_mut(),
-       //                 )+
-       //             }
-       //         }
-       //
-       //         fn add_to_annotations<I>(&mut self, value: I)
-       //         where
-       //             I: Into<Annotation> {
-       //             match self {
-       //                 $(
-       //                     Self::$varname(v) => v.add_to_annotations(value),
-       //                 )+
-       //             }
-       //         }
-       //
-       //         fn extend_annotations<I>(&mut self, extension: I)
-       //         where
-       //             I: IntoIterator<Item = Annotation> {
-       //             match self {
-       //                 $(
-       //                     Self::$varname(v) => v.extend_annotations(extension),
-       //                 )+
-       //             }
-       //         }
-       //     }
-       // };
+    };
+}
+
+// ------------------------------------------------------------------------------------------------
+// Public Macros ❱ trait AnnotationBuilder
+// ------------------------------------------------------------------------------------------------
+
+macro_rules! impl_annotation_builder {
+    ($type: ty) => {
+        impl_annotation_builder!($type, body);
+    };
+    ($type: ty, $inner: ident) => {
+        impl $crate::model::annotations::AnnotationBuilder for $type {
+            fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+            where
+                Self: Sized,
+                I: Into<$crate::model::identifiers::IdentifierReference>,
+                V: Into<$crate::model::values::Value>,
+            {
+                let mut self_mut = self;
+                self_mut
+                    .$inner
+                    .add_to_annotations(
+                        $crate::model::annotations::AnnotationProperty::new(
+                            predicate.into(),
+                            value.into()
+                        )
+                    );
+                self_mut
+            }
+        }
+    };
+    ($type: ty, optional $inner: ident) => {
+        impl $crate::model::annotations::AnnotationBuilder for $type {
+            fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+            where
+                Self: Sized,
+                I: Into<$crate::model::identifiers::IdentifierReference>,
+                V: Into<$crate::model::values::Value>,
+            {
+                use $crate::model::annotations::HasAnnotations;
+                let mut self_mut = self;
+                if let Some(ref mut inner) = self_mut.$inner {
+                    inner
+                        .add_to_annotations(
+                            $crate::model::annotations::AnnotationProperty::new(
+                                predicate.into(),
+                                value.into()
+                            )
+                        );
+                }
+                self_mut
+            }
+        }
+    };
 }
 
 // ------------------------------------------------------------------------------------------------

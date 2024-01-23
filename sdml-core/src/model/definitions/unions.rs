@@ -95,6 +95,8 @@ impl_has_variants_for!(UnionBody, TypeVariant);
 
 impl_validate_for_annotations_and_variants!(UnionBody);
 
+impl_annotation_builder!(UnionDef, optional body);
+
 impl References for UnionBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         self.variants
@@ -111,7 +113,23 @@ impl_has_optional_body_for!(TypeVariant);
 
 impl_has_source_span_for!(TypeVariant);
 
-impl_validate_for!(TypeVariant => todo!);
+impl_annotation_builder!(TypeVariant, optional body);
+
+impl Validate for TypeVariant {
+    fn is_complete(&self, _: &Module, _: &crate::cache::ModuleCache) -> Result<bool, Error> {
+        Ok(true)
+    }
+
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &crate::cache::ModuleCache,
+    ) -> Result<bool, Error> {
+        // TODO check type reference is valid
+        Ok(true)
+    }
+}
 
 impl References for TypeVariant {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -157,6 +175,17 @@ impl TypeVariant {
     }
 
     get_and_set!(pub rename, set_rename, unset_rename => optional has_rename, Identifier);
+
+    pub fn name(&self) -> &Identifier {
+        if let Some(rename) = self.rename() {
+            rename
+        } else {
+            match &self.name_reference {
+                IdentifierReference::Identifier(name) => name,
+                IdentifierReference::QualifiedIdentifier(name) => name.member(),
+            }
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

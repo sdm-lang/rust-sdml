@@ -4,6 +4,7 @@ Standard library module for namespace `rdfs`.
 */
 
 use crate::model::modules::{ImportStatement, Module};
+use crate::model::annotations::AnnotationBuilder;
 use crate::model::HasBody;
 
 // ------------------------------------------------------------------------------------------------
@@ -19,6 +20,7 @@ pub const CLASS_CONTAINER_MEMBERSHIP_PROPERTY_NAME: &str = "ContainerMembershipP
 pub const CLASS_DATATYPE_NAME: &str = "Datatype";
 pub const CLASS_LITERAL_NAME: &str = "Literal";
 pub const CLASS_RESOURCE_NAME: &str = "Resource";
+
 pub const PROP_COMMENT_NAME: &str = "comment";
 pub const PROP_DOMAIN_NAME: &str = "domain";
 pub const PROP_IS_DEFINED_BY_NAME: &str = "isDefinedBy";

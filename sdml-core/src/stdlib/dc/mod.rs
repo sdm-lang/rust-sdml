@@ -4,6 +4,7 @@ This Rust module contains the SDML model of the SDML library module `dc`.
 
 use crate::model::HasBody;
 use crate::model::{
+    annotations::AnnotationBuilder,
     modules::{ImportStatement, Module},
 };
 use url::Url;

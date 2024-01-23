@@ -165,6 +165,10 @@ macro_rules! rdf {
             .with_domain(id!($dom))
             .with_range(id!($rge))
     };
+    (property $id:expr, $in:expr; ( $dom_mod:expr, $dom:expr )) => {
+        rdf!(property, $id, $in)
+            .with_domain(qualid!($dom_mod, $dom))
+    };
     (property $id:expr, $in:expr; $dom:expr) => {
         rdf!(property, $id, $in)
             .with_domain(id!($dom))

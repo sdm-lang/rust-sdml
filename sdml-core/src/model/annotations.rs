@@ -5,13 +5,16 @@ use crate::model::{
     values::Value, HasNameReference, Span,
 };
 use std::{collections::HashSet, fmt::Debug};
+use crate::stdlib;
+use crate::model::values::{LanguageString, LanguageTag};
+use crate::model::{HasName, References};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use tracing::trace;
+use url::Url;
 
-use super::values::{LanguageString, LanguageTag};
-use super::{HasName, References};
+use super::identifiers::{QualifiedIdentifier, Identifier};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Traits
@@ -83,6 +86,220 @@ pub trait HasAnnotations {
 
     fn annotation_constraints<I>(&self) -> Box<dyn Iterator<Item = &Constraint> + '_> {
         Box::new(self.annotations().filter_map(|a| a.as_constraint()))
+    }
+}
+
+pub trait AnnotationBuilder {
+
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>;
+
+    fn with_type<I>(self, name: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdf::PROP_TYPE_NAME),
+            ),
+            Value::from(name.into()),
+        )
+    }
+
+    fn with_super_class<I>(self, name: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_SUB_CLASS_OF_NAME),
+            ),
+            Value::from(name.into()),
+        )
+    }
+
+    fn with_equivalent_class<I>(self, name: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::owl::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::owl::PROP_EQUIVALENT_CLASS_NAME),
+            ),
+            Value::from(name.into()),
+        )
+    }
+
+    fn with_super_property<I>(self, name: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_SUB_PROPERTY_OF_NAME),
+            ),
+            Value::from(name.into()),
+        )
+    }
+
+    fn with_domain<I>(self, name: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_DOMAIN_NAME),
+            ),
+            Value::from(name.into()),
+        )
+    }
+
+    fn with_comment<S>(self, comment: S) -> Self
+    where
+        Self: Sized,
+        S: Into<LanguageString>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_COMMENT_NAME),
+            ),
+            comment.into(),
+        )
+    }
+
+    fn with_label<S>(self, label: S) -> Self
+    where
+        Self: Sized,
+        S: Into<LanguageString>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_LABEL_NAME),
+            ),
+            Value::from(label.into()),
+        )
+    }
+
+    fn with_see_also_str(self, resource: &str) -> Self
+    where
+        Self: Sized,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_SEE_ALSO_NAME),
+            ),
+            Value::from(Url::parse(resource).unwrap()),
+        )
+    }
+
+    fn with_see_also(self, resource: Url) -> Self
+    where
+        Self: Sized,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_SEE_ALSO_NAME),
+            ),
+            Value::from(resource),
+        )
+    }
+
+    fn with_see_also_ref<I>(self, resource: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_SEE_ALSO_NAME),
+            ),
+            Value::from(resource.into()),
+        )
+    }
+
+    fn with_is_defined_by(self, resource: Url) -> Self
+    where
+        Self: Sized,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_IS_DEFINED_BY_NAME),
+            ),
+            Value::from(resource),
+        )
+    }
+
+    fn with_is_defined_by_str(self, resource: &str) -> Self
+    where
+        Self: Sized,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_IS_DEFINED_BY_NAME),
+            ),
+            Value::from(Url::parse(resource).unwrap()),
+        )
+    }
+
+    fn with_is_defined_by_ref<I>(self, resource: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_IS_DEFINED_BY_NAME),
+            ),
+            Value::from(resource.into()),
+        )
+    }
+
+    fn with_range<I>(self, name: I) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+    {
+        self.with_predicate(
+            QualifiedIdentifier::new(
+                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::PROP_RANGE_NAME),
+            ),
+            Value::from(name.into()),
+        )
+    }
+}
+
+impl<A: HasAnnotations> AnnotationBuilder for A {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        self_mut.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        self_mut
     }
 }
 
@@ -237,6 +454,25 @@ impl AnnotationProperty {
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub value, set_value => Value);
+
+    #[inline(always)]
+    pub fn is_stdlib_property(&self) -> bool {
+        if let IdentifierReference::QualifiedIdentifier(name) = self.name_reference() {
+            stdlib::is_library_module(name.module())
+        } else {
+            false
+        }
+    }
+
+    #[inline(always)]
+    pub fn is_datatype_facet(&self) -> bool {
+        if let IdentifierReference::QualifiedIdentifier(name) = self.name_reference() {
+            name.module().as_ref() == stdlib::xsd::MODULE_NAME &&
+                stdlib::xsd::is_constraining_facet(name.member())
+        } else {
+            false
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

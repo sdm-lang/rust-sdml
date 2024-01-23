@@ -73,6 +73,8 @@ impl_references_for!(PropertyDef => delegate optional body);
 
 impl_validate_for!(PropertyDef => delegate optional body, false, true);
 
+impl_annotation_builder!(PropertyDef, optional body);
+
 impl PropertyDef {
     // --------------------------------------------------------------------------------------------
     // Constructors

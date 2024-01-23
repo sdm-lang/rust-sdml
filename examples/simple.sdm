@@ -1,6 +1,6 @@
-module campaign base <https://advertising.amazon.com/api-model> is
+module campaign <https://advertising.amazon.com/api-model> is
 
-  import [xsd rdf skos dc]
+  import [xsd rdf skos dc owl]
 
   @skos:version = xsd:decimal(2)
 
@@ -16,10 +16,27 @@ module campaign base <https://advertising.amazon.com/api-model> is
     ]
   end
 
+  enum State of
+    @owl:equivalentClass = sdml:unsigned
+    Running is
+      @rdf:value = 1
+    end
+    Paused is
+      @rdf:value = 2
+    end
+    Error is
+      @rdf:value = 3
+    end
+  end
+
   structure Tag is
     key -> xsd:NMTOKEN
     value -> {0..} rdf:langString
   end
+
+  entity Ad
+
+  entity AdGroup
 
   entity Campaign is
     identity campaignId -> CampaignId
@@ -28,9 +45,16 @@ module campaign base <https://advertising.amazon.com/api-model> is
 
     tag -> {0..} Tag
 
-    target -> {1..} Target
+    target -> {1..} features TargetCriteria
   end
 
-  entity Target
+  entity AudienceTarget
+
+  entity GeographicTarget
+
+  union TargetCriteria of
+    AudienceTarget as Audience
+    GeographicTarget as Geographic
+  end
 
 end

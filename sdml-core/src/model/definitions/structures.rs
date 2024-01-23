@@ -55,6 +55,8 @@ impl_references_for!(StructureDef => delegate optional body);
 
 impl_validate_for!(StructureDef => delegate optional body, false, true);
 
+impl_annotation_builder!(StructureDef, optional body);
+
 impl StructureDef {
     // --------------------------------------------------------------------------------------------
     // Constructors

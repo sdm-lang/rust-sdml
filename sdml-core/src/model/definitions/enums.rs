@@ -59,7 +59,10 @@ impl_has_optional_body_for!(EnumDef, EnumBody);
 
 impl_has_source_span_for!(EnumDef);
 
+// TODO check that any equivalent class is a datatype.
 impl_validate_for!(EnumDef => delegate optional body, false, true);
+
+impl_annotation_builder!(EnumDef, optional body);
 
 impl References for EnumDef {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -106,7 +109,23 @@ impl_has_optional_body_for!(ValueVariant);
 
 impl_has_source_span_for!(ValueVariant);
 
-impl_validate_for!(ValueVariant => todo!);
+impl_annotation_builder!(ValueVariant, optional body);
+
+impl Validate for ValueVariant {
+    fn is_complete(&self, _: &Module, _: &crate::cache::ModuleCache) -> Result<bool, Error> {
+        Ok(true)
+    }
+
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &crate::cache::ModuleCache,
+    ) -> Result<bool, Error> {
+        // TODO check values are valid for any specified type
+        Ok(true)
+    }
+}
 
 impl References for ValueVariant {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {

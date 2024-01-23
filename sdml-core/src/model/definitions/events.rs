@@ -41,6 +41,8 @@ impl_has_source_span_for!(EventDef);
 // TODO: need to include event_source in validation!!
 impl_validate_for!(EventDef => delegate optional body, false, true);
 
+impl_annotation_builder!(EventDef, optional body);
+
 impl EventDef {
     // --------------------------------------------------------------------------------------------
     // Constructors

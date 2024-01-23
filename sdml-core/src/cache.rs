@@ -47,6 +47,9 @@ pub struct ModuleCache {
 // ------------------------------------------------------------------------------------------------
 
 impl ModuleCache {
+    ///
+    /// Construct a cache with all of the standard library modules pre-inserted.
+    ///
     pub fn with_stdlib(self) -> Self {
         let mut self_mut = self;
         self_mut.insert(stdlib::dc::module());
@@ -60,10 +63,25 @@ impl ModuleCache {
         self_mut
     }
 
+    ///
+    /// Builder-like function to add a module to a newly constructed cache.
+    ///
     pub fn with(self, module: Module) -> Self {
         let mut self_mut = self;
         self_mut.insert(module);
         self_mut
+    }
+
+    pub fn len(&self) -> usize {
+        self.modules.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.modules.is_empty()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Module> {
+        self.modules.values()
     }
 
     /// Returns `true` if the loader's cache contains a module with the name `name`, else `false`.
@@ -103,6 +121,22 @@ impl ModuleCache {
             Some(name) => self.get_mut(&name),
             _ => None,
         }
+    }
+
+    pub fn identifier_for_url(&self, url: &Url) -> Option<&Identifier> {
+        self.uri_map.get(url)
+    }
+
+    pub fn url_for_identifier(&self, id: &Identifier) -> Option<&Url> {
+        self.modules.get(id).map(|module|module.base_uri()).unwrap_or_default()
+    }
+
+    pub fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)> {
+        self.uri_map.iter()
+    }
+
+    pub fn identifier_to_url_map(&self) -> impl Iterator<Item = (&Identifier, &Url)> {
+        self.uri_map.iter().map(|(url, id)| (id, url))
     }
 }
 

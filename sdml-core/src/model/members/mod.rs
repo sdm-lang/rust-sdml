@@ -175,6 +175,8 @@ impl_has_source_span_for!(MemberDef);
 
 impl_has_type_for!(MemberDef);
 
+impl_annotation_builder!(MemberDef, optional body);
+
 impl References for MemberDef {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         self.body

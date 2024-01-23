@@ -43,6 +43,8 @@ impl_has_name_for!(DatatypeDef);
 
 impl_has_optional_body_for!(DatatypeDef);
 
+impl_annotation_builder!(DatatypeDef, optional body);
+
 impl Validate for DatatypeDef {
     fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
         println!("DatatypeDef::is_complete");

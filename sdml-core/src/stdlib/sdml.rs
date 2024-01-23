@@ -3,6 +3,7 @@ This Rust module contains the SDML model of the SDML library module `sdml`.
 */
 
 use crate::model::modules::{ImportStatement, Module};
+use crate::model::annotations::AnnotationBuilder;
 use crate::model::HasBody;
 use url::Url;
 

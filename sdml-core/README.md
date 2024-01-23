@@ -7,6 +7,13 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.6**
+
+* Feat: Added more to the `sdml` stdlib module.
+* Feat: Added helpers `is_stdlib_property` and `is_datatype_facet` to `AnnotationProperty`.
+* Feat: Added new `AnnotationBuilder` trait and impls on most definitions to allow easy adding of annotation properties.
+* Feat: Added helper methods to `ModuleCache` to make it more collection-like.
+
 **Version 0.2.5**
 
 * Feature: Implemented the core standard library modules.
@@ -29,7 +36,7 @@ or convert into s-expressions, etc.
 
 * Feature: add new stdlib modules with standard layout.
 * Feature: minor refactor of cache and loader.
-  E
+
 **Version 0.2.3**
 
 * Feature: Update to latest grammar for version URIs and RDF definitions.

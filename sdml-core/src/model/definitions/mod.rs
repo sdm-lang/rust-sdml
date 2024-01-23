@@ -101,6 +101,47 @@ impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Prope
 
 impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
+impl Definition {
+    #[inline(always)]
+    pub fn is_datatype(&self) -> bool {
+        matches!(self, Self::Datatype(_))
+    }
+
+    #[inline(always)]
+    pub fn is_structured_type(&self) -> bool {
+        matches!(
+            self,
+            Self::Entity(_) |
+            Self::Enum(_) |
+            Self::Event(_) |
+            Self::Structure(_) |
+            Self::Union(_)
+        )
+    }
+
+    #[inline(always)]
+    pub fn is_type(&self) -> bool {
+        matches!(
+            self,
+            Self::Datatype(_) |
+            Self::Entity(_) |
+            Self::Enum(_) |
+            Self::Event(_) |
+            Self::Structure(_) |
+            Self::Union(_)
+        )
+    }
+
+    #[inline(always)]
+    pub fn is_library_definition(&self) -> bool {
+        matches!(
+            self,
+            Self::Rdf(_) |
+            Self::TypeClass(_)
+        )
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------

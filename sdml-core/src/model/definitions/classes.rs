@@ -106,6 +106,8 @@ impl_has_optional_body_for!(TypeClassDef, TypeClassBody);
 
 impl_has_source_span_for!(TypeClassDef);
 
+impl_annotation_builder!(TypeClassDef, optional body);
+
 impl References for TypeClassDef {
     fn referenced_types<'a>(
         &'a self,
