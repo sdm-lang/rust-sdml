@@ -1,11 +1,14 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
 use crate::model::annotations::AnnotationOnlyBody;
 use crate::model::check::Validate;
+use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
 use crate::model::{References, Span};
 use std::collections::HashSet;
 use std::fmt::Debug;
+use tracing::{error, trace};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -54,23 +57,38 @@ impl_has_name_for!(Member);
 impl_has_source_span_for!(Member);
 
 impl Validate for Member {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("Member::is_complete");
         match &self.kind {
-            MemberKind::PropertyReference(_) => {
-                // TODO: check this is a property reference
-                Ok(true)
+            MemberKind::PropertyReference(name) => {
+                if let Some(defn) = find_definition(name, top, cache) {
+                    Ok(matches!(defn, Definition::Property(_)))
+                } else {
+                    error!("Definition {name} not found");
+                    Ok(false)
+                }
             }
-            MemberKind::Definition(v) => v.is_complete(top),
+            MemberKind::Definition(v) => v.is_complete(top, cache),
         }
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("Member::is_valid");
         match &self.kind {
-            MemberKind::PropertyReference(_) => {
-                // TODO: check this is a property reference
-                Ok(true)
+            MemberKind::PropertyReference(name) => {
+                if let Some(defn) = find_definition(name, top, cache) {
+                    Ok(matches!(defn, Definition::Property(_)))
+                } else {
+                    error!("Definition {name} not found");
+                    Ok(false)
+                }
             }
-            MemberKind::Definition(v) => v.is_valid(check_constraints, top),
+            MemberKind::Definition(v) => v.is_valid(check_constraints, top, cache),
         }
     }
 }
@@ -171,15 +189,26 @@ impl References for MemberDef {
 }
 
 impl Validate for MemberDef {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        Ok(self.target_type.is_complete(top)? && self.target_cardinality.is_complete(top)?)
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("MemberDef::is_complete");
+        Ok(self.target_type.is_complete(top, cache)?
+            && self.target_cardinality.is_complete(top, cache)?)
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("MemberDef::is_valid");
         // TODO: check inverse name exists
         // TODO: check target type exists
         // TODO: check property reference exists
-        Ok(true)
+        Ok(self.target_type().is_valid(check_constraints, top, cache)?
+            && self
+                .target_cardinality()
+                .is_valid(check_constraints, top, cache)?)
     }
 }
 
@@ -231,3 +260,5 @@ pub use cardinality::{
 
 mod types;
 pub use types::{HasType, MappingType, TypeReference};
+
+use super::check::find_definition;

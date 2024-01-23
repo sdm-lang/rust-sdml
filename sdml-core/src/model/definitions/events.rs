@@ -38,6 +38,7 @@ impl_references_for!(EventDef => delegate optional body);
 
 impl_has_source_span_for!(EventDef);
 
+// TODO: need to include event_source in validation!!
 impl_validate_for!(EventDef => delegate optional body, false, true);
 
 impl EventDef {

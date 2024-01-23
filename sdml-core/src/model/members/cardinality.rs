@@ -1,3 +1,4 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
 use crate::model::check::Validate;
 use crate::model::modules::Module;
@@ -10,6 +11,7 @@ use std::str::FromStr;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use tracing::trace;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -133,12 +135,19 @@ impl From<CardinalityRange> for Cardinality {
 impl_has_source_span_for!(Cardinality);
 
 impl Validate for Cardinality {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        self.range.is_complete(top)
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("CardinalitydRange::is_complete");
+        self.range.is_complete(top, cache)
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
-        self.range.is_valid(check_constraints, top)
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("Cardinality::is_valid");
+        self.range.is_valid(check_constraints, top, cache)
     }
 }
 
@@ -374,11 +383,18 @@ impl From<u32> for CardinalityRange {
 impl_has_source_span_for!(CardinalityRange);
 
 impl Validate for CardinalityRange {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, _: &Module, _: &ModuleCache) -> Result<bool, Error> {
+        trace!("CardinalityRange::is_complete");
         Ok(true)
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _: &Module,
+        _: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("CardinalityRange::is_valid");
         Ok(if let Some(max) = self.max {
             max >= self.min
         } else {

@@ -1,8 +1,12 @@
+use crate::cache::ModuleCache;
+use crate::error::Error;
+use crate::model::check::Validate;
+use crate::model::modules::Module;
 use crate::model::References;
 use crate::model::{
     annotations::AnnotationOnlyBody,
     identifiers::{Identifier, IdentifierReference},
-    Span,
+    HasOptionalBody, Span,
 };
 use std::{collections::HashSet, fmt::Debug};
 
@@ -39,7 +43,27 @@ impl_has_name_for!(DatatypeDef);
 
 impl_has_optional_body_for!(DatatypeDef);
 
-impl_validate_for!(DatatypeDef => delegate optional body, true, true);
+impl Validate for DatatypeDef {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        println!("DatatypeDef::is_complete");
+        if let Some(body) = self.body() {
+            body.is_complete(top, cache)
+        } else {
+            Ok(true)
+        }
+    }
+
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        println!("DatatypeDef::is_valid");
+        // TODO: check that base_type is also a datatype
+        Ok(true)
+    }
+}
 
 impl References for DatatypeDef {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {

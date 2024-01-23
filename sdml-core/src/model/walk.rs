@@ -251,23 +251,11 @@ pub trait SimpleModuleWalker {
         Ok(())
     }
 
-    fn start_rdf_class(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+    fn start_rdf(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
         Ok(())
     }
 
-    fn end_rdf_class(&mut self, _name: &Identifier) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_rdf_property(
-        &mut self,
-        _name: &Identifier,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_rdf_property(&mut self, _name: &Identifier) -> Result<(), Error> {
+    fn end_rdf(&mut self, _name: &Identifier) -> Result<(), Error> {
         Ok(())
     }
 
@@ -532,18 +520,9 @@ fn walk_structure_def(
 }
 
 fn walk_rdf_def(def: &RdfDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    match def {
-        RdfDef::Class(v) => {
-            walker.start_rdf_class(v.name(), v.source_span())?;
-            walk_annotations!(walker, v.body().annotations());
-            walker.end_rdf_class(v.name())
-        }
-        RdfDef::Property(v) => {
-            walker.start_rdf_property(v.name(), v.source_span())?;
-            walk_annotations!(walker, v.body().annotations());
-            walker.end_rdf_property(v.name())
-        }
-    }
+    walker.start_rdf(def.name(), def.source_span())?;
+    walk_annotations!(walker, def.body().annotations());
+    walker.end_rdf(def.name())
 }
 
 fn walk_union_def(def: &UnionDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {

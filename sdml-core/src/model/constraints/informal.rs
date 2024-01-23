@@ -1,4 +1,5 @@
 use crate::{
+    cache::ModuleCache,
     error::{invalid_language_tag_error, Error},
     model::{check::Validate, modules::Module, References, Span},
 };
@@ -86,11 +87,16 @@ impl_has_source_span_for!(ControlledLanguageString);
 impl References for ControlledLanguageString {}
 
 impl Validate for ControlledLanguageString {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
         todo!()
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         todo!()
     }
 }
@@ -176,11 +182,16 @@ impl Eq for ControlledLanguageTag {}
 impl_has_source_span_for!(ControlledLanguageTag);
 
 impl Validate for ControlledLanguageTag {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
         Ok(true)
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         Ok(Self::is_valid_str(&self.value))
     }
 }

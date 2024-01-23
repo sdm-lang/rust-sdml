@@ -1,3 +1,4 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
 use crate::model::annotations::AnnotationOnlyBody;
 use crate::model::members::TypeReference;
@@ -144,23 +145,28 @@ impl_has_name_for!(EntityIdentity);
 impl_has_source_span_for!(EntityIdentity);
 
 impl Validate for EntityIdentity {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
         match &self.kind {
             MemberKind::PropertyReference(_) => {
                 // TODO: check this is a property reference
                 Ok(true)
             }
-            MemberKind::Definition(v) => v.is_complete(top),
+            MemberKind::Definition(v) => v.is_complete(top, cache),
         }
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         match &self.kind {
             MemberKind::PropertyReference(_) => {
                 // TODO: check this is a property reference
                 Ok(true)
             }
-            MemberKind::Definition(v) => v.is_valid(check_constraints, top),
+            MemberKind::Definition(v) => v.is_valid(check_constraints, top, cache),
         }
     }
 }
@@ -259,11 +265,16 @@ impl References for EntityIdentityDef {
 }
 
 impl Validate for EntityIdentityDef {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        self.target_type.is_complete(top)
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        self.target_type.is_complete(top, cache)
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         // TOD: check type reference
         Ok(true)
     }

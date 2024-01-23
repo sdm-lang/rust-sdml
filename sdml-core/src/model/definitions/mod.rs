@@ -136,4 +136,4 @@ mod unions;
 pub use unions::{TypeVariant, UnionBody, UnionDef};
 
 mod rdf;
-pub use rdf::{RdfDef, RdfDefBody};
+pub use rdf::RdfDef;

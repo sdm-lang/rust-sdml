@@ -1,4 +1,5 @@
 use crate::{
+    cache::ModuleCache,
     error::Error,
     model::{Identifier, Span},
 };
@@ -61,12 +62,17 @@ impl_has_source_span_for!(Constraint);
 impl_references_for!(Constraint => delegate body);
 
 impl Validate for Constraint {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
         // TODO: is this correct?
         Ok(true)
     }
 
-    fn is_valid(&self, check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         if check_constraints {
             todo!()
         } else {

@@ -1,5 +1,7 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
-use crate::model::check::Validate;
+use crate::model::check::{find_definition, Validate};
+use crate::model::definitions::Definition;
 use crate::model::identifiers::IdentifierReference;
 use crate::model::modules::Module;
 use crate::model::{References, Span};
@@ -9,6 +11,7 @@ use std::fmt::{Debug, Display};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use tracing::trace;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -119,21 +122,34 @@ impl References for TypeReference {
 }
 
 impl Validate for TypeReference {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("TypeReference::is_complete");
         match self {
             TypeReference::Unknown => Ok(false),
             TypeReference::Type(_) => Ok(true),
             TypeReference::FeatureSet(_) => Ok(true),
-            TypeReference::MappingType(v) => v.is_complete(top),
+            TypeReference::MappingType(v) => v.is_complete(top, cache),
         }
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("TypeReference::is_valid");
         match self {
             TypeReference::Unknown => Ok(true),
-            TypeReference::Type(_) => todo!(),
-            TypeReference::FeatureSet(_) => todo!(),
-            TypeReference::MappingType(v) => v.is_valid(check_constraints, top),
+            TypeReference::Type(name) => Ok(find_definition(name, top, cache)
+                .map(|defn| {
+                    !matches!(defn, Definition::Property(_)) && !matches!(defn, Definition::Rdf(_))
+                })
+                .unwrap_or_default()),
+            TypeReference::FeatureSet(name) => Ok(find_definition(name, top, cache)
+                .map(|defn| matches!(defn, Definition::Union(_)))
+                .unwrap_or_default()),
+            TypeReference::MappingType(v) => v.is_valid(check_constraints, top, cache),
         }
     }
 }
@@ -178,13 +194,20 @@ impl References for MappingType {
 }
 
 impl Validate for MappingType {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        Ok(self.domain.is_complete(top)? && self.range.is_complete(top)?)
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("MappingType::is_complete");
+        Ok(self.domain.is_complete(top, cache)? && self.range.is_complete(top, cache)?)
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
-        // TODO: check type references exist
-        todo!()
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("MappingType::is_valid");
+        Ok(self.domain().is_valid(check_constraints, top, cache)?
+            && self.range().is_valid(check_constraints, top, cache)?)
     }
 }
 

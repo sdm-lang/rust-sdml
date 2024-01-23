@@ -1,3 +1,4 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
 use crate::model::{
     check::Validate, constraints::Constraint, identifiers::IdentifierReference, modules::Module,
@@ -7,6 +8,7 @@ use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use tracing::trace;
 
 use super::values::{LanguageString, LanguageTag};
 use super::{HasName, References};
@@ -158,17 +160,24 @@ impl From<Constraint> for Annotation {
 impl References for Annotation {}
 
 impl Validate for Annotation {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("Annotation::is_complete");
         match self {
-            Annotation::Property(v) => v.is_complete(top),
-            Annotation::Constraint(v) => v.is_complete(top),
+            Annotation::Property(v) => v.is_complete(top, cache),
+            Annotation::Constraint(v) => v.is_complete(top, cache),
         }
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("Annotation::is_valid");
         match (self, check_constraints) {
-            (Annotation::Property(v), _) => v.is_valid(check_constraints, top),
-            (Annotation::Constraint(v), true) => v.is_valid(check_constraints, top),
+            (Annotation::Property(v), _) => v.is_valid(check_constraints, top, cache),
+            (Annotation::Constraint(v), true) => v.is_valid(check_constraints, top, cache),
             _ => Ok(true),
         }
     }
@@ -193,11 +202,18 @@ impl_has_source_span_for!(AnnotationProperty);
 impl_has_name_reference_for!(AnnotationProperty);
 
 impl Validate for AnnotationProperty {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("AnnotationProperty::is_complete");
         Ok(true)
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("AnnotationProperty::is_valid -- missing type/value conformance");
         // TODO: ensure type/value conformance.
         Ok(true)
     }
@@ -251,16 +267,25 @@ impl References for AnnotationOnlyBody {
 }
 
 impl Validate for AnnotationOnlyBody {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        let failed: Result<Vec<bool>, Error> =
-            self.annotations().map(|ann| ann.is_complete(top)).collect();
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("AnnotationOnlyBody::is_complete");
+        let failed: Result<Vec<bool>, Error> = self
+            .annotations()
+            .map(|ann| ann.is_complete(top, cache))
+            .collect();
         Ok(failed?.iter().all(|b| *b))
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("AnnotationOnlyBody::is_valid");
         let failed: Result<Vec<bool>, Error> = self
             .annotations()
-            .map(|ann| ann.is_valid(check_constraints, top))
+            .map(|ann| ann.is_valid(check_constraints, top, cache))
             .collect();
         Ok(failed?.iter().all(|b| *b))
     }

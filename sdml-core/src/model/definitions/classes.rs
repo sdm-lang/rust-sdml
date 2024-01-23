@@ -9,6 +9,7 @@ YYYYY
 
 */
 
+use crate::cache::ModuleCache;
 use crate::model::annotations::Annotation;
 use crate::model::check::Validate;
 use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
@@ -123,6 +124,7 @@ impl Validate for TypeClassDef {
     fn is_complete(
         &self,
         _top: &crate::model::modules::Module,
+        _cache: &ModuleCache,
     ) -> Result<bool, crate::error::Error> {
         todo!()
     }
@@ -131,6 +133,7 @@ impl Validate for TypeClassDef {
         &self,
         _check_constraints: bool,
         _top: &crate::model::modules::Module,
+        _cache: &ModuleCache,
     ) -> Result<bool, crate::error::Error> {
         todo!()
     }

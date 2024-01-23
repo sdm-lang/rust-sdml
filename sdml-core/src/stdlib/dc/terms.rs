@@ -2,8 +2,8 @@
 This Rust module contains the SDML model of the SDML library module `dcterms`.
 */
 
-use url::Url;
 use crate::model::{identifiers::Identifier, modules::Module};
+use url::Url;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -16,7 +16,6 @@ use crate::model::{identifiers::Identifier, modules::Module};
 pub const MODULE_NAME: &str = "dc_terms";
 pub const MODULE_URL: &str = "http://purl.org/dc/terms/";
 
-
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
@@ -25,7 +24,6 @@ pub fn module() -> Module {
     Module::empty(Identifier::new_unchecked(MODULE_NAME))
         .with_base_uri(Url::parse(MODULE_URL).unwrap())
 }
-
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros

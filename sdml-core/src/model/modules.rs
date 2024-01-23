@@ -1,3 +1,4 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
 use crate::model::definitions::{
     DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
@@ -11,6 +12,7 @@ use crate::model::{
     HasBody, HasName, Span,
 };
 use std::fmt::Display;
+use std::path::PathBuf;
 use std::{collections::HashSet, fmt::Debug};
 use url::Url;
 
@@ -27,6 +29,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Module {
+    source_file: Option<PathBuf>,
     span: Option<Span>,
     name: Identifier,
     base_uri: Option<Url>,
@@ -123,6 +126,7 @@ impl Module {
 
     pub fn empty(name: Identifier) -> Self {
         Self {
+            source_file: None,
             span: None,
             name,
             base_uri: Default::default(),
@@ -134,6 +138,7 @@ impl Module {
 
     pub fn new(name: Identifier, body: ModuleBody) -> Self {
         Self {
+            source_file: None,
             span: None,
             name,
             base_uri: Default::default(),
@@ -170,6 +175,7 @@ impl Module {
             ..self
         }
     }
+    get_and_set!(pub source_file, set_source_file, unset_source_file => optional has_source_file, PathBuf);
 
     get_and_set!(pub base_uri, set_base_uri, unset_base_uri => optional has_base_uri, Url);
 
@@ -187,20 +193,25 @@ impl Module {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_complete(&self) -> Result<bool, Error> {
-        self.body.is_complete(self)
+    pub fn is_complete(&self, cache: &ModuleCache) -> Result<bool, Error> {
+        self.body.is_complete(self, cache)
     }
 
-    pub fn is_valid(&self, check_constraints: bool) -> Result<bool, Error> {
-        self.body.is_valid(check_constraints, self)
+    pub fn is_valid(&self, check_constraints: bool, cache: &ModuleCache) -> Result<bool, Error> {
+        self.body.is_valid(check_constraints, self, cache)
     }
 
     pub fn is_library_module(&self) -> bool {
         Identifier::is_library_module_name(self.name().as_ref())
     }
 
-    pub fn validate(&self, check_constraints: bool, errors: &mut Vec<Error>) -> Result<(), Error> {
-        self.body.validate(check_constraints, self, errors)
+    pub fn validate(
+        &self,
+        check_constraints: bool,
+        cache: &ModuleCache,
+        errors: &mut Vec<Error>,
+    ) -> Result<(), Error> {
+        self.body.validate(check_constraints, self, cache, errors)
     }
 
     pub fn resolve_local(&self, name: &Identifier) -> Option<&Definition> {
@@ -229,18 +240,29 @@ impl References for ModuleBody {
 }
 
 impl Validate for ModuleBody {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
-        let failed: Result<Vec<bool>, Error> =
-            self.annotations().map(|ann| ann.is_complete(top)).collect();
-        Ok(failed?.iter().all(|b| *b))
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        let ann_failed: Result<Vec<bool>, Error> = self
+            .annotations()
+            .map(|ann| ann.is_complete(top, cache))
+            .collect();
+        let def_failed: Result<Vec<bool>, Error> = self
+            .definitions()
+            .map(|def| def.is_complete(top, cache))
+            .collect();
+        Ok(ann_failed?.iter().chain(def_failed?.iter()).all(|b| *b))
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         for inner in self.annotations() {
-            inner.is_valid(check_constraints, top)?;
+            inner.is_valid(check_constraints, top, cache)?;
         }
         for inner in self.definitions() {
-            inner.is_valid(check_constraints, top)?;
+            inner.is_valid(check_constraints, top, cache)?;
         }
         Ok(true)
     }
@@ -249,13 +271,14 @@ impl Validate for ModuleBody {
         &self,
         check_constraints: bool,
         top: &Module,
+        cache: &ModuleCache,
         errors: &mut Vec<Error>,
     ) -> Result<(), Error> {
         for annotation in self.annotations() {
-            annotation.validate(check_constraints, top, errors)?;
+            annotation.validate(check_constraints, top, cache, errors)?;
         }
         for definition in self.definitions() {
-            definition.validate(check_constraints, top, errors)?;
+            definition.validate(check_constraints, top, cache, errors)?;
         }
         Ok(())
     }
@@ -301,6 +324,11 @@ impl ModuleBody {
         extend_definitions
             => definitions, Definition
     );
+
+    #[inline]
+    pub fn get_definition(&self, name: &Identifier) -> Option<&Definition> {
+        self.definitions().find(|d| d.name() == name)
+    }
 
     #[inline]
     pub fn datatype_definitions(&self) -> impl Iterator<Item = &DatatypeDef> {

@@ -50,6 +50,8 @@ impl ModuleCache {
     pub fn with_stdlib(self) -> Self {
         let mut self_mut = self;
         self_mut.insert(stdlib::dc::module());
+        self_mut.insert(stdlib::dc::terms::module());
+        self_mut.insert(stdlib::owl::module());
         self_mut.insert(stdlib::rdf::module());
         self_mut.insert(stdlib::rdfs::module());
         self_mut.insert(stdlib::sdml::module());

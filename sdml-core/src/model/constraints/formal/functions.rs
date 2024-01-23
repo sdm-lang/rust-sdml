@@ -1,3 +1,4 @@
+use crate::cache::ModuleCache;
 use crate::error::Error;
 use crate::model::check::Validate;
 use crate::model::constraints::ConstraintSentence;
@@ -239,17 +240,22 @@ impl Display for FunctionCardinality {
 impl_has_source_span_for!(FunctionCardinality);
 
 impl Validate for FunctionCardinality {
-    fn is_complete(&self, top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
         if let Some(range) = &self.range {
-            range.is_complete(top)
+            range.is_complete(top, cache)
         } else {
             Ok(true)
         }
     }
 
-    fn is_valid(&self, check_constraints: bool, top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
         if let Some(range) = &self.range {
-            range.is_valid(check_constraints, top)
+            range.is_valid(check_constraints, top, cache)
         } else {
             Ok(true)
         }

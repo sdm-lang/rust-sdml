@@ -1,7 +1,8 @@
 use crate::{
+    cache::ModuleCache,
     error::Error,
     model::{
-        annotations::{Annotation, AnnotationOnlyBody},
+        annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
         check::Validate,
         definitions::EntityIdentityDef,
         identifiers::{Identifier, IdentifierReference},
@@ -14,6 +15,7 @@ use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use tracing::trace;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -91,7 +93,39 @@ impl_has_annotations_for!(PropertyBody);
 
 impl_has_source_span_for!(PropertyBody);
 
-impl_validate_for!(PropertyBody => todo!);
+impl Validate for PropertyBody {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("PropertyBody::is_complete");
+        Ok(self
+            .annotations()
+            .map(|ann| ann.is_complete(top, cache))
+            .chain(self.roles().map(|m| m.is_complete(top, cache)))
+            .collect::<Result<Vec<bool>, Error>>()?
+            .into_iter()
+            // reduce vector of booleans
+            .all(::std::convert::identity))
+    }
+
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("PropertyBody::is_valid");
+        Ok(self
+            .annotations()
+            .map(|ann| ann.is_valid(check_constraints, top, cache))
+            .chain(
+                self.roles()
+                    .map(|m| m.is_valid(check_constraints, top, cache)),
+            )
+            .collect::<Result<Vec<bool>, Error>>()?
+            .into_iter()
+            // reduce vector of booleans
+            .all(::std::convert::identity))
+    }
+}
 
 impl References for PropertyBody {
     fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
@@ -122,7 +156,26 @@ impl_has_name_for!(PropertyRole);
 
 impl_has_source_span_for!(PropertyRole);
 
-impl_validate_for!(PropertyRole => todo!);
+impl Validate for PropertyRole {
+    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("PropertyRole::is_complete");
+        Ok(self.target_type().is_complete(top, cache)?
+            && self.target_cardinality().is_complete(top, cache)?)
+    }
+
+    fn is_valid(
+        &self,
+        check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("PropertyRole::is_valid");
+        Ok(self.target_type().is_valid(check_constraints, top, cache)?
+            && self
+                .target_cardinality()
+                .is_valid(check_constraints, top, cache)?)
+    }
+}
 
 impl References for PropertyRole {
     fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
@@ -193,11 +246,18 @@ impl References for PropertyRoleDef {
 }
 
 impl Validate for PropertyRoleDef {
-    fn is_complete(&self, _top: &Module) -> Result<bool, Error> {
+    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
+        trace!("PropertyBodyDef::is_complete");
         todo!()
     }
 
-    fn is_valid(&self, _check_constraints: bool, _top: &Module) -> Result<bool, Error> {
+    fn is_valid(
+        &self,
+        _check_constraints: bool,
+        _top: &Module,
+        _cache: &ModuleCache,
+    ) -> Result<bool, Error> {
+        trace!("PropertyBodyDef::is_valid");
         todo!()
     }
 }

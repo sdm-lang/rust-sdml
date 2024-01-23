@@ -1,4 +1,7 @@
-use crate::model::{check::Validate, References, Span};
+use crate::{
+    cache::ModuleCache,
+    model::{check::Validate, References, Span},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -33,6 +36,7 @@ impl Validate for FormalConstraint {
     fn is_complete(
         &self,
         _top: &crate::model::modules::Module,
+        _cache: &ModuleCache,
     ) -> Result<bool, crate::error::Error> {
         todo!()
     }
@@ -41,6 +45,7 @@ impl Validate for FormalConstraint {
         &self,
         _check_constraints: bool,
         _top: &crate::model::modules::Module,
+        _cache: &ModuleCache,
     ) -> Result<bool, crate::error::Error> {
         todo!()
     }
