@@ -7,11 +7,29 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.5**
+
+* Feature: Implemented the core standard library modules.
+  * `dc` (elements) -- Complete.
+  * `dc_terms` -- Not started.
+  * `dc_am` -- Not started.
+  * `dc_type` -- Not started.
+  * `owl` -- Complete.
+  * `rdf` -- Complete.
+  * `rdfs` -- Complete.
+  * `sdml` -- Mostly complete.
+  * `skos` -- Complete.
+  * `xsd` (part 2) -- Complete.
+
+This change affects the `ModuleCache` as well, it's `with_stdlib` constructor will include all the library modules and their
+definitions. This can be checked out with the command-line tool to either draw diagrams of the standard library modules
+or convert into s-expressions, etc.
+
 **Version 0.2.4**
 
 * Feature: add new stdlib modules with standard layout.
 * Feature: minor refactor of cache and loader.
-
+  E
 **Version 0.2.3**
 
 * Feature: Update to latest grammar for version URIs and RDF definitions.
