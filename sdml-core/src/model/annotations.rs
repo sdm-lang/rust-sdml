@@ -1,20 +1,20 @@
 use crate::cache::ModuleCache;
 use crate::error::Error;
+use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{
     check::Validate, constraints::Constraint, identifiers::IdentifierReference, modules::Module,
     values::Value, HasNameReference, Span,
 };
-use std::{collections::HashSet, fmt::Debug};
-use crate::stdlib;
-use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{HasName, References};
+use crate::stdlib;
+use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use tracing::trace;
 use url::Url;
 
-use super::identifiers::{QualifiedIdentifier, Identifier};
+use super::identifiers::{Identifier, QualifiedIdentifier};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Traits
@@ -90,7 +90,6 @@ pub trait HasAnnotations {
 }
 
 pub trait AnnotationBuilder {
-
     fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
     where
         Self: Sized,
@@ -467,8 +466,8 @@ impl AnnotationProperty {
     #[inline(always)]
     pub fn is_datatype_facet(&self) -> bool {
         if let IdentifierReference::QualifiedIdentifier(name) = self.name_reference() {
-            name.module().as_ref() == stdlib::xsd::MODULE_NAME &&
-                stdlib::xsd::is_constraining_facet(name.member())
+            name.module().as_ref() == stdlib::xsd::MODULE_NAME
+                && stdlib::xsd::is_constraining_facet(name.member())
         } else {
             false
         }

@@ -3,8 +3,8 @@ Standard library module for namespace `rdfs`.
 
 */
 
-use crate::model::modules::{ImportStatement, Module};
 use crate::model::annotations::AnnotationBuilder;
+use crate::model::modules::{ImportStatement, Module};
 use crate::model::HasBody;
 
 // ------------------------------------------------------------------------------------------------

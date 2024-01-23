@@ -348,18 +348,21 @@ impl_from_for_variant!(SimpleValue, IriReference, Url);
 impl_from_for_variant!(SimpleValue, Binary, Binary);
 
 impl Display for SimpleValue {
-    fn fmt(&self,f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::Double(v) => v.to_string(),
-            Self::Decimal(v) => v.to_string(),
-            Self::Integer(v) => v.to_string(),
-            Self::Unsigned(v) => v.to_string(),
-            Self::Boolean(v) => v.to_string(),
-            Self::IriReference(v) => format!("<{v}>"),
-            Self::String(v) => v.to_string(),
-            Self::Binary(v) => v.to_string(),
-
-        })
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Double(v) => v.to_string(),
+                Self::Decimal(v) => v.to_string(),
+                Self::Integer(v) => v.to_string(),
+                Self::Unsigned(v) => v.to_string(),
+                Self::Boolean(v) => v.to_string(),
+                Self::IriReference(v) => format!("<{v}>"),
+                Self::String(v) => v.to_string(),
+                Self::Binary(v) => v.to_string(),
+            }
+        )
     }
 }
 

@@ -2,9 +2,7 @@
 This Rust module contains the SDML model of the SDML library module `dcterms`.
 */
 
-use crate::model::{
-    identifiers::Identifier,
-    modules::Module};
+use crate::model::{identifiers::Identifier, modules::Module};
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------

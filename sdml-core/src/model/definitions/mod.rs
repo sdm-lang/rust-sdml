@@ -111,11 +111,7 @@ impl Definition {
     pub fn is_structured_type(&self) -> bool {
         matches!(
             self,
-            Self::Entity(_) |
-            Self::Enum(_) |
-            Self::Event(_) |
-            Self::Structure(_) |
-            Self::Union(_)
+            Self::Entity(_) | Self::Enum(_) | Self::Event(_) | Self::Structure(_) | Self::Union(_)
         )
     }
 
@@ -123,22 +119,18 @@ impl Definition {
     pub fn is_type(&self) -> bool {
         matches!(
             self,
-            Self::Datatype(_) |
-            Self::Entity(_) |
-            Self::Enum(_) |
-            Self::Event(_) |
-            Self::Structure(_) |
-            Self::Union(_)
+            Self::Datatype(_)
+                | Self::Entity(_)
+                | Self::Enum(_)
+                | Self::Event(_)
+                | Self::Structure(_)
+                | Self::Union(_)
         )
     }
 
     #[inline(always)]
     pub fn is_library_definition(&self) -> bool {
-        matches!(
-            self,
-            Self::Rdf(_) |
-            Self::TypeClass(_)
-        )
+        matches!(self, Self::Rdf(_) | Self::TypeClass(_))
     }
 }
 

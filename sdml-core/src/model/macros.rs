@@ -628,14 +628,12 @@ macro_rules! impl_annotation_builder {
                 V: Into<$crate::model::values::Value>,
             {
                 let mut self_mut = self;
-                self_mut
-                    .$inner
-                    .add_to_annotations(
-                        $crate::model::annotations::AnnotationProperty::new(
-                            predicate.into(),
-                            value.into()
-                        )
-                    );
+                self_mut.$inner.add_to_annotations(
+                    $crate::model::annotations::AnnotationProperty::new(
+                        predicate.into(),
+                        value.into(),
+                    ),
+                );
                 self_mut
             }
         }
@@ -651,13 +649,10 @@ macro_rules! impl_annotation_builder {
                 use $crate::model::annotations::HasAnnotations;
                 let mut self_mut = self;
                 if let Some(ref mut inner) = self_mut.$inner {
-                    inner
-                        .add_to_annotations(
-                            $crate::model::annotations::AnnotationProperty::new(
-                                predicate.into(),
-                                value.into()
-                            )
-                        );
+                    inner.add_to_annotations($crate::model::annotations::AnnotationProperty::new(
+                        predicate.into(),
+                        value.into(),
+                    ));
                 }
                 self_mut
             }

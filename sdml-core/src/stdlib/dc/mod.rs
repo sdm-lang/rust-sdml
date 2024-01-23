@@ -39,8 +39,7 @@ pub const PROP_TYPE_NAME: &str = "type";
 pub fn module() -> Module {
     #[allow(non_snake_case)]
     let MODULE_IRI: url::Url = url::Url::parse(MODULE_URL).unwrap();
-    let mut module = Module::empty(id!(MODULE_NAME))
-        .with_base_uri(Url::parse(MODULE_URL).unwrap());
+    let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(Url::parse(MODULE_URL).unwrap());
 
     module
         .body_mut()

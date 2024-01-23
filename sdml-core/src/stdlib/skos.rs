@@ -2,8 +2,8 @@
 This Rust module contains the SDML model of the SDML library module `skos`.
 */
 
-use crate::model::modules::{ImportStatement, Module};
 use crate::model::annotations::AnnotationBuilder;
+use crate::model::modules::{ImportStatement, Module};
 use crate::model::HasBody;
 use url::Url;
 

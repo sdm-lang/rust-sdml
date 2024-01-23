@@ -1,7 +1,7 @@
 use crate::{
     cache::ModuleCache,
     model::{
-        annotations::{AnnotationOnlyBody, HasAnnotations, with_type},
+        annotations::{AnnotationBuilder, AnnotationOnlyBody, HasAnnotations},
         check::Validate,
         identifiers::{Identifier, QualifiedIdentifier},
         modules::Module,
@@ -83,36 +83,24 @@ impl RdfDef {
     }
 
     pub fn class(name: Identifier) -> Self {
-        let mut new_self = Self::new(name);
-        with_type(
-            new_self.body_mut(),
-            QualifiedIdentifier::new(
+        Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
             Identifier::new_unchecked(stdlib::rdfs::CLASS_CLASS_NAME),
-        ));
-        new_self
+        ))
     }
 
     pub fn datatype(name: Identifier) -> Self {
-        let mut new_self = Self::new(name);
-        with_type(
-            new_self.body_mut(),
-            QualifiedIdentifier::new(
+        Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
             Identifier::new_unchecked(stdlib::rdfs::CLASS_DATATYPE_NAME),
-            ));
-        new_self
+        ))
     }
 
     pub fn property(name: Identifier) -> Self {
-        let mut new_self = Self::new(name);
-        with_type(
-            new_self.body_mut(),
-            QualifiedIdentifier::new(
+        Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
             Identifier::new_unchecked(stdlib::rdf::CLASS_PROPERTY_NAME),
-            ));
-        new_self
+        ))
     }
 
     pub fn individual(name: Identifier) -> Self {

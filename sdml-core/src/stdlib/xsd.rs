@@ -2,8 +2,8 @@
 This Rust module contains the SDML model of the SDML library module `xsd`.
 */
 
-use crate::model::identifiers::Identifier;
 use crate::model::annotations::AnnotationBuilder;
+use crate::model::identifiers::Identifier;
 use crate::model::modules::{ImportStatement, Module};
 use crate::model::HasBody;
 use url::Url;
@@ -115,7 +115,6 @@ pub fn module() -> Module {
         // Purple
         rdf!(datatype DT_ANY_TYPE_NAME, MODULE_IRI).into(),
         rdf!(datatype DT_ANY_SIMPLE_TYPE_NAME, MODULE_IRI; DT_ANY_TYPE_NAME).into(),
-
         // Blue
         rdf!(datatype DT_ANY_URI_NAME, MODULE_IRI; DT_ANY_SIMPLE_TYPE_NAME).into(),
         rdf!(datatype DT_BASE64_BINARY_NAME, MODULE_IRI; DT_ANY_SIMPLE_TYPE_NAME).into(),
@@ -136,7 +135,6 @@ pub fn module() -> Module {
         rdf!(datatype DT_QNOTATION_NAME, MODULE_IRI; DT_ANY_SIMPLE_TYPE_NAME).into(),
         rdf!(datatype DT_STRING_NAME, MODULE_IRI; DT_ANY_SIMPLE_TYPE_NAME).into(),
         rdf!(datatype DT_TIME_NAME, MODULE_IRI; DT_ANY_SIMPLE_TYPE_NAME).into(),
-
         // Green
         rdf!(datatype DT_NORMALIZED_STRING_NAME, MODULE_IRI; DT_STRING_NAME).into(),
         rdf!(datatype DT_TOKEN_NAME, MODULE_IRI; DT_NORMALIZED_STRING_NAME).into(),
@@ -156,44 +154,43 @@ pub fn module() -> Module {
         rdf!(datatype DT_UNSIGNED_SHORT_NAME, MODULE_IRI; DT_UNSIGNED_INT_NAME).into(),
         rdf!(datatype DT_UNSIGNED_BYTE_NAME, MODULE_IRI; DT_UNSIGNED_SHORT_NAME).into(),
         rdf!(datatype DT_POSITIVE_INTEGER_NAME, MODULE_IRI; DT_NONNEGATIVE_INTEGER_NAME).into(),
-
         // Facets
         rdf!(property PROP_ENUMERATION_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_FRACTION_DIGITS_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_LENGTH_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_MAX_EXCLUSIVE_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_MAX_INCLUSIVE_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_MAX_LENGTH_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_MIN_EXCLUSIVE_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_MIN_INCLUSIVE_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_MIN_LENGTH_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_ENUMERATION_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_TOTAL_DIGITS_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
         rdf!(property PROP_WHITE_SPACE_NAME, MODULE_IRI;
              (super::rdfs::MODULE_NAME, super::rdfs::CLASS_DATATYPE_NAME))
-            .into(),
+        .into(),
     ]);
 
     module
@@ -217,7 +214,8 @@ pub fn is_constraining_facet_str(name: &str) -> bool {
         PROP_PATTERN_NAME,
         PROP_TOTAL_DIGITS_NAME,
         PROP_WHITE_SPACE_NAME,
-    ].contains(&name)
+    ]
+    .contains(&name)
 }
 
 // ------------------------------------------------------------------------------------------------

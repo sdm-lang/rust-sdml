@@ -128,7 +128,10 @@ impl ModuleCache {
     }
 
     pub fn url_for_identifier(&self, id: &Identifier) -> Option<&Url> {
-        self.modules.get(id).map(|module|module.base_uri()).unwrap_or_default()
+        self.modules
+            .get(id)
+            .map(|module| module.base_uri())
+            .unwrap_or_default()
     }
 
     pub fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)> {
