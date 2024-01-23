@@ -18,9 +18,9 @@ module rentals base <https://example.org/v/rentals> is
   end
 
   enum CustomerLevel of
-    Basic = 1
-    Silver = 2
-    Gold = 3
+    Basic
+    Silver
+    Gold
   end
 
   entity Vehicle is

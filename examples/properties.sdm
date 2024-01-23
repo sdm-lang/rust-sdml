@@ -1,20 +1,22 @@
 module properties is
 
-  import [ account skos ]
+  import [ skos ]
+
+  datatype AccountId <- integer
 
   property accountId is
 
-    identifier -> {1} account:AccountId is
+    identifier -> {1} AccountId is
       @skos:definition = "a"@en
     end
 
-    reference {1} -> {1} account:AccountId
+    reference -> {1} AccountId
 
   end
 
   structure Account is
 
-    identitifer in accountId
+    identifier in accountId
 
     name -> string
 
