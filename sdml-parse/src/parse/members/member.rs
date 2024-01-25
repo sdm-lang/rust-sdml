@@ -29,7 +29,8 @@ pub(crate) fn parse_member<'a>(
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_TARGET) {
         context.check_if_error(&child, RULE_NAME)?;
-        let type_reference = parse_type_reference(context, &mut child.walk(), false)?;
+        let is_feature = node.child_by_field_name(FIELD_NAME_FEATURE).is_some();
+        let type_reference = parse_type_reference(context, &mut child.walk(), is_feature)?;
         let mut member_def = MemberDef::new(type_reference).with_source_span(node.into());
 
         if let Some(child) = node.child_by_field_name(FIELD_NAME_INVERSE_NAME) {
