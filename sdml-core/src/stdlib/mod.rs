@@ -103,6 +103,20 @@ macro_rules! seq {
     };
 }
 
+macro_rules! import {
+    ( $( $module:expr ),* ) => {
+        $crate::model::modules::ImportStatement::new(
+            vec![
+                $(
+                    $crate::model::modules::Import::from(
+                        $module
+                    ),
+                )*
+            ]
+        )
+    };
+}
+
 macro_rules! rdf {
     ($kind:ident, $id:expr, $in:expr) => {
         $crate::model::definitions::RdfDef::$kind(id!($id))

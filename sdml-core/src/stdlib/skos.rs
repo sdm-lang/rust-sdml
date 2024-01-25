@@ -3,7 +3,7 @@ This Rust module contains the SDML model of the SDML library module `skos`.
 */
 
 use crate::model::annotations::AnnotationBuilder;
-use crate::model::modules::{ImportStatement, Module};
+use crate::model::modules::Module;
 use crate::model::HasBody;
 use url::Url;
 
@@ -63,10 +63,12 @@ pub fn module() -> Module {
 
     module
         .body_mut()
-        .add_to_imports(ImportStatement::new_module(id!(super::rdf::MODULE_NAME)));
-    module
-        .body_mut()
-        .add_to_imports(ImportStatement::new_module(id!(super::rdfs::MODULE_NAME)));
+        .add_to_imports(
+            import!(
+                id!(super::rdf::MODULE_NAME),
+                id!(super::rdfs::MODULE_NAME)
+            )
+        );
 
     module.body_mut().extend_definitions(vec![
         rdf!(class CLASS_COLLECTION_NAME, MODULE_IRI)

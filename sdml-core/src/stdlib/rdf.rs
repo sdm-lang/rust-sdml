@@ -4,7 +4,7 @@ Standard library module for namespace `rdf`.
 */
 
 use crate::model::annotations::AnnotationBuilder;
-use crate::model::modules::{ImportStatement, Module};
+use crate::model::modules::Module;
 use crate::model::HasBody;
 
 // ------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ pub fn module() -> Module {
 
     module
         .body_mut()
-        .add_to_imports(ImportStatement::new_module(id!(super::rdfs::MODULE_NAME)));
+        .add_to_imports(import!(id!(super::rdfs::MODULE_NAME)));
 
     module.body_mut().extend_definitions(vec![
         // Datatypes

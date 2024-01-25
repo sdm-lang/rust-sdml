@@ -3,7 +3,7 @@ This Rust module contains the SDML model of the SDML library module `sdml`.
 */
 
 use crate::model::annotations::AnnotationBuilder;
-use crate::model::modules::{ImportStatement, Module};
+use crate::model::modules::Module;
 use crate::model::HasBody;
 use url::Url;
 
@@ -80,13 +80,13 @@ pub fn module() -> Module {
 
     module
         .body_mut()
-        .add_to_imports(ImportStatement::new_module(id!(super::rdf::MODULE_NAME)));
-    module
-        .body_mut()
-        .add_to_imports(ImportStatement::new_module(id!(super::rdfs::MODULE_NAME)));
-    module
-        .body_mut()
-        .add_to_imports(ImportStatement::new_module(id!(super::xsd::MODULE_NAME)));
+        .add_to_imports(
+            import!(
+                id!(super::rdf::MODULE_NAME),
+                id!(super::rdfs::MODULE_NAME),
+                id!(super::xsd::MODULE_NAME)
+            )
+        );
 
     module.body_mut().extend_definitions(vec![
         // Classes
@@ -162,18 +162,18 @@ pub fn module() -> Module {
             ))
             .into(),
         // Properties
-        rdf!(class PROP_HAS_ANNOTATION_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_CARDINALITY_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_DEFINITION_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_IMPORT_STATEMENT_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_MEMBER_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_NAME_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_TYPE_VARIANT_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_HAS_VALUE_VARIANT_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_MAX_OCCURS_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_MIN_OCCURS_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_ORDERING_NAME, MODULE_IRI).into(),
-        rdf!(class PROP_UNIQUENESS_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_ANNOTATION_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_CARDINALITY_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_DEFINITION_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_IMPORT_STATEMENT_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_MEMBER_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_NAME_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_TYPE_VARIANT_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_VALUE_VARIANT_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_MAX_OCCURS_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_MIN_OCCURS_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_ORDERING_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_UNIQUENESS_NAME, MODULE_IRI).into(),
     ]);
 
     module
