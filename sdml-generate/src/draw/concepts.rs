@@ -1,17 +1,26 @@
 /*!
-One-line description.
-
-More detailed description, with
+Provide a generator for "concept" diagrams via GraphViz..
 
 # Example
 
-YYYYY
+```rust
+use sdml_generate::draw::concepts::ConceptDiagramGenerator;
+
+                    let mut generator =
+                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
+                    if let Some(path) = &self.files.output_file {
+                        generator.write_to_file_in_format(module, cache, path, format)?;
+                    } else {
+                        generator.write_in_format(module, cache,  &mut std::io::stdout(), format)?;
+                    }
+```
 
 */
 
 use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
 use crate::GenerateToWriter;
+use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::definitions::HasMembers;
@@ -24,27 +33,11 @@ use std::collections::HashSet;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Default)]
 pub struct ConceptDiagramGenerator {}
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -56,6 +49,7 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
     fn write_in_format(
         &mut self,
         module: &Module,
+        _cache: &ModuleCache,
         writer: &mut dyn Write,
         format: OutputFormat,
     ) -> Result<(), Error> {

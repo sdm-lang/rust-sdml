@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+Generate a bare-bones CTag file from the provided module.
 
 */
 

@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+Highlight source code using the tree-sitter highlight module.
 
 */
 
