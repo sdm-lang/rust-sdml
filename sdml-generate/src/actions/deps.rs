@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+Generate a text-based dependency tree, or GraphViz-based dependency graph, starting from the supplied module.
 
 */
 
@@ -143,7 +137,7 @@ impl<'a> Node<'a> {
     ) -> Self {
         let mut children: Vec<Node<'a>> = Default::default();
         for imported in module.imported_modules() {
-            let cached = cache.get(imported);
+             let cached = cache.get(imported);
             if depth == 1 || seen.contains(&imported) {
                 if let Some(cached) = cached {
                     children.push(Self::from_name(imported, cached.base_uri()));
@@ -151,9 +145,9 @@ impl<'a> Node<'a> {
                     children.push(Self::from_name_only(imported));
                 }
             } else {
+                seen.insert(imported);
                 children.push(Self::from_module(cached.unwrap(), seen, cache, depth - 1));
             }
-            seen.insert(imported);
         }
 
         Self {
@@ -183,7 +177,7 @@ impl<'a> Node<'a> {
 fn write_graph_node<W: Write>(node: &Node<'_>, w: &mut W) -> Result<(), Error> {
     if let Some(children) = &node.children {
         for child in children {
-            w.write_all(format!("  {} --> {};\n", node.name, child.name).as_bytes())?;
+            w.write_all(format!("  {} -> {};\n", node.name, child.name).as_bytes())?;
             write_graph_node(child, w)?;
         }
     }
