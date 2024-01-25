@@ -47,7 +47,6 @@ impl_annotation_builder!(DatatypeDef, optional body);
 
 impl Validate for DatatypeDef {
     fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        println!("DatatypeDef::is_complete");
         if let Some(body) = self.body() {
             body.is_complete(top, cache)
         } else {
@@ -61,7 +60,6 @@ impl Validate for DatatypeDef {
         _top: &Module,
         _cache: &ModuleCache,
     ) -> Result<bool, Error> {
-        println!("DatatypeDef::is_valid");
         // TODO: check that base_type is also a datatype
         Ok(true)
     }
