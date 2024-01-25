@@ -5,7 +5,7 @@ use crate::{
         check::Validate,
         identifiers::{Identifier, QualifiedIdentifier},
         modules::Module,
-        HasBody, Span,
+        Span,
     },
     stdlib,
 };
