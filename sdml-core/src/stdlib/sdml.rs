@@ -82,8 +82,10 @@ pub fn module() -> Module {
         .body_mut()
         .add_to_imports(
             import!(
+                id!(super::owl::MODULE_NAME),
                 id!(super::rdf::MODULE_NAME),
                 id!(super::rdfs::MODULE_NAME),
+                id!(super::skos::MODULE_NAME),
                 id!(super::xsd::MODULE_NAME)
             )
         );
