@@ -24,8 +24,8 @@ use sdml_core::model::constraints::{
 };
 use sdml_core::model::definitions::{
     DatatypeDef, Definition, EntityBody, EntityDef, EntityIdentity, EntityIdentityDef, EnumBody,
-    EnumDef, EventDef, HasMembers, HasVariants, PropertyBody, PropertyDef, PropertyRoleDef,
-    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant, RdfDef,
+    EnumDef, EventDef, HasMembers, HasVariants, PropertyBody, PropertyDef, PropertyRoleDef, RdfDef,
+    StructureBody, StructureDef, TypeVariant, UnionBody, UnionDef, ValueVariant,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{
@@ -40,13 +40,14 @@ use sdml_core::model::values::{
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
 use sdml_core::syntax::{
     FIELD_NAME_ARGUMENT, FIELD_NAME_BASE, FIELD_NAME_BINDING, FIELD_NAME_BODY,
-    FIELD_NAME_CARDINALITY, FIELD_NAME_DOMAIN, FIELD_NAME_FUNCTION, FIELD_NAME_IDENTITY,
-    FIELD_NAME_INVERSE_NAME, FIELD_NAME_LANGUAGE, FIELD_NAME_LHS, FIELD_NAME_MAX,
-    FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME, FIELD_NAME_OPERATOR,
-    FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_PREDICATE, FIELD_NAME_PROPERTY,
-    FIELD_NAME_QUANTIFIER, FIELD_NAME_RANGE, FIELD_NAME_RELATION, FIELD_NAME_RENAME,
-    FIELD_NAME_RHS, FIELD_NAME_SIGNATURE, FIELD_NAME_SOURCE, FIELD_NAME_SUBJECT, FIELD_NAME_TARGET,
-    FIELD_NAME_UNIQUENESS, FIELD_NAME_VALUE, FIELD_NAME_VARIABLE, NODE_KIND_ANNOTATION,
+    FIELD_NAME_CARDINALITY, FIELD_NAME_DOMAIN, FIELD_NAME_FEATURE, FIELD_NAME_FUNCTION,
+    FIELD_NAME_IDENTITY, FIELD_NAME_INVERSE_NAME, FIELD_NAME_LANGUAGE, FIELD_NAME_LHS,
+    FIELD_NAME_MAX, FIELD_NAME_MEMBER, FIELD_NAME_MIN, FIELD_NAME_MODULE, FIELD_NAME_NAME,
+    FIELD_NAME_OPERATOR, FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_PREDICATE,
+    FIELD_NAME_PROPERTY, FIELD_NAME_QUANTIFIER, FIELD_NAME_RANGE, FIELD_NAME_RELATION,
+    FIELD_NAME_RENAME, FIELD_NAME_RHS, FIELD_NAME_SIGNATURE, FIELD_NAME_SOURCE, FIELD_NAME_SUBJECT,
+    FIELD_NAME_TARGET, FIELD_NAME_UNIQUENESS, FIELD_NAME_VALUE, FIELD_NAME_VARIABLE,
+    FIELD_NAME_VERSION_INFO, FIELD_NAME_VERSION_URI, NODE_KIND_ANNOTATION,
     NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BICONDITIONAL,
     NODE_KIND_BINARY, NODE_KIND_BOOLEAN, NODE_KIND_BOOLEAN_SENTENCE,
     NODE_KIND_CARDINALITY_EXPRESSION, NODE_KIND_CONJUNCTION, NODE_KIND_CONSTRAINT,
@@ -65,13 +66,13 @@ use sdml_core::syntax::{
     NODE_KIND_MODULE, NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT, NODE_KIND_NAMED_VARIABLE_SET,
     NODE_KIND_NEGATION, NODE_KIND_NOT_EQUAL, NODE_KIND_PREDICATE_VALUE, NODE_KIND_PROPERTY_BODY,
     NODE_KIND_QUALIFIED_IDENTIFIER, NODE_KIND_QUANTIFIED_SENTENCE, NODE_KIND_QUANTIFIED_VARIABLE,
-    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_QUOTED_STRING, NODE_KIND_RESERVED_SELF,
-    NODE_KIND_ROLE_BY_REFERENCE, NODE_KIND_SEQUENCE_BUILDER,
+    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_QUOTED_STRING, NODE_KIND_RDF_DEF,
+    NODE_KIND_RESERVED_SELF, NODE_KIND_ROLE_BY_REFERENCE, NODE_KIND_SEQUENCE_BUILDER,
     NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES, NODE_KIND_SEQUENCE_OF_VALUES,
     NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_STRING, NODE_KIND_STRUCTURE_BODY, NODE_KIND_STRUCTURE_DEF,
     NODE_KIND_TERM, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY, NODE_KIND_UNION_DEF,
     NODE_KIND_UNIVERSAL, NODE_KIND_UNKNOWN_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_CONSTRUCTOR,
-    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD, FIELD_NAME_VERSION_INFO, FIELD_NAME_VERSION_URI, NODE_KIND_RDF_DEF, NODE_KIND_RDF_TYPE_CLASS, NODE_KIND_RDF_TYPE_PROPERTY,
+    NODE_KIND_VALUE_VARIANT, NODE_KIND_WILDCARD,
 };
 use std::fmt::Display;
 use std::io::Write;
@@ -1427,20 +1428,6 @@ fn write_member_role<W: Write>(
 fn write_rdf_def<W: Write>(me: &RdfDef, w: &mut Writer<W>) -> Result<(), Error> {
     w.start_node_indented(NODE_KIND_RDF_DEF)?;
     w.indent();
-    w.newln()?;
-
-    let me = match me {
-        RdfDef::Class(v) => {
-            w.start_node_indented(NODE_KIND_RDF_TYPE_CLASS)?;
-            w.indent();
-            v
-        }
-        RdfDef::Property(v) => {
-            w.start_node_indented(NODE_KIND_RDF_TYPE_PROPERTY)?;
-            w.indent();
-            v
-        }
-    };
 
     write_span!(me, w);
 
@@ -1448,9 +1435,6 @@ fn write_rdf_def<W: Write>(me: &RdfDef, w: &mut Writer<W>) -> Result<(), Error> 
     w.field(FIELD_NAME_NAME, me.name())?;
 
     write_annotations!(me.body().annotations(), w);
-
-    w.close_paren()?;
-    w.outdent();
 
     w.close_paren()?;
     w.outdent();
@@ -1644,10 +1628,15 @@ fn write_member<W: Write>(me: &Member, w: &mut Writer<W>) -> Result<(), Error> {
 }
 
 fn write_type_reference<W: Write>(me: &TypeReference, w: &mut Writer<W>) -> Result<(), Error> {
-    if let TypeReference::Type(reference) = me {
-        write_identifier_reference(reference, w)?;
-    } else {
-        w.node(NODE_KIND_UNKNOWN_TYPE)?;
+    match me {
+        TypeReference::Unknown => w.node(NODE_KIND_UNKNOWN_TYPE)?,
+        TypeReference::Type(reference) => write_identifier_reference(reference, w)?,
+        TypeReference::FeatureSet(reference) => {
+            write_identifier_reference(reference, w)?;
+            w.newln_and_indentation()?;
+            w.field(FIELD_NAME_FEATURE, true)?;
+        }
+        TypeReference::MappingType(_) => todo!(),
     }
 
     Ok(())
