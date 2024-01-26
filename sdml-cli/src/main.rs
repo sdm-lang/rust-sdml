@@ -143,7 +143,7 @@ struct Deps {
     /// Format to convert into
     #[arg(short = 'f', long)]
     #[arg(value_enum)]
-    #[arg(default_value_t = DepsFormat::Tree)]
+    #[arg(default_value = "tree")]
     output_format: DepsFormat,
 
     /// Depth to traverse imports, 0 implies all
@@ -464,26 +464,8 @@ impl Execute for Deps {
         call_with_module!(self, |module, cache: &ModuleCache, _| {
             let mut writer = self.files.output_writer()?;
 
-            match self.output_format {
-                DepsFormat::Tree => sdml_generate::actions::deps::write_dependency_tree(
-                    module,
-                    cache,
-                    self.depth,
-                    &mut writer,
-                )?,
-                DepsFormat::Graph => sdml_generate::actions::deps::write_dependency_graph(
-                    module,
-                    cache,
-                    self.depth,
-                    &mut writer,
-                )?,
-                DepsFormat::Rdf => sdml_generate::actions::deps::write_dependency_rdf(
-                    module,
-                    cache,
-                    self.depth,
-                    &mut writer,
-                )?,
-            }
+            let mut generator = sdml_generate::actions::deps::DependencyViewGenerator::new(self.depth);
+            generator.write_in_format(module, cache, &mut writer, self.output_format.clone().into())?;
 
             Ok(())
         });
@@ -662,6 +644,21 @@ impl Execute for View {
 
 // ------------------------------------------------------------------------------------------------
 // Formats ❱ Diagram Format
+// ------------------------------------------------------------------------------------------------
+
+impl From<DepsFormat> for sdml_generate::actions::deps::DependencyViewRepresentation {
+    fn from(v: DepsFormat) -> Self {
+        match v {
+            DepsFormat::Tree =>
+                sdml_generate::actions::deps::DependencyViewRepresentation::TextTree,
+            DepsFormat::Graph =>
+                sdml_generate::actions::deps::DependencyViewRepresentation::DotGraph,
+            DepsFormat::Rdf =>
+                sdml_generate::actions::deps::DependencyViewRepresentation::RdfImports,
+        }
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
 impl Default for HighlightFormat {
