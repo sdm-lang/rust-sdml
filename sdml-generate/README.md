@@ -5,6 +5,29 @@ Rust Library of artifact generators from the Simple Domain Modeling Language (SD
 [![crates.io](https://img.shields.io/crates/v/sdml_generate.svg)](https://crates.io/crates/sdml_generate)
 [![docs.rs](https://docs.rs/sdml_generate/badge.svg)](https://docs.rs/sdml_generate)
 
+This package is part of the Rust SDML project and specifically defines the model-to-*other* generators for SDML modules.
+The project's intent is to provide an idiomatic implementation of the in-memory model, parser, generators, and the CLI tool.
+
+The following figure demonstrates this package in the broader project context.
+
+```
+                         ╭───────╮
+                         │  CLI  │
+                    ╔══  │ crate │  ══╗
+                    ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐          V                 V
+┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
+┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
+└╌╌╌╌╌╌╌╌┘   │           core crate             │
+             ╰──────────────────────────────────╯
+ ┌───────┐                  ⋀
+ │ other │                  ║
+ │ tools │  ════════════════╝
+ └───────┘
+```
+
 ## Changes
 
 **Version 0.2.4**

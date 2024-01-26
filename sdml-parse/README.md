@@ -5,6 +5,31 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 [![crates.io](https://img.shields.io/crates/v/sdml_parse.svg)](https://crates.io/crates/sdml_parse)
 [![docs.rs](https://docs.rs/sdml_parse/badge.svg)](https://docs.rs/sdml_parse)
 
+This package is part of the Rust SDML project and specifically implements a parser from SDML surface syntax to the
+in-memory model representation. The project's intent is to provide an idiomatic implementation of the in-memory model,
+parser, generators, and the CLI tool.
+
+The following figure demonstrates this package in the broader project context.
+
+```
+                         ╭───────╮
+                         │  CLI  │
+                    ╔══  │ crate │  ══╗
+                    ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐          V                 V
+┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
+┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
+└╌╌╌╌╌╌╌╌┘   │           core crate             │
+             ╰──────────────────────────────────╯
+ ┌───────┐                  ⋀
+ │ other │                  ║
+ │ tools │  ════════════════╝
+ └───────┘
+```
+
+## 
 ## Changes
 
 **Version 0.2.5**

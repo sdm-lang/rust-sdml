@@ -5,6 +5,30 @@ Rust CLI for the Simple Domain Modeling Language (SDML).
 [![crates.io](https://img.shields.io/crates/v/sdml_cli.svg)](https://crates.io/crates/sdml_cli)
 [![docs.rs](https://docs.rs/sdml_cli/badge.svg)](https://docs.rs/sdml_cli)
 
+This package is part of the Rust SDML project and specifically implements the `sdml` command-line interface (CLI).
+The project's intent is to provide an idiomatic implementation of the in-memory model, parser, generators, and the CLI tool.
+
+The following figure demonstrates this package in the broader project context.
+
+```
+                         ╭───────╮
+                         │  CLI  │
+                    ╔══  │ crate │  ══╗
+                    ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐          V                 V
+┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
+┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
+└╌╌╌╌╌╌╌╌┘   │           core crate             │
+             ╰──────────────────────────────────╯
+ ┌───────┐                  ⋀
+ │ other │                  ║
+ │ tools │  ════════════════╝
+ └───────┘
+```
+
+## 
 ## Changes
 
 **Version 0.2.3**

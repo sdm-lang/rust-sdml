@@ -10,6 +10,31 @@ Rust Library and Tools for the Simple Domain Modeling Language (SDML).
 [![Codecov](https://codecov.io/gh/johnstonskj/rust-sdml/branch/main/graph/badge.svg?token=1HGN6M4KIT)](https://codecov.io/gh/johnstonskj/rust-sdml)
 [![GitHub stars](https://img.shields.io/github/stars/johnstonskj/rust-sdml.svg)](https://github.com/johnstonskj/rust-sdml/stargazers)
 
+This project's intent is to provide an idiomatic implementation of the in-memory model, parser, generators, and the CLI
+tool.
+
+The following figure shows the usage and relationships of the packages in this workspace.
+
+```
+                         ╭───────╮
+                         │  CLI  │
+                    ╔══  │ crate │  ══╗
+                    ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐          V                 V
+┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
+┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
+└╌╌╌╌╌╌╌╌┘   │           core crate             │
+             ╰──────────────────────────────────╯
+ ┌───────┐                  ⋀
+ │ other │                  ║
+ │ tools │  ════════════════╝
+ └───────┘
+```
+
+## 
+## 
 This is  a command-line tool that provides functionality to process
 [SDML](https://sdml.io) files. The SDML site has more information on the command-line options and capabilities.
 
