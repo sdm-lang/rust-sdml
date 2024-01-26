@@ -12,6 +12,7 @@ YYYYY
 use crate::draw::OutputFormat;
 use crate::exec::exec_with_temp_input;
 use crate::GenerateToWriter;
+use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{Cardinality, TypeReference, DEFAULT_CARDINALITY};
@@ -58,6 +59,7 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
     fn write_in_format(
         &mut self,
         module: &Module,
+        _cache: &ModuleCache,
         writer: &mut dyn Write,
         format: OutputFormat,
     ) -> Result<(), Error> {

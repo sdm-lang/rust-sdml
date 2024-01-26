@@ -12,6 +12,7 @@ YYYYY
 use crate::draw::OutputFormat;
 use crate::exec::{exec_with_temp_input, CommandArg};
 use crate::GenerateToFile;
+use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
 use sdml_core::model::constraints::ControlledLanguageTag;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
@@ -73,6 +74,7 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
+        _cache: &ModuleCache,
         path: &Path,
         format: OutputFormat,
     ) -> Result<(), Error> {
@@ -464,6 +466,19 @@ package "{name}" as {} <<module>> {{
 
     fn end_property(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
         self.buffer.push_str(&end_type(name, had_body));
+        Ok(())
+    }
+
+    fn start_rdf(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+        self.buffer
+            .push_str(&start_type_with_sterotype("class", name, "rdf"));
+        self.assoc_src = Some(name.to_string());
+        Ok(())
+    }
+
+    fn end_rdf(&mut self, name: &Identifier) -> Result<(), Error> {
+        self.buffer.push_str(&end_type(name, false));
+        self.assoc_src = None;
         Ok(())
     }
 

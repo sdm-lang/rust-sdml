@@ -45,7 +45,7 @@ See the [actions::abbrev] module for an example implementation.
     dyn_drop,
 )]
 
-use sdml_core::{error::Error, model::modules::Module, model::HasName};
+use sdml_core::{cache::ModuleCache, error::Error, model::modules::Module, model::HasName};
 use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path};
 
 // ------------------------------------------------------------------------------------------------
@@ -76,15 +76,21 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
     /// Generate from the given module into the provided file path. This method uses the
     /// default value of the format type `F`.
     ///
-    fn write_to_file(&mut self, module: &Module, path: &Path) -> Result<(), Error> {
+    fn write_to_file(
+        &mut self,
+        module: &Module,
+        cache: &ModuleCache,
+        path: &Path,
+    ) -> Result<(), Error> {
         trace_entry!(
             "GenerateToFile",
             "write_to_file" =>
-                "module: {}, path: {:?}",
+                "module: {}, cache: {}, path: {:?}",
             module.name(),
+            cache_to_string(cache),
             path
         );
-        self.write_to_file_in_format(module, path, F::default())
+        self.write_to_file_in_format(module, cache, path, F::default())
     }
 
     ///
@@ -93,6 +99,7 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
+        cache: &ModuleCache,
         path: &Path,
         format: F,
     ) -> Result<(), Error>;
@@ -108,14 +115,20 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     /// Generate from the given module into the provided writer. This method uses the
     /// default value of the format type `F`.
     ///
-    fn write(&mut self, module: &Module, writer: &mut dyn Write) -> Result<(), Error> {
+    fn write(
+        &mut self,
+        module: &Module,
+        cache: &ModuleCache,
+        writer: &mut dyn Write,
+    ) -> Result<(), Error> {
         trace_entry!(
             "GenerateToWriter",
             "write" =>
-                "module: {}, ...",
-            module.name()
+                "module: {}, cache: {}, ...",
+            module.name(),
+            cache_to_string(cache)
         );
-        self.write_in_format(module, writer, F::default())
+        self.write_in_format(module, cache, writer, F::default())
     }
 
     ///
@@ -124,6 +137,7 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     fn write_in_format(
         &mut self,
         module: &Module,
+        cache: &ModuleCache,
         writer: &mut dyn Write,
         format: F,
     ) -> Result<(), Error>;
@@ -132,29 +146,36 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     /// Generate from the given module into a string. This method uses the
     /// default value of the format type `F`.
     ///
-    fn write_to_string(&mut self, module: &Module) -> Result<String, Error> {
+    fn write_to_string(&mut self, module: &Module, cache: &ModuleCache) -> Result<String, Error> {
         trace_entry!(
             "GenerateToWriter",
             "write_to_string" =>
-                "module: {}",
-            module.name()
+                "module: {}, cache: {}",
+            module.name(),
+            cache_to_string(cache)
         );
-        self.write_to_string_in_format(module, F::default())
+        self.write_to_string_in_format(module, cache, F::default())
     }
 
     ///
     /// Generate from the given module, in the requested format, into a string.
     ///
-    fn write_to_string_in_format(&mut self, module: &Module, format: F) -> Result<String, Error> {
+    fn write_to_string_in_format(
+        &mut self,
+        module: &Module,
+        cache: &ModuleCache,
+        format: F,
+    ) -> Result<String, Error> {
         trace_entry!(
             "GenerateToWriter",
             "write_to_string_in_format" =>
-                "module: {}, format: {:?}",
+                "module: {}, cache: {}, format: {:?}",
             module.name(),
+            cache_to_string(cache),
             format
         );
         let mut buffer = Cursor::new(Vec::new());
-        self.write(module, &mut buffer)?;
+        self.write(module, cache, &mut buffer)?;
         Ok(String::from_utf8(buffer.into_inner())?)
     }
 
@@ -162,15 +183,21 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     /// Generate from the given module into the provided file path. This method uses the
     /// default value of the format type `F`.
     ///
-    fn write_to_file(&mut self, module: &Module, path: &Path) -> Result<(), Error> {
+    fn write_to_file(
+        &mut self,
+        module: &Module,
+        cache: &ModuleCache,
+        path: &Path,
+    ) -> Result<(), Error> {
         trace_entry!(
             "GenerateToWriter",
             "write_to_file" =>
-                "module: {}, path: {:?}",
+                "module: {}, cache: {}, path: {:?}",
             module.name(),
+            cache_to_string(cache),
             path
         );
-        self.write_to_file_in_format(module, path, F::default())
+        self.write_to_file_in_format(module, cache, path, F::default())
     }
 
     ///
@@ -179,19 +206,21 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     fn write_to_file_in_format(
         &mut self,
         module: &Module,
+        cache: &ModuleCache,
         path: &Path,
         format: F,
     ) -> Result<(), Error> {
         trace_entry!(
             "GenerateToWriter",
             "write_to_file_in_format" =>
-                "module: {}, path: {:?}, format: {:?}",
+                "module: {}, cache: {}, path: {:?}, format: {:?}",
             module.name(),
+            cache_to_string(cache),
             path,
             format
         );
         let mut file = File::create(path)?;
-        self.write_in_format(module, &mut file, format)?;
+        self.write_in_format(module, cache, &mut file, format)?;
         Ok(())
     }
 }
@@ -222,6 +251,17 @@ pub enum Generator<F: Default> {
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
+
+fn cache_to_string(cache: &ModuleCache) -> String {
+    format!(
+        "[{}]",
+        cache
+            .iter()
+            .map(|module| module.name().to_string())
+            .collect::<Vec<_>>()
+            .join(", ")
+    )
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
