@@ -31,14 +31,14 @@ pub fn write_dependency_tree<W: Write>(
     depth: usize,
     w: &mut W,
 ) -> Result<(), Error> {
-    if depth > 0 {
-        let mut seen = Default::default();
-        let tree = Node::from_module(module, &mut seen, cache, depth);
+    let depth = if depth == 0 { usize::MAX } else { depth };
 
-        let new_tree = make_tree_node(tree);
+    let mut seen = Default::default();
+    let tree = Node::from_module(module, &mut seen, cache, depth);
 
-        new_tree.write_with_format(w, &TreeFormatting::dir_tree(FormatCharacters::box_chars()))?;
-    }
+    let new_tree = make_tree_node(tree);
+
+    new_tree.write_with_format(w, &TreeFormatting::dir_tree(FormatCharacters::box_chars()))?;
 
     Ok(())
 }
@@ -49,12 +49,13 @@ pub fn write_dependency_graph<W: Write>(
     depth: usize,
     w: &mut W,
 ) -> Result<(), Error> {
-    if depth > 0 {
-        let mut seen = Default::default();
-        let tree = Node::from_module(module, &mut seen, cache, depth);
+    let depth = if depth == 0 { usize::MAX } else { depth };
 
-        w.write_all(
-            r#"digraph G {
+    let mut seen = Default::default();
+    let tree = Node::from_module(module, &mut seen, cache, depth);
+
+    w.write_all(
+        r#"digraph G {
   bgcolor="transparent";
   rankdir="TB";
   fontname="Helvetica,Arial,sans-serif";
@@ -63,21 +64,20 @@ pub fn write_dependency_graph<W: Write>(
         labelfontcolor="blue"; labeldistance=2.0];
 
 "#
-            .as_bytes(),
-        )?;
+        .as_bytes(),
+    )?;
 
-        if !seen.contains(module.name()) {
-            w.write_all(format!("  {};\n", module.name()).as_bytes())?;
-        }
-
-        for module in seen {
-            w.write_all(format!("  {};\n", module).as_bytes())?;
-        }
-
-        write_graph_node(&tree, w)?;
-
-        w.write_all(b"}\n")?;
+    if !seen.contains(module.name()) {
+        w.write_all(format!("  {};\n", module.name()).as_bytes())?;
     }
+
+    for module in seen {
+        w.write_all(format!("  {};\n", module).as_bytes())?;
+    }
+
+    write_graph_node(&tree, w)?;
+
+    w.write_all(b"}\n")?;
 
     Ok(())
 }
@@ -88,22 +88,22 @@ pub fn write_dependency_rdf<W: Write>(
     depth: usize,
     w: &mut W,
 ) -> Result<(), Error> {
-    if depth > 0 {
-        let mut seen = Default::default();
-        let tree = Node::from_module(module, &mut seen, cache, depth);
+    let depth = if depth == 0 { usize::MAX } else { depth };
 
-        let mut list = Vec::default();
-        tree_to_list(&tree, &mut list);
+    let mut seen = Default::default();
+    let tree = Node::from_module(module, &mut seen, cache, depth);
 
-        for (left, right) in list {
-            w.write_all(
-                format!(
-                    "<{}> <http://www.w3.org/2002/07/owl#imports> <{}> .\n",
-                    left, right,
-                )
-                .as_bytes(),
-            )?;
-        }
+    let mut list = Vec::default();
+    tree_to_list(&tree, &mut list);
+
+    for (left, right) in list {
+        w.write_all(
+            format!(
+                "<{}> <http://www.w3.org/2002/07/owl#imports> <{}> .\n",
+                left, right,
+            )
+            .as_bytes(),
+        )?;
     }
 
     Ok(())
@@ -136,17 +136,22 @@ impl<'a> Node<'a> {
         depth: usize,
     ) -> Self {
         let mut children: Vec<Node<'a>> = Default::default();
-        for imported in module.imported_modules() {
-             let cached = cache.get(imported);
-            if depth == 1 || seen.contains(&imported) {
-                if let Some(cached) = cached {
+        let mut modules = module.imported_modules().into_iter().collect::<Vec<_>>();
+        modules.sort();
+        for imported in modules {
+            if depth == 1 || seen.contains(imported) {
+                if let Some(cached) = cache.get(imported) {
                     children.push(Self::from_name(imported, cached.base_uri()));
                 } else {
                     children.push(Self::from_name_only(imported));
                 }
             } else {
                 seen.insert(imported);
-                children.push(Self::from_module(cached.unwrap(), seen, cache, depth - 1));
+                if let Some(cached) = cache.get(imported) {
+                    children.push(Self::from_module(cached, seen, cache, depth - 1));
+                } else {
+                    children.push(Self::from_name_only(imported));
+                }
             }
         }
 
