@@ -1,0 +1,5 @@
+module sdml_core is
+
+  class Any (T)
+
+end

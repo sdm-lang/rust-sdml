@@ -1,0 +1,3 @@
+module ddict is
+  property accountIdd
+end

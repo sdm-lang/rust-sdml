@@ -1,0 +1,7 @@
+;;; Import multiple mixed
+
+module campaign is
+
+  import [ target xsd:base xml:lang skos ]
+
+end

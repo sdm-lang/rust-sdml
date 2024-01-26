@@ -1,0 +1,12 @@
+module sdml_core is
+
+  class Any (T) is
+    def is_structure(v -> T) -> boolean
+    def new -> T
+    def is_entity(v -> T) -> boolean is
+      @skos:prefLabel = "is an entity"
+    end
+    def has_member(v -> T) -> boolean := is_product_type(v)
+  end
+
+end
