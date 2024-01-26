@@ -1,4 +1,7 @@
 Module {
+    source_file: Some(
+        "MANIFEST_PATH/tests/examples/union_rename_variant.sdm",
+    ),
     span: Some(
         Span {
             start: 0,

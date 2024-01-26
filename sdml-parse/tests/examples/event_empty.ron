@@ -1,4 +1,7 @@
 Module {
+    source_file: Some(
+        "MANIFEST_PATH/tests/examples/event_empty.sdm",
+    ),
     span: Some(
         Span {
             start: 0,

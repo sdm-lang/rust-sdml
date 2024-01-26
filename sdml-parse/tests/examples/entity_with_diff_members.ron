@@ -1,4 +1,7 @@
 Module {
+    source_file: Some(
+        "MANIFEST_PATH/tests/examples/entity_with_diff_members.sdm",
+    ),
     span: Some(
         Span {
             start: 0,

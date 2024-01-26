@@ -1,4 +1,7 @@
 Module {
+    source_file: Some(
+        "MANIFEST_PATH/tests/examples/annotation_multiple_double.sdm",
+    ),
     span: Some(
         Span {
             start: 0,
