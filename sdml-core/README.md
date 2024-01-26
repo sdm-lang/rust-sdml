@@ -5,17 +5,28 @@ Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 [![crates.io](https://img.shields.io/crates/v/sdml_core.svg)](https://crates.io/crates/sdml_core)
 [![docs.rs](https://docs.rs/sdml_core/badge.svg)](https://docs.rs/sdml_core)
 
-This package is part of the Rust SDML project and specifically defines the in-memory model of an SDML module. The intent
-is to provide an idiomatic implementation of the SDML grammar as a part of a set that includes parser, generators, and
-the CLI tool. The figure below demonstrates this package in context.
+This package is part of the Rust SDML project and specifically defines the in-memory model of an SDML module. The
+project's intent is to provide an idiomatic implementation of the SDML grammar as a part of a set that includes parser,
+generators, and the CLI tool.
+
+The following figure demonstrates this package in the broader project context.
 
 ```
-┌────────🮢       ╭───────╮       ╭──────────╮       Formatted Source
-│ source │  ==>  │ parse │  ==>  │ generate │  ==>  RDF Representation 
+                         ╭───────╮
+                         │  CLI  │
+                    ╔══  │ crate │  ══╗
+                    ║    ╰───────╯    ║                        
+┌───────🮢           ⋁                 ⋁
+│       🮡🮢       ╭───────╮       ╭──────────╮       Formatted Source
+│ source │  ══  │ parse │  ══  │ generate │  ══  RDF Representation 
 │  file  │   ╭───│ crate │───────│   crate  │───╮   Documentation
-└────────┘   │   ╰───────╯       ╰──────────╯   │   Diagrams
-             │           core crate             │
+│        │   │   ╰───────╯       ╰──────────╯   │   Diagrams
+└────────┘   │           core crate             │
              ╰──────────────────────────────────╯
+ ┌───────┐                  ⋀
+ │ other │                  ║
+ │ tools │  ════════════════╝
+ └───────┘
 ```
 
 ## Changes
