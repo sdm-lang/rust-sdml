@@ -31,6 +31,13 @@ The following figure demonstrates this package in the broader project context.
 ## 
 ## Changes
 
+**Version 0.2.4**
+
+* Feature: Add new `source` command to call the new source generator.
+* Fix: Change the description of `depth` parameter for `deps` command, 0 is the default which means all depths are
+  included in the output.
+* Update: Use new generator traits that require a module cache parameter.
+
 **Version 0.2.3**
 
 * Feature: add new stdlib modules with standard layout.

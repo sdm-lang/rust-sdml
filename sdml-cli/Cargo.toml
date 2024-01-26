@@ -1,7 +1,7 @@
 [package]
 name = "sdml-cli"
 description = "Rust CLI for Simple Domain Modeling Language (SDML)"
-version = "0.2.3"
+version = "0.2.4"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license-file = "../LICENSE"
@@ -26,9 +26,9 @@ lazy_static = "1.4.0"
 ordered-float = "4.2.0"
 regex = "1.10.2"
 rust_decimal = "1.33.1"
-sdml-core = { version = "0.2.4", path = "../sdml-core" }
-sdml-parse = { version = "0.2.3", path = "../sdml-parse" }
-sdml-generate = { version = "0.2.4", path = "../sdml-generate" }
+sdml-core = { version = "0.2.7", path = "../sdml-core" }
+sdml-parse = { version = "0.2.5", path = "../sdml-parse" }
+sdml-generate = { version = "0.2.5", path = "../sdml-generate" }
 search_path = "0.1.4"
 tempfile = "3.9.0"
 tracing = "0.1.40"
