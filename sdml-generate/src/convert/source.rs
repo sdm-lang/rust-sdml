@@ -20,14 +20,14 @@ assert_eq!(source.as_str(), "module example is end\n");
 ```
 */
 
+use crate::GenerateToWriter;
 use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
-use crate::GenerateToWriter;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use sdml_core::model::constraints::{Constraint, ConstraintBody};
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasVariants, PropertyDef, StructureDef,
-    TypeVariant, UnionDef, ValueVariant, RdfDef,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasVariants, PropertyDef, RdfDef,
+    StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
@@ -485,13 +485,7 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(
-            format!(
-                "{indentation}rdf {}",
-                defn.name(),
-            )
-            .as_bytes(),
-        )?;
+        writer.write_all(format!("{indentation}rdf {}", defn.name(),).as_bytes())?;
 
         if options.generate_definition_bodies() {
             let body = defn.body();
@@ -506,7 +500,9 @@ impl SourceGenerator {
             }
             writer.write_all(format!("{indentation}end\n").as_bytes())?;
         } else {
-            writer.write_all(format!(" is\n{indentation}{}{indentation}end\n", ELIPPSIS).as_bytes())?;
+            writer.write_all(
+                format!(" is\n{indentation}{}{indentation}end\n", ELIPPSIS).as_bytes(),
+            )?;
         }
 
         Ok(())
@@ -568,7 +564,7 @@ impl SourceGenerator {
                 if body.has_variants() {
                     for variant in body.variants() {
                         self.write_type_variant(variant, writer, options)?;
-                    writer.write_all(b"\n")?;
+                        writer.write_all(b"\n")?;
                     }
                 }
                 writer.write_all(format!("{indentation}end\n").as_bytes())?;
