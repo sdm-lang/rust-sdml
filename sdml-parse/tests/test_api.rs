@@ -13,11 +13,7 @@ use url::Url;
 fn test_parse_empty_module() {
     let mut cache = ModuleCache::default();
     let mut loader = ModuleLoader::default();
-    let module = loader.load_from_reader(
-        &mut Cursor::new(b"module foo is end"),
-        &mut cache,
-        false,
-    );
+    let module = loader.load_from_reader(&mut Cursor::new(b"module foo is end"), &mut cache, false);
     println!("{:#?}", module);
     assert!(module.is_ok());
 
@@ -31,8 +27,9 @@ fn test_parse_empty_module() {
 fn test_parse_module_with_imports() {
     let mut cache = ModuleCache::default();
     let mut loader = ModuleLoader::default();
-    let module = loader.load_from_reader(&mut Cursor::new(
-        r#"module foo is
+    let module = loader.load_from_reader(
+        &mut Cursor::new(
+            r#"module foo is
 
   import foo
 
@@ -40,8 +37,8 @@ fn test_parse_module_with_imports() {
 
   import [ goo goo:poo ]
 end"#
-            .as_bytes(),
-    ),
+                .as_bytes(),
+        ),
         &mut cache,
         false,
     );
@@ -66,7 +63,7 @@ fn test_parse_module_with_annotations() {
     let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
-        r#"module foo is
+            r#"module foo is
 
   @xml:base = <https://example.org/>
 
@@ -78,8 +75,8 @@ fn test_parse_module_with_annotations() {
   ]
 
 end"#
-            .as_bytes(),
-    ),
+                .as_bytes(),
+        ),
         &mut cache,
         false,
     );
@@ -148,13 +145,13 @@ fn test_parse_datatype() {
     let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
-        r#"module foo is
+            r#"module foo is
 
   datatype Name <- xsd:string
 
 end"#
-            .as_bytes(),
-    ),
+                .as_bytes(),
+        ),
         &mut cache,
         false,
     );
