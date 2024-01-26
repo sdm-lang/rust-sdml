@@ -30,6 +30,22 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.2.5**
+
+* Feature: Add `ModuleCache` as parameter to methods on the `GenerateToFile` and `GenerateToWriter` traits.
+* Feature: Add new `source` generator to show file source, including elided versions.
+* Feature: Complete dependency generation *logic* -- work to be done on the API.
+  * Fix: The depth tests for dependency generation was applied incorrectly.
+  * Fix: Correct logic for module dependencies not in the cache.
+  * Fix: GraphViz error, edges defined as `-->` should be `->`.
+* Feature: Add output of RDF definitions to the s-expression generator.
+* Feature: Add bare-bones output of RDF definitions to the RDF generator.
+* Feature: Add more output to the RDF generator.
+* Test: Start new test suites with dependency tree generator.
+  * Add a copy of all test examples from `sdml_parse`
+  * Adjust the `test_examples.rs` file so that the macros can take multiple generators for testing.
+  * Add `generate_dependency_tree` for all `import_*` test cases.
+
 **Version 0.2.4**
 
 * Feature: add new stdlib modules with standard layout.
