@@ -3,7 +3,7 @@ Highlight source code using the tree-sitter highlight module.
 
 */
 
-use ansi_term::{Color, Style};
+use nu_ansi_term::{Color, Style};
 use sdml_core::error::Error;
 use std::io::Write;
 use tree_sitter_highlight::HighlightConfiguration;
