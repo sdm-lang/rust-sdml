@@ -1,7 +1,10 @@
 use std::io::Cursor;
 
 use paste::paste;
-use sdml_core::{model::{HasName, modules::Module}, cache::ModuleCache};
+use sdml_core::{
+    cache::ModuleCache,
+    model::{modules::Module, HasName},
+};
 use sdml_parse::load::ModuleLoader;
 
 const MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
@@ -75,12 +78,7 @@ macro_rules! test_example {
 
 fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &ModuleLoader) -> String {
     let mut buffer = Cursor::new(Vec::new());
-    sdml_generate::actions::deps::write_dependency_tree(
-        module,
-        cache,
-        0,
-        &mut buffer,
-    ).unwrap();
+    sdml_generate::actions::deps::write_dependency_tree(module, cache, 0, &mut buffer).unwrap();
     String::from_utf8(buffer.into_inner()).unwrap()
 }
 

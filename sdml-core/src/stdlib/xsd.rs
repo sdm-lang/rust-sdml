@@ -104,14 +104,10 @@ pub fn module() -> Module {
     let MODULE_IRI: url::Url = url::Url::parse(MODULE_URL).unwrap();
     let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(Url::parse(MODULE_URL).unwrap());
 
-    module
-        .body_mut()
-        .add_to_imports(
-            import!(
-                id!(super::rdf::MODULE_NAME),
-                id!(super::rdfs::MODULE_NAME)
-            )
-        );
+    module.body_mut().add_to_imports(import!(
+        id!(super::rdf::MODULE_NAME),
+        id!(super::rdfs::MODULE_NAME)
+    ));
 
     module.body_mut().extend_definitions(vec![
         // Purple

@@ -3,10 +3,7 @@ This Rust module contains the SDML model of the SDML library module `dc`.
 */
 
 use crate::model::HasBody;
-use crate::model::{
-    annotations::AnnotationBuilder,
-    modules::Module,
-};
+use crate::model::{annotations::AnnotationBuilder, modules::Module};
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
@@ -41,14 +38,10 @@ pub fn module() -> Module {
     let MODULE_IRI: url::Url = url::Url::parse(MODULE_URL).unwrap();
     let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(Url::parse(MODULE_URL).unwrap());
 
-    module
-        .body_mut()
-        .add_to_imports(
-            import!(
-                id!(super::rdf::MODULE_NAME),
-                id!(super::rdfs::MODULE_NAME)
-            )
-        );
+    module.body_mut().add_to_imports(import!(
+        id!(super::rdf::MODULE_NAME),
+        id!(super::rdfs::MODULE_NAME)
+    ));
 
     module.body_mut().extend_definitions(vec![
         rdf!(property PROP_CONTRIBUTOR_NAME, MODULE_IRI)
