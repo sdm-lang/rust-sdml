@@ -46,13 +46,16 @@ pub struct ConceptDiagramGenerator {}
 pub const DOT_PROGRAM: &str = "dot";
 
 impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
-    fn write_in_format(
+    fn write_in_format<W>(
         &mut self,
         module: &Module,
         _cache: &ModuleCache,
-        writer: &mut dyn Write,
+        writer: &mut W,
         format: OutputFormat,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error> 
+    where
+        W: Write + Sized
+    {
         let mut buffer = Vec::new();
         write_module(module, &mut buffer)?;
 

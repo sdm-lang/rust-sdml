@@ -53,13 +53,16 @@ pub struct DocumentationGenerator<'a> {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
-    fn write_in_format(
+    fn write_in_format<W>(
         &mut self,
         module: &Module,
         _: &ModuleCache,
-        writer: &mut dyn Write,
+        writer: &mut W,
         _: NoFormatOptions,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error> 
+    where
+        W: Write + Sized
+    {
         let name = module.name();
         writer.write_all(
             format!(

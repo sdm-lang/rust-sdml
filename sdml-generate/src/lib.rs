@@ -111,16 +111,24 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///
 pub trait GenerateToWriter<F: Default + Debug>: Debug {
+
+    // --------------------------------------------------------------------------------------------
+    // Write to ❱ implementation of `Write`
+    // --------------------------------------------------------------------------------------------
+
     ///
     /// Generate from the given module into the provided writer. This method uses the
     /// default value of the format type `F`.
     ///
-    fn write(
+    fn write<W>(
         &mut self,
         module: &Module,
         cache: &ModuleCache,
-        writer: &mut dyn Write,
-    ) -> Result<(), Error> {
+        writer: &mut W,
+    ) -> Result<(), Error>
+    where
+        W: Write + Sized,
+    {
         trace_entry!(
             "GenerateToWriter",
             "write" =>
@@ -134,13 +142,19 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     ///
     /// Generate from the given module, in the requested format, into the provided writer.
     ///
-    fn write_in_format(
+    fn write_in_format<W>(
         &mut self,
         module: &Module,
         cache: &ModuleCache,
-        writer: &mut dyn Write,
+        writer: &mut W,
         format: F,
-    ) -> Result<(), Error>;
+    ) -> Result<(), Error>
+    where
+        W: Write + Sized;
+
+    // --------------------------------------------------------------------------------------------
+    // Write to ❱ String
+    // --------------------------------------------------------------------------------------------
 
     ///
     /// Generate from the given module into a string. This method uses the
@@ -178,6 +192,10 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
         self.write(module, cache, &mut buffer)?;
         Ok(String::from_utf8(buffer.into_inner())?)
     }
+
+    // --------------------------------------------------------------------------------------------
+    // Write to ❱ File
+    // --------------------------------------------------------------------------------------------
 
     ///
     /// Generate from the given module into the provided file path. This method uses the
@@ -231,15 +249,6 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
 #[derive(Clone, Copy, Debug, Default)]
 pub struct NoFormatOptions {}
 
-///
-/// A concrete enum that allows for either a file or writer generator to be passed.
-///
-#[derive(Debug)]
-pub enum Generator<F: Default> {
-    File(Box<dyn GenerateToFile<F>>),
-    Write(Box<dyn GenerateToWriter<F>>),
-}
-
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
@@ -252,6 +261,14 @@ pub enum Generator<F: Default> {
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------------------------
+// Implementations
+// ------------------------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------------------------
+// Private Functions
+// ------------------------------------------------------------------------------------------------
+
 fn cache_to_string(cache: &ModuleCache) -> String {
     format!(
         "[{}]",
@@ -262,14 +279,6 @@ fn cache_to_string(cache: &ModuleCache) -> String {
             .join(", ")
     )
 }
-
-// ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Modules

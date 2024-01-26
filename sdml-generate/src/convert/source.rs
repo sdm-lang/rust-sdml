@@ -105,13 +105,16 @@ impl SourceGenerationLevel {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
-    fn write_in_format(
+    fn write_in_format<W>(
         &mut self,
         module: &Module,
         _: &ModuleCache,
-        writer: &mut dyn Write,
+        writer: &mut W,
         options: SourceGenerationLevel,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error> 
+    where
+        W: Write + Sized
+    {
         writer.write_all(format!("module {} ", module.name()).as_bytes())?;
 
         if let Some(base) = module.base_uri() {

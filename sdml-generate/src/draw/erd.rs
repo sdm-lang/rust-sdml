@@ -56,13 +56,16 @@ pub struct ErdDiagramGenerator {
 pub const DOT_PROGRAM: &str = "dot";
 
 impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
-    fn write_in_format(
+    fn write_in_format<W>(
         &mut self,
         module: &Module,
         _cache: &ModuleCache,
-        writer: &mut dyn Write,
+        writer: &mut W,
         format: OutputFormat,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error> 
+    where
+        W: Write + Sized
+    {
         trace_entry!(
             "ErdDiagramGenerator",
             "write_in_format" =>

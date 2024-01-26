@@ -172,13 +172,16 @@ macro_rules! write_footer {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
-    fn write_in_format(
+    fn write_in_format<W>(
         &mut self,
         module: &Module,
         cache: &ModuleCache,
-        writer: &mut dyn Write,
+        writer: &mut W,
         _format: RdfRepresentation,
-    ) -> Result<(), Error> {
+    ) -> Result<(), Error> 
+    where
+        W: Write + Sized
+    {
         let module_name = module.name();
 
         if let Some(base) = module.base_uri() {
