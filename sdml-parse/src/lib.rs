@@ -12,16 +12,19 @@ The following example demonstrates the [ModuleLoader] to resolve a module name t
 
 ```rust,no_run
 use sdml_core::model::identifiers::Identifier;
+use sdml_core::cache::ModuleCache;
 use sdml_parse::load::ModuleLoader;
 use std::str::FromStr;
 
+let mut cache = ModuleCache::default().with_stdlib();
 let mut loader = ModuleLoader::default();
 
 let name = Identifier::from_str("example").unwrap();
 
-let module = loader.load(&name);
+let module_name = loader.load(&name, &mut cache, true);
+assert!(module_name.is_ok());
 
-assert!(module.is_ok());
+let module = cache.get(&module_name.unwrap()).unwrap();
 ```
 
 */

@@ -1,8 +1,5 @@
 use paste::paste;
 use sdml_core::model::HasName;
-use sdml_parse::load::ModuleLoader;
-use std::fs::read_to_string;
-use std::path::PathBuf;
 
 // TODO: Make tests for Windows
 
@@ -35,14 +32,14 @@ macro_rules! test_example {
             #[cfg_attr(windows, ignore)]
             fn [< test_ $test_name:lower >]() {
                 let test_name = stringify!($test_name);
-                let input = PathBuf::from(
+                let input = ::std::path::PathBuf::from(
                     format!(
                         "{}/{}/{}.sdm",
                         MANIFEST_PATH,
                         TEST_PATH,
                         test_name
                     ));
-                let expected = PathBuf::from(
+                let expected = ::std::path::PathBuf::from(
                     format!(
                         "{}/{}/{}.ron",
                         MANIFEST_PATH,
@@ -51,23 +48,28 @@ macro_rules! test_example {
                     ));
 
                 println!("Reading test example from {:?}", input);
-                let mut loader = ModuleLoader::default();
-                let module = loader.load_from_file(input);
+                let mut cache = ::sdml_core::cache::ModuleCache::default();
+                let mut loader = ::sdml_parse::load::ModuleLoader::default();
+                let module = loader.load_from_file(input, &mut cache, false);
                 if let Err(e) = module {
                     panic!("Load/Parse error: {}", e);
                 }
-                let module = module.unwrap();
+                let module = cache.get(&module.unwrap()).unwrap();
                 println!("Module {} loaded.", module.name());
+                println!("{:?}", module);
 
                 let module_as_string = format!("{:#?}\n", module);
 
                 println!("Comparing to result in file {:?}", expected);
-                let expected_string = read_to_string(expected);
+                let expected_string = ::std::fs::read_to_string(expected);
                 if let Err(e) = expected_string {
                     panic!("IO error reading expected: {}", e);
                 }
+                let expected_string = expected_string
+                    .unwrap()
+                    .replace("MANIFEST_PATH", MANIFEST_PATH);
 
-                pretty_assertions::assert_eq!(module_as_string, expected_string.unwrap());
+                pretty_assertions::assert_eq!(module_as_string, expected_string);
             }
         }
     };

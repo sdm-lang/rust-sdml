@@ -1,3 +1,4 @@
+use sdml_core::cache::ModuleCache;
 use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::modules::ImportStatement;
@@ -10,11 +11,17 @@ use url::Url;
 
 #[test]
 fn test_parse_empty_module() {
+    let mut cache = ModuleCache::default();
     let mut loader = ModuleLoader::default();
-    let module = loader.load_from_reader(&mut Cursor::new(b"module foo is end"));
+    let module = loader.load_from_reader(
+        &mut Cursor::new(b"module foo is end"),
+        &mut cache,
+        false,
+    );
     println!("{:#?}", module);
     assert!(module.is_ok());
 
+    let module = cache.get(&module.unwrap());
     let module = module.unwrap();
     let name = module.name();
     assert_eq!(name.as_ref(), "foo");
@@ -22,6 +29,7 @@ fn test_parse_empty_module() {
 
 #[test]
 fn test_parse_module_with_imports() {
+    let mut cache = ModuleCache::default();
     let mut loader = ModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(
         r#"module foo is
@@ -33,10 +41,14 @@ fn test_parse_module_with_imports() {
   import [ goo goo:poo ]
 end"#
             .as_bytes(),
-    ));
+    ),
+        &mut cache,
+        false,
+    );
     println!("{:#?}", module);
     assert!(module.is_ok());
 
+    let module = cache.get(&module.unwrap());
     let module = module.unwrap();
     let body = module.body();
 
@@ -50,8 +62,10 @@ end"#
 
 #[test]
 fn test_parse_module_with_annotations() {
+    let mut cache = ModuleCache::default();
     let mut loader = ModuleLoader::default();
-    let module = loader.load_from_reader(&mut Cursor::new(
+    let module = loader.load_from_reader(
+        &mut Cursor::new(
         r#"module foo is
 
   @xml:base = <https://example.org/>
@@ -65,10 +79,14 @@ fn test_parse_module_with_annotations() {
 
 end"#
             .as_bytes(),
-    ));
+    ),
+        &mut cache,
+        false,
+    );
     println!("{:#?}", module);
     assert!(module.is_ok());
 
+    let module = cache.get(&module.unwrap());
     let module = module.unwrap();
     let body = module.body();
 
@@ -126,18 +144,24 @@ end"#
 
 #[test]
 fn test_parse_datatype() {
+    let mut cache = ModuleCache::default();
     let mut loader = ModuleLoader::default();
-    let module = loader.load_from_reader(&mut Cursor::new(
+    let module = loader.load_from_reader(
+        &mut Cursor::new(
         r#"module foo is
 
   datatype Name <- xsd:string
 
 end"#
             .as_bytes(),
-    ));
+    ),
+        &mut cache,
+        false,
+    );
     println!("{:#?}", module);
     assert!(module.is_ok());
 
+    let module = cache.get(&module.unwrap());
     let module = module.unwrap();
     let body = module.body();
 
