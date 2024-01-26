@@ -11,6 +11,7 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
     HasBody, HasName, Span,
 };
+use std::collections::HashMap;
 use std::fmt::Display;
 use std::path::PathBuf;
 use std::{collections::HashSet, fmt::Debug};
@@ -187,6 +188,8 @@ impl Module {
 
     delegate!(pub imported_modules, HashSet<&Identifier>, body);
 
+    delegate!(pub imported_module_versions, HashMap<&Identifier, Option<&Url>>, body);
+
     delegate!(pub imported_types, HashSet<&QualifiedIdentifier>, body);
 
     delegate!(pub defined_names, HashSet<&Identifier>, body);
@@ -303,6 +306,12 @@ impl ModuleBody {
     pub fn imported_modules(&self) -> HashSet<&Identifier> {
         self.imports()
             .flat_map(|stmt| stmt.imported_modules())
+            .collect()
+    }
+
+    pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&Url>> {
+        self.imports()
+            .flat_map(|stmt| stmt.imported_module_versions())
             .collect()
     }
 
@@ -465,6 +474,15 @@ impl ImportStatement {
                 Import::Member(v) => v.module(),
             })
             .collect()
+    }
+
+    pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&Url>> {
+        HashMap::from_iter(
+            self.imports()
+                .map(|imp| match imp {
+                    Import::Module(v) => (v.name(), v.version_uri()),
+                    Import::Member(v) => (v.module(), None),
+                }))
     }
 
     pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
