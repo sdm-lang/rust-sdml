@@ -7,6 +7,12 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 
 ## Changes
 
+**Version 0.2.5**
+
+* Test: Update test cases for:
+  * The new `source_file` field on `Module`.
+  * The new `ModuleLoader` API requiring a `ModuleCache`.
+
 **Version 0.2.4**
 
 * Fix: parsing new `rdf_def` rules now works correctly.
