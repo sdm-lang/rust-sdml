@@ -1,6 +1,12 @@
 module campaign <https://advertising.amazon.com/api-model> is
 
-  import [xsd rdf skos dc owl]
+  import [
+    dc
+    owl <http://www.w3.org/2002/07/owl#>
+    rdf
+    skos
+    xsd
+  ]
 
   @skos:version = xsd:decimal(2)
 
