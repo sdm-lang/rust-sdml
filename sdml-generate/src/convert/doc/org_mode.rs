@@ -10,6 +10,7 @@ YYYYY
 */
 
 use crate::{GenerateToWriter, NoFormatOptions};
+use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::Annotation;
 use sdml_core::model::annotations::HasAnnotations;
@@ -31,7 +32,7 @@ use std::io::Write;
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Default)]
-pub struct OrgFileGenerator<'a> {
+pub struct DocumentationGenerator<'a> {
     source: Option<&'a str>,
 }
 
@@ -51,10 +52,11 @@ pub struct OrgFileGenerator<'a> {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl GenerateToWriter<NoFormatOptions> for OrgFileGenerator<'_> {
+impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
     fn write_in_format(
         &mut self,
         module: &Module,
+        _: &ModuleCache,
         writer: &mut dyn Write,
         _: NoFormatOptions,
     ) -> Result<(), Error> {
@@ -141,7 +143,7 @@ impl GenerateToWriter<NoFormatOptions> for OrgFileGenerator<'_> {
     }
 }
 
-impl<'a> OrgFileGenerator<'a> {
+impl<'a> DocumentationGenerator<'a> {
     pub fn without_source() -> Self {
         Self { source: None }
     }
