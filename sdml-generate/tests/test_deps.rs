@@ -5,7 +5,7 @@ use sdml_core::{
     cache::ModuleCache,
     model::{modules::Module, HasName},
 };
-use sdml_generate::GenerateToWriter;
+use sdml_generate::{GenerateToWriter, console::{set_colorize, UseColor}};
 use sdml_parse::load::ModuleLoader;
 
 const MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
@@ -78,6 +78,8 @@ macro_rules! test_example {
 // ------------------------------------------------------------------------------------------------
 
 fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &ModuleLoader) -> String {
+    // turn this off to avoid control characters in the output.
+    set_colorize(UseColor::Never);
     let mut buffer = Cursor::new(Vec::new());
     let view = sdml_generate::actions::deps::DependencyViewRepresentation::TextTree;
     let mut generator = sdml_generate::actions::deps::DependencyViewGenerator::default();

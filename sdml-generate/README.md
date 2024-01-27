@@ -38,6 +38,8 @@ The following figure demonstrates this package in the broader project context.
   * Fix: The depth tests for dependency generation was applied incorrectly.
   * Fix: Correct logic for module dependencies not in the cache.
   * Fix: GraphViz error, edges defined as `-->` should be `->`.
+  * Add: Colorize output, with new `console` module to manage global color flag.
+  * Add: Add version URI to node output.
 * Feature: Add output of RDF definitions to the s-expression generator.
 * Feature: Add bare-bones output of RDF definitions to the RDF generator.
 * Feature: Add more output to the RDF generator.

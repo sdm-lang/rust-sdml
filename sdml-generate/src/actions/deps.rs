@@ -3,6 +3,7 @@ Generate a text-based dependency tree, or GraphViz-based dependency graph, start
 
 */
 
+use nu_ansi_term::Style;
 use sdml_core::{cache::ModuleCache, stdlib::is_library_module};
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::Identifier;
@@ -13,7 +14,7 @@ use std::io::Write;
 use text_trees::{FormatCharacters, TreeFormatting, TreeNode};
 use url::Url;
 
-use crate::GenerateToWriter;
+use crate::{GenerateToWriter, console};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -190,8 +191,10 @@ impl DependencyViewGenerator {
         let mut seen = Default::default();
         let tree = Node::from_module(module, None, &mut seen, cache, depth);
 
-        let new_tree = tree.make_text_tree();
+        // Convert from internal tree to TextTree
+        let new_tree = tree.make_text_tree(true);
 
+        // Write out text tree using it's write API
         new_tree.write_with_format(writer, &TreeFormatting::dir_tree(FormatCharacters::box_chars()))?;
 
         Ok(())
@@ -207,7 +210,7 @@ impl DependencyViewGenerator {
         cache: &ModuleCache,
         depth: usize,
         writer: &mut W,
-    ) -> Result<(), Error> 
+    ) -> Result<(), Error>
     where
         W: Write + Sized
     {
@@ -391,16 +394,42 @@ impl<'a> Node<'a> {
         }
     }
 
-    fn make_text_tree(&'a self) -> TreeNode<&'a Identifier> {
+    fn make_text_tree(&'a self, is_root: bool) -> TreeNode<String> {
         let children = if let Some(children) = &self.children {
             children
                 .into_iter()
-                .map(|node| node.make_text_tree())
-                .collect::<Vec<TreeNode<&'a Identifier>>>()
+                .map(|node| node.make_text_tree(false))
+                .collect::<Vec<TreeNode<_>>>()
         } else {
             Default::default()
         };
-        TreeNode::with_child_nodes(self.name, children.into_iter())
+        TreeNode::with_child_nodes(self.make_node_string(is_root), children.into_iter())
+    }
+
+    fn make_node_string(&self, is_root: bool) -> String {
+        let node_string = format!(
+            "{}{}",
+            self.name,
+            if let Some(version_uri) = self.version_uri {
+                format!("@<{version_uri}>")
+            } else {
+                String::new()
+            }
+        );
+        if console::colorize().colorize() {
+            let mut style = Style::new();
+
+            if is_root {
+                style = style.bold();
+            }
+            if is_library_module(self.name) {
+                style = style.dimmed().italic();
+            }
+
+            style.paint(node_string).to_string()
+        } else {
+            node_string
+        }
     }
 }
 

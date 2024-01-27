@@ -321,6 +321,8 @@ mod macros;
 
 mod exec;
 
+pub mod console;
+
 pub mod actions;
 
 pub mod convert;
