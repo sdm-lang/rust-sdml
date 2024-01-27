@@ -5,6 +5,11 @@ as well as actions that can be performed on modules.
 This package also provides a pair of traits used to define *generators*, types that convert one or more modules into
 other artifacts.
 
+# Example
+
+The following shows common usage of the `GenerateToWriter` trait in this case to write a text-tree representation of a
+modules transitive dependencies.
+
 ```rust
 use sdml_core::cache::ModuleCache;
 use sdml_core::model::modules::Module;
