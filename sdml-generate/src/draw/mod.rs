@@ -2,6 +2,9 @@
 This module provides the generators for *concept*, *entity-relationship*, and *UML class* diagrams. It also provides a
 common [`OutputFormat`] type that describes the image format.
 
+- `concepts` -- A simple diagram showing only the entities and their relationships.
+- `erd` -- An Entity-Relationship diagram.
+- `uml` -- A detailed UML Class diagram.
 */
 
 use crate::exec::CommandArg;

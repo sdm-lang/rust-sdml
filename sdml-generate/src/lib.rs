@@ -1,8 +1,28 @@
 /*!
-Provides the traits used to define *generators*, types that convert one or more modules into
+This package provides a set of generators, or transformations, from the in-memory model to either other representations
+as well as actions that can be performed on modules.
+
+This package also provides a pair of traits used to define *generators*, types that convert one or more modules into
 other artifacts.
 
-See the [actions::abbrev] module for an example implementation.
+```rust
+use sdml_core::cache::ModuleCache;
+use sdml_core::model::modules::Module;
+use sdml_generate::GenerateToWriter;
+use sdml_generate::actions::deps::{
+    DependencyViewRepresentation, DependencyViewGenerator,
+};
+use std::io::stdout;
+# use sdml_core::model::identifiers::Identifier;
+# fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
+
+let (module, cache) = load_module();
+
+let view = DependencyViewRepresentation::TextTree;
+let mut generator = DependencyViewGenerator::default();
+generator.write_in_format(&module, &cache, &mut stdout(), view)
+         .expect("write to stdout failed");
+```
 
 */
 
@@ -69,6 +89,10 @@ macro_rules! trace_entry {
 ///
 /// This trait denotes a generator that writes to a file path.
 ///
+/// This trait is a subset of the trait [`GenerateToWriter`], it is not however a sub-, or super-,
+/// type as the need for this trait is for generators that are not able to process intermediate
+/// results.
+///
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///
 pub trait GenerateToFile<F: Default + Debug>: Debug {
@@ -107,6 +131,9 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
 
 ///
 /// This trait denotes a generator that writes to an implementation of [Write].
+///
+/// This trait is a superset of the trait [`GenerateToFile`],  see that trait's documentation for
+/// more information.
 ///
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///

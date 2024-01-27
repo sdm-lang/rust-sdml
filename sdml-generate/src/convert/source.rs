@@ -5,16 +5,20 @@ in-memory representation.
 # Example
 
 ```rust
-use sdml_core::generate::source::SourceGenerator;
-use sdml_core::generate::GenerateToWriter;
-use sdml_core::model::identifiers::Identifier;
+use sdml_core::cache::ModuleCache;
 use sdml_core::model::modules::Module;
+use sdml_generate::GenerateToWriter;
+use sdml_generate::convert::source::SourceGenerator;
+use std::io::stdout;
+# use sdml_core::model::identifiers::Identifier;
+# fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
 
-let module = Module::empty(Identifier::new_unchecked("example"));
+let (module, cache) = load_module();
 
 let mut generator: SourceGenerator = Default::default();
-
-let source = generator.write_to_string(&module, None).unwrap();
+let source = generator
+    .write_to_string(&module, &cache)
+    .expect("write to stdout failed");
 assert_eq!(source.as_str(), "module example is end\n");
 
 ```

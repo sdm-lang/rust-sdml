@@ -3,16 +3,19 @@ Provide a generator for "concept" diagrams via GraphViz..
 
 # Example
 
-```rust
+```rust,no_run
+use sdml_core::cache::ModuleCache;
+use sdml_core::model::modules::Module;
+use sdml_generate::GenerateToWriter;
 use sdml_generate::draw::concepts::ConceptDiagramGenerator;
+use std::io::stdout;
+# use sdml_core::model::identifiers::Identifier;
+# fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
 
-                    let mut generator =
-                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    if let Some(path) = &self.files.output_file {
-                        generator.write_to_file_in_format(module, cache, path, format)?;
-                    } else {
-                        generator.write_in_format(module, cache,  &mut std::io::stdout(), format)?;
-                    }
+let (module, cache) = load_module();
+
+let mut generator = ConceptDiagramGenerator::default();
+generator.write(&module, &cache,  &mut stdout()).expect("write to stdout failed");
 ```
 
 */
@@ -52,7 +55,7 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
         _cache: &ModuleCache,
         writer: &mut W,
         format: OutputFormat,
-    ) -> Result<(), Error> 
+    ) -> Result<(), Error>
     where
         W: Write + Sized
     {
