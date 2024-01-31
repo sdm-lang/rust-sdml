@@ -59,9 +59,9 @@ impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
         _: &ModuleCache,
         writer: &mut W,
         _: NoFormatOptions,
-    ) -> Result<(), Error> 
+    ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         let name = module.name();
         writer.write_all(

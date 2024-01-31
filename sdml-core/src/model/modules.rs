@@ -477,12 +477,10 @@ impl ImportStatement {
     }
 
     pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&Url>> {
-        HashMap::from_iter(
-            self.imports()
-                .map(|imp| match imp {
-                    Import::Module(v) => (v.name(), v.version_uri()),
-                    Import::Member(v) => (v.module(), None),
-                }))
+        HashMap::from_iter(self.imports().map(|imp| match imp {
+            Import::Module(v) => (v.name(), v.version_uri()),
+            Import::Member(v) => (v.module(), None),
+        }))
     }
 
     pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {

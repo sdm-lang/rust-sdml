@@ -1,3 +1,4 @@
+use clap::builder::FalseyValueParser;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use clap_verbosity_flag::Verbosity;
 use sdml_core::cache::ModuleCache;
@@ -33,6 +34,16 @@ struct Cli {
     #[clap(flatten)]
     verbose: Verbosity,
 
+    /// Turn off color for code emitters
+    #[arg(
+        long,
+        global = true,
+        action = clap::ArgAction::SetTrue,
+        env = "NO_COLOR",
+        value_parser = FalseyValueParser::new(),
+    )]
+    no_color: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -56,7 +67,7 @@ enum Commands {
     /// View formatted module source code
     View(View),
     /// Show tool and library versions.
-    Version,
+    Versions,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -289,9 +300,21 @@ type MainError = Box<dyn std::error::Error>;
 fn main() -> Result<(), MainError> {
     let cli = Cli::parse();
 
+    init_color(cli.no_color);
+
     init_logging(cli.verbose)?;
 
     cli.command.execute()
+}
+
+// ------------------------------------------------------------------------------------------------
+// Main ❱ Color
+// ------------------------------------------------------------------------------------------------
+
+fn init_color(no_color: bool) {
+    if no_color {
+        sdml_generate::color::set_colorize(sdml_generate::color::UseColor::Never);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -337,7 +360,7 @@ impl Execute for Commands {
             Commands::Convert(cmd) => cmd.execute(),
             Commands::Draw(cmd) => cmd.execute(),
             Commands::View(cmd) => cmd.execute(),
-            Commands::Version => {
+            Commands::Versions => {
                 println!("SDML CLI:        {}", CLI_VERSION);
                 println!("SDML grammar:    {}", tree_sitter_sdml::GRAMMAR_VERSION);
                 println!(
@@ -464,8 +487,14 @@ impl Execute for Deps {
         call_with_module!(self, |module, cache: &ModuleCache, _| {
             let mut writer = self.files.output_writer()?;
 
-            let mut generator = sdml_generate::actions::deps::DependencyViewGenerator::new(self.depth);
-            generator.write_in_format(module, cache, &mut writer, self.output_format.clone().into())?;
+            let mut generator =
+                sdml_generate::actions::deps::DependencyViewGenerator::new(self.depth);
+            generator.write_in_format(
+                module,
+                cache,
+                &mut writer,
+                self.output_format.clone().into(),
+            )?;
 
             Ok(())
         });
@@ -649,12 +678,15 @@ impl Execute for View {
 impl From<DepsFormat> for sdml_generate::actions::deps::DependencyViewRepresentation {
     fn from(v: DepsFormat) -> Self {
         match v {
-            DepsFormat::Tree =>
-                sdml_generate::actions::deps::DependencyViewRepresentation::TextTree,
-            DepsFormat::Graph =>
-                sdml_generate::actions::deps::DependencyViewRepresentation::DotGraph,
-            DepsFormat::Rdf =>
-                sdml_generate::actions::deps::DependencyViewRepresentation::RdfImports,
+            DepsFormat::Tree => {
+                sdml_generate::actions::deps::DependencyViewRepresentation::TextTree
+            }
+            DepsFormat::Graph => {
+                sdml_generate::actions::deps::DependencyViewRepresentation::DotGraph
+            }
+            DepsFormat::Rdf => {
+                sdml_generate::actions::deps::DependencyViewRepresentation::RdfImports
+            }
         }
     }
 }

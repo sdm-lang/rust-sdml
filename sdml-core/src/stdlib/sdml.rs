@@ -26,21 +26,28 @@ pub const CLASS_DEFINITION_NAME: &str = "Definition";
 pub const CLASS_ENTITY_NAME: &str = "Entity";
 pub const CLASS_ENUMERATION_NAME: &str = "Enumeration";
 pub const CLASS_EVENT_NAME: &str = "Event";
+pub const CLASS_FEATURE_SET_NAME: &str = "FeatureSet";
 pub const CLASS_FORMAL_CONSTRAINT_NAME: &str = "FormalConstraint";
 pub const CLASS_IDENTIFIER_REFERENCE_NAME: &str = "IdentifierReference";
 pub const CLASS_IMPORT_NAME: &str = "Import";
 pub const CLASS_IMPORT_STATEMENT_NAME: &str = "ImportStatement";
 pub const CLASS_INFORMAL_CONSTRAINT_NAME: &str = "InformalConstraint";
+pub const CLASS_MAP_TYPE_NAME: &str = "MapType";
 pub const CLASS_MEMBER_NAME: &str = "Member";
 pub const CLASS_MEMBER_IMPORT_NAME: &str = "MemberImport";
 pub const CLASS_MODULE_NAME: &str = "Module";
 pub const CLASS_MODULE_IMPORT_NAME: &str = "ModuleImport";
+pub const CLASS_ORDERING_CONSTRAINT_NAME: &str = "OrderingConstraint";
 pub const CLASS_PROPERTY_NAME: &str = "Property";
 pub const CLASS_ROLE_NAME: &str = "Role";
+pub const CLASS_ROLE_REFERENCE_NAME: &str = "RoleReference";
 pub const CLASS_QUALIFIED_IDENTIFIER_NAME: &str = "QualifiedIdentifier";
 pub const CLASS_STRUCTURE_NAME: &str = "Structure";
+pub const CLASS_TYPE_CLASS_NAME: &str = "TypeClass";
 pub const CLASS_TYPE_VARIANT_NAME: &str = "TypeVariant";
 pub const CLASS_UNION_NAME: &str = "Union";
+pub const CLASS_UNKNOWN_NAME: &str = "Unknown";
+pub const CLASS_UNIQUENESS_CONSTRAINT_NAME: &str = "UniquenessConstraint";
 pub const CLASS_VALUE_VARIANT_NAME: &str = "ValueVariant";
 
 pub const DT_IDENTIFIER_NAME: &str = "Identifier";
@@ -59,15 +66,23 @@ pub const PROP_HAS_NAME_NAME: &str = "hasName";
 pub const PROP_HAS_ANNOTATION_NAME: &str = "hasAnnotation";
 pub const PROP_HAS_CARDINALITY_NAME: &str = "hasCardinality";
 pub const PROP_HAS_DEFINITION_NAME: &str = "hasDefinition";
+pub const PROP_HAS_DOMAIN_VALUE_NAME: &str = "hasDomainValue";
 pub const PROP_HAS_IMPORT_STATEMENT_NAME: &str = "hasImportStatement";
 pub const PROP_HAS_MEMBER_NAME: &str = "hasMember";
+pub const PROP_HAS_RANGE_VALUE_NAME: &str = "hasRangeValue";
+pub const PROP_HAS_SOURCE_ENTITY_NAME: &str = "hasSourceEntity";
 pub const PROP_HAS_TYPE_VARIANT_NAME: &str = "hasTypeVariant";
 pub const PROP_HAS_VALUE_VARIANT_NAME: &str = "hasValueVariant";
-
 pub const PROP_MAX_OCCURS_NAME: &str = "maxOccurs";
 pub const PROP_MIN_OCCURS_NAME: &str = "minOccurs";
 pub const PROP_ORDERING_NAME: &str = "ordering";
+pub const PROP_SRC_LABEL_NAME: &str = "srcLabel";
 pub const PROP_UNIQUENESS_NAME: &str = "uniqueness";
+
+pub const IND_ORDERED_NAME: &str = "Ordered";
+pub const IND_UNIQUE_NAME: &str = "Unique";
+pub const IND_NONUNIQUE_NAME: &str = "NonUnique";
+pub const IND_UNORDERED_NAME: &str = "Unordered";
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -96,21 +111,23 @@ pub fn module() -> Module {
         rdf!(class CLASS_ENTITY_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_ENUMERATION_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_EVENT_NAME, MODULE_IRI).into(),
+        rdf!(class CLASS_FEATURE_SET_NAME, MODULE_IRI).into(), // subClassOf :Union
         rdf!(class CLASS_FORMAL_CONSTRAINT_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_IDENTIFIER_REFERENCE_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_IMPORT_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_IMPORT_STATEMENT_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_INFORMAL_CONSTRAINT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_MEMBER_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_MEMBER_IMPORT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_MODULE_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_MODULE_IMPORT_NAME, MODULE_IRI).into(),
+        rdf!(class CLASS_ORDERING_CONSTRAINT_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_PROPERTY_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_ROLE_NAME, MODULE_IRI).into(),
+        rdf!(class CLASS_ROLE_REFERENCE_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_QUALIFIED_IDENTIFIER_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_STRUCTURE_NAME, MODULE_IRI).into(),
+        rdf!(class CLASS_TYPE_CLASS_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_TYPE_VARIANT_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_UNION_NAME, MODULE_IRI).into(),
+        rdf!(class CLASS_UNKNOWN_NAME, MODULE_IRI).into(), // subClassOf owl:Nothing
+        rdf!(class CLASS_UNIQUENESS_CONSTRAINT_NAME, MODULE_IRI).into(),
         rdf!(class CLASS_VALUE_VARIANT_NAME, MODULE_IRI).into(),
         // Data types
         rdf!(datatype DT_IDENTIFIER_NAME, MODULE_IRI).into(),
@@ -163,15 +180,23 @@ pub fn module() -> Module {
         rdf!(property PROP_HAS_ANNOTATION_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_CARDINALITY_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_DEFINITION_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_DOMAIN_VALUE_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_IMPORT_STATEMENT_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_MEMBER_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_NAME_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_HAS_RANGE_VALUE_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_TYPE_VARIANT_NAME, MODULE_IRI).into(),
         rdf!(property PROP_HAS_VALUE_VARIANT_NAME, MODULE_IRI).into(),
         rdf!(property PROP_MAX_OCCURS_NAME, MODULE_IRI).into(),
         rdf!(property PROP_MIN_OCCURS_NAME, MODULE_IRI).into(),
         rdf!(property PROP_ORDERING_NAME, MODULE_IRI).into(),
+        rdf!(property PROP_SRC_LABEL_NAME, MODULE_IRI).into(),
         rdf!(property PROP_UNIQUENESS_NAME, MODULE_IRI).into(),
+        // Individuals
+        rdf!(thing IND_ORDERED_NAME, MODULE_IRI, CLASS_ORDERING_CONSTRAINT_NAME).into(),
+        rdf!(thing IND_NONUNIQUE_NAME, MODULE_IRI, CLASS_UNIQUENESS_CONSTRAINT_NAME).into(),
+        rdf!(thing IND_UNIQUE_NAME, MODULE_IRI, CLASS_UNIQUENESS_CONSTRAINT_NAME).into(),
+        rdf!(thing IND_UNORDERED_NAME, MODULE_IRI, CLASS_ORDERING_CONSTRAINT_NAME).into(),
     ]);
 
     module

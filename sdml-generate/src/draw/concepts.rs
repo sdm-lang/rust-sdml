@@ -57,7 +57,7 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
         format: OutputFormat,
     ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         let mut buffer = Vec::new();
         write_module(module, &mut buffer)?;

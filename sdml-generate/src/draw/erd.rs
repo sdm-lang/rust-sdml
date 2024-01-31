@@ -62,9 +62,9 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
         _cache: &ModuleCache,
         writer: &mut W,
         format: OutputFormat,
-    ) -> Result<(), Error> 
+    ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         trace_entry!(
             "ErdDiagramGenerator",

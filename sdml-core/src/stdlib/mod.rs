@@ -118,11 +118,13 @@ macro_rules! import {
 }
 
 macro_rules! rdf {
+    // --------------------------------------------------------------------------------------------
     ($kind:ident, $id:expr, $in:expr) => {
         $crate::model::definitions::RdfDef::$kind(id!($id))
             .with_label($crate::model::values::LanguageString::from($id))
             .with_is_defined_by($in.clone())
     };
+    // --------------------------------------------------------------------------------------------
     (thing $id:expr, $in:expr; $( ( $super_mod:expr, $super:expr ) ),*) => {
         rdf!(individual, $id, $in)
             $(
@@ -135,6 +137,7 @@ macro_rules! rdf {
                 .with_type(id!($type))
             )*
     };
+    // --------------------------------------------------------------------------------------------
     (class $id:expr, $in:expr; $( ($super_mod:expr, $super:expr) ),+) => {
         rdf!(class, $id, $in)
             $(
@@ -150,6 +153,7 @@ macro_rules! rdf {
     (class $id:expr, $in:expr) => {
         rdf!(class, $id, $in)
     };
+    // --------------------------------------------------------------------------------------------
     (datatype $id:expr, $in:expr; $( $super:expr ),*) => {
         rdf!(datatype, $id, $in)
             $(
@@ -159,6 +163,7 @@ macro_rules! rdf {
     (datatype $id:expr, $in:expr) => {
         rdf!(datatype, $id, $in)
     };
+    // --------------------------------------------------------------------------------------------
     (property $id:expr, $in:expr; ( $dom_mod:expr, $dom:expr ) => ( $rge_mod:expr, $rge:expr )) => {
         rdf!(property, $id, $in)
             .with_domain(qualid!($dom_mod, $dom))

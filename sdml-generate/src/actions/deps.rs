@@ -4,17 +4,17 @@ Generate a text-based dependency tree, or GraphViz-based dependency graph, start
 */
 
 use nu_ansi_term::Style;
-use sdml_core::{cache::ModuleCache, stdlib::is_library_module};
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
+use sdml_core::{cache::ModuleCache, stdlib::is_library_module};
 use std::collections::HashSet;
 use std::io::Write;
 use text_trees::{FormatCharacters, TreeFormatting, TreeNode};
 use url::Url;
 
-use crate::{GenerateToWriter, console};
+use crate::{color, GenerateToWriter};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -56,7 +56,7 @@ pub enum DependencyViewRepresentation {
     ///
     TextTree,
     ///
-    /// This representation gives a 
+    /// This representation gives a
     /// - subject module: bold
     /// - library: italic
     ///
@@ -157,12 +157,19 @@ impl GenerateToWriter<DependencyViewRepresentation> for DependencyViewGenerator 
         writer: &mut W,
         format: DependencyViewRepresentation,
     ) -> Result<(), Error>
-    where W: Write + Sized
+    where
+        W: Write + Sized,
     {
         match format {
-            DependencyViewRepresentation::TextTree => self.write_text_tree(module, cache, self.depth, writer),
-            DependencyViewRepresentation::DotGraph => self.write_dot_graph(module, cache, self.depth, writer),
-            DependencyViewRepresentation::RdfImports => self.write_rdf_imports(module, cache, self.depth, writer),
+            DependencyViewRepresentation::TextTree => {
+                self.write_text_tree(module, cache, self.depth, writer)
+            }
+            DependencyViewRepresentation::DotGraph => {
+                self.write_dot_graph(module, cache, self.depth, writer)
+            }
+            DependencyViewRepresentation::RdfImports => {
+                self.write_rdf_imports(module, cache, self.depth, writer)
+            }
         }
     }
 }
@@ -184,7 +191,7 @@ impl DependencyViewGenerator {
         writer: &mut W,
     ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         let depth = if depth == 0 { usize::MAX } else { depth };
 
@@ -195,7 +202,10 @@ impl DependencyViewGenerator {
         let new_tree = tree.make_text_tree(true);
 
         // Write out text tree using it's write API
-        new_tree.write_with_format(writer, &TreeFormatting::dir_tree(FormatCharacters::box_chars()))?;
+        new_tree.write_with_format(
+            writer,
+            &TreeFormatting::dir_tree(FormatCharacters::box_chars()),
+        )?;
 
         Ok(())
     }
@@ -212,7 +222,7 @@ impl DependencyViewGenerator {
         writer: &mut W,
     ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         let depth = if depth == 0 { usize::MAX } else { depth };
 
@@ -235,16 +245,25 @@ impl DependencyViewGenerator {
   ];
 
 "#
-                .as_bytes(),
+            .as_bytes(),
         )?;
 
         if !seen.contains(module.name()) {
-            writer.write_all(self.write_gv_node(module.name(), true, is_library_module(module.name())).as_bytes())?;
+            writer.write_all(
+                self.write_gv_node(module.name(), true, is_library_module(module.name()))
+                    .as_bytes(),
+            )?;
         }
 
         for module_name in seen {
             writer.write_all(
-                self.write_gv_node(module_name, module_name == module.name(), is_library_module(module_name)).as_bytes())?;
+                self.write_gv_node(
+                    module_name,
+                    module_name == module.name(),
+                    is_library_module(module_name),
+                )
+                .as_bytes(),
+            )?;
         }
 
         writer.write_all(b"\n")?;
@@ -258,12 +277,18 @@ impl DependencyViewGenerator {
 
     fn write_graph_node<W>(&self, node: &Node<'_>, writer: &mut W) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         if let Some(children) = &node.children {
             for child in children {
                 if let Some(version_uri) = child.version_uri {
-                    writer.write_all(format!("  {} -> {} [label=\"{}\"];\n", node.name, child.name, version_uri).as_bytes())?;
+                    writer.write_all(
+                        format!(
+                            "  {} -> {} [label=\"{}\"];\n",
+                            node.name, child.name, version_uri
+                        )
+                        .as_bytes(),
+                    )?;
                 } else {
                     writer.write_all(format!("  {} -> {};\n", node.name, child.name).as_bytes())?;
                 }
@@ -277,9 +302,18 @@ impl DependencyViewGenerator {
     fn write_gv_node(&self, name: &Identifier, is_subject: bool, is_library: bool) -> String {
         const MODULE_STEREOTYPE: &str = "<FONT POINT-SIZE=\"9\">«module»</FONT><BR/>";
         match (is_subject, is_library) {
-            (true, true) => format!("  {} [label=<{}<B><I>{}</I></B>>];\n", name, MODULE_STEREOTYPE, name),
-            (true, false) => format!("  {} [label=<{}<B>{}</B>>];\n", name, MODULE_STEREOTYPE, name),
-            (false, true) => format!("  {} [label=<{}<I>{}</I>>];\n", name, MODULE_STEREOTYPE, name),
+            (true, true) => format!(
+                "  {} [label=<{}<B><I>{}</I></B>>];\n",
+                name, MODULE_STEREOTYPE, name
+            ),
+            (true, false) => format!(
+                "  {} [label=<{}<B>{}</B>>];\n",
+                name, MODULE_STEREOTYPE, name
+            ),
+            (false, true) => format!(
+                "  {} [label=<{}<I>{}</I>>];\n",
+                name, MODULE_STEREOTYPE, name
+            ),
             (false, false) => format!("  {}[label=<{}{}>];\n", name, MODULE_STEREOTYPE, name),
         }
     }
@@ -296,7 +330,7 @@ impl DependencyViewGenerator {
         writer: &mut W,
     ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         const OWL_IMPORTS: &str = "http://www.w3.org/2002/07/owl#imports";
         let depth = if depth == 0 { usize::MAX } else { depth };
@@ -308,12 +342,7 @@ impl DependencyViewGenerator {
         self.tree_to_rdf_list(&tree, &mut list);
 
         for (subj, obj) in list {
-            writer.write_all(
-                format!(
-                    "<{subj}> <{OWL_IMPORTS}> <{obj}> .\n",
-                )
-                    .as_bytes(),
-            )?;
+            writer.write_all(format!("<{subj}> <{OWL_IMPORTS}> <{obj}> .\n",).as_bytes())?;
         }
 
         Ok(())
@@ -356,17 +385,30 @@ impl<'a> Node<'a> {
         let mut modules = import_map.keys().collect::<Vec<_>>();
         modules.sort();
         for imported in modules {
-            let imported_version_uri = import_map.get(imported).map(|v|v.clone()).unwrap_or_default();
+            let imported_version_uri = import_map
+                .get(imported)
+                .map(|v| v.clone())
+                .unwrap_or_default();
             if depth == 1 || seen.contains(imported) {
                 if let Some(cached) = cache.get(imported) {
-                    children.push(Self::from_name(imported, cached.base_uri(), imported_version_uri));
+                    children.push(Self::from_name(
+                        imported,
+                        cached.base_uri(),
+                        imported_version_uri,
+                    ));
                 } else {
                     children.push(Self::from_name_only(imported, imported_version_uri));
                 }
             } else {
                 seen.insert(imported);
                 if let Some(cached) = cache.get(imported) {
-                    children.push(Self::from_module(cached, imported_version_uri, seen, cache, depth - 1));
+                    children.push(Self::from_module(
+                        cached,
+                        imported_version_uri,
+                        seen,
+                        cache,
+                        depth - 1,
+                    ));
                 } else {
                     children.push(Self::from_name_only(imported, imported_version_uri));
                 }
@@ -385,7 +427,11 @@ impl<'a> Node<'a> {
         Self::from_name(module, None, version_uri)
     }
 
-    fn from_name(module: &'a Identifier, base_uri: Option<&'a Url>, version_uri: Option<&'a Url>) -> Self {
+    fn from_name(
+        module: &'a Identifier,
+        base_uri: Option<&'a Url>,
+        version_uri: Option<&'a Url>,
+    ) -> Self {
         Self {
             name: module,
             base_uri,
@@ -416,7 +462,7 @@ impl<'a> Node<'a> {
                 String::new()
             }
         );
-        if console::colorize().colorize() {
+        if color::colorize().colorize() {
             let mut style = Style::new();
 
             if is_root {

@@ -115,9 +115,9 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
         _: &ModuleCache,
         writer: &mut W,
         options: SourceGenerationLevel,
-    ) -> Result<(), Error> 
+    ) -> Result<(), Error>
     where
-        W: Write + Sized
+        W: Write + Sized,
     {
         writer.write_all(format!("module {} ", module.name()).as_bytes())?;
 

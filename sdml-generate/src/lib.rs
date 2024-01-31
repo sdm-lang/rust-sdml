@@ -143,7 +143,6 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///
 pub trait GenerateToWriter<F: Default + Debug>: Debug {
-
     // --------------------------------------------------------------------------------------------
     // Write to ❱ implementation of `Write`
     // --------------------------------------------------------------------------------------------
@@ -321,7 +320,7 @@ mod macros;
 
 mod exec;
 
-pub mod console;
+pub mod color;
 
 pub mod actions;
 

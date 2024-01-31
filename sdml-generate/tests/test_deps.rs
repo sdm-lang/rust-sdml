@@ -5,7 +5,10 @@ use sdml_core::{
     cache::ModuleCache,
     model::{modules::Module, HasName},
 };
-use sdml_generate::{GenerateToWriter, console::{set_colorize, UseColor}};
+use sdml_generate::{
+    console::{set_colorize, UseColor},
+    GenerateToWriter,
+};
 use sdml_parse::load::ModuleLoader;
 
 const MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
@@ -83,7 +86,9 @@ fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &ModuleLoad
     let mut buffer = Cursor::new(Vec::new());
     let view = sdml_generate::actions::deps::DependencyViewRepresentation::TextTree;
     let mut generator = sdml_generate::actions::deps::DependencyViewGenerator::default();
-    generator.write_in_format(module, cache, &mut buffer, view).unwrap();
+    generator
+        .write_in_format(module, cache, &mut buffer, view)
+        .unwrap();
     String::from_utf8(buffer.into_inner()).unwrap()
 }
 
