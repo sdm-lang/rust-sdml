@@ -4,6 +4,10 @@ Generate a text-based dependency tree, or GraphViz-based dependency graph, start
 */
 
 use nu_ansi_term::Style;
+use crate::color;
+use crate::GenerateToWriter;
+use crate::color::rdf::Separator;
+use crate::color::rdf::format_url;
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
@@ -14,7 +18,6 @@ use std::io::Write;
 use text_trees::{FormatCharacters, TreeFormatting, TreeNode};
 use url::Url;
 
-use crate::{color, GenerateToWriter};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -343,7 +346,15 @@ impl DependencyViewGenerator {
         self.tree_to_rdf_list(&tree, &mut list);
 
         for (subj, obj) in list {
-            writer.write_all(format!("<{subj}> <{OWL_IMPORTS}> <{obj}> .\n",).as_bytes())?;
+            writer.write_all(
+                format!(
+                    "{} {} {}{}",
+                    format_url(subj),
+                    format_url(OWL_IMPORTS),
+                    format_url(obj),
+                    Separator::Statement,
+                ).as_bytes()
+            )?;
         }
 
         Ok(())
@@ -388,10 +399,7 @@ impl<'a> Node<'a> {
         modules.sort();
         for imported in modules {
             #[allow(clippy::map_clone)]
-            let imported_version_uri = import_map
-                .get(imported)
-                .map(|v| *v)
-                .unwrap_or_default();
+            let imported_version_uri = import_map.get(imported).map(|v| *v).unwrap_or_default();
             if depth == 1 || seen.contains(imported) {
                 if let Some(cached) = cache.get(imported) {
                     children.push(Self::from_name(

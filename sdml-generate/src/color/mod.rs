@@ -9,8 +9,29 @@ use std::sync::OnceLock;
 use std::sync::RwLock;
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros
+// Private Macros
 // ------------------------------------------------------------------------------------------------
+
+macro_rules! method {
+    ($name:ident, $el:ident) => {
+        #[inline(always)]
+        fn $name<S>(&self, value: S) -> String
+        where
+            S: AsRef<str>,
+        {
+            self.colorize(LanguageElement::$el, value)
+        }
+    };
+    ($name:ident => $parent:ident) => {
+        #[inline(always)]
+        fn $name<S>(&self, value: S) -> String
+        where
+            S: AsRef<str>,
+        {
+            self.$parent(value)
+        }
+    };
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -24,26 +45,31 @@ pub enum UseColor {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum ColorElement {
+pub enum LanguageElement {
     Comment,
     Constant,
+    ConstantDefinition,
     Embedded,
     Error,
+    Function,
     FunctionCall,
     FunctionDefinition,
     Keyword,
     LiteralBoolean,
     LiteralNumber,
+    LiteralString,
+    LiteralStringSpecial,
     Operator,
+    Method,
     MethodDefinition,
     Module,
     ModuleDefinition,
     Property,
+    PropertyDefinition,
+    Punctuation,
     PunctuationBracket,
     PunctuationDelimiter,
     PunctuationSeparator,
-    LiteralString,
-    LiteralStringSpecial,
     Type,
     TypeBuiltin,
     TypeDefinition,
@@ -52,6 +78,50 @@ pub enum ColorElement {
     VariableField,
     VariableParameter,
 }
+
+pub trait Colorizer {
+    fn colorize<S>(&self, el: LanguageElement, value: S) -> String
+    where
+        S: AsRef<str>;
+
+    method!(comment, Comment);
+    method!(constant, Constant);
+    method!(constant_definition, ConstantDefinition);
+    method!(embedded, Embedded);
+    method!(error, Error);
+    method!(function, Function);
+    method!(function_call, FunctionCall);
+    method!(function_definition, FunctionDefinition);
+    method!(keyword, Keyword);
+    method!(boolean, LiteralBoolean);
+    method!(number, LiteralNumber);
+    method!(string, LiteralString);
+    method!(string_special, LiteralStringSpecial);
+    method!(url, LiteralStringSpecial);
+    method!(operator, Operator);
+    method!(method, Method);
+    method!(method_definition => method);
+    method!(module, Module);
+    method!(module_definition => module);
+    method!(property, Property);
+    method!(property_definitions, PropertyDefinition);
+    method!(punctuation, Punctuation);
+    method!(bracket, PunctuationBracket);
+    method!(delimiter, PunctuationDelimiter);
+    method!(separator, PunctuationSeparator);
+    method!(type_ref, Type);
+    method!(type_builtin, TypeBuiltin);
+    method!(type_definition, TypeDefinition);
+    method!(variable, Variable);
+    method!(variable_field, VariableField);
+    method!(variable_parameter, VariableParameter);
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub struct ConsoleColor {}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+pub struct HtmlColor {}
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -125,98 +195,129 @@ impl UseColor {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Display for ColorElement {
+impl Display for LanguageElement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
             "{}",
             match self {
-                ColorElement::Comment => "comment",
-                ColorElement::Constant => "constant",
-                ColorElement::Embedded => "embedded",
-                ColorElement::Error => "error",
-                ColorElement::FunctionCall => "function.call",
-                ColorElement::FunctionDefinition => "function.definition",
-                ColorElement::Keyword => "keyword",
-                ColorElement::LiteralBoolean => "boolean",
-                ColorElement::LiteralNumber => "number",
-                ColorElement::LiteralString => "string",
-                ColorElement::LiteralStringSpecial => "string.special",
-                ColorElement::Operator => "operator",
-                ColorElement::MethodDefinition => "method.definition",
-                ColorElement::Module => "module",
-                ColorElement::ModuleDefinition => "module.definition",
-                ColorElement::Property => "property",
-                ColorElement::PunctuationBracket => "punctuation.bracket",
-                ColorElement::PunctuationDelimiter => "punctuation.delimiter",
-                ColorElement::PunctuationSeparator => "punctuation.separator",
-                ColorElement::Type => "type",
-                ColorElement::TypeBuiltin => "type.builtin",
-                ColorElement::TypeDefinition => "type.definition",
-                ColorElement::Variable => "variable",
-                ColorElement::VariableBuiltin => "variable.builtin",
-                ColorElement::VariableField => "variable.field",
-                ColorElement::VariableParameter => "variable.parameter",
+                LanguageElement::Comment => "comment",
+                LanguageElement::Constant => "constant",
+                LanguageElement::ConstantDefinition => "constant.definition",
+                LanguageElement::Embedded => "embedded",
+                LanguageElement::Error => "error",
+                LanguageElement::Function => "function",
+                LanguageElement::FunctionCall => "function.call",
+                LanguageElement::FunctionDefinition => "function.definition",
+                LanguageElement::Keyword => "keyword",
+                LanguageElement::LiteralBoolean => "boolean",
+                LanguageElement::LiteralNumber => "number",
+                LanguageElement::LiteralString => "string",
+                LanguageElement::LiteralStringSpecial => "string.special",
+                LanguageElement::Operator => "operator",
+                LanguageElement::Method => "method",
+                LanguageElement::MethodDefinition => "method.definition",
+                LanguageElement::Module => "module",
+                LanguageElement::ModuleDefinition => "module.definition",
+                LanguageElement::Property => "property",
+                LanguageElement::PropertyDefinition => "property.definition",
+                LanguageElement::Punctuation => "punctuation",
+                LanguageElement::PunctuationBracket => "punctuation.bracket",
+                LanguageElement::PunctuationDelimiter => "punctuation.delimiter",
+                LanguageElement::PunctuationSeparator => "punctuation.separator",
+                LanguageElement::Type => "type",
+                LanguageElement::TypeBuiltin => "type.builtin",
+                LanguageElement::TypeDefinition => "type.definition",
+                LanguageElement::Variable => "variable",
+                LanguageElement::VariableBuiltin => "variable.builtin",
+                LanguageElement::VariableField => "variable.field",
+                LanguageElement::VariableParameter => "variable.parameter",
             }
         )
     }
 }
 
-impl From<&ColorElement> for Style {
-    fn from(value: &ColorElement) -> Self {
-        match value {
-            ColorElement::Comment => Style::new().fg(Color::Fixed(248)).italic(),
-            ColorElement::Constant => Style::new().fg(Color::Fixed(58)),
-            ColorElement::Embedded => Style::new().fg(Color::Fixed(248)).italic(),
-            ColorElement::Error => Style::new().fg(Color::Fixed(9)).underline(),
-            ColorElement::FunctionCall => Style::new().fg(Color::Fixed(26)),
-            ColorElement::FunctionDefinition => Style::new().fg(Color::Fixed(26)).bold(),
-            ColorElement::Keyword => Style::new().fg(Color::Fixed(100)),
-            ColorElement::LiteralBoolean => Style::new().fg(Color::Fixed(58)),
-            ColorElement::LiteralNumber => Style::new().fg(Color::Fixed(58)),
-            ColorElement::LiteralString => Style::new().fg(Color::Fixed(70)),
-            ColorElement::LiteralStringSpecial => Style::new().fg(Color::Fixed(92)),
-            ColorElement::Operator => Style::new().fg(Color::Fixed(239)).bold(),
-            ColorElement::MethodDefinition => Style::new().fg(Color::Fixed(26)).bold(),
-            ColorElement::Module => Style::new().fg(Color::Fixed(19)),
-            ColorElement::ModuleDefinition => Style::new().fg(Color::Fixed(19)).bold(),
-            ColorElement::Property => Style::new().fg(Color::Fixed(160)),
-            ColorElement::PunctuationBracket => Style::new().fg(Color::Fixed(239)),
-            ColorElement::PunctuationDelimiter => Style::new().fg(Color::Fixed(239)),
-            ColorElement::PunctuationSeparator => Style::new().fg(Color::Fixed(239)),
-            ColorElement::Type => Style::new().fg(Color::Fixed(27)),
-            ColorElement::TypeBuiltin => Style::new().fg(Color::Fixed(21)),
-            ColorElement::TypeDefinition => Style::new().fg(Color::Fixed(27)).bold(),
-            ColorElement::Variable => Style::new().fg(Color::Fixed(67)),
-            ColorElement::VariableBuiltin => Style::new().fg(Color::Fixed(67)),
-            ColorElement::VariableField => Style::new().fg(Color::Fixed(67)),
-            ColorElement::VariableParameter => Style::new().fg(Color::Fixed(67)),
-        }
-    }
-}
+// ------------------------------------------------------------------------------------------------
 
-impl ColorElement {
-    pub fn style(&self) -> Style {
-        Style::from(self)
-    }
-
-    pub fn colorize<S>(&self, value: S) -> String
+impl Colorizer for ConsoleColor {
+    fn colorize<S>(&self, el: LanguageElement, value: S) -> String
     where
         S: AsRef<str>,
     {
         if colorize().colorize() {
-            self.style().paint(value.as_ref()).to_string()
+            self.style(el).paint(value.as_ref()).to_string()
         } else {
             value.as_ref().to_string()
         }
     }
+}
 
-    pub fn colorize_if<S>(&self, value: S, flag: UseColor) -> String
+impl ConsoleColor {
+    pub const fn new() -> Self { Self {} }
+
+    fn style(&self, el: LanguageElement) -> Style {
+        match el {
+            LanguageElement::Comment => Style::new().fg(Color::Fixed(248)).italic(),
+            // Constants
+            LanguageElement::Constant => Style::new().fg(Color::Fixed(58)),
+            LanguageElement::ConstantDefinition => Style::new().fg(Color::Fixed(58)).bold(),
+            // Other languages embedded in this one
+            LanguageElement::Embedded => Style::new().fg(Color::Fixed(248)).italic(),
+            // Those pesky errors
+            LanguageElement::Error => Style::new().fg(Color::Fixed(9)).underline(),
+            // Functions (vs methods)
+            LanguageElement::Function => Style::new().fg(Color::Fixed(26)),
+            LanguageElement::FunctionCall => Style::new().fg(Color::Fixed(26)),
+            LanguageElement::FunctionDefinition => Style::new().fg(Color::Fixed(26)).bold(),
+            // Language Keywords
+            LanguageElement::Keyword => Style::new().fg(Color::Fixed(100)),
+            // Literal values
+            LanguageElement::LiteralBoolean => Style::new().fg(Color::Fixed(58)),
+            LanguageElement::LiteralNumber => Style::new().fg(Color::Fixed(58)),
+            LanguageElement::LiteralString => Style::new().fg(Color::Fixed(70)),
+            LanguageElement::LiteralStringSpecial => Style::new().fg(Color::Fixed(92)),
+            // Operators
+            LanguageElement::Operator => Style::new().fg(Color::Fixed(239)).bold(),
+            // Methods (vs functions)
+            LanguageElement::Method => Style::new().fg(Color::Fixed(26)),
+            LanguageElement::MethodDefinition => Style::new().fg(Color::Fixed(26)).bold(),
+            // Modules
+            LanguageElement::Module => Style::new().fg(Color::Fixed(19)),
+            LanguageElement::ModuleDefinition => Style::new().fg(Color::Fixed(19)).bold(),
+            // Properties/Attributes
+            LanguageElement::Property => Style::new().fg(Color::Fixed(160)),
+            LanguageElement::PropertyDefinition => Style::new().fg(Color::Fixed(160)).bold(),
+            // Punctuation
+            LanguageElement::Punctuation => Style::new().fg(Color::Fixed(239)),
+            LanguageElement::PunctuationBracket => Style::new().fg(Color::Fixed(239)),
+            LanguageElement::PunctuationDelimiter => Style::new().fg(Color::Fixed(239)),
+            LanguageElement::PunctuationSeparator => Style::new().fg(Color::Fixed(239)),
+            // Types
+            LanguageElement::Type => Style::new().fg(Color::Fixed(27)),
+            LanguageElement::TypeBuiltin => Style::new().fg(Color::Fixed(21)),
+            LanguageElement::TypeDefinition => Style::new().fg(Color::Fixed(27)).bold(),
+            // Variables
+            LanguageElement::Variable => Style::new().fg(Color::Fixed(67)),
+            LanguageElement::VariableBuiltin => Style::new().fg(Color::Fixed(67)),
+            LanguageElement::VariableField => Style::new().fg(Color::Fixed(67)),
+            LanguageElement::VariableParameter => Style::new().fg(Color::Fixed(67)),
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Colorizer for HtmlColor {
+    fn colorize<S>(&self, el: LanguageElement, value: S) -> String
     where
         S: AsRef<str>,
     {
-        if colorize() == flag {
-            self.style().paint(value.as_ref()).to_string()
+        if colorize().colorize() {
+            format!(
+                "<span class=\"{}\">{}</span>",
+                el.to_string().replace('.', "-"),
+                value.as_ref()
+            )
         } else {
             value.as_ref().to_string()
         }

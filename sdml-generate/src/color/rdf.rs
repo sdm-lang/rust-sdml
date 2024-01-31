@@ -7,11 +7,9 @@ More detailed description, with
 
  */
 
-use std::fmt::Display;
-
 use sdml_core::model::values::LanguageString;
-
-use super::ColorElement;
+use crate::color::{ConsoleColor, Colorizer};
+use std::fmt::Display;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -30,9 +28,25 @@ pub enum Separator {
 pub const INDENT_PREDICATE: &str = "    ";
 pub const INDENT_OBJECT: &str = "        ";
 
+pub const SYNTAX_KW_BASE: &str = "@base";
+pub const SYNTAX_KW_PREFIX: &str = "@prefix";
+pub const SYNTAX_NAME_SEP: &str = ":";
+pub const SYNTAX_OPERATOR_TYPE: &str = "^^";
+pub const SYNTAX_COLLECTION_START: &str = "(";
+pub const SYNTAX_COLLECTION_END: &str = ")";
+pub const SYNTAX_BNODE_START: &str = "[";
+pub const SYNTAX_BNODE_END: &str = "]";
+pub const SYNTAX_IRI_START: &str = "<";
+pub const SYNTAX_IRI_END: &str = ">";
+pub const SYNTAX_STATEMENT_DELIM: &str = ".";
+pub const SYNTAX_PREDICATE_DELIM: &str = ";";
+pub const SYNTAX_OBJECT_DELIM: &str = ",";
+
 // ------------------------------------------------------------------------------------------------
 // Public Functions ❱ Turtle Directives
 // ------------------------------------------------------------------------------------------------
+
+const COLORIZER: ConsoleColor = ConsoleColor::new();
 
 #[inline]
 pub fn base_directive<U>(url: U) -> String
@@ -41,7 +55,7 @@ where
 {
     format!(
         "{} {}{}",
-        ColorElement::Keyword.colorize("@base"),
+        COLORIZER.keyword(SYNTAX_KW_BASE),
         format_url(url),
         statement_sep()
     )
@@ -55,7 +69,7 @@ where
 {
     format!(
         "{} {} {}{}",
-        ColorElement::Keyword.colorize("@prefix"),
+        COLORIZER.keyword(SYNTAX_KW_PREFIX),
         module_ref_qname(module),
         format_url(url),
         statement_sep(),
@@ -86,8 +100,8 @@ where
 {
     format!(
         "{}{}",
-        ColorElement::ModuleDefinition.colorize(module.as_ref()),
-        ColorElement::PunctuationSeparator.colorize(":"),
+        COLORIZER.module_definition(module),
+        COLORIZER.separator(SYNTAX_NAME_SEP),
     )
 }
 
@@ -98,8 +112,8 @@ where
 {
     format!(
         "{}{}",
-        ColorElement::Module.colorize(module.as_ref()),
-        ColorElement::PunctuationSeparator.colorize(":"),
+        COLORIZER.module(module),
+        COLORIZER.separator(SYNTAX_NAME_SEP),
     )
 }
 
@@ -138,7 +152,7 @@ where
     format!(
         "{}{}",
         module_ref_qname(module),
-        ColorElement::Type.colorize(ty_name)
+        COLORIZER.type_ref(ty_name)
     )
 }
 
@@ -169,7 +183,7 @@ where
     format!(
         "{}{}",
         module_ref_qname(module),
-        ColorElement::Variable.colorize(thing_name)
+        COLORIZER.variable(thing_name)
     )
 }
 
@@ -182,7 +196,9 @@ pub fn format_url<U>(url: U) -> String
 where
     U: AsRef<str>,
 {
-    ColorElement::LiteralStringSpecial.colorize(format!("<{}>", url.as_ref()))
+    COLORIZER.url(
+        format!("{}{}{}", SYNTAX_IRI_START, url.as_ref(), SYNTAX_IRI_END)
+    )
 }
 
 #[inline]
@@ -190,19 +206,21 @@ pub fn format_str<S>(v: S) -> String
 where
     S: AsRef<str>,
 {
-    ColorElement::LiteralString.colorize(format!("{:?}", v.as_ref()))
+    COLORIZER.string(format!("{:?}", v.as_ref()))
 }
 
 #[inline]
 pub fn format_lang_str(v: &LanguageString) -> String {
-    format!(
-        "{}{}",
-        format_str(v.value()),
-        if let Some(lang) = v.language() {
-            ColorElement::LiteralString.colorize(format!("{lang}"))
-        } else {
-            String::new()
-        }
+    COLORIZER.string(
+        format!(
+            "{}{}",
+            format_str(v.value()),
+            if let Some(lang) = v.language() {
+                lang.to_string()
+            } else {
+                String::new()
+            }
+        )
     )
 }
 
@@ -216,7 +234,7 @@ where
     format!(
         "{}{}{}",
         format_str(value),
-        ColorElement::Operator.colorize("^^"),
+        COLORIZER.operator(SYNTAX_OPERATOR_TYPE),
         type_ref_qname(module, ty_name),
     )
 }
@@ -226,12 +244,12 @@ pub fn format_number<N>(v: N) -> String
 where
     N: Into<String>,
 {
-    ColorElement::LiteralNumber.colorize(v.into())
+    COLORIZER.number(v.into())
 }
 
 #[inline]
 pub fn format_boolean(v: bool) -> String {
-    ColorElement::LiteralBoolean.colorize(v.to_string())
+    COLORIZER.boolean(v.to_string())
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -255,7 +273,7 @@ where
     format!(
         "{}{}{}",
         module_ref_qname(module),
-        ColorElement::TypeDefinition.colorize(ty_name),
+        COLORIZER.type_definition(ty_name),
         Separator::None,
     )
 }
@@ -379,12 +397,7 @@ where
 
 #[inline]
 pub fn start_bnode() -> String {
-    ColorElement::PunctuationBracket.colorize("[")
-}
-
-#[inline]
-pub fn start_bnode_eol() -> String {
-    format!(" {}\n", start_bnode())
+    COLORIZER.bracket(SYNTAX_BNODE_START)
 }
 
 #[inline]
@@ -411,7 +424,7 @@ where
 
 #[inline]
 pub fn end_bnode() -> String {
-    ColorElement::PunctuationBracket.colorize("]")
+    COLORIZER.bracket(SYNTAX_BNODE_END)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -420,12 +433,7 @@ pub fn end_bnode() -> String {
 
 #[inline]
 pub fn start_collection() -> String {
-    ColorElement::PunctuationBracket.colorize("(")
-}
-
-#[inline]
-pub fn start_collection_eol() -> String {
-    format!(" {}\n", start_collection())
+    COLORIZER.bracket(SYNTAX_COLLECTION_START)
 }
 
 #[inline]
@@ -456,7 +464,7 @@ where
 
 #[inline]
 pub fn end_collection() -> String {
-    ColorElement::PunctuationBracket.colorize(")")
+    COLORIZER.bracket(SYNTAX_COLLECTION_END)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -499,13 +507,13 @@ impl Display for Separator {
                 Separator::None => "\n".to_string(),
                 Separator::InlineNone => "".to_string(),
                 Separator::Statement =>
-                    format!(" {}\n", ColorElement::PunctuationDelimiter.colorize(".")),
+                    format!(" {}\n", COLORIZER.delimiter(SYNTAX_STATEMENT_DELIM)),
                 Separator::Predicate =>
-                    format!(" {}\n", ColorElement::PunctuationDelimiter.colorize(";")),
+                    format!(" {}\n", COLORIZER.delimiter(SYNTAX_PREDICATE_DELIM)),
                 Separator::Object =>
-                    format!(" {}\n", ColorElement::PunctuationDelimiter.colorize(",")),
+                    format!(" {}\n", COLORIZER.delimiter(SYNTAX_OBJECT_DELIM)),
                 Separator::InlineObject =>
-                    format!("{} ", ColorElement::PunctuationDelimiter.colorize(",")),
+                    format!("{} ", COLORIZER.delimiter(SYNTAX_OBJECT_DELIM)),
             }
         )
     }
