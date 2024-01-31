@@ -15,7 +15,7 @@ all-features = true
 
 [dependencies]
 nu-ansi-term = "0.50.0"
-sdml-core = { version = "0.2.8", path = "../sdml-core" }
+sdml-core = { version = "0.2.9", path = "../sdml-core" }
 tempfile = "3.9.0"
 text_trees = "0.1.2"
 tracing = "0.1.40"
