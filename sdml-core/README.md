@@ -32,6 +32,10 @@ Note that other tools can use the `sdml_core` API to create or manipulate models
 
 ## Changes
 
+**Version 0.2.8**
+
+* Feature: Add more to the SDML standard library module as needed for RDF generator.
+
 **Version 0.2.7**
 
 Clean-up release.
