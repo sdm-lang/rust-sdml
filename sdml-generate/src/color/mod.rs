@@ -22,15 +22,6 @@ macro_rules! method {
             self.colorize(LanguageElement::$el, value)
         }
     };
-    ($name:ident => $parent:ident) => {
-        #[inline(always)]
-        fn $name<S>(&self, value: S) -> String
-        where
-            S: AsRef<str>,
-        {
-            self.$parent(value)
-        }
-    };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -100,9 +91,9 @@ pub trait Colorizer {
     method!(url, LiteralStringSpecial);
     method!(operator, Operator);
     method!(method, Method);
-    method!(method_definition => method);
+    method!(method_definition, MethodDefinition);
     method!(module, Module);
-    method!(module_definition => module);
+    method!(module_definition, ModuleDefinition);
     method!(property, Property);
     method!(property_definitions, PropertyDefinition);
     method!(punctuation, Punctuation);
@@ -333,3 +324,5 @@ impl Colorizer for HtmlColor {
 // ------------------------------------------------------------------------------------------------
 
 pub mod rdf;
+
+pub mod sdml;
