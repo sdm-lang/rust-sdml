@@ -6,7 +6,7 @@ use sdml_core::{
     model::{modules::Module, HasName},
 };
 use sdml_generate::{
-    console::{set_colorize, UseColor},
+    color::{set_colorize, UseColor},
     GenerateToWriter,
 };
 use sdml_parse::load::ModuleLoader;
