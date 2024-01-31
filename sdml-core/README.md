@@ -32,6 +32,11 @@ Note that other tools can use the `sdml_core` API to create or manipulate models
 
 ## Changes
 
+**Version 0.2.9**
+
+* Fix: Cardinality parser set incorrect default values.
+  * Update: the `with_` constructors on `Cardinality` to take option types.
+
 **Version 0.2.8**
 
 * Feature: Add more to the SDML standard library module as needed for RDF generator.

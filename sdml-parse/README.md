@@ -32,6 +32,14 @@ The following figure demonstrates this package in the broader project context.
 ## 
 ## Changes
 
+**Version 0.2.7**
+
+* Fix: Cardinality parser set incorrect default values.
+  * Fix: For min/max it should be `one` and not `zero_or_one` as the default to match the `DEFAULT_CARDINALITY` constant in the
+    model.
+  * Fix: For ordering/uniqueness the default if not parsed should be `None` not `Some(Default::default())`.
+  * Update: the `with_` constructors on `Cardinality` to take option types.
+
 **Version 0.2.6**
 
 * Build: Removed indirect dependencies from Cargo.toml.
