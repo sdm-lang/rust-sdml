@@ -31,6 +31,12 @@ The following figure demonstrates this package in the broader project context.
 ## 
 ## Changes
 
+**Version 0.2.5**
+
+* Feature: Add new `--no-color` flag to the CLI which also uses the `NO_COLOR` environment variable.
+* Feature: Removed indirect dependencies from Cargo.toml.
+* Update: New generator features for colored RDF.
+
 **Version 0.2.4**
 
 * Feature: Add new `source` command to call the new source generator.
