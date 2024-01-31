@@ -194,11 +194,6 @@ impl Identifier {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub fn as_str(&self) -> &str {
-        self.as_ref()
-    }
-
-    #[inline(always)]
     pub fn is_valid(s: &str) -> bool {
         IDENTIFIER.is_match(s) && !Self::is_keyword(s) && !Self::is_type_name(s)
     }

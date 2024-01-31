@@ -211,7 +211,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
                 stdlib::sdml::PROP_SRC_LABEL_NAME,
-                color::format_str(module_name.as_str()),
+                color::format_str(module_name),
                 Separator::Statement,
             )
             .as_bytes(),
