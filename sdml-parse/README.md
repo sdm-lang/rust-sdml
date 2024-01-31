@@ -32,6 +32,10 @@ The following figure demonstrates this package in the broader project context.
 ## 
 ## Changes
 
+**Version 0.2.6**
+
+* Build: Removed indirect dependencies from Cargo.toml.
+
 **Version 0.2.5**
 
 * Test: Update test cases for:
