@@ -30,6 +30,15 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.2.6**
+
+* Feature: Add color output for RDF source generation.
+  1. Rename module `console` to `color`.
+  2. Add new `color::rdf` module for helper functions.
+  3. Rewrite `convert::rdf` to output colorized listings.
+* Feature: Add version URLs into the dependency tree test cases.
+* Feature: Removed indirect dependencies from Cargo.toml.
+
 **Version 0.2.5**
 
 * Feature: Add `ModuleCache` as parameter to methods on the `GenerateToFile` and `GenerateToWriter` traits.
