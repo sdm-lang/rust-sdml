@@ -1118,18 +1118,18 @@ impl RdfModelGenerator {
             SimpleValue::Double(v) => color::format_type_constructor(
                 stdlib::sdml::MODULE_NAME,
                 stdlib::sdml::DT_DOUBLE_NAME,
-                &v.to_string(),
+                v.to_string(),
             ),
             SimpleValue::Decimal(v) => color::format_type_constructor(
                 stdlib::sdml::MODULE_NAME,
                 stdlib::sdml::DT_DECIMAL_NAME,
-                &v.to_string(),
+                v.to_string(),
             ),
-            SimpleValue::Integer(v) => color::format_number(&v.to_string()),
+            SimpleValue::Integer(v) => color::format_number(v.to_string()),
             SimpleValue::Unsigned(v) => color::format_type_constructor(
                 stdlib::sdml::MODULE_NAME,
                 stdlib::sdml::DT_UNSIGNED_NAME,
-                &v.to_string(),
+                v.to_string(),
             ),
             SimpleValue::String(v) => color::format_lang_str(v),
             SimpleValue::IriReference(v) => color::format_url(v),
@@ -1143,7 +1143,7 @@ impl RdfModelGenerator {
         module_name: &Identifier,
     ) -> String {
         let (module_name, ty_name) = self.qualified_idref(module_name, me.type_name());
-        color::format_type_constructor(module_name, ty_name, &me.value().to_string())
+        color::format_type_constructor(module_name, ty_name, me.value().to_string())
     }
 
     fn mapping_value_to_string(&mut self, me: &MappingValue, module_name: &Identifier) -> String {

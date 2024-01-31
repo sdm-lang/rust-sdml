@@ -11,7 +11,7 @@ fn test_generate_module_empty() {
     let module = Module::empty(Identifier::new_unchecked("example"));
     let mut generator: SourceGenerator = Default::default();
     let source = generator
-        .write_to_string(&module, &mut ModuleCache::default())
+        .write_to_string(&module, &ModuleCache::default())
         .unwrap();
     assert_eq!(source.as_str(), "module example is end\n");
 }
@@ -22,7 +22,7 @@ fn test_generate_module_empty_with_base() {
         .with_base_uri(Url::parse("http://example.com").unwrap());
     let mut generator: SourceGenerator = Default::default();
     let source = generator
-        .write_to_string(&module, &mut ModuleCache::default())
+        .write_to_string(&module, &ModuleCache::default())
         .unwrap();
     assert_eq!(
         source.as_str(),

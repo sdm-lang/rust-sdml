@@ -275,6 +275,7 @@ impl DependencyViewGenerator {
         Ok(())
     }
 
+    #[allow(clippy::only_used_in_recursion)]
     fn write_graph_node<W>(&self, node: &Node<'_>, writer: &mut W) -> Result<(), Error>
     where
         W: Write + Sized,
@@ -348,6 +349,7 @@ impl DependencyViewGenerator {
         Ok(())
     }
 
+    #[allow(clippy::only_used_in_recursion)]
     fn tree_to_rdf_list<'a>(&self, node: &'a Node<'_>, list: &mut Vec<(&'a Url, &'a Url)>) {
         if node.base_uri.is_some() {
             if let Some(children) = &node.children {
@@ -385,9 +387,10 @@ impl<'a> Node<'a> {
         let mut modules = import_map.keys().collect::<Vec<_>>();
         modules.sort();
         for imported in modules {
+            #[allow(clippy::map_clone)]
             let imported_version_uri = import_map
                 .get(imported)
-                .map(|v| v.clone())
+                .map(|v| *v)
                 .unwrap_or_default();
             if depth == 1 || seen.contains(imported) {
                 if let Some(cached) = cache.get(imported) {
@@ -443,7 +446,7 @@ impl<'a> Node<'a> {
     fn make_text_tree(&'a self, is_root: bool) -> TreeNode<String> {
         let children = if let Some(children) = &self.children {
             children
-                .into_iter()
+                .iter()
                 .map(|node| node.make_text_tree(false))
                 .collect::<Vec<TreeNode<_>>>()
         } else {

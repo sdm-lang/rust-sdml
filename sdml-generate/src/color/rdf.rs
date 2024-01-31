@@ -355,7 +355,7 @@ where
     S: AsRef<str>,
 {
     values
-        .into_iter()
+        .iter()
         .map(|s| format!("{INDENT_OBJECT}{}", s.as_ref()))
         .collect::<Vec<_>>()
         .join(&Separator::Object.to_string())
@@ -405,7 +405,7 @@ where
         predicate_qname(module, property),
         value.as_ref(),
         end_bnode(),
-        sep.to_string(),
+        sep,
     )
 }
 
@@ -445,8 +445,8 @@ where
         "{}\n{}\n{}{}",
         start_collection(),
         elements
-            .into_iter()
-            .map(|e| collection_element(e))
+            .iter()
+            .map(collection_element)
             .collect::<Vec<_>>()
             .join(&Separator::None.to_string()),
         end_collection(),
