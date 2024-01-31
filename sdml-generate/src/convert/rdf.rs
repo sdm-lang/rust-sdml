@@ -14,8 +14,8 @@ use crate::{
         self as color, bnode_predicate_with_value, collection_element, end_bnode, end_collection,
         format_str, format_type_constructor, format_url, module_ref_qname, module_subject, mv_name,
         predicate_no_value, predicate_qname, predicate_with_value, predicate_with_value_list,
-        property_subject, start_bnode, start_collection, thing_qname,
-        thing_subject, type_ref_qname, type_subject, Separator, INDENT_PREDICATE,
+        property_subject, start_bnode, start_collection, thing_qname, thing_subject,
+        type_ref_qname, type_subject, Separator, INDENT_PREDICATE,
     },
     GenerateToWriter,
 };
