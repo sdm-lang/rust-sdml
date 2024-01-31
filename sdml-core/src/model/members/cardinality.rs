@@ -41,12 +41,12 @@ pub const DEFAULT_CARDINALITY: Cardinality = Cardinality::one();
 
 pub const TYPE_BAG_CARDINALITY: Cardinality = Cardinality::zero_or_more();
 pub const TYPE_LIST_CARDINALITY: Cardinality =
-    Cardinality::zero_or_more().with_ordering(Ordering::Ordered);
+    Cardinality::zero_or_more().with_ordering(Some(Ordering::Ordered));
 pub const TYPE_SET_CARDINALITY: Cardinality =
-    Cardinality::zero_or_more().with_uniqueness(Uniqueness::Unique);
+    Cardinality::zero_or_more().with_uniqueness(Some(Uniqueness::Unique));
 pub const TYPE_ORDERED_SET_CARDINALITY: Cardinality = Cardinality::zero_or_more()
-    .with_ordering(Ordering::Ordered)
-    .with_uniqueness(Uniqueness::Unique);
+    .with_ordering(Some(Ordering::Ordered))
+    .with_uniqueness(Some(Uniqueness::Unique));
 pub const TYPE_MAYBE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -220,9 +220,9 @@ impl Cardinality {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub const fn with_ordering(self, ordering: Ordering) -> Self {
+    pub const fn with_ordering(self, ordering: Option<Ordering>) -> Self {
         Self {
-            ordering: Some(ordering),
+            ordering,
             ..self
         }
     }
@@ -250,9 +250,9 @@ impl Cardinality {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub const fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+    pub const fn with_uniqueness(self, uniqueness: Option<Uniqueness>) -> Self {
         Self {
-            uniqueness: Some(uniqueness),
+            uniqueness,
             ..self
         }
     }

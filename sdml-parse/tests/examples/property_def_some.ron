@@ -89,12 +89,8 @@ Module {
                                                         end: 61,
                                                     },
                                                 ),
-                                                ordering: Some(
-                                                    Unordered,
-                                                ),
-                                                uniqueness: Some(
-                                                    Nonunique,
-                                                ),
+                                                ordering: None,
+                                                uniqueness: None,
                                                 range: CardinalityRange {
                                                     span: None,
                                                     min: 1,
@@ -252,12 +248,8 @@ Module {
                                                         end: 157,
                                                     },
                                                 ),
-                                                ordering: Some(
-                                                    Unordered,
-                                                ),
-                                                uniqueness: Some(
-                                                    Nonunique,
-                                                ),
+                                                ordering: None,
+                                                uniqueness: None,
                                                 range: CardinalityRange {
                                                     span: None,
                                                     min: 1,

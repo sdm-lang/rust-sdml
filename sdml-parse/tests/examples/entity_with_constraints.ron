@@ -129,7 +129,7 @@ Module {
                                                 uniqueness: None,
                                                 range: CardinalityRange {
                                                     span: None,
-                                                    min: 0,
+                                                    min: 1,
                                                     max: Some(
                                                         1,
                                                     ),
@@ -237,7 +237,7 @@ Module {
                                                 uniqueness: None,
                                                 range: CardinalityRange {
                                                     span: None,
-                                                    min: 0,
+                                                    min: 1,
                                                     max: Some(
                                                         1,
                                                     ),

@@ -226,7 +226,7 @@ impl MemberDef {
         Self {
             span: None,
             target_type: target_type.into(),
-            target_cardinality: Cardinality::zero_or_one(),
+            target_cardinality: Cardinality::one(),
             inverse_name: None,
             body: None,
         }
@@ -236,7 +236,7 @@ impl MemberDef {
         Self {
             span: None,
             target_type: TypeReference::Unknown,
-            target_cardinality: Cardinality::zero_or_one(),
+            target_cardinality: Cardinality::one(),
             inverse_name: None,
             body: None,
         }

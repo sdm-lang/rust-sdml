@@ -89,9 +89,7 @@ Module {
                                                         end: 71,
                                                     },
                                                 ),
-                                                ordering: Some(
-                                                    Unordered,
-                                                ),
+                                                ordering: None,
                                                 uniqueness: Some(
                                                     Unique,
                                                 ),

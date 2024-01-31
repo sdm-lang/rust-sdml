@@ -26,16 +26,16 @@ pub(crate) fn parse_cardinality_expression<'a>(
 
     let ordering = if let Some(child) = node.child_by_field_name(FIELD_NAME_ORDERING) {
         context.check_if_error(&child, RULE_NAME)?;
-        Ordering::from_str(context.node_source(&child)?)?
+        Some(Ordering::from_str(context.node_source(&child)?)?)
     } else {
-        Ordering::default()
+        None
     };
 
     let uniqueness = if let Some(child) = node.child_by_field_name(FIELD_NAME_UNIQUENESS) {
         context.check_if_error(&child, RULE_NAME)?;
-        Uniqueness::from_str(context.node_source(&child)?)?
+        Some(Uniqueness::from_str(context.node_source(&child)?)?)
     } else {
-        Uniqueness::default()
+        None
     };
 
     let child = node.child_by_field_name(FIELD_NAME_MIN).unwrap();
