@@ -83,7 +83,7 @@ impl DatatypeDef {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name: Identifier, base_type: IdentifierReference) -> Self {
+    pub const fn new(name: Identifier, base_type: IdentifierReference) -> Self {
         Self {
             span: None,
             name,
@@ -93,13 +93,20 @@ impl DatatypeDef {
         }
     }
 
-    pub fn new_opaque(name: Identifier, base_type: IdentifierReference) -> Self {
+    pub const fn new_opaque(name: Identifier, base_type: IdentifierReference) -> Self {
         Self {
             span: None,
             name,
             opaque: true,
             base_type,
             body: None,
+        }
+    }
+
+    pub fn with_body(self, body: AnnotationOnlyBody) -> Self {
+        Self {
+            body: Some(body),
+            ..self
         }
     }
 

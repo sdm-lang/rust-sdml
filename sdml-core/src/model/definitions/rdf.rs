@@ -85,21 +85,21 @@ impl RdfDef {
     pub fn class(name: Identifier) -> Self {
         Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-            Identifier::new_unchecked(stdlib::rdfs::CLASS_CLASS_NAME),
+            Identifier::new_unchecked(stdlib::rdfs::CLASS),
         ))
     }
 
     pub fn datatype(name: Identifier) -> Self {
         Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-            Identifier::new_unchecked(stdlib::rdfs::CLASS_DATATYPE_NAME),
+            Identifier::new_unchecked(stdlib::rdfs::DATATYPE),
         ))
     }
 
     pub fn property(name: Identifier) -> Self {
         Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
-            Identifier::new_unchecked(stdlib::rdf::CLASS_PROPERTY_NAME),
+            Identifier::new_unchecked(stdlib::rdf::PROPERTY),
         ))
     }
 

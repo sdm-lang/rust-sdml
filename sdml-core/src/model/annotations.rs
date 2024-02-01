@@ -104,7 +104,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdf::PROP_TYPE_NAME),
+                Identifier::new_unchecked(stdlib::rdf::TYPE),
             ),
             Value::from(name.into()),
         )
@@ -118,7 +118,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_SUB_CLASS_OF_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::SUB_CLASS_OF),
             ),
             Value::from(name.into()),
         )
@@ -132,7 +132,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::owl::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::owl::PROP_EQUIVALENT_CLASS_NAME),
+                Identifier::new_unchecked(stdlib::owl::EQUIVALENT_CLASS),
             ),
             Value::from(name.into()),
         )
@@ -146,7 +146,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_SUB_PROPERTY_OF_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::SUB_PROPERTY_OF),
             ),
             Value::from(name.into()),
         )
@@ -160,7 +160,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_DOMAIN_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::DOMAIN),
             ),
             Value::from(name.into()),
         )
@@ -174,7 +174,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_COMMENT_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::COMMENT),
             ),
             comment.into(),
         )
@@ -188,7 +188,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_LABEL_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::LABEL),
             ),
             Value::from(label.into()),
         )
@@ -201,7 +201,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_SEE_ALSO_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::SEE_ALSO),
             ),
             Value::from(Url::parse(resource).unwrap()),
         )
@@ -214,7 +214,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_SEE_ALSO_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::SEE_ALSO),
             ),
             Value::from(resource),
         )
@@ -228,7 +228,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_SEE_ALSO_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::SEE_ALSO),
             ),
             Value::from(resource.into()),
         )
@@ -241,7 +241,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_IS_DEFINED_BY_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::IS_DEFINED_BY),
             ),
             Value::from(resource),
         )
@@ -254,7 +254,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_IS_DEFINED_BY_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::IS_DEFINED_BY),
             ),
             Value::from(Url::parse(resource).unwrap()),
         )
@@ -268,7 +268,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_IS_DEFINED_BY_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::IS_DEFINED_BY),
             ),
             Value::from(resource.into()),
         )
@@ -282,7 +282,7 @@ pub trait AnnotationBuilder {
         self.with_predicate(
             QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::PROP_RANGE_NAME),
+                Identifier::new_unchecked(stdlib::rdfs::RANGE),
             ),
             Value::from(name.into()),
         )

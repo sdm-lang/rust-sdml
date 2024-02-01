@@ -83,6 +83,13 @@ impl UnionDef {
             body: None,
         }
     }
+
+    pub fn with_body(self, body: UnionBody) -> Self {
+        Self {
+            body: Some(body),
+            ..self
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -102,6 +109,15 @@ impl References for UnionBody {
         self.variants
             .iter()
             .for_each(|v| v.referenced_annotations(names));
+    }
+}
+
+impl UnionBody {
+    pub fn with_variants(self, variants: Vec<TypeVariant>) -> Self {
+        Self {
+            variants,
+            ..self
+        }
     }
 }
 

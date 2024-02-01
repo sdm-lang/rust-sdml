@@ -221,10 +221,7 @@ impl Cardinality {
     // --------------------------------------------------------------------------------------------
 
     pub const fn with_ordering(self, ordering: Option<Ordering>) -> Self {
-        Self {
-            ordering,
-            ..self
-        }
+        Self { ordering, ..self }
     }
 
     #[inline(always)]
@@ -251,10 +248,7 @@ impl Cardinality {
 
     #[inline(always)]
     pub const fn with_uniqueness(self, uniqueness: Option<Uniqueness>) -> Self {
-        Self {
-            uniqueness,
-            ..self
-        }
+        Self { uniqueness, ..self }
     }
 
     #[inline(always)]

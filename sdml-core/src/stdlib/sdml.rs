@@ -5,6 +5,7 @@ This Rust module contains the SDML model of the SDML library module `sdml`.
 use crate::model::annotations::AnnotationBuilder;
 use crate::model::modules::Module;
 use crate::model::HasBody;
+use crate::stdlib::{owl, rdf, rdfs, skos, xsd};
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
@@ -18,71 +19,71 @@ use url::Url;
 pub const MODULE_NAME: &str = "sdml";
 pub const MODULE_URL: &str = "http://sdml.io/sdml-owl.ttl#";
 
-pub const CLASS_ANNOTATION_NAME: &str = "Annotation";
-pub const CLASS_ANNOTATION_PROPERTY_NAME: &str = "AnnotationProperty";
-pub const CLASS_CARDINALITY_NAME: &str = "Cardinality";
-pub const CLASS_CONSTRAINT_NAME: &str = "Constraint";
-pub const CLASS_DEFINITION_NAME: &str = "Definition";
-pub const CLASS_ENTITY_NAME: &str = "Entity";
-pub const CLASS_ENUMERATION_NAME: &str = "Enumeration";
-pub const CLASS_EVENT_NAME: &str = "Event";
-pub const CLASS_FEATURE_SET_NAME: &str = "FeatureSet";
-pub const CLASS_FORMAL_CONSTRAINT_NAME: &str = "FormalConstraint";
-pub const CLASS_IDENTIFIER_REFERENCE_NAME: &str = "IdentifierReference";
-pub const CLASS_IMPORT_NAME: &str = "Import";
-pub const CLASS_IMPORT_STATEMENT_NAME: &str = "ImportStatement";
-pub const CLASS_INFORMAL_CONSTRAINT_NAME: &str = "InformalConstraint";
+pub const ANNOTATION: &str = "Annotation";
+pub const ANNOTATION_PROPERTY: &str = "AnnotationProperty";
+pub const CARDINALITY: &str = "Cardinality";
+pub const CONSTRAINT: &str = "Constraint";
+pub const DEFINITION: &str = "Definition";
+pub const ENTITY: &str = "Entity";
+pub const ENUMERATION: &str = "Enumeration";
+pub const EVENT: &str = "Event";
+pub const FEATURE_SET: &str = "FeatureSet";
+pub const FORMAL_CONSTRAINT: &str = "FormalConstraint";
+pub const IDENTIFIER_REFERENCE: &str = "IdentifierReference";
+pub const IMPORT: &str = "Import";
+pub const IMPORT_STATEMENT: &str = "ImportStatement";
+pub const INFORMAL_CONSTRAINT: &str = "InformalConstraint";
 pub const CLASS_MAP_TYPE_NAME: &str = "MapType";
-pub const CLASS_MEMBER_NAME: &str = "Member";
-pub const CLASS_MEMBER_IMPORT_NAME: &str = "MemberImport";
-pub const CLASS_MODULE_NAME: &str = "Module";
-pub const CLASS_MODULE_IMPORT_NAME: &str = "ModuleImport";
-pub const CLASS_ORDERING_CONSTRAINT_NAME: &str = "OrderingConstraint";
-pub const CLASS_PROPERTY_NAME: &str = "Property";
-pub const CLASS_ROLE_NAME: &str = "Role";
-pub const CLASS_ROLE_REFERENCE_NAME: &str = "RoleReference";
-pub const CLASS_QUALIFIED_IDENTIFIER_NAME: &str = "QualifiedIdentifier";
-pub const CLASS_STRUCTURE_NAME: &str = "Structure";
-pub const CLASS_TYPE_CLASS_NAME: &str = "TypeClass";
-pub const CLASS_TYPE_VARIANT_NAME: &str = "TypeVariant";
-pub const CLASS_UNION_NAME: &str = "Union";
-pub const CLASS_UNKNOWN_NAME: &str = "Unknown";
-pub const CLASS_UNIQUENESS_CONSTRAINT_NAME: &str = "UniquenessConstraint";
-pub const CLASS_VALUE_VARIANT_NAME: &str = "ValueVariant";
+pub const MEMBER: &str = "Member";
+pub const MEMBER_IMPORT: &str = "MemberImport";
+pub const MODULE: &str = "Module";
+pub const MODULE_IMPORT: &str = "ModuleImport";
+pub const ORDERING_CONSTRAINT: &str = "OrderingConstraint";
+pub const PROPERTY: &str = "Property";
+pub const ROLE: &str = "Role";
+pub const ROLE_REFERENCE: &str = "RoleReference";
+pub const QUALIFIED_IDENTIFIER: &str = "QualifiedIdentifier";
+pub const STRUCTURE: &str = "Structure";
+pub const TYPE_CLASS: &str = "TypeClass";
+pub const TYPE_VARIANT: &str = "TypeVariant";
+pub const UNION: &str = "Union";
+pub const UNKNOWN: &str = "Unknown";
+pub const UNIQUENESS_CONSTRAINT: &str = "UniquenessConstraint";
+pub const VALUE_VARIANT: &str = "ValueVariant";
 
-pub const DT_IDENTIFIER_NAME: &str = "Identifier";
+pub const IDENTIFIER: &str = "Identifier";
 
-pub const DT_BINARY_NAME: &str = "binary";
-pub const DT_BOOLEAN_NAME: &str = "boolean";
-pub const DT_DECIMAL_NAME: &str = "decimal";
-pub const DT_DOUBLE_NAME: &str = "double";
-pub const DT_INTEGER_NAME: &str = "string";
-pub const DT_IRI_NAME: &str = "iri";
-pub const DT_LANGUAGE_NAME: &str = "language";
-pub const DT_STRING_NAME: &str = "string";
-pub const DT_UNSIGNED_NAME: &str = "unsigned";
+pub const BINARY: &str = "binary";
+pub const BOOLEAN: &str = "boolean";
+pub const DECIMAL: &str = "decimal";
+pub const DOUBLE: &str = "double";
+pub const INTEGER: &str = "string";
+pub const IRI: &str = "iri";
+pub const LANGUAGE: &str = "language";
+pub const STRING: &str = "string";
+pub const UNSIGNED: &str = "unsigned";
 
-pub const PROP_HAS_NAME_NAME: &str = "hasName";
-pub const PROP_HAS_ANNOTATION_NAME: &str = "hasAnnotation";
-pub const PROP_HAS_CARDINALITY_NAME: &str = "hasCardinality";
-pub const PROP_HAS_DEFINITION_NAME: &str = "hasDefinition";
-pub const PROP_HAS_DOMAIN_VALUE_NAME: &str = "hasDomainValue";
-pub const PROP_HAS_IMPORT_STATEMENT_NAME: &str = "hasImportStatement";
-pub const PROP_HAS_MEMBER_NAME: &str = "hasMember";
-pub const PROP_HAS_RANGE_VALUE_NAME: &str = "hasRangeValue";
-pub const PROP_HAS_SOURCE_ENTITY_NAME: &str = "hasSourceEntity";
-pub const PROP_HAS_TYPE_VARIANT_NAME: &str = "hasTypeVariant";
-pub const PROP_HAS_VALUE_VARIANT_NAME: &str = "hasValueVariant";
-pub const PROP_MAX_OCCURS_NAME: &str = "maxOccurs";
-pub const PROP_MIN_OCCURS_NAME: &str = "minOccurs";
-pub const PROP_ORDERING_NAME: &str = "ordering";
-pub const PROP_SRC_LABEL_NAME: &str = "srcLabel";
-pub const PROP_UNIQUENESS_NAME: &str = "uniqueness";
+pub const HAS_NAME: &str = "hasName";
+pub const HAS_ANNOTATION: &str = "hasAnnotation";
+pub const HAS_CARDINALITY: &str = "hasCardinality";
+pub const HAS_DEFINITION: &str = "hasDefinition";
+pub const HAS_DOMAIN_VALUE: &str = "hasDomainValue";
+pub const HAS_IMPORT_STATEMENT: &str = "hasImportStatement";
+pub const HAS_MEMBER: &str = "hasMember";
+pub const HAS_RANGE_VALUE: &str = "hasRangeValue";
+pub const HAS_SOURCE_ENTITY: &str = "hasSourceEntity";
+pub const HAS_TYPE_VARIANT: &str = "hasTypeVariant";
+pub const HAS_VALUE_VARIANT: &str = "hasValueVariant";
+pub const MAX_OCCURS: &str = "maxOccurs";
+pub const MIN_OCCURS: &str = "minOccurs";
+pub const ORDERING: &str = "ordering";
+pub const SRC_LABEL: &str = "srcLabel";
+pub const UNIQUENESS: &str = "uniqueness";
 
-pub const IND_ORDERED_NAME: &str = "Ordered";
-pub const IND_UNIQUE_NAME: &str = "Unique";
-pub const IND_NONUNIQUE_NAME: &str = "NonUnique";
-pub const IND_UNORDERED_NAME: &str = "Unordered";
+pub const ORDERED: &str = "Ordered";
+pub const UNIQUE: &str = "Unique";
+pub const NONUNIQUE: &str = "NonUnique";
+pub const UNORDERED: &str = "Unordered";
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -94,109 +95,88 @@ pub fn module() -> Module {
     let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(Url::parse(MODULE_URL).unwrap());
 
     module.body_mut().add_to_imports(import!(
-        id!(super::owl::MODULE_NAME),
-        id!(super::rdf::MODULE_NAME),
-        id!(super::rdfs::MODULE_NAME),
-        id!(super::skos::MODULE_NAME),
-        id!(super::xsd::MODULE_NAME)
+        id!(owl::MODULE_NAME),
+        id!(rdf::MODULE_NAME),
+        id!(rdfs::MODULE_NAME),
+        id!(skos::MODULE_NAME),
+        id!(xsd::MODULE_NAME)
     ));
 
     module.body_mut().extend_definitions(vec![
         // Classes
-        rdf!(class CLASS_ANNOTATION_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_ANNOTATION_PROPERTY_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_CARDINALITY_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_CONSTRAINT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_DEFINITION_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_ENTITY_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_ENUMERATION_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_EVENT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_FEATURE_SET_NAME, MODULE_IRI).into(), // subClassOf :Union
-        rdf!(class CLASS_FORMAL_CONSTRAINT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_IDENTIFIER_REFERENCE_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_IMPORT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_IMPORT_STATEMENT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_INFORMAL_CONSTRAINT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_ORDERING_CONSTRAINT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_PROPERTY_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_ROLE_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_ROLE_REFERENCE_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_QUALIFIED_IDENTIFIER_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_STRUCTURE_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_TYPE_CLASS_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_TYPE_VARIANT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_UNION_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_UNKNOWN_NAME, MODULE_IRI).into(), // subClassOf owl:Nothing
-        rdf!(class CLASS_UNIQUENESS_CONSTRAINT_NAME, MODULE_IRI).into(),
-        rdf!(class CLASS_VALUE_VARIANT_NAME, MODULE_IRI).into(),
+        rdf!(class ANNOTATION, MODULE_IRI).into(),
+        rdf!(class ANNOTATION_PROPERTY, MODULE_IRI).into(),
+        rdf!(class CARDINALITY, MODULE_IRI).into(),
+        rdf!(class CONSTRAINT, MODULE_IRI).into(),
+        rdf!(class DEFINITION, MODULE_IRI).into(),
+        rdf!(class ENTITY, MODULE_IRI).into(),
+        rdf!(class ENUMERATION, MODULE_IRI).into(),
+        rdf!(class EVENT, MODULE_IRI).into(),
+        rdf!(class FEATURE_SET, MODULE_IRI).into(), // subClassOf :Union
+        rdf!(class FORMAL_CONSTRAINT, MODULE_IRI).into(),
+        rdf!(class IDENTIFIER_REFERENCE, MODULE_IRI).into(),
+        rdf!(class IMPORT, MODULE_IRI).into(),
+        rdf!(class IMPORT_STATEMENT, MODULE_IRI).into(),
+        rdf!(class INFORMAL_CONSTRAINT, MODULE_IRI).into(),
+        rdf!(class ORDERING_CONSTRAINT, MODULE_IRI).into(),
+        rdf!(class PROPERTY, MODULE_IRI).into(),
+        rdf!(class ROLE, MODULE_IRI).into(),
+        rdf!(class ROLE_REFERENCE, MODULE_IRI).into(),
+        rdf!(class QUALIFIED_IDENTIFIER, MODULE_IRI).into(),
+        rdf!(class STRUCTURE, MODULE_IRI).into(),
+        rdf!(class TYPE_CLASS, MODULE_IRI).into(),
+        rdf!(class TYPE_VARIANT, MODULE_IRI).into(),
+        rdf!(class UNION, MODULE_IRI).into(),
+        rdf!(class UNKNOWN, MODULE_IRI).into(), // subClassOf owl:Nothing
+        rdf!(class UNIQUENESS_CONSTRAINT, MODULE_IRI).into(),
+        rdf!(class VALUE_VARIANT, MODULE_IRI).into(),
         // Data types
-        rdf!(datatype DT_IDENTIFIER_NAME, MODULE_IRI).into(),
-        rdf!(datatype DT_BINARY_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_HEX_BINARY_NAME
-            ))
+        rdf!(datatype IDENTIFIER, MODULE_IRI).into(),
+        rdf!(datatype BINARY, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::HEX_BINARY))
             .into(),
-        rdf!(datatype DT_BOOLEAN_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_BOOLEAN_NAME
-            ))
+        rdf!(datatype BOOLEAN, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::BOOLEAN))
             .into(),
-        rdf!(datatype DT_DECIMAL_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_DECIMAL_NAME
-            ))
+        rdf!(datatype DECIMAL, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::DECIMAL))
             .into(),
-        rdf!(datatype DT_DOUBLE_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(super::xsd::MODULE_NAME, super::xsd::DT_DOUBLE_NAME))
+        rdf!(datatype DOUBLE, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::DOUBLE))
             .into(),
-        rdf!(datatype DT_INTEGER_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_INTEGER_NAME
-            ))
+        rdf!(datatype INTEGER, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::INTEGER))
             .into(),
-        rdf!(datatype DT_UNSIGNED_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_NONNEGATIVE_INTEGER_NAME
-            ))
+        rdf!(datatype UNSIGNED, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER))
             .into(),
-        rdf!(datatype DT_IRI_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_ANY_URI_NAME
-            ))
+        rdf!(datatype IRI, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::ANY_URI))
             .into(),
-        rdf!(datatype DT_LANGUAGE_NAME, MODULE_IRI)
-            .with_equivalent_class(qualid!(
-                super::xsd::MODULE_NAME,
-                super::xsd::DT_LANGUAGE_NAME
-            ))
+        rdf!(datatype LANGUAGE, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::LANGUAGE))
             .into(),
         // Properties
-        rdf!(property PROP_HAS_ANNOTATION_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_CARDINALITY_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_DEFINITION_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_DOMAIN_VALUE_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_IMPORT_STATEMENT_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_MEMBER_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_NAME_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_RANGE_VALUE_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_TYPE_VARIANT_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_HAS_VALUE_VARIANT_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_MAX_OCCURS_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_MIN_OCCURS_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_ORDERING_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_SRC_LABEL_NAME, MODULE_IRI).into(),
-        rdf!(property PROP_UNIQUENESS_NAME, MODULE_IRI).into(),
+        rdf!(property HAS_ANNOTATION, MODULE_IRI).into(),
+        rdf!(property HAS_CARDINALITY, MODULE_IRI).into(),
+        rdf!(property HAS_DEFINITION, MODULE_IRI).into(),
+        rdf!(property HAS_DOMAIN_VALUE, MODULE_IRI).into(),
+        rdf!(property HAS_IMPORT_STATEMENT, MODULE_IRI).into(),
+        rdf!(property HAS_MEMBER, MODULE_IRI).into(),
+        rdf!(property HAS_NAME, MODULE_IRI).into(),
+        rdf!(property HAS_RANGE_VALUE, MODULE_IRI).into(),
+        rdf!(property HAS_TYPE_VARIANT, MODULE_IRI).into(),
+        rdf!(property HAS_VALUE_VARIANT, MODULE_IRI).into(),
+        rdf!(property MAX_OCCURS, MODULE_IRI).into(),
+        rdf!(property MIN_OCCURS, MODULE_IRI).into(),
+        rdf!(property ORDERING, MODULE_IRI).into(),
+        rdf!(property SRC_LABEL, MODULE_IRI).into(),
+        rdf!(property UNIQUENESS, MODULE_IRI).into(),
         // Individuals
-        rdf!(thing IND_ORDERED_NAME, MODULE_IRI, CLASS_ORDERING_CONSTRAINT_NAME).into(),
-        rdf!(thing IND_NONUNIQUE_NAME, MODULE_IRI, CLASS_UNIQUENESS_CONSTRAINT_NAME).into(),
-        rdf!(thing IND_UNIQUE_NAME, MODULE_IRI, CLASS_UNIQUENESS_CONSTRAINT_NAME).into(),
-        rdf!(thing IND_UNORDERED_NAME, MODULE_IRI, CLASS_ORDERING_CONSTRAINT_NAME).into(),
+        rdf!(thing ORDERED, MODULE_IRI, ORDERING_CONSTRAINT).into(),
+        rdf!(thing NONUNIQUE, MODULE_IRI, UNIQUENESS_CONSTRAINT).into(),
+        rdf!(thing UNIQUE, MODULE_IRI, UNIQUENESS_CONSTRAINT).into(),
+        rdf!(thing UNORDERED, MODULE_IRI, ORDERING_CONSTRAINT).into(),
     ]);
 
     module
