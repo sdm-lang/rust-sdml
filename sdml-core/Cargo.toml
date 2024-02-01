@@ -1,7 +1,7 @@
 [package]
 name = "sdml-core"
 description = "Core Model for Simple Domain Modeling Language (SDML)"
-version = "0.2.9"
+version = "0.2.10"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license-file = "../LICENSE"
@@ -23,7 +23,7 @@ convert_case = "0.6.0"
 lazy_static = "1.4.0"
 ordered-float = { version = "4.2.0", features = ["serde"] }
 regex = "1.10.2"
-rust_decimal = { version = "1.33.1", features = ["serde"] }
+rust_decimal = { version = "1.34.2", features = ["serde"] }
 serde = { version = "1.0.195", features = ["derive"], optional = true }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

@@ -32,6 +32,12 @@ Note that other tools can use the `sdml_core` API to create or manipulate models
 
 ## Changes
 
+**Version 0.2.10**
+
+* Feature: Add new stdlib modules `iso_3166` for country codes, and `iso_4217` for currency codes.
+* Style: Shortened stdlib constant names for readability.
+* Fix: Correct the regex for identifiers, now in sync with the grammar.
+
 **Version 0.2.9**
 
 * Fix: Cardinality parser set incorrect default values.
