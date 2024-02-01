@@ -64,7 +64,8 @@ pub enum IdentifierReference {
 // ------------------------------------------------------------------------------------------------
 
 lazy_static! {
-    static ref IDENTIFIER: Regex = Regex::new(r"^[\p{Lu}\p{Ll}]+(_[\p{Lu}\p{Ll}]+)*$").unwrap();
+    static ref IDENTIFIER: Regex =
+        Regex::new(r"^[\p{Lu}\p{Ll}][\p{Lu}\p{Ll}\p{Nd}]*(?:_+[\p{Lu}\p{Ll}\p{Nd}]+)*$").unwrap();
 }
 
 const RESERVED_KEYWORDS: [&str; 19] = [
