@@ -220,7 +220,7 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
             format
         );
         let mut buffer = Cursor::new(Vec::new());
-        self.write(module, cache, &mut buffer)?;
+        self.write_in_format(module, cache, &mut buffer, format)?;
         Ok(String::from_utf8(buffer.into_inner())?)
     }
 

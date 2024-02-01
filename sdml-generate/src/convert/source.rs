@@ -12,6 +12,7 @@ use sdml_generate::convert::source::SourceGenerator;
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
 # fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
+# sdml_generate::color::set_colorize(sdml_generate::color::UseColor::Never);
 
 let (module, cache) = load_module();
 
@@ -24,17 +25,23 @@ assert_eq!(source.as_str(), "module example is end\n");
 ```
 */
 
+use crate::color::sdml::{
+    braces_end, braces_start, format_url, import, keyword, member_name, module_name_def, operator,
+    paren_end, paren_start, property_name, sequence_end, sequence_start, type_name_def,
+    type_name_ref, type_variant_name_def, type_variant_ref_def, value_variant_name_def,
+};
 use crate::GenerateToWriter;
-use crate::color::sdml::{keyword, format_url, module_name_def, sequence_start, sequence_end, operator, property_name, type_name_def, type_name_ref, import, value_variant_name_def, type_variant_name_def, type_variant_ref_def, member_name, paren_start, paren_end, braces_start, braces_end};
 use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use sdml_core::model::constraints::{Constraint, ConstraintBody};
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasVariants, PropertyDef, RdfDef,
-    StructureDef, TypeVariant, UnionDef, ValueVariant, HasMembers,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, HasVariants, PropertyDef,
+    RdfDef, StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
-use sdml_core::model::members::{Member, Cardinality, TypeReference, HasCardinality, HasType, DEFAULT_CARDINALITY};
+use sdml_core::model::members::{
+    Cardinality, HasCardinality, HasType, Member, TypeReference, DEFAULT_CARDINALITY,
+};
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
 use std::{fmt::Debug, io::Write};
@@ -123,7 +130,9 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
     where
         W: Write + Sized,
     {
-        writer.write_all(format!("{} {} ", keyword("module"),  module_name_def(module.name())).as_bytes())?;
+        writer.write_all(
+            format!("{} {} ", keyword("module"), module_name_def(module.name())).as_bytes(),
+        )?;
 
         if let Some(base) = module.base_uri() {
             writer.write_all(format!("{} ", format_url(base)).as_bytes())?;
@@ -144,13 +153,9 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
             }
             self.write_module_definitions(body, writer, &options)?;
 
-            writer.write_all(
-                format!("\n{}\n", keyword("end")).as_bytes()
-            )?;
+            writer.write_all(format!("\n{}\n", keyword("end")).as_bytes())?;
         } else {
-            writer.write_all(
-                format!("{} {}\n", keyword("is"), keyword("end")).as_bytes()
-            )?;
+            writer.write_all(format!("{} {}\n", keyword("is"), keyword("end")).as_bytes())?;
         }
         Ok(())
     }
@@ -184,7 +189,9 @@ impl SourceGenerator {
                         sequence_end(),
                     )
                 };
-                writer.write_all(format!("{indentation}{} {imported}\n", keyword("import")).as_bytes())?;
+                writer.write_all(
+                    format!("{indentation}{} {imported}\n", keyword("import")).as_bytes(),
+                )?;
             }
             writer.write_all(EOL)?;
         }
@@ -331,7 +338,14 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}{} {}", keyword("entity"), type_name_def(defn.name())).as_bytes())?;
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("entity"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
 
         if let Some(body) = defn.body() {
             if options.generate_definition_bodies() {
@@ -365,7 +379,14 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}{} {}", keyword("enum"), type_name_def(defn.name())).as_bytes())?;
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("enum"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
 
         if let Some(body) = defn.body() {
             if options.generate_definition_bodies() {
@@ -402,7 +423,9 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(DEFINITION_MEMBER_INDENT);
-        writer.write_all(format!("{indentation}{}", value_variant_name_def(variant.name())).as_bytes())?;
+        writer.write_all(
+            format!("{indentation}{}", value_variant_name_def(variant.name())).as_bytes(),
+        )?;
 
         if let Some(body) = variant.body() {
             if options.generate_member_bodies() {
@@ -476,22 +499,24 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(DEFINITION_MEMBER_INDENT);
-        writer.write_all(
-            format!("{indentation}{} ", member_name(defn.name())).as_bytes()
-        )?;
+        writer.write_all(format!("{indentation}{} ", member_name(defn.name())).as_bytes())?;
         if let Some(role_ref) = defn.as_property_reference() {
             writer.write_all(
-                format!("{} {}\n", keyword("as"), member_name(role_ref.member())).as_bytes()
+                format!("{} {}\n", keyword("as"), member_name(role_ref.member())).as_bytes(),
             )?;
         } else if let Some(defn) = defn.as_definition() {
             if let Some(inverse_name) = defn.inverse_name() {
                 writer.write_all(
-                    format!("{}{}{} ", paren_start(), member_name(inverse_name), paren_end()).as_bytes()
+                    format!(
+                        "{}{}{} ",
+                        paren_start(),
+                        member_name(inverse_name),
+                        paren_end()
+                    )
+                    .as_bytes(),
                 )?;
             }
-            writer.write_all(
-                format!("{} ", operator("->")).as_bytes()
-            )?;
+            writer.write_all(format!("{} ", operator("->")).as_bytes())?;
             if *defn.target_cardinality() != DEFAULT_CARDINALITY {
                 self.write_cardinality(defn.target_cardinality(), writer, options)?;
             }
@@ -543,11 +568,13 @@ impl SourceGenerator {
                     operator("..")
                 },
                 braces_end()
-            ).as_bytes()
+            )
+            .as_bytes(),
         )?;
         Ok(())
     }
 
+    #[allow(clippy::only_used_in_recursion)]
     fn write_type_reference(
         &mut self,
         defn: &TypeReference,
@@ -557,20 +584,22 @@ impl SourceGenerator {
         match defn {
             TypeReference::Unknown => {
                 writer.write_all(keyword("unknown").as_bytes())?;
-            },
+            }
             TypeReference::Type(name_ref) => {
                 writer.write_all(type_name_ref(name_ref).as_bytes())?;
-            },
+            }
             TypeReference::FeatureSet(name_ref) => {
-                writer.write_all(format!("{} {}", keyword("features"), type_name_ref(name_ref)).as_bytes())?;
-            },
+                writer.write_all(
+                    format!("{} {}", keyword("features"), type_name_ref(name_ref)).as_bytes(),
+                )?;
+            }
             TypeReference::MappingType(map_ref) => {
                 writer.write_all(paren_start().as_bytes())?;
                 self.write_type_reference(map_ref.domain(), writer, options)?;
                 writer.write_all(operator("->").as_bytes())?;
                 self.write_type_reference(map_ref.range(), writer, options)?;
                 writer.write_all(paren_end().as_bytes())?;
-            },
+            }
         }
         writer.write_all(EOL)?;
         Ok(())
@@ -583,7 +612,14 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}{} {}", keyword("property"), type_name_def(defn.name())).as_bytes())?;
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("property"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
 
         if let Some(body) = defn.body() {
             if options.generate_definition_bodies() {
@@ -615,7 +651,14 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}{} {}", keyword("rdf"), type_name_def(defn.name())).as_bytes())?;
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("rdf"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
 
         if options.generate_definition_bodies() {
             let body = defn.body();
@@ -636,7 +679,8 @@ impl SourceGenerator {
                     keyword("is"),
                     ELIPPSIS,
                     keyword("end"),
-                ).as_bytes(),
+                )
+                .as_bytes(),
             )?;
         }
 
@@ -650,7 +694,14 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}{} {}", keyword("structure"), type_name_def(defn.name())).as_bytes())?;
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("structure"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
 
         if let Some(body) = defn.body() {
             if options.generate_definition_bodies() {
@@ -684,7 +735,14 @@ impl SourceGenerator {
         options: &SourceGenerationLevel,
     ) -> Result<(), Error> {
         let indentation = options.indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(format!("{indentation}{} {}", keyword("union"), type_name_def(defn.name())).as_bytes())?;
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("union"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
 
         if let Some(body) = defn.body() {
             if options.generate_definition_bodies() {
@@ -722,10 +780,20 @@ impl SourceGenerator {
         let indentation = options.indentation(DEFINITION_MEMBER_INDENT);
 
         if let Some(rename) = variant.rename() {
-            writer.write_all(format!("{indentation}{}", type_name_ref(variant.name_reference())).as_bytes())?;
-            writer.write_all(format!(" {} {}", keyword("as"), type_variant_name_def(rename)).as_bytes())?;
+            writer.write_all(
+                format!("{indentation}{}", type_name_ref(variant.name_reference())).as_bytes(),
+            )?;
+            writer.write_all(
+                format!(" {} {}", keyword("as"), type_variant_name_def(rename)).as_bytes(),
+            )?;
         } else {
-            writer.write_all(format!("{indentation}{}", type_variant_ref_def(variant.name_reference())).as_bytes())?;
+            writer.write_all(
+                format!(
+                    "{indentation}{}",
+                    type_variant_ref_def(variant.name_reference())
+                )
+                .as_bytes(),
+            )?;
         }
 
         if let Some(body) = variant.body() {

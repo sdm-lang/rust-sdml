@@ -149,16 +149,10 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    color::type_ref_qname(
-                        stdlib::owl::MODULE_NAME,
-                        stdlib::owl::CLASS_ONTOLOGY_NAME,
-                    ),
-                    color::type_ref_qname(
-                        stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::CLASS_MODULE_NAME,
-                    ),
+                    color::type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::ONTOLOGY),
+                    color::type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::MODULE),
                 ],
                 Separator::Predicate,
             )
@@ -168,7 +162,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
             writer.write_all(
                 color::predicate_with_value(
                     stdlib::owl::MODULE_NAME,
-                    stdlib::owl::PROP_VERSION_INFO_NAME,
+                    stdlib::owl::VERSION_INFO,
                     format_str(version_info),
                     Separator::Predicate,
                 )
@@ -179,7 +173,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
             writer.write_all(
                 color::predicate_with_value(
                     stdlib::owl::MODULE_NAME,
-                    stdlib::owl::PROP_VERSION_IRI_NAME,
+                    stdlib::owl::VERSION_IRI,
                     format_url(version_uri),
                     Separator::Predicate,
                 )
@@ -196,7 +190,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
                 writer.write_all(
                     color::predicate_with_value(
                         stdlib::owl::MODULE_NAME,
-                        stdlib::owl::PROP_IMPORTS_NAME,
+                        stdlib::owl::IMPORTS,
                         format_url(url),
                         Separator::Predicate,
                     )
@@ -210,7 +204,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::PROP_SRC_LABEL_NAME,
+                stdlib::sdml::SRC_LABEL,
                 color::format_str(module_name),
                 Separator::Statement,
             )
@@ -249,8 +243,8 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
-                type_ref_qname(stdlib::rdfs::MODULE_NAME, stdlib::rdfs::CLASS_DATATYPE_NAME),
+                stdlib::rdf::TYPE,
+                type_ref_qname(stdlib::rdfs::MODULE_NAME, stdlib::rdfs::DATATYPE),
                 Separator::Predicate,
             )
             .as_bytes(),
@@ -260,7 +254,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::owl::MODULE_NAME,
-                stdlib::owl::PROP_ON_DATATYPE_NAME,
+                stdlib::owl::ON_DATATYPE,
                 type_ref_qname(base_module, base_type),
                 Separator::Predicate,
             )
@@ -282,7 +276,7 @@ impl RdfModelGenerator {
                         "{} {}{}",
                         predicate_no_value(
                             stdlib::owl::MODULE_NAME,
-                            stdlib::owl::PROP_WITH_RESTRICTIONS_NAME,
+                            stdlib::owl::WITH_RESTRICTIONS,
                             Separator::InlineNone,
                         ),
                         start_collection(),
@@ -337,10 +331,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_ENTITY_NAME),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::ENTITY),
                 ],
                 Separator::Predicate,
             )
@@ -358,7 +352,7 @@ impl RdfModelGenerator {
                 writer.write_all(
                     predicate_with_value_list(
                         stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::PROP_HAS_MEMBER_NAME,
+                        stdlib::sdml::HAS_MEMBER,
                         &member_list,
                         Separator::Predicate,
                     )
@@ -393,13 +387,10 @@ impl RdfModelGenerator {
             writer.write_all(
                 predicate_with_value_list(
                     stdlib::rdf::MODULE_NAME,
-                    stdlib::rdf::PROP_TYPE_NAME,
+                    stdlib::rdf::TYPE,
                     &[
-                        type_ref_qname(stdlib::rdf::MODULE_NAME, stdlib::rdf::CLASS_PROPERTY_NAME),
-                        type_ref_qname(
-                            stdlib::sdml::MODULE_NAME,
-                            stdlib::sdml::CLASS_ROLE_REFERENCE_NAME,
-                        ),
+                        type_ref_qname(stdlib::rdf::MODULE_NAME, stdlib::rdf::PROPERTY),
+                        type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::ROLE_REFERENCE),
                     ],
                     Separator::Predicate,
                 )
@@ -411,10 +402,10 @@ impl RdfModelGenerator {
             writer.write_all(
                 predicate_with_value_list(
                     stdlib::rdf::MODULE_NAME,
-                    stdlib::rdf::PROP_TYPE_NAME,
+                    stdlib::rdf::TYPE,
                     &[
-                        type_ref_qname(stdlib::rdf::MODULE_NAME, stdlib::rdf::CLASS_PROPERTY_NAME),
-                        type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_MEMBER_NAME),
+                        type_ref_qname(stdlib::rdf::MODULE_NAME, stdlib::rdf::PROPERTY),
+                        type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::MEMBER),
                     ],
                     Separator::Predicate,
                 )
@@ -424,7 +415,7 @@ impl RdfModelGenerator {
             writer.write_all(
                 predicate_with_value(
                     stdlib::rdfs::MODULE_NAME,
-                    stdlib::rdfs::PROP_DOMAIN_NAME,
+                    stdlib::rdfs::DOMAIN,
                     type_ref_qname(module_name, parent),
                     Separator::Predicate,
                 )
@@ -464,11 +455,8 @@ impl RdfModelGenerator {
                     writer.write_all(
                         predicate_with_value(
                             stdlib::rdfs::MODULE_NAME,
-                            stdlib::rdfs::PROP_RANGE_NAME,
-                            type_ref_qname(
-                                stdlib::sdml::MODULE_NAME,
-                                stdlib::sdml::CLASS_UNKNOWN_NAME,
-                            ),
+                            stdlib::rdfs::RANGE,
+                            type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::UNKNOWN),
                             Separator::Predicate,
                         )
                         .as_bytes(),
@@ -479,7 +467,7 @@ impl RdfModelGenerator {
                     writer.write_all(
                         predicate_with_value(
                             stdlib::rdfs::MODULE_NAME,
-                            stdlib::rdfs::PROP_RANGE_NAME,
+                            stdlib::rdfs::RANGE,
                             type_ref_qname(ty_module, ty_name),
                             Separator::Predicate,
                         )
@@ -491,16 +479,16 @@ impl RdfModelGenerator {
                             writer.write_all(
                                 predicate_with_value(
                                     stdlib::sdml::MODULE_NAME,
-                                    stdlib::sdml::PROP_ORDERING_NAME,
+                                    stdlib::sdml::ORDERING,
                                     if ordering == Ordering::Ordered {
                                         thing_qname(
                                             stdlib::sdml::MODULE_NAME,
-                                            stdlib::sdml::IND_ORDERED_NAME,
+                                            stdlib::sdml::ORDERED,
                                         )
                                     } else {
                                         thing_qname(
                                             stdlib::sdml::MODULE_NAME,
-                                            stdlib::sdml::IND_UNORDERED_NAME,
+                                            stdlib::sdml::UNORDERED,
                                         )
                                     },
                                     Separator::Predicate,
@@ -512,16 +500,13 @@ impl RdfModelGenerator {
                             writer.write_all(
                                 predicate_with_value(
                                     stdlib::sdml::MODULE_NAME,
-                                    stdlib::sdml::PROP_UNIQUENESS_NAME,
+                                    stdlib::sdml::UNIQUENESS,
                                     if uniqueness == Uniqueness::Unique {
-                                        thing_qname(
-                                            stdlib::sdml::MODULE_NAME,
-                                            stdlib::sdml::IND_UNIQUE_NAME,
-                                        )
+                                        thing_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::UNIQUE)
                                     } else {
                                         thing_qname(
                                             stdlib::sdml::MODULE_NAME,
-                                            stdlib::sdml::IND_NONUNIQUE_NAME,
+                                            stdlib::sdml::NONUNIQUE,
                                         )
                                     },
                                     Separator::Predicate,
@@ -533,10 +518,10 @@ impl RdfModelGenerator {
                         writer.write_all(
                             predicate_with_value(
                                 stdlib::owl::MODULE_NAME,
-                                stdlib::owl::PROP_MIN_CARDINALITY_NAME,
+                                stdlib::owl::MIN_CARDINALITY,
                                 format_type_constructor(
                                     stdlib::xsd::MODULE_NAME,
-                                    stdlib::xsd::DT_NONNEGATIVE_INTEGER_NAME,
+                                    stdlib::xsd::NONNEGATIVE_INTEGER,
                                     range.min_occurs().to_string(),
                                 ),
                                 Separator::Predicate,
@@ -547,10 +532,10 @@ impl RdfModelGenerator {
                             writer.write_all(
                                 predicate_with_value(
                                     stdlib::owl::MODULE_NAME,
-                                    stdlib::owl::PROP_MAX_CARDINALITY_NAME,
+                                    stdlib::owl::MAX_CARDINALITY,
                                     format_type_constructor(
                                         stdlib::xsd::MODULE_NAME,
-                                        stdlib::xsd::DT_NONNEGATIVE_INTEGER_NAME,
+                                        stdlib::xsd::NONNEGATIVE_INTEGER,
                                         max.to_string(),
                                     ),
                                     Separator::Predicate,
@@ -565,7 +550,7 @@ impl RdfModelGenerator {
                     writer.write_all(
                         predicate_with_value(
                             stdlib::rdfs::MODULE_NAME,
-                            stdlib::rdfs::PROP_RANGE_NAME,
+                            stdlib::rdfs::RANGE,
                             type_ref_qname(fs_module, fs_name),
                             Separator::Predicate,
                         )
@@ -577,11 +562,8 @@ impl RdfModelGenerator {
                         thing_subject(fs_module, fs_name),
                         predicate_with_value(
                             stdlib::rdf::MODULE_NAME,
-                            stdlib::rdf::PROP_TYPE_NAME,
-                            type_ref_qname(
-                                stdlib::sdml::MODULE_NAME,
-                                stdlib::sdml::CLASS_FEATURE_SET_NAME
-                            ),
+                            stdlib::rdf::TYPE,
+                            type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::FEATURE_SET),
                             Separator::Statement
                         ),
                         Separator::None
@@ -615,13 +597,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(
-                        stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::CLASS_ENUMERATION_NAME,
-                    ),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::ENUMERATION),
                 ],
                 Separator::Predicate,
             )
@@ -639,7 +618,7 @@ impl RdfModelGenerator {
                 writer.write_all(
                     predicate_with_value_list(
                         stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::PROP_HAS_VALUE_VARIANT_NAME,
+                        stdlib::sdml::HAS_VALUE_VARIANT,
                         &variant_list,
                         Separator::Predicate,
                     )
@@ -672,16 +651,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(
-                        stdlib::owl::MODULE_NAME,
-                        stdlib::owl::CLASS_NAMED_INDIVIDUAL_NAME,
-                    ),
-                    type_ref_qname(
-                        stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::CLASS_VALUE_VARIANT_NAME,
-                    ),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::NAMED_INDIVIDUAL),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::VALUE_VARIANT),
                     type_ref_qname(module_name, parent),
                 ],
                 Separator::Predicate,
@@ -710,10 +683,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_EVENT_NAME),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::EVENT),
                 ],
                 Separator::Predicate,
             )
@@ -724,7 +697,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::PROP_HAS_SOURCE_ENTITY_NAME,
+                stdlib::sdml::HAS_SOURCE_ENTITY,
                 predicate_qname(source_module, source_name),
                 Separator::Predicate,
             )
@@ -742,7 +715,7 @@ impl RdfModelGenerator {
                 writer.write_all(
                     predicate_with_value_list(
                         stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::PROP_HAS_MEMBER_NAME,
+                        stdlib::sdml::HAS_MEMBER,
                         &member_list,
                         Separator::Predicate,
                     )
@@ -774,13 +747,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(
-                        stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::CLASS_STRUCTURE_NAME,
-                    ),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::STRUCTURE),
                 ],
                 Separator::Predicate,
             )
@@ -798,7 +768,7 @@ impl RdfModelGenerator {
                 writer.write_all(
                     predicate_with_value_list(
                         stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::PROP_HAS_MEMBER_NAME,
+                        stdlib::sdml::HAS_MEMBER,
                         &member_list,
                         Separator::Predicate,
                     )
@@ -830,10 +800,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_UNION_NAME),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::UNION),
                 ],
                 Separator::Predicate,
             )
@@ -851,7 +821,7 @@ impl RdfModelGenerator {
                 writer.write_all(
                     predicate_with_value_list(
                         stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::PROP_HAS_TYPE_VARIANT_NAME,
+                        stdlib::sdml::HAS_TYPE_VARIANT,
                         &variant_list,
                         Separator::Predicate,
                     )
@@ -884,13 +854,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(
-                        stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::CLASS_TYPE_VARIANT_NAME,
-                    ),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::TYPE_VARIANT),
                 ],
                 Separator::Predicate,
             )
@@ -899,7 +866,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::rdfs::MODULE_NAME,
-                stdlib::rdfs::PROP_SUB_CLASS_OF_NAME,
+                stdlib::rdfs::SUB_CLASS_OF,
                 type_ref_qname(module_name, parent),
                 Separator::Predicate,
             )
@@ -910,7 +877,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::owl::MODULE_NAME,
-                stdlib::owl::PROP_EQUIVALENT_CLASS_NAME,
+                stdlib::owl::EQUIVALENT_CLASS,
                 predicate_qname(ty_module, ty_name),
                 Separator::Predicate,
             )
@@ -938,10 +905,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_PROPERTY_NAME),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::PROPERTY),
                 ],
                 Separator::Predicate,
             )
@@ -969,8 +936,6 @@ impl RdfModelGenerator {
 
         writer.write_all(thing_subject(module_name, name).as_bytes())?;
 
-        writer.write_all(type_ref_qname(module_name, name).as_bytes())?;
-
         write_annotations!(self, me.body().annotations(), module_name, writer);
 
         self.write_defn_end(module_name, name, writer)?;
@@ -989,13 +954,10 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 &[
-                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS_CLASS_NAME),
-                    type_ref_qname(
-                        stdlib::sdml::MODULE_NAME,
-                        stdlib::sdml::CLASS_TYPE_CLASS_NAME,
-                    ),
+                    type_ref_qname(stdlib::owl::MODULE_NAME, stdlib::owl::CLASS),
+                    type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::TYPE_CLASS),
                 ],
                 Separator::Predicate,
             )
@@ -1019,7 +981,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::PROP_SRC_LABEL_NAME,
+                stdlib::sdml::SRC_LABEL,
                 format_str(name),
                 Separator::Predicate,
             )
@@ -1028,7 +990,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::rdfs::MODULE_NAME,
-                stdlib::rdfs::PROP_IS_DEFINED_BY_NAME,
+                stdlib::rdfs::IS_DEFINED_BY,
                 module_ref_qname(module_name),
                 Separator::Statement,
             )
@@ -1117,18 +1079,18 @@ impl RdfModelGenerator {
             SimpleValue::Boolean(v) => v.to_string(),
             SimpleValue::Double(v) => color::format_type_constructor(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::DT_DOUBLE_NAME,
+                stdlib::sdml::DOUBLE,
                 v.to_string(),
             ),
             SimpleValue::Decimal(v) => color::format_type_constructor(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::DT_DECIMAL_NAME,
+                stdlib::sdml::DECIMAL,
                 v.to_string(),
             ),
             SimpleValue::Integer(v) => color::format_number(v.to_string()),
             SimpleValue::Unsigned(v) => color::format_type_constructor(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::DT_UNSIGNED_NAME,
+                stdlib::sdml::UNSIGNED,
                 v.to_string(),
             ),
             SimpleValue::String(v) => color::format_lang_str(v),
@@ -1154,19 +1116,19 @@ impl RdfModelGenerator {
             start_bnode(),
             collection_element(predicate_with_value(
                 stdlib::rdf::MODULE_NAME,
-                stdlib::rdf::PROP_TYPE_NAME,
+                stdlib::rdf::TYPE,
                 type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_MAP_TYPE_NAME,),
                 Separator::Predicate,
             )),
             collection_element(predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::PROP_HAS_DOMAIN_VALUE_NAME,
+                stdlib::sdml::HAS_DOMAIN_VALUE,
                 self.simple_value_to_string(me.domain()),
                 Separator::Predicate,
             )),
             collection_element(predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::PROP_HAS_RANGE_VALUE_NAME,
+                stdlib::sdml::HAS_RANGE_VALUE,
                 self.value_to_string(me.range(), module_name),
                 Separator::None,
             )),

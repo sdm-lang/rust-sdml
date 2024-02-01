@@ -244,7 +244,9 @@ impl Colorizer for ConsoleColor {
 }
 
 impl ConsoleColor {
-    pub const fn new() -> Self { Self {} }
+    pub const fn new() -> Self {
+        Self {}
+    }
 
     fn style(&self, el: LanguageElement) -> Style {
         match el {

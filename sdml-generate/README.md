@@ -30,6 +30,13 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.2.7**
+
+* Feature: Document generation for org-mode now includes the RDF version of a module and the dependency graph.
+* Fix: The trait function `write_to_string_in_format` was previously calling `write`, *not* `write_in_format`.
+* Fix: Rustdoc for `convert::source` fixed to turn off colorization.
+* Build: Using core 0.2.10 for new stdlib names.
+
 **Version 0.2.6**
 
 * Feature: Add color output for RDF source generation.

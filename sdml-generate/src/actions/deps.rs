@@ -3,11 +3,11 @@ Generate a text-based dependency tree, or GraphViz-based dependency graph, start
 
 */
 
-use nu_ansi_term::Style;
 use crate::color;
-use crate::GenerateToWriter;
-use crate::color::rdf::Separator;
 use crate::color::rdf::format_url;
+use crate::color::rdf::Separator;
+use crate::GenerateToWriter;
+use nu_ansi_term::Style;
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
@@ -17,7 +17,6 @@ use std::collections::HashSet;
 use std::io::Write;
 use text_trees::{FormatCharacters, TreeFormatting, TreeNode};
 use url::Url;
-
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -353,7 +352,8 @@ impl DependencyViewGenerator {
                     format_url(OWL_IMPORTS),
                     format_url(obj),
                     Separator::Statement,
-                ).as_bytes()
+                )
+                .as_bytes(),
             )?;
         }
 

@@ -7,8 +7,8 @@ More detailed description, with
 
  */
 
+use crate::color::{Colorizer, ConsoleColor};
 use sdml_core::model::values::LanguageString;
-use crate::color::{ConsoleColor, Colorizer};
 use std::fmt::Display;
 
 // ------------------------------------------------------------------------------------------------
@@ -196,9 +196,12 @@ pub fn format_url<U>(url: U) -> String
 where
     U: AsRef<str>,
 {
-    COLORIZER.url(
-        format!("{}{}{}", SYNTAX_IRI_START, url.as_ref(), SYNTAX_IRI_END)
-    )
+    COLORIZER.url(format!(
+        "{}{}{}",
+        SYNTAX_IRI_START,
+        url.as_ref(),
+        SYNTAX_IRI_END
+    ))
 }
 
 #[inline]
@@ -211,17 +214,15 @@ where
 
 #[inline]
 pub fn format_lang_str(v: &LanguageString) -> String {
-    COLORIZER.string(
-        format!(
-            "{}{}",
-            format_str(v.value()),
-            if let Some(lang) = v.language() {
-                lang.to_string()
-            } else {
-                String::new()
-            }
-        )
-    )
+    COLORIZER.string(format!(
+        "{:?}{}",
+        v.value(),
+        if let Some(lang) = v.language() {
+            lang.to_string()
+        } else {
+            String::new()
+        }
+    ))
 }
 
 #[inline]
@@ -510,10 +511,8 @@ impl Display for Separator {
                     format!(" {}\n", COLORIZER.delimiter(SYNTAX_STATEMENT_DELIM)),
                 Separator::Predicate =>
                     format!(" {}\n", COLORIZER.delimiter(SYNTAX_PREDICATE_DELIM)),
-                Separator::Object =>
-                    format!(" {}\n", COLORIZER.delimiter(SYNTAX_OBJECT_DELIM)),
-                Separator::InlineObject =>
-                    format!("{} ", COLORIZER.delimiter(SYNTAX_OBJECT_DELIM)),
+                Separator::Object => format!(" {}\n", COLORIZER.delimiter(SYNTAX_OBJECT_DELIM)),
+                Separator::InlineObject => format!("{} ", COLORIZER.delimiter(SYNTAX_OBJECT_DELIM)),
             }
         )
     }

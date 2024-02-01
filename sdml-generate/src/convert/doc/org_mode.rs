@@ -9,6 +9,9 @@ YYYYY
 
 */
 
+use crate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
+use crate::color::{set_colorize, UseColor};
+use crate::convert::rdf::RdfModelGenerator;
 use crate::{GenerateToWriter, NoFormatOptions};
 use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
@@ -56,13 +59,14 @@ impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
     fn write_in_format<W>(
         &mut self,
         module: &Module,
-        _: &ModuleCache,
+        cache: &ModuleCache,
         writer: &mut W,
         _: NoFormatOptions,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
     {
+        set_colorize(UseColor::Never);
         let name = module.name();
         writer.write_all(
             format!(
@@ -73,6 +77,11 @@ impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
 #+HTML_HEAD: <style>img {{ max-width: 800px; height: auto; }}</style>
 #+HTML_HEAD: <style>div.figure {{ text-align: center; }}</style>
 #+OPTIONS: toc:3
+
+#+BEGIN_SRC emacs-lisp :exports none
+(require 'ob-dot)
+(require 'ob-sdml)
+#+END_SRC
 
 "#
             )
@@ -129,9 +138,36 @@ impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
         writer.write_all(b"* Definitions\n\n")?;
         write_definitions(module_body.definitions(), writer)?;
 
+        let mut generator = DependencyViewGenerator::default();
+        let dot_graph = generator.write_to_string_in_format(
+            module,
+            cache,
+            DependencyViewRepresentation::DotGraph,
+        )?;
+
+        writer.write_all(
+            format!(
+                "
+* Appendix: Module Dependencies
+
+#+NAME: lst:module-dependencies
+#+BEGIN_SRC dot :file ./fig-{name}-dependencies.svg :exports results
+{dot_graph}
+#+END_SRC
+
+#+NAME: fig:module-dependencies
+#+CAPTION: Module Dependency Graph
+#+RESULTS: lst:module-dependencies
+[[file:./fig-{name}-dependencies.svg]]
+"
+            )
+            .as_bytes(),
+        )?;
+
         if self.source.is_some() {
             writer.write_all(
-                b"* Appendix: Module Source
+                b"
+* Appendix: Module Source
 
 #+NAME: lst:module-output-source
 #+CAPTION: Original Module Source
@@ -141,6 +177,24 @@ impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
 ",
             )?;
         }
+
+        let mut generator = RdfModelGenerator::default();
+        let rdf = generator.write_to_string(module, cache)?;
+
+        writer.write_all(
+            format!(
+                "
+* Appendix: Module in RDF
+
+#+NAME: lst:module-in-rdf
+#+CAPTION: Module in RDF
+#+BEGIN_SRC ttl
+{rdf}
+#+END_SRC
+"
+            )
+            .as_bytes(),
+        )?;
 
         Ok(())
     }
