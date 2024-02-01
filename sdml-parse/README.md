@@ -32,6 +32,10 @@ The following figure demonstrates this package in the broader project context.
 ## 
 ## Changes
 
+**Version 0.2.8**
+
+* Build: Using core 0.2.10 for new stdlib names.
+
 **Version 0.2.7**
 
 * Fix: Cardinality parser set incorrect default values.

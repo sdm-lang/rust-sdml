@@ -36,7 +36,7 @@ pub(super) fn parse_rdf_def<'a>(
             context.check_if_error(&child, RULE_NAME)?;
             let rdf_type = QualifiedIdentifier::new(
                 Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdf::PROP_TYPE_NAME),
+                Identifier::new_unchecked(stdlib::rdf::TYPE),
             );
             rdf_def
                 .body_mut()
