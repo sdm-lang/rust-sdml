@@ -54,6 +54,8 @@ impl ModuleCache {
         let mut self_mut = self;
         self_mut.insert(stdlib::dc::module());
         self_mut.insert(stdlib::dc::terms::module());
+        self_mut.insert(stdlib::iso_3166::module());
+        self_mut.insert(stdlib::iso_4217::module());
         self_mut.insert(stdlib::owl::module());
         self_mut.insert(stdlib::rdf::module());
         self_mut.insert(stdlib::rdfs::module());

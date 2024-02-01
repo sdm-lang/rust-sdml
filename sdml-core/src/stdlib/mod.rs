@@ -27,6 +27,8 @@ pub fn is_library_module(name: &Identifier) -> bool {
     [
         dc::MODULE_NAME,
         dc::terms::MODULE_NAME,
+        iso_3166::MODULE_NAME,
+        iso_4217::MODULE_NAME,
         owl::MODULE_NAME,
         rdf::MODULE_NAME,
         rdfs::MODULE_NAME,
@@ -41,6 +43,8 @@ pub fn library_module(name: &Identifier) -> Option<Module> {
     match name.as_ref() {
         dc::MODULE_NAME => Some(dc::module()),
         dc::terms::MODULE_NAME => Some(dc::terms::module()),
+        iso_3166::MODULE_NAME => Some(iso_3166::module()),
+        iso_4217::MODULE_NAME => Some(iso_4217::module()),
         owl::MODULE_NAME => Some(owl::module()),
         rdf::MODULE_NAME => Some(rdf::module()),
         rdfs::MODULE_NAME => Some(rdfs::module()),
@@ -56,7 +60,12 @@ pub fn library_module(name: &Identifier) -> Option<Module> {
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! lstr {
-    ($value:literal @en) => {
+    ($value:literal) => {
+        $crate::model::values::LanguageString::new(
+            $value, None,
+        )
+    };
+     ($value:literal @en) => {
         lstr!($value @ "en")
     };
     ($value:literal @ $lang:expr) => {
@@ -80,12 +89,9 @@ macro_rules! qualid {
 }
 
 macro_rules! idref {
-    //    ( ($module:expr, $member:expr) ) => {
-    //        $crate::model::identifiers::IdentifierReference::from(qualid!($module, $member))
-    //    };
-    //    ($module:expr, $member:expr) => {
-    //        $crate::model::identifiers::IdentifierReference::from(qualid!($module, $member))
-    //    };
+    ($module:expr, $member:expr) => {
+        $crate::model::identifiers::IdentifierReference::from(qualid!($module, $member))
+    };
     ($id:expr) => {
         $crate::model::identifiers::IdentifierReference::from(id!($id))
     };
@@ -114,6 +120,57 @@ macro_rules! import {
                 )*
             ]
         )
+    };
+}
+
+macro_rules! simple {
+    ($value:expr) => {
+        $crate::model::values::SimpleValue::from($value)
+    };
+}
+
+macro_rules! tc {
+    ($module:expr, $name:expr => $value:expr) => {
+        $crate::model::values::ValueConstructor::new(idref!($module, $name), simple!($value))
+    };
+}
+
+macro_rules! prop {
+    ($module:expr, $name:expr; $value:expr) => {
+        $crate::model::annotations::AnnotationProperty::new(
+            qualid!($module, $name).into(),
+            $crate::model::values::Value::from($value),
+        )
+    }; //($name:expr; $value:expr) => {
+       //    $crate::model::annotations::AnnotationProperty::new(
+       //        id!($name).into(),
+       //        $crate::model::values::Value::from($value)
+       //    )
+       //};
+}
+
+macro_rules! datatype {
+    ($name:expr => $module:expr, $base:expr) => {
+        $crate::model::definitions::DatatypeDef::new(id!($name), qualid!($module, $base).into())
+    }; //($name:expr => $base:expr) => {
+       //    $crate::model::definitions::DatatypeDef::new(
+       //        id!($name),
+       //        id!($base).into()
+       //    )
+       //};
+}
+
+macro_rules! union {
+    ($name:expr => $( $idref:expr ),+) => {
+        $crate::model::definitions::UnionDef::new(id!($name))
+            .with_body(
+                $crate::model::definitions::UnionBody::default()
+                    .with_variants(vec![
+                        $(
+                            $crate::model::definitions::TypeVariant::new(idref!($idref)),
+                        )+
+                    ])
+            )
     };
 }
 
@@ -250,3 +307,7 @@ pub mod sdml;
 pub mod skos;
 
 pub mod xsd;
+
+pub mod iso_3166;
+
+pub mod iso_4217;
