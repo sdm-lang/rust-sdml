@@ -41,7 +41,8 @@ pub fn module() -> Module {
         prop!(
             skos::MODULE_NAME, skos::PREF_LABEL;
             simple!(lstr!("ISO 4217:2015"))
-        ).into(),
+        )
+        .into(),
         //prop!(
         //    dc_terms::MODULE_NAME, dc_terms::PROP_ISSUED_NAME;
         //    simple!(lstr!("2015-08-01"))
@@ -53,15 +54,18 @@ pub fn module() -> Module {
         prop!(
             dc_terms::MODULE_NAME, dc_terms::DESCRIPTION;
             simple!(lstr!("Codes for the representation of currencies"@"en"))
-        ).into(),
+        )
+        .into(),
         prop!(
             dc_terms::MODULE_NAME, dc_terms::DESCRIPTION;
             simple!(lstr!("Codes pour la représentation des monnaies"@"fr"))
-        ).into(),
+        )
+        .into(),
         prop!(
             rdfs::MODULE_NAME, rdfs::SEE_ALSO;
             simple!(Url::parse("https://www.iso.org/iso-4217-currency-codes.html").unwrap())
-        ).into(),
+        )
+        .into(),
     ]);
 
     module.body_mut().extend_definitions(vec![
@@ -114,8 +118,7 @@ pub fn module() -> Module {
                 .into(),
             )
             .into(),
-        union!(CURRENCY_CODE => CURRENCY_CODE_ALPHA, CURRENCY_CODE_NUMERIC)
-            .into(),
+        union!(CURRENCY_CODE => CURRENCY_CODE_ALPHA, CURRENCY_CODE_NUMERIC).into(),
     ]);
 
     module

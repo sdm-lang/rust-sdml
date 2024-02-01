@@ -114,10 +114,7 @@ impl References for UnionBody {
 
 impl UnionBody {
     pub fn with_variants(self, variants: Vec<TypeVariant>) -> Self {
-        Self {
-            variants,
-            ..self
-        }
+        Self { variants, ..self }
     }
 }
 
