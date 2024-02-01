@@ -31,6 +31,10 @@ The following figure demonstrates this package in the broader project context.
 ## 
 ## Changes
 
+**Version 0.2.6**
+
+* Build: update dependencies.
+
 **Version 0.2.5**
 
 * Feature: Add new `--no-color` flag to the CLI which also uses the `NO_COLOR` environment variable.
