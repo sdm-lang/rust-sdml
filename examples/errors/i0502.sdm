@@ -1,0 +1,7 @@
+module example <https://example.com/api> is
+
+  structure Foo is
+    bar -> unknown
+  end
+
+end

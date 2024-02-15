@@ -10,6 +10,7 @@ YYYYY
 */
 
 use crate::cache::ModuleCache;
+use crate::load::ModuleLoader;
 use crate::model::annotations::Annotation;
 use crate::model::check::Validate;
 use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
@@ -20,10 +21,6 @@ use crate::model::{References, Span};
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
@@ -31,9 +28,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeClassDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     variables: Vec<TypeVariable>, // assert 1..
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<TypeClassBody>,
 }
 
@@ -41,9 +41,12 @@ pub struct TypeClassDef {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeVariable {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     cardinality: Option<FunctionCardinality>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     restrictions: Vec<TypeClassReference>,
 }
 
@@ -51,8 +54,10 @@ pub struct TypeVariable {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeClassReference {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: IdentifierReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     arguments: Vec<TypeClassArgument>, // 0..
 }
 
@@ -68,8 +73,11 @@ pub enum TypeClassArgument {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeClassBody {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     methods: Vec<MethodDef>,
 }
 
@@ -77,24 +85,15 @@ pub struct TypeClassBody {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MethodDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     signature: FunctionSignature,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<ConstraintSentence>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -107,6 +106,8 @@ impl_has_optional_body_for!(TypeClassDef, TypeClassBody);
 impl_has_source_span_for!(TypeClassDef);
 
 impl_annotation_builder!(TypeClassDef, optional body);
+
+impl_maybe_invalid_for!(TypeClassDef; exists body);
 
 impl References for TypeClassDef {
     fn referenced_types<'a>(
@@ -123,27 +124,20 @@ impl References for TypeClassDef {
 }
 
 impl Validate for TypeClassDef {
-    fn is_complete(
+    fn validate(
         &self,
         _top: &crate::model::modules::Module,
         _cache: &ModuleCache,
-    ) -> Result<bool, crate::error::Error> {
-        todo!()
-    }
-
-    fn is_valid(
-        &self,
+        _loader: &impl ModuleLoader,
         _check_constraints: bool,
-        _top: &crate::model::modules::Module,
-        _cache: &ModuleCache,
-    ) -> Result<bool, crate::error::Error> {
+    ) {
         todo!()
     }
 }
 
 impl TypeClassDef {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // TypeClassDef :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new<I>(name: Identifier, variables: I) -> Self
@@ -159,7 +153,7 @@ impl TypeClassDef {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // TypeClassDef :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set_vec!(
@@ -182,23 +176,17 @@ impl_has_source_span_for!(TypeVariable);
 
 impl TypeVariable {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // TypeVariable :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name: Identifier) -> Self {
+    pub const fn new(name: Identifier) -> Self {
         Self {
             span: None,
             name,
             cardinality: None,
-            restrictions: Default::default(),
+            restrictions: Vec::new(),
         }
     }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    get_and_set!(pub cardinality, set_cardinality, unset_cardinality => optional has_cardinality, FunctionCardinality);
 
     pub fn with_cardinality(self, cardinality: FunctionCardinality) -> Self {
         Self {
@@ -206,6 +194,22 @@ impl TypeVariable {
             ..self
         }
     }
+
+    pub fn with_restrictions<I>(self, restrictions: I) -> Self
+    where
+        I: IntoIterator<Item = TypeClassReference>,
+    {
+        Self {
+            restrictions: Vec::from_iter(restrictions),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // TypeVariable :: Fields
+    // --------------------------------------------------------------------------------------------
+
+    get_and_set!(pub cardinality, set_cardinality, unset_cardinality => optional has_cardinality, FunctionCardinality);
 
     get_and_set_vec!(
         pub
@@ -217,16 +221,6 @@ impl TypeVariable {
         extend_restrictions
             => restrictions, TypeClassReference
     );
-
-    pub fn with_restrictions<I>(self, restrictions: I) -> Self
-    where
-        I: IntoIterator<Item = TypeClassReference>,
-    {
-        Self {
-            restrictions: Vec::from_iter(restrictions),
-            ..self
-        }
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -235,19 +229,29 @@ impl_has_source_span_for!(TypeClassReference);
 
 impl TypeClassReference {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // TypeClassReference :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name: IdentifierReference) -> Self {
+    pub const fn new(name: IdentifierReference) -> Self {
         Self {
             span: None,
             name,
-            arguments: Default::default(),
+            arguments: Vec::new(),
+        }
+    }
+
+    pub fn with_arguments<I>(self, arguments: I) -> Self
+    where
+        I: IntoIterator<Item = TypeClassArgument>,
+    {
+        Self {
+            arguments: Vec::from_iter(arguments),
+            ..self
         }
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // TypeClassReference :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub name, set_name => IdentifierReference);
@@ -262,23 +266,13 @@ impl TypeClassReference {
         extend_arguments
             => arguments, TypeClassArgument
     );
-
-    pub fn with_arguments<I>(self, arguments: I) -> Self
-    where
-        I: IntoIterator<Item = TypeClassArgument>,
-    {
-        Self {
-            arguments: Vec::from_iter(arguments),
-            ..self
-        }
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
 impl TypeClassArgument {
     // --------------------------------------------------------------------------------------------
-    // Variants
+    // TypeClassArgument :: Variants
     // --------------------------------------------------------------------------------------------
 
     is_variant!(Wildcard  => is_wildcard);
@@ -294,7 +288,21 @@ impl_has_annotations_for!(TypeClassBody);
 
 impl TypeClassBody {
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // TypeClassBody :: Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_methods<I>(self, methods: I) -> Self
+    where
+        I: IntoIterator<Item = MethodDef>,
+    {
+        Self {
+            methods: Vec::from_iter(methods),
+            ..self
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // TypeClassBody :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set_vec!(
@@ -307,16 +315,6 @@ impl TypeClassBody {
         extend_methods
             => methods, MethodDef
     );
-
-    pub fn with_methods<I>(self, methods: I) -> Self
-    where
-        I: IntoIterator<Item = MethodDef>,
-    {
-        Self {
-            methods: Vec::from_iter(methods),
-            ..self
-        }
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -334,13 +332,20 @@ impl MethodDef {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name: Identifier, signature: FunctionSignature) -> Self {
+    pub const fn new(name: Identifier, signature: FunctionSignature) -> Self {
         Self {
             span: None,
             name,
             signature,
             body: None,
-            annotations: Default::default(),
+            annotations: Vec::new(),
+        }
+    }
+
+    pub fn with_body(self, body: ConstraintSentence) -> Self {
+        Self {
+            body: Some(body),
+            ..self
         }
     }
 
@@ -349,19 +354,4 @@ impl MethodDef {
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub signature, set_signature => FunctionSignature);
-
-    pub fn with_body(self, body: ConstraintSentence) -> Self {
-        Self {
-            body: Some(body),
-            ..self
-        }
-    }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

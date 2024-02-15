@@ -1,23 +1,15 @@
-use crate::{
-    error::Error,
-    model::{
-        annotations::{Annotation, HasAnnotations},
-        check::Validate,
-        definitions::HasMembers,
-        identifiers::{Identifier, IdentifierReference},
-        members::Member,
-        modules::Module,
-        References, Span,
-    },
+use crate::model::{
+    annotations::{Annotation, HasAnnotations},
+    check::Validate,
+    definitions::HasMembers,
+    identifiers::{Identifier, IdentifierReference},
+    members::Member,
+    References, Span,
 };
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Structures
@@ -27,8 +19,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<StructureBody>,
 }
 
@@ -36,8 +30,11 @@ pub struct StructureDef {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct StructureBody {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     members: Vec<Member>,
 }
 
@@ -53,9 +50,11 @@ impl_has_source_span_for!(StructureDef);
 
 impl_references_for!(StructureDef => delegate optional body);
 
-impl_validate_for!(StructureDef => delegate optional body, false, true);
+impl_validate_for!(StructureDef => delegate optional body);
 
 impl_annotation_builder!(StructureDef, optional body);
+
+impl_maybe_invalid_for!(StructureDef);
 
 impl StructureDef {
     // --------------------------------------------------------------------------------------------
@@ -79,6 +78,8 @@ impl_has_members_for!(StructureBody);
 
 impl_has_source_span_for!(StructureBody);
 
+impl_maybe_invalid_for!(StructureBody; over members);
+
 impl_validate_for_annotations_and_members!(StructureBody);
 
 impl References for StructureBody {
@@ -90,13 +91,3 @@ impl References for StructureBody {
         self.members().for_each(|m| m.referenced_annotations(names));
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

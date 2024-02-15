@@ -1,5 +1,6 @@
 use crate::cache::ModuleCache;
 use crate::error::Error;
+use crate::load::ModuleLoader;
 use crate::model::check::Validate;
 use crate::model::modules::Module;
 use crate::model::Span;
@@ -11,11 +12,6 @@ use std::str::FromStr;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use tracing::trace;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Members ❱ Cardinality
@@ -31,8 +27,11 @@ pub trait HasCardinality {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Cardinality {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     ordering: Option<Ordering>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     uniqueness: Option<Uniqueness>,
     range: CardinalityRange,
 }
@@ -52,8 +51,10 @@ pub const TYPE_MAYBE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct CardinalityRange {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     min: u32,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     max: Option<u32>,
 }
 
@@ -83,18 +84,6 @@ pub enum PseudoSequenceType {
     Set,
     UnorderedSet,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Cardinality
@@ -135,25 +124,20 @@ impl From<CardinalityRange> for Cardinality {
 impl_has_source_span_for!(Cardinality);
 
 impl Validate for Cardinality {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("CardinalitydRange::is_complete");
-        self.range.is_complete(top, cache)
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        trace!("Cardinality::is_valid");
-        self.range.is_valid(check_constraints, top, cache)
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.range.validate(top, cache, loader, check_constraints);
     }
 }
 
 impl Cardinality {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // Cardinality :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(
@@ -217,7 +201,7 @@ impl Cardinality {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // Cardinality :: Fields
     // --------------------------------------------------------------------------------------------
 
     pub const fn with_ordering(self, ordering: Option<Ordering>) -> Self {
@@ -311,7 +295,7 @@ impl Cardinality {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Helpers
+    // Cardinality :: Helpers
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
@@ -377,27 +361,26 @@ impl From<u32> for CardinalityRange {
 impl_has_source_span_for!(CardinalityRange);
 
 impl Validate for CardinalityRange {
-    fn is_complete(&self, _: &Module, _: &ModuleCache) -> Result<bool, Error> {
-        trace!("CardinalityRange::is_complete");
-        Ok(true)
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        _check_constraints: bool,
         _: &Module,
         _: &ModuleCache,
-    ) -> Result<bool, Error> {
-        trace!("CardinalityRange::is_valid");
-        Ok(if let Some(max) = self.max {
-            max >= self.min
-        } else {
-            true
-        })
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        if let Some(max) = self.max {
+            if max < self.min {
+                panic!();
+            }
+        }
     }
 }
 
 impl CardinalityRange {
+    // --------------------------------------------------------------------------------------------
+    // Cardinality :: Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub const fn new_range(min: u32, max: u32) -> Self {
         assert!(max > 0 && max >= min);
         Self {
@@ -445,9 +428,11 @@ impl CardinalityRange {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Cardinality :: Fields
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub fn min_occurs(&self) -> u32 {
+    pub const fn min_occurs(&self) -> u32 {
         self.min
     }
 
@@ -462,7 +447,7 @@ impl CardinalityRange {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub fn max_occurs(&self) -> Option<u32> {
+    pub const fn max_occurs(&self) -> Option<u32> {
         self.max
     }
 
@@ -478,14 +463,16 @@ impl CardinalityRange {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Cardinality :: Helpers
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub fn is_optional(&self) -> bool {
+    pub const fn is_optional(&self) -> bool {
         self.min_occurs() == 0
     }
 
     #[inline(always)]
-    pub fn is_required(&self) -> bool {
+    pub const fn is_required(&self) -> bool {
         !self.is_optional()
     }
 
@@ -495,7 +482,7 @@ impl CardinalityRange {
     }
 
     #[inline(always)]
-    pub fn is_unbounded(&self) -> bool {
+    pub const fn is_unbounded(&self) -> bool {
         self.max_occurs().is_none()
     }
 
@@ -587,11 +574,3 @@ impl FromStr for Uniqueness {
         }
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

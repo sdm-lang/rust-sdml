@@ -9,7 +9,7 @@ use sdml_generate::{
     color::{set_colorize, UseColor},
     GenerateToWriter,
 };
-use sdml_parse::load::ModuleLoader;
+use sdml_parse::load::FsModuleLoader;
 
 const MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
 const TEST_PATH: &str = "tests/examples";
@@ -80,7 +80,7 @@ macro_rules! test_example {
 // Modules ❱ Imports
 // ------------------------------------------------------------------------------------------------
 
-fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &ModuleLoader) -> String {
+fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &FsModuleLoader) -> String {
     // turn this off to avoid control characters in the output.
     set_colorize(UseColor::Never);
     let mut buffer = Cursor::new(Vec::new());

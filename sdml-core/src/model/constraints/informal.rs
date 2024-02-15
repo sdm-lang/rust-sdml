@@ -1,11 +1,13 @@
 use crate::{
     cache::ModuleCache,
-    error::{invalid_language_tag_error, Error},
+    load::ModuleLoader,
     model::{check::Validate, modules::Module, References, Span},
 };
 use lazy_static::lazy_static;
 use regex::Regex;
+use sdml_error::diagnostics::invalid_language_tag;
 use std::{fmt::Display, str::FromStr};
+use tracing::warn;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -40,9 +42,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ControlledLanguageString {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     /// Corresponds to the grammar rule `quoted_string`.
     value: String,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     language: Option<ControlledLanguageTag>,
 }
 
@@ -64,6 +68,7 @@ pub struct ControlledLanguageString {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ControlledLanguageTag {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     value: String,
 }
@@ -87,17 +92,14 @@ impl_has_source_span_for!(ControlledLanguageString);
 impl References for ControlledLanguageString {}
 
 impl Validate for ControlledLanguageString {
-    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
-        todo!()
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        _check_constraints: bool,
         _top: &Module,
         _cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        todo!()
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        warn!("Missing Validation for ControlledLanguageString");
     }
 }
 
@@ -148,7 +150,7 @@ impl FromStr for ControlledLanguageTag {
                 value: s.to_string(),
             })
         } else {
-            Err(invalid_language_tag_error(s))
+            Err(invalid_language_tag(0, None, s).into())
         }
     }
 }
@@ -182,17 +184,14 @@ impl Eq for ControlledLanguageTag {}
 impl_has_source_span_for!(ControlledLanguageTag);
 
 impl Validate for ControlledLanguageTag {
-    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
-        Ok(true)
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        _check_constraints: bool,
         _top: &Module,
         _cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        Ok(Self::is_valid_str(&self.value))
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        assert!(Self::is_valid_str(&self.value))
     }
 }
 

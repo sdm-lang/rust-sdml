@@ -2,6 +2,7 @@ use crate::parse::identifiers::parse_identifier_reference;
 use crate::parse::values::parse_simple_value;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::{PredicateValue, SequenceOfPredicateValues};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{

@@ -1,20 +1,22 @@
 use crate::cache::ModuleCache;
-use crate::error::Error;
+use crate::load::ModuleLoader;
 use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{
-    check::Validate, constraints::Constraint, identifiers::IdentifierReference, modules::Module,
-    values::Value, HasNameReference, Span,
+    check::Validate,
+    constraints::Constraint,
+    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+    modules::Module,
+    values::Value,
+    HasNameReference, Span,
 };
 use crate::model::{HasName, References};
 use crate::stdlib;
 use std::{collections::HashSet, fmt::Debug};
-
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
 use tracing::trace;
 use url::Url;
 
-use super::identifiers::{Identifier, QualifiedIdentifier};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Traits
@@ -315,6 +317,7 @@ pub enum Annotation {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationProperty {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name_reference: IdentifierReference,
     value: Value,
@@ -324,6 +327,7 @@ pub struct AnnotationProperty {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationOnlyBody {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     annotations: Vec<Annotation>, // assert!(!annotations.is_empty());
 }
@@ -348,14 +352,6 @@ pub fn preferred_type_label<T: HasAnnotations + HasName>(
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Annotations
 // ------------------------------------------------------------------------------------------------
 
@@ -376,32 +372,25 @@ impl From<Constraint> for Annotation {
 impl References for Annotation {}
 
 impl Validate for Annotation {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("Annotation::is_complete");
-        match self {
-            Annotation::Property(v) => v.is_complete(top, cache),
-            Annotation::Constraint(v) => v.is_complete(top, cache),
-        }
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         trace!("Annotation::is_valid");
         match (self, check_constraints) {
-            (Annotation::Property(v), _) => v.is_valid(check_constraints, top, cache),
-            (Annotation::Constraint(v), true) => v.is_valid(check_constraints, top, cache),
-            _ => Ok(true),
-        }
+            (Annotation::Property(v), _) => v.validate(top, cache, loader, check_constraints),
+            (Annotation::Constraint(v), true) => v.validate(top, cache, loader, check_constraints),
+            _ => {}
+        };
     }
 }
 
 impl Annotation {
     // --------------------------------------------------------------------------------------------
-    // Variants
+    // Annotation :: Variants
     // --------------------------------------------------------------------------------------------
 
     is_as_variant!(Property (AnnotationProperty) => is_annotation_property, as_annotation_property);
@@ -418,26 +407,18 @@ impl_has_source_span_for!(AnnotationProperty);
 impl_has_name_reference_for!(AnnotationProperty);
 
 impl Validate for AnnotationProperty {
-    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("AnnotationProperty::is_complete");
-        Ok(true)
-    }
-
-    fn is_valid(
-        &self,
-        _check_constraints: bool,
-        _top: &Module,
-        _cache: &ModuleCache,
-    ) -> Result<bool, Error> {
+    fn validate(&self, _top: &Module, _cache: &ModuleCache, _: &impl ModuleLoader, _: bool) {
         trace!("AnnotationProperty::is_valid -- missing type/value conformance");
-        // TODO: ensure type/value conformance.
-        Ok(true)
+        // TODO: check value/type conformance
+        // 1. Lookup property
+        // 2. Get property range
+        // 3. check::validate_value(self.value, range, ...)
     }
 }
 
 impl AnnotationProperty {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // AnnotationProperty :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new(name_reference: IdentifierReference, value: Value) -> Self {
@@ -449,10 +430,14 @@ impl AnnotationProperty {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // AnnotationProperty :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub value, set_value => Value);
+
+    // --------------------------------------------------------------------------------------------
+    // AnnotationProperty :: Helpers
+    // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
     pub fn is_stdlib_property(&self) -> bool {
@@ -502,34 +487,15 @@ impl References for AnnotationOnlyBody {
 }
 
 impl Validate for AnnotationOnlyBody {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("AnnotationOnlyBody::is_complete");
-        let failed: Result<Vec<bool>, Error> = self
-            .annotations()
-            .map(|ann| ann.is_complete(top, cache))
-            .collect();
-        Ok(failed?.iter().all(|b| *b))
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         trace!("AnnotationOnlyBody::is_valid");
-        let failed: Result<Vec<bool>, Error> = self
-            .annotations()
-            .map(|ann| ann.is_valid(check_constraints, top, cache))
-            .collect();
-        Ok(failed?.iter().all(|b| *b))
+        self.annotations()
+            .for_each(|ann| ann.validate(top, cache, loader, check_constraints));
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ use sdml_core::model::definitions::Definition;
 use sdml_core::model::modules::ImportStatement;
 use sdml_core::model::values::{SequenceMember, SimpleValue, Value};
 use sdml_core::model::{HasBody, HasName, HasNameReference};
-use sdml_parse::load::ModuleLoader;
+use sdml_parse::load::FsModuleLoader;
 use std::io::Cursor;
 use std::str::FromStr;
 use url::Url;
@@ -12,7 +12,7 @@ use url::Url;
 #[test]
 fn test_parse_empty_module() {
     let mut cache = ModuleCache::default();
-    let mut loader = ModuleLoader::default();
+    let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(b"module foo is end"), &mut cache, false);
     println!("{:#?}", module);
     assert!(module.is_ok());
@@ -26,7 +26,7 @@ fn test_parse_empty_module() {
 #[test]
 fn test_parse_module_with_imports() {
     let mut cache = ModuleCache::default();
-    let mut loader = ModuleLoader::default();
+    let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
             r#"module foo is
@@ -60,7 +60,7 @@ end"#
 #[test]
 fn test_parse_module_with_annotations() {
     let mut cache = ModuleCache::default();
-    let mut loader = ModuleLoader::default();
+    let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
             r#"module foo is
@@ -142,7 +142,7 @@ end"#
 #[test]
 fn test_parse_datatype() {
     let mut cache = ModuleCache::default();
-    let mut loader = ModuleLoader::default();
+    let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
             r#"module foo is

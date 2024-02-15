@@ -150,7 +150,7 @@ pub fn import(import: &Import) -> String {
                 format!(
                     "{} {}",
                     COLORIZER.module(import.name()),
-                    format_url(version_uri),
+                    format_url(version_uri.as_ref()),
                 )
             } else {
                 COLORIZER.module(import.name())

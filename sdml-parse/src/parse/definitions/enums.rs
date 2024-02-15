@@ -3,6 +3,7 @@ use crate::parse::definitions::parse_annotation_only_body;
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{EnumBody, EnumDef, HasVariants, ValueVariant};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
@@ -88,7 +89,7 @@ fn parse_value_variant<'a>(
     context.check_if_error(&child, RULE_NAME)?;
     let name = parse_identifier(context, &child)?;
 
-    context.start_member(&name)?;
+    context.start_variant(&name)?;
     let mut enum_variant = ValueVariant::new(name).with_source_span(node.into());
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {

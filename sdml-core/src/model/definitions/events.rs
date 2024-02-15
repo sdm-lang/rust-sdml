@@ -20,9 +20,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EventDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     event_source: IdentifierReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<StructureBody>,
 }
 
@@ -38,8 +40,10 @@ impl_references_for!(EventDef => delegate optional body);
 
 impl_has_source_span_for!(EventDef);
 
+impl_maybe_invalid_for!(EventDef);
+
 // TODO: need to include event_source in validation!!
-impl_validate_for!(EventDef => delegate optional body, false, true);
+impl_validate_for!(EventDef => delegate optional body);
 
 impl_annotation_builder!(EventDef, optional body);
 

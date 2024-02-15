@@ -1,6 +1,7 @@
 use super::ParseContext;
 use crate::parse::annotations::parse_annotation;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{AnnotationOnlyBody, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::HasSourceSpan;

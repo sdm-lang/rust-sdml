@@ -135,7 +135,7 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
         )?;
 
         if let Some(base) = module.base_uri() {
-            writer.write_all(format!("{} ", format_url(base)).as_bytes())?;
+            writer.write_all(format!("{} ", format_url(base.as_ref())).as_bytes())?;
         }
 
         let body = module.body();
@@ -522,13 +522,15 @@ impl SourceGenerator {
             }
             self.write_type_reference(defn.target_type(), writer, options)?;
             if let Some(body) = defn.body() {
-                if options.generate_member_bodies() {
+                if body.has_annotations() && options.generate_member_bodies() {
+                    writer.write_all(b" is")?;
                     self.write_annotations(
                         body.annotations(),
                         writer,
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    writer.write_all(b"end")?;
                 }
             }
         } else {

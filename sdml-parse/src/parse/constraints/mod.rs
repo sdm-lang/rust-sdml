@@ -1,11 +1,12 @@
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::ParseContext;
-use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::Constraint;
 use sdml_core::syntax::{
     FIELD_NAME_NAME, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
     NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_LINE_COMMENT,
 };
+use sdml_error::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

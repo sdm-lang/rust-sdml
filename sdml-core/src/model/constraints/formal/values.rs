@@ -24,6 +24,7 @@ pub enum PredicateValue {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct SequenceOfPredicateValues {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     values: Vec<PredicateSequenceMember>,
 }

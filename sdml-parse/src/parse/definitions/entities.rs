@@ -4,6 +4,7 @@ use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::members::{parse_member, parse_type_reference};
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{
     EntityBody, EntityDef, EntityIdentity, EntityIdentityDef, HasMembers,

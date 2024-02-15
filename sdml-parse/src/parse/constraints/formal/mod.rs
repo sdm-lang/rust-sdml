@@ -1,10 +1,11 @@
 use crate::parse::constraints::formal::environments::parse_constraint_environment;
 use crate::parse::ParseContext;
-use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::{EnvironmentDef, FormalConstraint};
 use sdml_core::syntax::{
     NODE_KIND_CONSTRAINT_ENVIRONMENT, NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_LINE_COMMENT,
 };
+use sdml_error::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

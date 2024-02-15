@@ -1,6 +1,6 @@
 use crate::parse::identifiers::parse_identifier_reference;
 use rust_decimal::Decimal;
-use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::values::{
     Binary, LanguageString, LanguageTag, MappingValue, SequenceOfValues, SimpleValue, Value,
     ValueConstructor,
@@ -14,6 +14,7 @@ use sdml_core::syntax::{
     NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_UNSIGNED,
     NODE_KIND_VALUE_CONSTRUCTOR,
 };
+use sdml_error::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 use url::Url;

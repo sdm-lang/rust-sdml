@@ -10,6 +10,7 @@ use crate::GenerateToWriter;
 use nu_ansi_term::Style;
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::Identifier;
+use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
 use sdml_core::{cache::ModuleCache, stdlib::is_library_module};
@@ -134,8 +135,8 @@ pub enum DependencyViewRepresentation {
 #[derive(Debug)]
 struct Node<'a> {
     name: &'a Identifier,
-    base_uri: Option<&'a Url>,
-    version_uri: Option<&'a Url>,
+    base_uri: Option<&'a HeaderValue<Url>>,
+    version_uri: Option<&'a HeaderValue<Url>>,
     children: Option<Vec<Node<'a>>>,
 }
 
@@ -348,9 +349,9 @@ impl DependencyViewGenerator {
             writer.write_all(
                 format!(
                     "{} {} {}{}",
-                    format_url(subj),
+                    format_url(subj.as_ref()),
                     format_url(OWL_IMPORTS),
-                    format_url(obj),
+                    format_url(obj.as_ref()),
                     Separator::Statement,
                 )
                 .as_bytes(),
@@ -361,7 +362,11 @@ impl DependencyViewGenerator {
     }
 
     #[allow(clippy::only_used_in_recursion)]
-    fn tree_to_rdf_list<'a>(&self, node: &'a Node<'_>, list: &mut Vec<(&'a Url, &'a Url)>) {
+    fn tree_to_rdf_list<'a>(
+        &self,
+        node: &'a Node<'_>,
+        list: &mut Vec<(&'a HeaderValue<Url>, &'a HeaderValue<Url>)>,
+    ) {
         if node.base_uri.is_some() {
             if let Some(children) = &node.children {
                 for child in children {
@@ -388,7 +393,7 @@ impl DependencyViewGenerator {
 impl<'a> Node<'a> {
     fn from_module(
         module: &'a Module,
-        version_uri: Option<&'a Url>,
+        version_uri: Option<&'a HeaderValue<Url>>,
         seen: &mut HashSet<&'a Identifier>,
         cache: &'a ModuleCache,
         depth: usize,
@@ -434,14 +439,14 @@ impl<'a> Node<'a> {
         }
     }
 
-    fn from_name_only(module: &'a Identifier, version_uri: Option<&'a Url>) -> Self {
+    fn from_name_only(module: &'a Identifier, version_uri: Option<&'a HeaderValue<Url>>) -> Self {
         Self::from_name(module, None, version_uri)
     }
 
     fn from_name(
         module: &'a Identifier,
-        base_uri: Option<&'a Url>,
-        version_uri: Option<&'a Url>,
+        base_uri: Option<&'a HeaderValue<Url>>,
+        version_uri: Option<&'a HeaderValue<Url>>,
     ) -> Self {
         Self {
             name: module,

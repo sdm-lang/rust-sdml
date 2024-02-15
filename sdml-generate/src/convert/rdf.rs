@@ -1,11 +1,6 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+This module provides a generator that creates the RDF representation of a module given its
+in-memory representation.
 
 */
 
@@ -102,9 +97,9 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
         let module_name = module.name();
 
         if let Some(base) = module.base_uri() {
-            writer.write_all(color::base_directive(base.as_str()).as_bytes())?;
+            writer.write_all(color::base_directive(base.as_ref().as_str()).as_bytes())?;
             writer.write_all(
-                color::prefix_directive(module_name.as_ref(), base.as_str()).as_bytes(),
+                color::prefix_directive(module_name.as_ref(), base.as_ref().as_str()).as_bytes(),
             )?;
         }
 
@@ -163,7 +158,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
                 color::predicate_with_value(
                     stdlib::owl::MODULE_NAME,
                     stdlib::owl::VERSION_INFO,
-                    format_str(version_info),
+                    format_str(version_info.as_ref()),
                     Separator::Predicate,
                 )
                 .as_bytes(),
@@ -174,7 +169,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
                 color::predicate_with_value(
                     stdlib::owl::MODULE_NAME,
                     stdlib::owl::VERSION_IRI,
-                    format_url(version_uri),
+                    format_url(version_uri.as_ref()),
                     Separator::Predicate,
                 )
                 .as_bytes(),
@@ -592,6 +587,12 @@ impl RdfModelGenerator {
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
         let name = me.name();
+        /*
+        TODO: better RDF
+
+        :enumName
+            :rdfs: subClassOf sdml:Union
+        */
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
         writer.write_all(
@@ -795,6 +796,16 @@ impl RdfModelGenerator {
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
         let name = me.name();
+
+        /*
+        TODO: better RDF:
+
+        :unionName
+            owl:unionOf
+                :variantName, ... .
+
+        :variantRename owl:equivalentClass :variantName .
+         */
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
         writer.write_all(

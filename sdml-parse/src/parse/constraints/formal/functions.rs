@@ -2,7 +2,7 @@ use crate::parse::constraints::formal::sentences::parse_constraint_sentence;
 use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::members::parse_mapping_type;
 use crate::parse::ParseContext;
-use sdml_core::error::{invalid_value_for_type, Error};
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::{
     FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
     FunctionTypeReference, FunctionTypeReferenceInner,
@@ -16,6 +16,8 @@ use sdml_core::syntax::{
     FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
 };
+use sdml_error::diagnostics::invalid_value_for_type_named;
+use sdml_error::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 
@@ -115,15 +117,27 @@ pub(crate) fn parse_function_cardinality_expression<'a>(
     let range = if let Some(child) = node.child_by_field_name(FIELD_NAME_MIN) {
         context.check_if_error(&child, RULE_NAME)?;
         let text = context.node_source(&child)?;
-        let min =
-            u32::from_str(text).map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
+        let min = u32::from_str(text).map_err(|_| {
+            invalid_value_for_type_named(
+                context.file_id,
+                Some(child.byte_range()),
+                text,
+                NODE_KIND_UNSIGNED,
+            )
+        })?;
 
         Some(if let Some(child) = node.child_by_field_name("range") {
             if let Some(child) = child.child_by_field_name(FIELD_NAME_MAX) {
                 context.check_if_error(&child, RULE_NAME)?;
                 let text = context.node_source(&child)?;
-                let max = u32::from_str(text)
-                    .map_err(|_| invalid_value_for_type(text, NODE_KIND_UNSIGNED))?;
+                let max = u32::from_str(text).map_err(|_| {
+                    invalid_value_for_type_named(
+                        context.file_id,
+                        Some(child.byte_range()),
+                        text,
+                        NODE_KIND_UNSIGNED,
+                    )
+                })?;
                 CardinalityRange::new_range(min, max)
             } else {
                 CardinalityRange::new_unbounded(min)

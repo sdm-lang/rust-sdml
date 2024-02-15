@@ -1,5 +1,6 @@
 use super::ParseContext;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{

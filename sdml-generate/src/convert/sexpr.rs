@@ -1,11 +1,6 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+This module provides a generator that creates the s-expression representation of a module given its
+in-memory representation.
 
 */
 

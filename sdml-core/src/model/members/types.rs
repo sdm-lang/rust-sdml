@@ -1,21 +1,20 @@
 use crate::cache::ModuleCache;
-use crate::error::Error;
-use crate::model::check::{find_definition, Validate};
+use crate::load::ModuleLoader;
+use crate::model::check::{find_definition, Validate, MaybeIncomplete};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::IdentifierReference;
 use crate::model::modules::Module;
-use crate::model::{References, Span};
+use crate::model::{HasSourceSpan, References, Span};
 use crate::syntax::KW_TYPE_UNKNOWN;
+use sdml_error::diagnostics::{
+    feature_set_not_a_union, property_incompatible_usage, rdf_definition_incompatible_usage,
+    type_class_incompatible_usage, type_definition_not_found,
+};
 use std::collections::HashSet;
 use std::fmt::{Debug, Display};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use tracing::trace;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -58,22 +57,11 @@ pub enum TypeReference {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MappingType {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     domain: Box<TypeReference>,
     range: Box<TypeReference>,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Type Reference
@@ -121,36 +109,76 @@ impl References for TypeReference {
     }
 }
 
-impl Validate for TypeReference {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("TypeReference::is_complete");
+impl MaybeIncomplete for TypeReference {
+    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
         match self {
-            TypeReference::Unknown => Ok(false),
-            TypeReference::Type(_) => Ok(true),
-            TypeReference::FeatureSet(_) => Ok(true),
-            TypeReference::MappingType(v) => v.is_complete(top, cache),
+            TypeReference::Unknown => true,
+            TypeReference::MappingType(v) => v.is_incomplete(top, cache),
+            _ => false,
         }
     }
+}
 
-    fn is_valid(
+impl Validate for TypeReference {
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        trace!("TypeReference::is_valid");
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         match self {
-            TypeReference::Unknown => Ok(true),
-            TypeReference::Type(name) => Ok(find_definition(name, top, cache)
-                .map(|defn| {
-                    !matches!(defn, Definition::Property(_)) && !matches!(defn, Definition::Rdf(_))
-                })
-                .unwrap_or_default()),
-            TypeReference::FeatureSet(name) => Ok(find_definition(name, top, cache)
-                .map(|defn| matches!(defn, Definition::Union(_)))
-                .unwrap_or_default()),
-            TypeReference::MappingType(v) => v.is_valid(check_constraints, top, cache),
-        }
+            TypeReference::Unknown => {}
+            TypeReference::Type(name) => match find_definition(name, top, cache) {
+                None => loader
+                    .report(&type_definition_not_found(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap(),
+                Some(Definition::TypeClass(_)) => loader
+                    .report(&type_class_incompatible_usage(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap(),
+                Some(Definition::Property(_)) => loader
+                    .report(&property_incompatible_usage(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap(),
+                Some(Definition::Rdf(_)) => loader
+                    .report(&rdf_definition_incompatible_usage(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap(),
+                _ => {}
+            },
+            TypeReference::FeatureSet(name) => match find_definition(name, top, cache) {
+                Some(Definition::Union(_)) => {}
+                None => loader
+                    .report(&type_definition_not_found(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap(),
+                _ => loader
+                    .report(&feature_set_not_a_union(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap(),
+            },
+            TypeReference::MappingType(v) => v.validate(top, cache, loader, check_constraints),
+        };
     }
 }
 
@@ -193,21 +221,23 @@ impl References for MappingType {
     }
 }
 
-impl Validate for MappingType {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("MappingType::is_complete");
-        Ok(self.domain.is_complete(top, cache)? && self.range.is_complete(top, cache)?)
+impl MaybeIncomplete for MappingType {
+    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+        self.domain.is_incomplete(top, cache) || self.range.is_incomplete(top, cache)
     }
+}
 
-    fn is_valid(
+impl Validate for MappingType {
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        trace!("MappingType::is_valid");
-        Ok(self.domain().is_valid(check_constraints, top, cache)?
-            && self.range().is_valid(check_constraints, top, cache)?)
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.domain()
+            .validate(top, cache, loader, check_constraints);
+        self.range().validate(top, cache, loader, check_constraints);
     }
 }
 
@@ -236,11 +266,3 @@ impl MappingType {
 
     get_and_set!(pub range, set_range => boxed into TypeReference);
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

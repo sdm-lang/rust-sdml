@@ -3,7 +3,7 @@ use crate::parse::constraints::formal::sentences::parse_constraint_sentence;
 use crate::parse::constraints::formal::values::parse_predicate_value;
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::ParseContext;
-use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::EnvironmentDef;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::syntax::{
@@ -11,6 +11,7 @@ use sdml_core::syntax::{
     NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_ENVIRONMENT_DEF, NODE_KIND_FUNCTION_DEF,
     NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
 };
+use sdml_error::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

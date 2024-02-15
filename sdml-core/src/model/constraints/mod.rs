@@ -1,6 +1,6 @@
 use crate::{
     cache::ModuleCache,
-    error::Error,
+    load::ModuleLoader,
     model::{Identifier, Span},
 };
 
@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Constraint {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     body: ConstraintBody,
@@ -62,22 +63,14 @@ impl_has_source_span_for!(Constraint);
 impl_references_for!(Constraint => delegate body);
 
 impl Validate for Constraint {
-    fn is_complete(&self, _top: &Module, _cache: &ModuleCache) -> Result<bool, Error> {
-        // TODO: is this correct?
-        Ok(true)
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
         check_constraints: bool,
-        _top: &Module,
-        _cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        if check_constraints {
-            todo!()
-        } else {
-            Ok(true)
-        }
+    ) {
+        self.body.validate(top, cache, loader, check_constraints)
     }
 }
 

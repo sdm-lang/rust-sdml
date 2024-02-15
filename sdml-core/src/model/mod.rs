@@ -143,6 +143,18 @@ impl From<Node<'_>> for Span {
     }
 }
 
+impl From<Span> for sdml_error::Span {
+    fn from(value: Span) -> Self {
+        value.byte_range()
+    }
+}
+
+impl From<&Span> for sdml_error::Span {
+    fn from(value: &Span) -> Self {
+        sdml_error::Span::from(value.clone())
+    }
+}
+
 impl Debug for Span {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Span")

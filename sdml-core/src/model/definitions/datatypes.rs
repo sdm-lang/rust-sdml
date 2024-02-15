@@ -1,21 +1,20 @@
 use crate::cache::ModuleCache;
-use crate::error::Error;
-use crate::model::check::Validate;
+use crate::load::ModuleLoader;
+use crate::model::check::{find_definition, Validate};
+use crate::model::definitions::Definition;
 use crate::model::modules::Module;
+use crate::model::HasSourceSpan;
 use crate::model::References;
 use crate::model::{
     annotations::AnnotationOnlyBody,
     identifiers::{Identifier, IdentifierReference},
-    HasOptionalBody, Span,
+    Span,
 };
+use sdml_error::diagnostics::{datatype_invalid_base_type, type_definition_not_found};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Datatypes
@@ -25,11 +24,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct DatatypeDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     opaque: bool,
     /// Corresponds to the grammar rule `data_type_base`.
     base_type: IdentifierReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -43,25 +44,44 @@ impl_has_name_for!(DatatypeDef);
 
 impl_has_optional_body_for!(DatatypeDef);
 
+impl_maybe_invalid_for!(DatatypeDef; exists body);
+
 impl_annotation_builder!(DatatypeDef, optional body);
 
 impl Validate for DatatypeDef {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        if let Some(body) = self.body() {
-            body.is_complete(top, cache)
-        } else {
-            Ok(true)
-        }
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
         _check_constraints: bool,
-        _top: &Module,
-        _cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        // TODO: check that base_type is also a datatype
-        Ok(true)
+    ) {
+        if let Some(defn) = find_definition(self.base_type(), top, cache) {
+            if let Definition::Datatype(base) = defn {
+                // TODO: check restriction annotations.
+            } else if let Definition::Rdf(base) = defn {
+                // TODO: check type and restrictions
+            } else {
+                loader
+                    .report(&datatype_invalid_base_type(
+                        top.file_id().copied().unwrap_or_default(),
+                        self.base_type()
+                            .source_span()
+                            .as_ref()
+                            .map(|span| (*span).into()),
+                        self.base_type(),
+                    ))
+                    .unwrap();
+            }
+        } else {
+            loader
+                .report(&type_definition_not_found(
+                    top.file_id().copied().unwrap_or_default(),
+                    self.span.as_ref().map(|span| span.clone().into()),
+                    self.base_type(),
+                ))
+                .unwrap();
+        }
     }
 }
 
@@ -80,7 +100,7 @@ impl References for DatatypeDef {
 
 impl DatatypeDef {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // DatatypeDef :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(name: Identifier, base_type: IdentifierReference) -> Self {
@@ -111,7 +131,7 @@ impl DatatypeDef {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // DatatypeDef :: Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn is_opaque(&self) -> bool {
@@ -124,7 +144,3 @@ impl DatatypeDef {
 
     get_and_set!(pub base_type, set_base_type => IdentifierReference);
 }
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

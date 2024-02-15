@@ -1,0 +1,3 @@
+module versioned_other <https://example.com/api>
+       version "v2" <https://example.com/api/v2> is
+end

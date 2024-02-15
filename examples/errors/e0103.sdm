@@ -1,0 +1,5 @@
+module example <https://example.com/api> is
+
+  import versioned_other <https://example.com/api/v3>
+
+end

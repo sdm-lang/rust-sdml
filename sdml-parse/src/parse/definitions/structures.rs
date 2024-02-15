@@ -3,6 +3,7 @@ use crate::parse::identifiers::parse_identifier;
 use crate::parse::members::parse_member;
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{HasMembers, StructureBody, StructureDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};

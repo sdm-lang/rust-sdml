@@ -1,6 +1,13 @@
-use crate::model::members::Member;
+use crate::{
+    model::check::MaybeIncomplete,
+    cache::ModuleCache,
+    load::ModuleLoader,
+    model::members::Member,
+    model::{HasName, HasSourceSpan},
+};
 use std::fmt::Debug;
 
+use sdml_error::diagnostics::definition_is_incomplete;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -60,18 +67,6 @@ pub enum Definition {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Type Definitions
 // ------------------------------------------------------------------------------------------------
 
@@ -99,7 +94,38 @@ impl_has_source_span_for!(Definition => variants Datatype, Entity, Enum, Event, 
 
 impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_validate_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+impl_maybe_invalid_for!(Definition; variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+
+impl Validate for Definition {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        match self {
+            Definition::Datatype(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Entity(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Enum(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Event(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Property(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Rdf(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Structure(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::TypeClass(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Union(v) => v.validate(top, cache, loader, check_constraints),
+        }
+        if self.is_incomplete(top, cache) {
+            loader
+                .report(&definition_is_incomplete(
+                    top.file_id().copied().unwrap_or_default(),
+                    self.source_span().map(|span| span.byte_range()),
+                    top.name(),
+                ))
+                .unwrap()
+        }
+    }
+}
 
 impl Definition {
     #[inline(always)]
@@ -135,10 +161,6 @@ impl Definition {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
 
@@ -170,3 +192,5 @@ pub use unions::{TypeVariant, UnionBody, UnionDef};
 
 mod rdf;
 pub use rdf::RdfDef;
+
+use super::{check::Validate, modules::Module};

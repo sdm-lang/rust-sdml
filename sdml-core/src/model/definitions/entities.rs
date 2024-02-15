@@ -1,6 +1,7 @@
 use crate::cache::ModuleCache;
-use crate::error::Error;
+use crate::load::ModuleLoader;
 use crate::model::annotations::AnnotationOnlyBody;
+use crate::model::check::MaybeIncomplete;
 use crate::model::members::TypeReference;
 use crate::model::References;
 use crate::model::{
@@ -16,10 +17,7 @@ use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
+use tracing::warn;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Entities
@@ -29,8 +27,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<EntityBody>,
 }
 
@@ -38,9 +38,12 @@ pub struct EntityDef {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityBody {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     identity: EntityIdentity,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     members: Vec<Member>,
 }
 
@@ -50,6 +53,7 @@ pub struct EntityBody {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityIdentity {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     kind: MemberKind,
@@ -59,8 +63,10 @@ pub struct EntityIdentity {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EntityIdentityDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     target_type: TypeReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -83,16 +89,18 @@ impl_has_source_span_for!(EntityDef);
 
 impl_references_for!(EntityDef => delegate optional body);
 
-impl_validate_for!(EntityDef => delegate optional body, false, true);
+impl_validate_for!(EntityDef => delegate optional body);
 
 impl_annotation_builder!(EntityDef, optional body);
 
+impl_maybe_invalid_for!(EntityDef);
+
 impl EntityDef {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // EntityDef :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name: Identifier) -> Self {
+    pub const fn new(name: Identifier) -> Self {
         Self {
             span: None,
             name,
@@ -110,6 +118,8 @@ impl_has_members_for!(EntityBody);
 impl_has_source_span_for!(EntityBody);
 
 impl_validate_for_annotations_and_members!(EntityBody);
+
+impl_maybe_invalid_for!(EntityBody; over members);
 
 impl References for EntityBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -148,29 +158,30 @@ impl_has_name_for!(EntityIdentity);
 
 impl_has_source_span_for!(EntityIdentity);
 
-impl Validate for EntityIdentity {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
+impl MaybeIncomplete for EntityIdentity {
+    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
         match &self.kind {
             MemberKind::PropertyReference(_) => {
-                // TODO: check this is a property reference
-                Ok(true)
+                false
             }
-            MemberKind::Definition(v) => v.is_complete(top, cache),
+            MemberKind::Definition(v) => v.is_incomplete(top, cache),
         }
     }
+}
 
-    fn is_valid(
+impl Validate for EntityIdentity {
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         match &self.kind {
             MemberKind::PropertyReference(_) => {
                 // TODO: check this is a property reference
-                Ok(true)
             }
-            MemberKind::Definition(v) => v.is_valid(check_constraints, top, cache),
+            MemberKind::Definition(v) => v.validate(top, cache, loader, check_constraints),
         }
     }
 }
@@ -268,19 +279,22 @@ impl References for EntityIdentityDef {
     }
 }
 
-impl Validate for EntityIdentityDef {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        self.target_type.is_complete(top, cache)
+impl MaybeIncomplete for EntityIdentityDef {
+    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+        self.target_type.is_incomplete(top, cache)
     }
+}
 
-    fn is_valid(
+impl Validate for EntityIdentityDef {
+    fn validate(
         &self,
-        _check_constraints: bool,
         _top: &Module,
         _cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        // TOD: check type reference
-        Ok(true)
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        warn!("");
+        // TODO: check type reference
     }
 }
 

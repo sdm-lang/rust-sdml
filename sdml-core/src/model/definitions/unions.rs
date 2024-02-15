@@ -1,5 +1,6 @@
 use crate::{
-    error::Error,
+    cache::ModuleCache,
+    load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
         check::Validate,
@@ -10,6 +11,7 @@ use crate::{
     },
 };
 use std::{collections::HashSet, fmt::Debug};
+use tracing::warn;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -26,8 +28,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<UnionBody>,
 }
 
@@ -35,8 +39,11 @@ pub struct UnionDef {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionBody {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     variants: Vec<TypeVariant>, // assert!(!variants.is_empty());
 }
 
@@ -44,9 +51,12 @@ pub struct UnionBody {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeVariant {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name_reference: IdentifierReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     rename: Option<Identifier>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -60,7 +70,9 @@ impl_has_optional_body_for!(UnionDef, UnionBody);
 
 impl_has_source_span_for!(UnionDef);
 
-impl_validate_for!(UnionDef => delegate optional body, false, true);
+impl_validate_for!(UnionDef => delegate optional body);
+
+impl_maybe_invalid_for!(UnionDef; exists body);
 
 impl References for UnionDef {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -129,18 +141,14 @@ impl_has_source_span_for!(TypeVariant);
 impl_annotation_builder!(TypeVariant, optional body);
 
 impl Validate for TypeVariant {
-    fn is_complete(&self, _: &Module, _: &crate::cache::ModuleCache) -> Result<bool, Error> {
-        Ok(true)
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        _check_constraints: bool,
         _top: &Module,
-        _cache: &crate::cache::ModuleCache,
-    ) -> Result<bool, Error> {
-        // TODO check type reference is valid
-        Ok(true)
+        _cache: &ModuleCache,
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        warn!("Missing Validation for TypeVariant");
     }
 }
 

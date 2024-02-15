@@ -1,8 +1,10 @@
-use super::Span;
-use crate::error::invalid_identifier_error;
+use crate::load::ModuleLoader;
+use crate::model::modules::Module;
+use crate::model::Span;
 use convert_case::{Case, Casing};
 use lazy_static::lazy_static;
 use regex::Regex;
+use sdml_error::diagnostics::invalid_identifier;
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
@@ -22,6 +24,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Identifier {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     value: String,
 }
@@ -32,6 +35,7 @@ pub struct Identifier {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QualifiedIdentifier {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     module: Identifier,
     member: Identifier,
@@ -110,7 +114,7 @@ impl FromStr for Identifier {
                 value: s.to_string(),
             })
         } else {
-            Err(invalid_identifier_error(s))
+            Err(invalid_identifier(0, None, s).into())
         }
     }
 }
@@ -166,11 +170,21 @@ impl Hash for Identifier {
     }
 }
 
+//#[cfg(feature = "serde")]
+//impl<'de> Deserialize<'de> for Identifier {
+//    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//        where D: Deserializer<'de>
+//    {
+//        let s = String::deserialize(deserializer)?;
+//        FromStr::from_str(&s).map_err(de::Error::custom)
+//    }
+//}
+
 impl_has_source_span_for!(Identifier);
 
 impl Identifier {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // Identifier :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new_unchecked(s: &str) -> Self {
@@ -191,8 +205,20 @@ impl Identifier {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Helpers
+    // Identifier :: Helpers
     // --------------------------------------------------------------------------------------------
+
+    pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
+        if !Self::is_valid(&self.value) {
+            loader
+                .report(&invalid_identifier(
+                    top.file_id().map(|id| *id).unwrap_or_default(),
+                    self.span.clone().map(|s| s.into()),
+                    &self.value,
+                ))
+                .unwrap();
+        }
+    }
 
     #[inline(always)]
     pub fn is_valid(s: &str) -> bool {
@@ -286,10 +312,10 @@ impl_has_source_span_for!(QualifiedIdentifier, span);
 
 impl QualifiedIdentifier {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // QualifiedIdentifier :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(module: Identifier, member: Identifier) -> Self {
+    pub const fn new(module: Identifier, member: Identifier) -> Self {
         Self {
             span: None,
             module,
@@ -298,7 +324,7 @@ impl QualifiedIdentifier {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // QualifiedIdentifier :: Fields
     // --------------------------------------------------------------------------------------------
 
     getter!(pub module => Identifier);
@@ -306,8 +332,13 @@ impl QualifiedIdentifier {
     getter!(pub member => Identifier);
 
     // --------------------------------------------------------------------------------------------
-    // Helpers
+    // QualifiedIdentifier :: Helpers
     // --------------------------------------------------------------------------------------------
+
+    pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
+        self.module.validate(top, loader);
+        self.member.validate(top, loader);
+    }
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.module == other.module && self.member == other.member
@@ -376,17 +407,17 @@ impl IdentifierReference {
     is_as_variant!(QualifiedIdentifier (QualifiedIdentifier) => is_qualified_identifier, as_qualified_identifier);
 
     // --------------------------------------------------------------------------------------------
-    // Variants
+    // IdentifierReference :: Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn module(&self) -> Option<&Identifier> {
+    pub const fn module(&self) -> Option<&Identifier> {
         match self {
             IdentifierReference::Identifier(_) => None,
             IdentifierReference::QualifiedIdentifier(v) => Some(v.module()),
         }
     }
 
-    pub fn member(&self) -> &Identifier {
+    pub const fn member(&self) -> &Identifier {
         match self {
             IdentifierReference::Identifier(v) => v,
             IdentifierReference::QualifiedIdentifier(v) => v.member(),
@@ -394,8 +425,15 @@ impl IdentifierReference {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Helpers
+    // IdentifierReference :: Helpers
     // --------------------------------------------------------------------------------------------
+
+    pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
+        match self {
+            IdentifierReference::Identifier(v) => v.validate(top, loader),
+            IdentifierReference::QualifiedIdentifier(v) => v.validate(top, loader),
+        };
+    }
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         match (self, other) {
@@ -405,10 +443,6 @@ impl IdentifierReference {
         }
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Modules

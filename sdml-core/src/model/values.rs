@@ -1,4 +1,3 @@
-use crate::error::invalid_language_tag_error;
 use crate::model::{
     members::{Ordering, Uniqueness},
     IdentifierReference, Span,
@@ -7,6 +6,7 @@ use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
 use rust_decimal::Decimal;
+use sdml_error::diagnostics::invalid_language_tag;
 use std::{
     fmt::{Debug, Display},
     str::FromStr,
@@ -62,6 +62,7 @@ pub struct Binary(Vec<u8>);
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LanguageString {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     /// Corresponds to the grammar rule `quoted_string`.
     value: String,
@@ -72,6 +73,7 @@ pub struct LanguageString {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LanguageTag {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     value: String,
 }
@@ -80,6 +82,7 @@ pub struct LanguageTag {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MappingValue {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     domain: SimpleValue,
     range: Box<Value>,
@@ -89,6 +92,7 @@ pub struct MappingValue {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct SequenceOfValues {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     ordering: Option<Ordering>,
     uniqueness: Option<Uniqueness>,
@@ -109,18 +113,11 @@ pub enum SequenceMember {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ValueConstructor {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     type_name: IdentifierReference,
     value: SimpleValue,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Private Types
@@ -240,40 +237,40 @@ impl Value {
     is_as_variant!(Reference (IdentifierReference) => is_reference, as_reference);
     is_as_variant!(List (SequenceOfValues) => is_sequence, as_sequence);
 
-    pub fn is_boolean(&self) -> bool {
+    pub const fn is_boolean(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Boolean(_)))
     }
 
-    pub fn as_boolean(&self) -> Option<bool> {
+    pub const fn as_boolean(&self) -> Option<bool> {
         match self {
             Self::Simple(SimpleValue::Boolean(v)) => Some(*v),
             _ => None,
         }
     }
 
-    pub fn is_double(&self) -> bool {
+    pub const fn is_double(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Double(_)))
     }
 
-    pub fn as_double(&self) -> Option<OrderedFloat<f64>> {
+    pub const fn as_double(&self) -> Option<OrderedFloat<f64>> {
         match self {
             Self::Simple(SimpleValue::Double(v)) => Some(*v),
             _ => None,
         }
     }
 
-    pub fn is_decimal(&self) -> bool {
+    pub const fn is_decimal(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Decimal(_)))
     }
 
-    pub fn as_decimal(&self) -> Option<Decimal> {
+    pub const fn as_decimal(&self) -> Option<Decimal> {
         match self {
             Self::Simple(SimpleValue::Decimal(v)) => Some(*v),
             _ => None,
         }
     }
 
-    pub fn is_integer(&self) -> bool {
+    pub const fn is_integer(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Integer(_)))
     }
 
@@ -284,44 +281,44 @@ impl Value {
         }
     }
 
-    pub fn is_unsigned(&self) -> bool {
+    pub const fn is_unsigned(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Unsigned(_)))
     }
 
-    pub fn as_unsigned(&self) -> Option<u64> {
+    pub const fn as_unsigned(&self) -> Option<u64> {
         match self {
             Self::Simple(SimpleValue::Unsigned(v)) => Some(*v),
             _ => None,
         }
     }
 
-    pub fn is_string(&self) -> bool {
+    pub const fn is_string(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::String(_)))
     }
 
-    pub fn as_string(&self) -> Option<&LanguageString> {
+    pub const fn as_string(&self) -> Option<&LanguageString> {
         match self {
             Self::Simple(SimpleValue::String(v)) => Some(v),
             _ => None,
         }
     }
 
-    pub fn is_iri(&self) -> bool {
+    pub const fn is_iri(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::IriReference(_)))
     }
 
-    pub fn as_iri(&self) -> Option<&Url> {
+    pub const fn as_iri(&self) -> Option<&Url> {
         match self {
             Self::Simple(SimpleValue::IriReference(v)) => Some(v),
             _ => None,
         }
     }
 
-    pub fn is_binary(&self) -> bool {
+    pub const fn is_binary(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Binary(_)))
     }
 
-    pub fn as_binary(&self) -> Option<&Binary> {
+    pub const fn as_binary(&self) -> Option<&Binary> {
         match self {
             Self::Simple(SimpleValue::Binary(v)) => Some(v),
             _ => None,
@@ -418,7 +415,7 @@ impl_has_source_span_for!(LanguageString);
 
 impl LanguageString {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // LanguageString :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new(value: &str, language: Option<LanguageTag>) -> Self {
@@ -430,7 +427,7 @@ impl LanguageString {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // LanguageString :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub value, set_value => String);
@@ -438,7 +435,7 @@ impl LanguageString {
     get_and_set!(pub language, set_language, unset_language => optional has_language, LanguageTag);
 
     // --------------------------------------------------------------------------------------------
-    // Helpers
+    // LanguageString :: Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
@@ -464,7 +461,7 @@ impl FromStr for LanguageTag {
                 value: s.to_string(),
             })
         } else {
-            Err(invalid_language_tag_error(s))
+            Err(invalid_language_tag(0, None, s).into())
         }
     }
 }
@@ -499,7 +496,7 @@ impl_has_source_span_for!(LanguageTag);
 
 impl LanguageTag {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // LanguageTag :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new_unchecked(s: &str) -> Self {
@@ -510,7 +507,7 @@ impl LanguageTag {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Helpers
+    // LanguageTag :: Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {
@@ -614,19 +611,19 @@ impl_has_source_span_for!(MappingValue);
 
 impl MappingValue {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // MappingValue :: Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new(domain: SimpleValue, range: Value) -> Self {
         Self {
-            span: Default::default(),
+            span: None,
             domain,
             range: Box::new(range),
         }
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // MappingValue :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub domain, set_domain => into SimpleValue);
@@ -673,7 +670,7 @@ impl_as_sequence!(pub SequenceOfValues => SequenceMember);
 
 impl SequenceOfValues {
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // SequenceOfValues :: Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn with_ordering(self, ordering: Ordering) -> Self {
@@ -717,10 +714,10 @@ impl_has_source_span_for!(ValueConstructor);
 
 impl ValueConstructor {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // ValueConstructor :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
+    pub const fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
         Self {
             span: None,
             type_name,
@@ -729,18 +726,10 @@ impl ValueConstructor {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Fields
+    // ValueConstructor :: Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub type_name, set_type_name => IdentifierReference);
 
     get_and_set!(pub value, set_value => SimpleValue);
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

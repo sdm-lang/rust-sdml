@@ -1,0 +1,9 @@
+module example <https://example.com/api> is
+
+  enum EnumFoo of
+    Foo
+    Bar
+    Foo
+  end
+
+end

@@ -62,6 +62,7 @@ pub enum SimpleSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AtomicSentence {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     predicate: Term,
     arguments: Vec<Term>,
@@ -70,6 +71,7 @@ pub struct AtomicSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Equation {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     left_operand: Term,
     right_operand: Term,
@@ -78,6 +80,7 @@ pub struct Equation {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Inequation {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     left_operand: Term,
     relation: InequalityRelation,
@@ -115,6 +118,7 @@ pub enum BooleanSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnaryBooleanSentence {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     operand: Box<ConstraintSentence>,
 }
@@ -126,6 +130,7 @@ pub struct UnaryBooleanSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct BinaryBooleanSentence {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     left_operand: Box<ConstraintSentence>,
     operator: ConnectiveOperator,
@@ -164,6 +169,7 @@ pub enum ConnectiveOperator {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QuantifiedSentence {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     binding: QuantifiedVariableBinding,
     body: Box<ConstraintSentence>,
@@ -172,9 +178,11 @@ pub struct QuantifiedSentence {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QuantifiedVariableBinding {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     quantifier: Quantifier,
     // None = `self`
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     binding: Option<QuantifiedVariable>,
 }
 
@@ -197,6 +205,7 @@ pub enum Quantifier {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QuantifiedVariable {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     source: Term,

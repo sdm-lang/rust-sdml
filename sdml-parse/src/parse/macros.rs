@@ -3,95 +3,50 @@
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! emit_diagnostic {
-    ($files: expr, $diagnostic: expr) => {
-        // TODO: parameterize this ---------vvvvvvvvvvvvvvvvvvv
-        let writer = ::codespan_reporting::term::termcolor::StandardStream::stderr(
-            ::codespan_reporting::term::termcolor::ColorChoice::Always
-        );
-        let mut config = codespan_reporting::term::Config::default();
-        config.chars = ::codespan_reporting::term::Chars::box_drawing();
-        emit_diagnostic!($files, $diagnostic, &config => writer);
-    };
-    // ($files: expr, $diagnostic: expr => $writer: expr) => {
-    //     let config = codespan_reporting::term::Config::default();
-    //     emit_diagnostic!($files, $diagnostic, &config => $writer);
-    // };
-    // ($files: expr, $diagnostic: expr, $config: expr) => {
-    //     let writer = StandardStream::stderr(ColorChoice::Always);
-    //     emit_diagnostic!($files, $diagnostic, $config => writer);
-    // };
-    ($files: expr, $diagnostic: expr, $config: expr => $writer: expr) => {
-        ::codespan_reporting::term::emit(&mut $writer.lock(), &$config, &*$files, &$diagnostic)?
+    ($loader: expr, $diagnostic: expr) => {
+        $loader.report($diagnostic)?;
     };
 }
 
 macro_rules! unexpected_node {
     ($context: expr, $parse_fn: expr, $node: expr, [ $($expected: expr, )+ ]) => {
-        let diagnostic = $crate::error::UNEXPECTED_NODE_KIND.into_diagnostic()
-            .with_labels(vec![
-                ::codespan_reporting::diagnostic::Label::primary($context.file_id, $node.start_byte()..$node.end_byte())
-                    .with_message($crate::parse::message_expecting_one_of_node(&[
-                        $($expected, )+
-                    ])),
-                ::codespan_reporting::diagnostic::Label::secondary($context.file_id, $node.start_byte()..$node.end_byte())
-                    .with_message($crate::parse::message_found_node($node.kind())),
-                ]);
+        let expected = [$(
+            $expected,
+        )+].join(" | ");
+        let diagnostic = ::sdml_error::diagnostics::unexpected_node_kind(
+            $context.file_id,
+            $node.start_byte()..$node.end_byte(),
+            expected,
+            $node.kind()
+        );
+        emit_diagnostic!($context.loader, &diagnostic);
 
-        $context.counts.report(diagnostic.severity);
-        emit_diagnostic!($context.loader.files(), diagnostic);
-
-        return Err(::sdml_core::error::unexpected_node_kind(
-            $parse_fn,
-            [
-                $($expected, )+
-            ].join(" | "),
-            $node.kind(),
-            $node.into(),
-        ))
+        return Err(diagnostic.into())
     };
     ($context: expr, $parse_fn: expr, $node: expr, $expected: expr) => {
-        let diagnostic = $crate::error::UNEXPECTED_NODE_KIND.into_diagnostic()
-            .with_labels(vec![
-                ::codespan_reporting::diagnostic::Label::primary($context.file_id, $node.start_byte()..$node.end_byte())
-                    .with_message($crate::parse::message_expecting_node($expected)),
-                ::codespan_reporting::diagnostic::Label::secondary($context.file_id, $node.start_byte()..$node.end_byte())
-                    .with_message($crate::parse::message_found_node($node.kind())),
-                ]);
-
-        $context.counts.report(diagnostic.severity);
-        emit_diagnostic!($context.loader.files(), diagnostic);
-
-        return Err(::sdml_core::error::unexpected_node_kind(
-            $parse_fn,
+        let diagnostic = ::sdml_error::diagnostics::unexpected_node_kind(
+            $context.file_id,
+            $node.start_byte()..$node.end_byte(),
             $expected,
-            $node.kind(),
-            $node.into(),
-        ))
+            $node.kind()
+        );
+        emit_diagnostic!($context.loader, &diagnostic);
+
+        return Err(diagnostic.into())
     };
 }
 
 macro_rules! missing_node {
     ($context: expr, $parse_fn: expr, $parent_node: expr, $variable_name: expr, $node_kind: expr) => {
-        let message = format!(
-            "Missing a `{}` in grammar variable named `{}`",
-            $node_kind, $variable_name
-        );
-        let diagnostic = $crate::error::MISSING_NODE_VARIABLE
-            .into_diagnostic()
-            .with_labels(vec![::codespan_reporting::diagnostic::Label::primary(
-                $context.file_id,
-                $parent_node.start_byte()..$parent_node.end_byte(),
-            )
-            .with_message(message)]);
-
-        $context.counts.report(diagnostic.severity);
-        emit_diagnostic!($context.loader.files(), diagnostic);
-
-        return Err(::sdml_core::error::missing_node_variable(
-            $parse_fn,
-            $variable_name,
+        let diagnostic = ::sdml_error::diagnostics::missing_node(
+            $context.file_id,
+            $parent_node.start_byte()..$parent_node.end_byte(),
             $node_kind,
-        ))
+            Some($variable_name),
+        );
+        emit_diagnostic!($context.loader, &diagnostic);
+
+        return Err(diagnostic.into())
     };
 }
 

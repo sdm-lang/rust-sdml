@@ -9,18 +9,19 @@ YYYYY
 
 */
 
-use crate::error::{
-    ErrorCounters, FileId, MEMBER_ALREADY_IMPORTED, MEMBER_NAME_USED, MODULE_ALREADY_IMPORTED,
-    TYPE_DEFINITION_NAME_USED,
-};
-use crate::load::{ModuleLoader, Source};
+use crate::load::FsModuleLoader;
 use crate::parse::modules::parse_module;
-use codespan_reporting::diagnostic::Label;
-use sdml_core::error::{module_parse_error, Error};
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::{Import, Module};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::NODE_KIND_MODULE;
+use sdml_error::diagnostics::{
+    duplicate_definition, duplicate_definition_import, duplicate_member, duplicate_module_import,
+    duplicate_variant, found_error_node,
+};
+use sdml_error::Error;
+use sdml_error::{FileId, Source};
 use std::collections::HashSet;
 use tree_sitter::Node;
 use tree_sitter::Parser;
@@ -37,18 +38,12 @@ mod macros;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug)]
-pub(crate) struct Parsed {
-    module: Module,
-    counters: ErrorCounters,
-}
-
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
 // This should only be called by `ModuleLoader`
-pub(crate) fn parse_str(file_id: FileId, loader: &ModuleLoader) -> Result<Parsed, Error> {
+pub(crate) fn parse_str(file_id: FileId, loader: &FsModuleLoader) -> Result<Module, Error> {
     let file_cache = loader.files();
     let source = file_cache.get(file_id).unwrap().source();
     let mut parser = Parser::new();
@@ -62,11 +57,9 @@ pub(crate) fn parse_str(file_id: FileId, loader: &ModuleLoader) -> Result<Parsed
 
     if node.kind() == NODE_KIND_MODULE {
         let mut cursor = tree.walk();
-        let module = parse_module(&mut context, &mut cursor)?;
-        Ok(Parsed {
-            module,
-            counters: context.counts,
-        })
+        let mut module = parse_module(&mut context, &mut cursor)?;
+        module.set_file_id(file_id);
+        Ok(module)
     } else {
         unexpected_node!(context, "parse_str", node, NODE_KIND_MODULE);
     }
@@ -82,29 +75,20 @@ pub(crate) fn parse_str(file_id: FileId, loader: &ModuleLoader) -> Result<Parsed
 
 #[derive(Debug)]
 pub(crate) struct ParseContext<'a> {
-    loader: &'a ModuleLoader,
+    loader: &'a FsModuleLoader,
     file_id: FileId,
     source: Source,
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
-    counts: ErrorCounters,
 }
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl Parsed {
-    pub(crate) fn into_inner(self) -> (Module, ErrorCounters) {
-        (self.module, self.counters)
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-
 impl<'a> ParseContext<'a> {
-    fn new(file_id: FileId, loader: &'a ModuleLoader) -> Self {
+    fn new(file_id: FileId, loader: &'a FsModuleLoader) -> Self {
         let file_cache = loader.files();
         let file = file_cache.get(file_id).unwrap();
         Self {
@@ -114,7 +98,6 @@ impl<'a> ParseContext<'a> {
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
-            counts: Default::default(),
         }
     }
 
@@ -124,7 +107,7 @@ impl<'a> ParseContext<'a> {
 
     fn check_if_error(&self, node: &Node<'a>, rule: &str) -> Result<(), Error> {
         if node.is_error() {
-            Err(module_parse_error(node.kind(), node.into(), Some(rule)))
+            Err(found_error_node(self.file_id, node.byte_range(), rule).into())
         } else {
             Ok(())
         }
@@ -133,20 +116,19 @@ impl<'a> ParseContext<'a> {
     fn add_import(&mut self, import: &Import) -> Result<(), Error> {
         if let Some(previous) = self.imports.get(import) {
             let diagnostic = if matches!(previous, Import::Module(_)) {
-                MEMBER_ALREADY_IMPORTED
+                duplicate_module_import(
+                    self.file_id,
+                    previous.source_span().unwrap().byte_range(),
+                    import.source_span().unwrap().byte_range(),
+                )
             } else {
-                MODULE_ALREADY_IMPORTED
-            }
-            .into_diagnostic()
-            .with_labels(vec![
-                Label::primary(self.file_id, import.source_span().unwrap().byte_range())
-                    .with_message("this module"),
-                Label::secondary(self.file_id, previous.source_span().unwrap().byte_range())
-                    .with_message("was initially imported here"),
-            ]);
-
-            self.counts.report(diagnostic.severity);
-            emit_diagnostic!(self.loader.files(), diagnostic);
+                duplicate_definition_import(
+                    self.file_id,
+                    previous.source_span().unwrap().byte_range(),
+                    import.source_span().unwrap().byte_range(),
+                )
+            };
+            emit_diagnostic!(self.loader, &diagnostic);
         } else {
             self.imports.insert(import.clone());
         }
@@ -155,17 +137,12 @@ impl<'a> ParseContext<'a> {
 
     fn start_type(&mut self, name: &Identifier) -> Result<(), Error> {
         if let Some(type_defn) = self.type_names.get(name) {
-            let diagnostic = TYPE_DEFINITION_NAME_USED
-                .into_diagnostic()
-                .with_labels(vec![
-                    Label::primary(self.file_id, name.source_span().unwrap().byte_range())
-                        .with_message("this type name"),
-                    Label::secondary(self.file_id, type_defn.source_span().unwrap().byte_range())
-                        .with_message("was previously defined here"),
-                ]);
-
-            self.counts.report(diagnostic.severity);
-            emit_diagnostic!(self.loader.files(), diagnostic);
+            let diagnostic = duplicate_definition(
+                self.file_id,
+                name.source_span().unwrap().byte_range(),
+                type_defn.source_span().unwrap().byte_range(),
+            );
+            emit_diagnostic!(self.loader, &diagnostic);
         } else {
             self.type_names.insert(name.clone());
         }
@@ -174,15 +151,26 @@ impl<'a> ParseContext<'a> {
 
     fn start_member(&mut self, name: &Identifier) -> Result<(), Error> {
         if let Some(member) = self.member_names.get(name) {
-            let diagnostic = MEMBER_NAME_USED.into_diagnostic().with_labels(vec![
-                Label::primary(self.file_id, name.source_span().unwrap().byte_range())
-                    .with_message("this member name"),
-                Label::secondary(self.file_id, member.source_span().unwrap().byte_range())
-                    .with_message("was previously defined here"),
-            ]);
+            let diagnostic = duplicate_member(
+                self.file_id,
+                member.source_span().unwrap().byte_range(),
+                name.source_span().unwrap().byte_range(),
+            );
+            emit_diagnostic!(self.loader, &diagnostic);
+        } else {
+            self.member_names.insert(name.clone());
+        }
+        Ok(())
+    }
 
-            self.counts.report(diagnostic.severity);
-            emit_diagnostic!(self.loader.files(), diagnostic);
+    fn start_variant(&mut self, name: &Identifier) -> Result<(), Error> {
+        if let Some(member) = self.member_names.get(name) {
+            let diagnostic = duplicate_variant(
+                self.file_id,
+                member.source_span().unwrap().byte_range(),
+                name.source_span().unwrap().byte_range(),
+            );
+            emit_diagnostic!(self.loader, &diagnostic);
         } else {
             self.member_names.insert(name.clone());
         }
@@ -197,25 +185,6 @@ impl<'a> ParseContext<'a> {
 // ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------
-
-fn message_found_node(found: &str) -> String {
-    format!("found `{found}`")
-}
-
-fn message_expecting_node(expecting: &str) -> String {
-    format!("expecting: `{expecting}`")
-}
-
-fn message_expecting_one_of_node(expecting: &[&str]) -> String {
-    format!(
-        "expecting one of: {}",
-        expecting
-            .iter()
-            .map(|s| format!("`{s}`"))
-            .collect::<Vec<String>>()
-            .join("|")
-    )
-}
 
 // ------------------------------------------------------------------------------------------------
 // Modules

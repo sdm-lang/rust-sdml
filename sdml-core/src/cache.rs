@@ -97,7 +97,8 @@ impl ModuleCache {
 
     pub fn insert(&mut self, module: Module) {
         if let Some(base_uri) = module.base_uri() {
-            self.uri_map.insert(base_uri.clone(), module.name().clone());
+            self.uri_map
+                .insert(base_uri.value().clone(), module.name().clone());
         }
         self.modules.insert(module.name().clone(), module);
     }
@@ -132,7 +133,7 @@ impl ModuleCache {
     pub fn url_for_identifier(&self, id: &Identifier) -> Option<&Url> {
         self.modules
             .get(id)
-            .map(|module| module.base_uri())
+            .map(|module| module.base_uri().map(|hv| hv.value()))
             .unwrap_or_default()
     }
 

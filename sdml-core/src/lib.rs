@@ -60,9 +60,11 @@ generators.
 // Modules
 // ------------------------------------------------------------------------------------------------
 
+pub use sdml_error::errors as error;
+
 pub mod cache;
 
-pub mod error;
+pub mod load;
 
 pub mod model;
 

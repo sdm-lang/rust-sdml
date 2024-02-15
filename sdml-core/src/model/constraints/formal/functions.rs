@@ -1,5 +1,5 @@
 use crate::cache::ModuleCache;
-use crate::error::Error;
+use crate::load::ModuleLoader;
 use crate::model::check::Validate;
 use crate::model::constraints::ConstraintSentence;
 use crate::model::identifiers::{Identifier, IdentifierReference};
@@ -23,6 +23,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     signature: FunctionSignature,
     body: ConstraintSentence,
@@ -31,6 +32,7 @@ pub struct FunctionDef {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionSignature {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     parameters: Vec<FunctionParameter>,
     target_type: FunctionType,
@@ -39,6 +41,7 @@ pub struct FunctionSignature {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionParameter {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     target_type: FunctionType,
@@ -47,6 +50,7 @@ pub struct FunctionParameter {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionType {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     target_cardinality: FunctionCardinality,
     target_type: FunctionTypeReference,
@@ -56,9 +60,13 @@ pub struct FunctionType {
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionCardinality {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     ordering: Option<Ordering>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     uniqueness: Option<Uniqueness>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     range: Option<CardinalityRange>,
 }
 
@@ -240,25 +248,14 @@ impl Display for FunctionCardinality {
 impl_has_source_span_for!(FunctionCardinality);
 
 impl Validate for FunctionCardinality {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        if let Some(range) = &self.range {
-            range.is_complete(top, cache)
-        } else {
-            Ok(true)
-        }
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        check_constraints: bool,
-        top: &Module,
-        cache: &ModuleCache,
-    ) -> Result<bool, Error> {
-        if let Some(range) = &self.range {
-            range.is_valid(check_constraints, top, cache)
-        } else {
-            Ok(true)
-        }
+        _top: &Module,
+        _cache: &ModuleCache,
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        todo!()
     }
 }
 

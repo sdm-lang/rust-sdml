@@ -1,6 +1,7 @@
 use crate::{
     cache::ModuleCache,
-    model::{check::Validate, References, Span},
+    load::ModuleLoader,
+    model::{check::Validate, modules::Module, References, Span},
 };
 
 #[cfg(feature = "serde")]
@@ -17,7 +18,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FormalConstraint {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     environment: Vec<EnvironmentDef>,
     body: ConstraintSentence,
 }
@@ -33,20 +36,13 @@ impl_has_source_span_for!(FormalConstraint);
 impl References for FormalConstraint {}
 
 impl Validate for FormalConstraint {
-    fn is_complete(
+    fn validate(
         &self,
-        _top: &crate::model::modules::Module,
+        _top: &Module,
         _cache: &ModuleCache,
-    ) -> Result<bool, crate::error::Error> {
-        todo!()
-    }
-
-    fn is_valid(
-        &self,
+        _loader: &impl ModuleLoader,
         _check_constraints: bool,
-        _top: &crate::model::modules::Module,
-        _cache: &ModuleCache,
-    ) -> Result<bool, crate::error::Error> {
+    ) {
         todo!()
     }
 }

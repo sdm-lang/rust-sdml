@@ -1,5 +1,6 @@
 use crate::{
     cache::ModuleCache,
+    load::ModuleLoader,
     model::{
         annotations::{AnnotationBuilder, AnnotationOnlyBody, HasAnnotations},
         check::Validate,
@@ -9,10 +10,10 @@ use crate::{
     },
     stdlib,
 };
+use tracing::info;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use tracing::info;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -26,6 +27,7 @@ use tracing::info;
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct RdfDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     body: AnnotationOnlyBody,
@@ -57,15 +59,17 @@ impl_references_for!(RdfDef => delegate body);
 
 impl_annotation_builder!(RdfDef);
 
-impl Validate for RdfDef {
-    fn is_complete(&self, _: &Module, _: &ModuleCache) -> Result<bool, crate::error::Error> {
-        info!("RdfDef::is_complete true by definition");
-        Ok(true)
-    }
+impl_maybe_invalid_for!(RdfDef; always false);
 
-    fn is_valid(&self, _: bool, _: &Module, _: &ModuleCache) -> Result<bool, crate::error::Error> {
-        info!("RdfDef::is_valid true-enough by definition");
-        Ok(true)
+impl Validate for RdfDef {
+    fn validate(
+        &self,
+        _top: &Module,
+        _cache: &ModuleCache,
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        info!("RdfDef is always valid.");
     }
 }
 

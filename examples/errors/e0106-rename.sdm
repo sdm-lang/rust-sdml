@@ -1,0 +1,9 @@
+module example <https://example.com/api> is
+
+  union UnionFoo of
+    Foo
+    Bar
+    Boo as Foo
+  end
+
+end

@@ -10,6 +10,8 @@ This module provides the generators for *module-to-file* conversion which includ
 
 pub mod doc;
 
+pub mod json;
+
 pub mod rdf;
 
 pub mod sexpr;

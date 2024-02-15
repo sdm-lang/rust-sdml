@@ -3,6 +3,7 @@ use crate::parse::constraints::parse_constraint;
 use crate::parse::identifiers::parse_identifier_reference;
 use crate::parse::values::parse_value;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{

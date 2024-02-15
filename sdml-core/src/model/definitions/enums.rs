@@ -1,5 +1,6 @@
 use crate::{
-    error::Error,
+    cache::ModuleCache,
+    load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
         check::Validate,
@@ -10,6 +11,7 @@ use crate::{
     },
 };
 use std::{collections::HashSet, fmt::Debug};
+use tracing::warn;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -26,8 +28,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EnumDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<EnumBody>,
 }
 
@@ -35,8 +39,11 @@ pub struct EnumDef {
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct EnumBody {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     variants: Vec<ValueVariant>, // assert!(!variants.is_empty());
 }
 
@@ -44,8 +51,10 @@ pub struct EnumBody {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ValueVariant {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -59,8 +68,10 @@ impl_has_optional_body_for!(EnumDef, EnumBody);
 
 impl_has_source_span_for!(EnumDef);
 
+impl_maybe_invalid_for!(EnumDef; exists body);
+
 // TODO check that any equivalent class is a datatype.
-impl_validate_for!(EnumDef => delegate optional body, false, true);
+impl_validate_for!(EnumDef => delegate optional body);
 
 impl_annotation_builder!(EnumDef, optional body);
 
@@ -112,18 +123,14 @@ impl_has_source_span_for!(ValueVariant);
 impl_annotation_builder!(ValueVariant, optional body);
 
 impl Validate for ValueVariant {
-    fn is_complete(&self, _: &Module, _: &crate::cache::ModuleCache) -> Result<bool, Error> {
-        Ok(true)
-    }
-
-    fn is_valid(
+    fn validate(
         &self,
-        _check_constraints: bool,
         _top: &Module,
-        _cache: &crate::cache::ModuleCache,
-    ) -> Result<bool, Error> {
-        // TODO check values are valid for any specified type
-        Ok(true)
+        _cache: &ModuleCache,
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        warn!("Missing validation for ValueVariant values.");
     }
 }
 

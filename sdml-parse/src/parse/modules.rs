@@ -5,8 +5,9 @@ use crate::parse::annotations::parse_annotation;
 use crate::parse::definitions::parse_definition;
 use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::modules::{Import, ImportStatement, ModuleImport};
+use sdml_core::model::modules::{HeaderValue, Import, ImportStatement, ModuleImport};
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
@@ -42,19 +43,19 @@ pub(crate) fn parse_module<'a>(
     if let Some(child) = node.child_by_field_name(FIELD_NAME_BASE) {
         context.check_if_error(&child, RULE_NAME)?;
         let uri = parse_uri(context, &child)?;
-        module.set_base_uri(uri);
+        module.set_base_uri(HeaderValue::from(uri).with_source_span(child.into()));
     }
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_VERSION_INFO) {
         context.check_if_error(&child, RULE_NAME)?;
         let info = parse_quoted_string(context, &child)?;
-        module.set_version_info(info);
+        module.set_version_info(HeaderValue::from(info).with_source_span(child.into()));
     }
 
     if let Some(child) = node.child_by_field_name(FIELD_NAME_VERSION_URI) {
         context.check_if_error(&child, RULE_NAME)?;
         let uri = parse_uri(context, &child)?;
-        module.set_version_uri(uri);
+        module.set_version_uri(HeaderValue::from(uri).with_source_span(child.into()));
     }
 
     Ok(module)
@@ -128,11 +129,12 @@ fn parse_import_statement<'a>(
                 let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
                 context.check_if_error(&child, RULE_NAME)?;
                 let mut imported: ModuleImport = parse_identifier(context, &child)?.into();
+                imported.set_source_span(node.into());
 
                 if let Some(child) = node.child_by_field_name(FIELD_NAME_VERSION_URI) {
                     context.check_if_error(&child, RULE_NAME)?;
                     let uri = parse_uri(context, &child)?;
-                    imported.set_version_uri(uri);
+                    imported.set_version_uri(HeaderValue::from(uri).with_source_span(child.into()));
                 }
 
                 let imported: Import = imported.into();

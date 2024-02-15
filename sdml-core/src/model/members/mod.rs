@@ -1,13 +1,14 @@
 use crate::cache::ModuleCache;
-use crate::error::Error;
+use crate::load::ModuleLoader;
 use crate::model::annotations::AnnotationOnlyBody;
-use crate::model::check::Validate;
+use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
-use crate::model::{References, Span};
+use crate::model::{References, Span, HasSourceSpan, HasName};
 use std::collections::HashSet;
 use std::fmt::Debug;
+use sdml_error::diagnostics::member_is_incomplete;
 use tracing::{error, trace};
 
 #[cfg(feature = "serde")]
@@ -21,6 +22,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Member {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
     kind: MemberKind,
@@ -30,10 +32,13 @@ pub struct Member {
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MemberDef {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     inverse_name: Option<Identifier>,
     target_cardinality: Cardinality,
     target_type: TypeReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
 }
 
@@ -56,39 +61,47 @@ impl_has_name_for!(Member);
 
 impl_has_source_span_for!(Member);
 
-impl Validate for Member {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("Member::is_complete");
+impl MaybeIncomplete for Member {
+    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
         match &self.kind {
-            MemberKind::PropertyReference(name) => {
-                if let Some(defn) = find_definition(name, top, cache) {
-                    Ok(matches!(defn, Definition::Property(_)))
-                } else {
-                    error!("Definition {name} not found");
-                    Ok(false)
-                }
-            }
-            MemberKind::Definition(v) => v.is_complete(top, cache),
+            MemberKind::PropertyReference(name) => false,
+            MemberKind::Definition(v) => v.is_incomplete(top, cache),
         }
     }
+}
 
-    fn is_valid(
+impl Validate for Member {
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         trace!("Member::is_valid");
         match &self.kind {
             MemberKind::PropertyReference(name) => {
                 if let Some(defn) = find_definition(name, top, cache) {
-                    Ok(matches!(defn, Definition::Property(_)))
+                    if !matches!(defn, Definition::Property(_)) {
+                        panic!();
+                    }
                 } else {
                     error!("Definition {name} not found");
-                    Ok(false)
+                    panic!();
                 }
             }
-            MemberKind::Definition(v) => v.is_valid(check_constraints, top, cache),
+            MemberKind::Definition(v) => {
+                v.validate(top, cache, loader, check_constraints);
+                if self.is_incomplete(top, cache) {
+                    loader
+                        .report(&member_is_incomplete(
+                            top.file_id().copied().unwrap_or_default(),
+                            self.source_span().map(|span| span.byte_range()),
+                            self.name(),
+                        ))
+                        .unwrap()
+                }
+            },
         }
     }
 }
@@ -115,10 +128,13 @@ impl References for Member {
 
 impl Member {
     // --------------------------------------------------------------------------------------------
-    // Constructors
+    // Member :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new_property_reference(role: Identifier, in_property: IdentifierReference) -> Self {
+    pub const fn new_property_reference(
+        role: Identifier,
+        in_property: IdentifierReference,
+    ) -> Self {
         Self {
             span: None,
             name: role,
@@ -126,7 +142,7 @@ impl Member {
         }
     }
 
-    pub fn new_definition(name: Identifier, definition: MemberDef) -> Self {
+    pub const fn new_definition(name: Identifier, definition: MemberDef) -> Self {
         Self {
             span: None,
             name,
@@ -135,14 +151,14 @@ impl Member {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Variants
+    // Member :: Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_property_reference(&self) -> bool {
+    pub const fn is_property_reference(&self) -> bool {
         matches!(self.kind, MemberKind::PropertyReference(_))
     }
 
-    pub fn as_property_reference(&self) -> Option<&IdentifierReference> {
+    pub const fn as_property_reference(&self) -> Option<&IdentifierReference> {
         if let MemberKind::PropertyReference(v) = &self.kind {
             Some(v)
         } else {
@@ -150,11 +166,11 @@ impl Member {
         }
     }
 
-    pub fn is_definition(&self) -> bool {
+    pub const fn is_definition(&self) -> bool {
         matches!(self.kind, MemberKind::Definition(_))
     }
 
-    pub fn as_definition(&self) -> Option<&MemberDef> {
+    pub const fn as_definition(&self) -> Option<&MemberDef> {
         if let MemberKind::Definition(v) = &self.kind {
             Some(v)
         } else {
@@ -190,27 +206,28 @@ impl References for MemberDef {
     }
 }
 
-impl Validate for MemberDef {
-    fn is_complete(&self, top: &Module, cache: &ModuleCache) -> Result<bool, Error> {
-        trace!("MemberDef::is_complete");
-        Ok(self.target_type.is_complete(top, cache)?
-            && self.target_cardinality.is_complete(top, cache)?)
+impl MaybeIncomplete for MemberDef {
+    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+        self.target_type.is_incomplete(top, cache)
     }
+}
 
-    fn is_valid(
+impl Validate for MemberDef {
+    fn validate(
         &self,
-        check_constraints: bool,
         top: &Module,
         cache: &ModuleCache,
-    ) -> Result<bool, Error> {
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         trace!("MemberDef::is_valid");
         // TODO: check inverse name exists
         // TODO: check target type exists
         // TODO: check property reference exists
-        Ok(self.target_type().is_valid(check_constraints, top, cache)?
-            && self
-                .target_cardinality()
-                .is_valid(check_constraints, top, cache)?)
+        self.target_type()
+            .validate(top, cache, loader, check_constraints);
+        self.target_cardinality()
+            .validate(top, cache, loader, check_constraints);
     }
 }
 
@@ -262,5 +279,3 @@ pub use cardinality::{
 
 mod types;
 pub use types::{HasType, MappingType, TypeReference};
-
-use super::check::find_definition;

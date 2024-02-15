@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+Internal
 
 */
 
@@ -17,7 +11,7 @@ macro_rules! impl_has_source_span_for {
     ($type: ty) => {
         impl_has_source_span_for!($type, span);
     };
-    ($type: ty, $inner: ident) => {
+   ($type: ty, $inner: ident) => {
         impl $crate::model::HasSourceSpan for $type {
             fn with_source_span(self, span: $crate::model::Span) -> Self {
                 let mut self_mut = self;
@@ -38,7 +32,7 @@ macro_rules! impl_has_source_span_for {
             }
         }
     };
-    ($type: ty => variants $($varname: ident),+) => {
+     ($type: ty => variants $($varname: ident),+) => {
         impl $crate::model::HasSourceSpan for $type {
             #[inline]
             fn with_source_span(self, span: $crate::model::Span) -> Self {
@@ -400,60 +394,112 @@ macro_rules! impl_references_for {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Public Macros ❱ trait MaybeInvalid
+// ------------------------------------------------------------------------------------------------
+
+macro_rules! impl_maybe_invalid_for {
+    ($type: ty) => {
+        impl_maybe_invalid_for!($type; optional body);
+    };
+    ($type: ty; always $default: expr) => {
+        impl $crate::model::check::MaybeIncomplete for $type {
+            fn is_incomplete(
+                &self,
+                _: &$crate::model::modules::Module,
+                _: &$crate::cache::ModuleCache) -> bool
+            {
+                $default
+            }
+        }
+    };
+    ($type: ty; exists $field: ident) => {
+        impl $crate::model::check::MaybeIncomplete for $type {
+            fn is_incomplete(
+                &self,
+                _: &$crate::model::modules::Module,
+                _: &$crate::cache::ModuleCache) -> bool
+            {
+                self.$field.is_none()
+            }
+        }
+    };
+    ($type: ty; optional $field: ident) => {
+        impl $crate::model::check::MaybeIncomplete for $type {
+            fn is_incomplete(
+                &self,
+                top: &$crate::model::modules::Module,
+                cache: &$crate::cache::ModuleCache) -> bool
+            {
+                if let Some($field) = &self.$field {
+                    $field.is_incomplete(top, cache)
+                } else {
+                    true
+                }
+            }
+        }
+    };
+    ($type: ty; over $collection: ident) => {
+        impl $crate::model::check::MaybeIncomplete for $type {
+            fn is_incomplete(
+                &self,
+                top: &$crate::model::modules::Module,
+                cache: &$crate::cache::ModuleCache) -> bool
+            {
+                self.$collection().any(|elem| elem.is_incomplete(top, cache))
+            }
+        }
+    };
+    ($type: ty; variants $($varname: ident),+) => {
+        impl $crate::model::check::MaybeIncomplete for $type {
+            fn is_incomplete(
+                &self,
+                top: &$crate::model::modules::Module,
+                cache: &$crate::cache::ModuleCache) -> bool
+            {
+                match self {
+                    $(
+                        Self::$varname(v) => v.is_incomplete(top, cache),
+                    )+
+                }
+            }
+        }
+    };
+}
+
+// ------------------------------------------------------------------------------------------------
 // Public Macros ❱ trait Validate
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! impl_validate_for {
     ($type: ty => variants $($varname: ident),+) => {
         impl $crate::model::check::Validate for $type {
-            fn is_complete(
+            fn validate(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache
-            ) -> Result<bool, $crate::error::Error> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.is_complete(top, cache),
-                    )+
-                }
-            }
-
-            fn is_valid(
-                &self,
+                cache: &$crate::cache::ModuleCache,
+                loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
-                top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache
-            ) -> Result<bool, $crate::error::Error> {
+            ) {
                 match self {
                     $(
-                        Self::$varname(v) => v.is_valid(check_constraints, top, cache),
+                        Self::$varname(v) => v.validate(top, cache, loader, check_constraints),
                     )+
                 }
             }
         }
     };
-    ($type: ty => delegate optional $inner: ident, $def_complete: expr, $def_valid: expr) => {
+    ($type: ty => delegate optional $inner: ident) => {
         impl $crate::model::check::Validate for $type {
-            fn is_complete(
+            fn validate(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache
-            ) -> Result<bool, $crate::error::Error> {
-                match &self.$inner {
-                    Some(inner) => inner.is_complete(top, cache),
-                    None => Ok($def_complete),
-                }
-            }
-
-            fn is_valid(
-                &self,
+                cache: &$crate::cache::ModuleCache,
+                loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
-                top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache
-            ) -> Result<bool, $crate::error::Error> {
+            ) {
                 match &self.$inner {
-                    Some(inner) => inner.is_valid(check_constraints, top, cache),
-                    None => Ok($def_valid),
+                    Some(inner) => inner.validate(top, cache, loader, check_constraints),
+                    None => {},
                 }
             }
         }
@@ -463,51 +509,17 @@ macro_rules! impl_validate_for {
 macro_rules! impl_validate_for_annotations_and_members {
     ($type: ty) => {
         impl Validate for $type {
-            fn is_complete(
-                &self,
-                top: &Module,
-                cache: &$crate::cache::ModuleCache,
-            ) -> Result<bool, Error> {
-                Ok(self
-                    .annotations()
-                    .map(|ann| ann.is_complete(top, cache))
-                    .chain(self.members().map(|m| m.is_complete(top, cache)))
-                    .collect::<Result<Vec<bool>, Error>>()?
-                    .into_iter()
-                    // reduce vector of booleans
-                    .all(::std::convert::identity))
-            }
-
-            fn is_valid(
-                &self,
-                check_constraints: bool,
-                top: &Module,
-                cache: &$crate::cache::ModuleCache,
-            ) -> Result<bool, Error> {
-                Ok(self
-                    .annotations()
-                    .map(|ann| ann.is_valid(check_constraints, top, cache))
-                    .chain(self.members().map(|m| m.is_complete(top, cache)))
-                    .collect::<Result<Vec<bool>, Error>>()?
-                    .into_iter()
-                    // reduce vector of booleans
-                    .all(::std::convert::identity))
-            }
-
             fn validate(
                 &self,
-                check_constraints: bool,
-                top: &Module,
+                top: &$crate::model::modules::Module,
                 cache: &$crate::cache::ModuleCache,
-                errors: &mut Vec<Error>,
-            ) -> Result<(), Error> {
-                for inner in self.annotations() {
-                    inner.validate(check_constraints, top, cache, errors)?;
-                }
-                for inner in self.members() {
-                    inner.validate(check_constraints, top, cache, errors)?;
-                }
-                Ok(())
+                loader: &impl $crate::load::ModuleLoader,
+                check_constraints: bool,
+            ) {
+                self.annotations()
+                    .for_each(|a| a.validate(top, cache, loader, check_constraints));
+                self.members()
+                    .for_each(|m| m.validate(top, cache, loader, check_constraints));
             }
         }
     };
@@ -516,49 +528,17 @@ macro_rules! impl_validate_for_annotations_and_members {
 macro_rules! impl_validate_for_annotations_and_variants {
     ($type: ty) => {
         impl Validate for $type {
-            fn is_complete(
-                &self,
-                top: &Module,
-                cache: &$crate::cache::ModuleCache,
-            ) -> Result<bool, Error> {
-                Ok(self
-                    .annotations()
-                    .map(|ann| ann.is_complete(top, cache))
-                    .chain(self.variants().map(|m| m.is_complete(top, cache)))
-                    .collect::<Result<Vec<bool>, Error>>()?
-                    .into_iter()
-                    .all(::std::convert::identity))
-            }
-
-            fn is_valid(
-                &self,
-                check_constraints: bool,
-                top: &Module,
-                cache: &$crate::cache::ModuleCache,
-            ) -> Result<bool, Error> {
-                Ok(self
-                    .annotations()
-                    .map(|ann| ann.is_valid(check_constraints, top, cache))
-                    .chain(self.variants().map(|m| m.is_complete(top, cache)))
-                    .collect::<Result<Vec<bool>, Error>>()?
-                    .into_iter()
-                    .all(::std::convert::identity))
-            }
-
             fn validate(
                 &self,
-                check_constraints: bool,
                 top: &Module,
                 cache: &$crate::cache::ModuleCache,
-                errors: &mut Vec<Error>,
-            ) -> Result<(), Error> {
-                for inner in self.annotations() {
-                    inner.validate(check_constraints, top, cache, errors)?;
-                }
-                for inner in self.variants() {
-                    inner.validate(check_constraints, top, cache, errors)?;
-                }
-                Ok(())
+                loader: &impl $crate::load::ModuleLoader,
+                check_constraints: bool,
+            ) {
+                self.annotations()
+                    .for_each(|a| a.validate(top, cache, loader, check_constraints));
+                self.variants()
+                    .for_each(|v| v.validate(top, cache, loader, check_constraints));
             }
         }
     };

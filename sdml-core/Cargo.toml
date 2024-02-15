@@ -24,6 +24,7 @@ lazy_static = "1.4.0"
 ordered-float = { version = "4.2.0", features = ["serde"] }
 regex = "1.10.2"
 rust_decimal = { version = "1.34.2", features = ["serde"] }
+sdml_error = { version = "0.1.0", path = "../sdml_error" }
 serde = { version = "1.0.195", features = ["derive"], optional = true }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

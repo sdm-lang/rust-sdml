@@ -5,18 +5,21 @@
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::cache::ModuleCache;
-use sdml_core::error::{module_file_not_found, Error};
+use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::HasName;
+use sdml_core::model::modules::HeaderValue;
+use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
+use sdml_error::diagnostics::{imported_module_not_found, BailoutReporter, StandardStreamReporter};
+use sdml_error::{Diagnostic, Reporter, Source, SourceFiles};
+use sdml_error::{Error, FileId};
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fmt::Display;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
-use tracing::{error, info, trace, warn};
+use tracing::{debug, error, info, trace, warn};
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
@@ -28,7 +31,7 @@ use url::Url;
 /// environment variable `SDML_PATH` to contain a search path.
 ///
 #[derive(Clone, Debug)]
-pub struct ModuleResolver {
+pub struct FsModuleResolver {
     catalog: Option<ModuleCatalog>,
     search_path: SearchPath,
 }
@@ -47,11 +50,12 @@ pub const SDML_CATALOG_FILE_NAME: &str = "sdml-catalog.json";
 
 // ------------------------------------------------------------------------------------------------
 
-///
-/// A wrapper around the source code loaded prior to parsing.
-///
-#[derive(Clone, Debug)]
-pub struct Source(String);
+#[derive(Debug)]
+#[allow(clippy::large_enum_variant)]
+pub enum DiagnosticReporter {
+    Interactive(StandardStreamReporter),
+    FailFast(BailoutReporter),
+}
 
 ///
 /// The loader is used to manage the process of creating an in-memory model from file-system resources.
@@ -62,11 +66,12 @@ pub struct Source(String);
 /// 2. parsing the source into an in-memory representation,
 /// 3. caching the loaded module, and it's source, for future use.
 ///
-#[derive(Clone, Debug)]
-pub struct ModuleLoader {
-    resolver: ModuleResolver,
+#[derive(Debug)]
+pub struct FsModuleLoader {
+    resolver: FsModuleResolver,
     module_file_ids: HashMap<Identifier, usize>,
-    module_files: SimpleFiles<String, Source>,
+    module_files: SourceFiles,
+    reporter: DiagnosticReporter,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -144,43 +149,7 @@ macro_rules! trace_entry {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl Display for Source {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<String> for Source {
-    fn from(value: String) -> Self {
-        Self(value)
-    }
-}
-
-impl AsRef<str> for Source {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-
-impl AsRef<[u8]> for Source {
-    fn as_ref(&self) -> &[u8] {
-        self.as_bytes()
-    }
-}
-
-impl Source {
-    fn as_str(&self) -> &str {
-        self.0.as_str()
-    }
-
-    fn as_bytes(&self) -> &[u8] {
-        self.0.as_bytes()
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-
-impl Default for ModuleResolver {
+impl Default for FsModuleResolver {
     fn default() -> Self {
         trace_entry!("ModuleResolver", "default");
 
@@ -203,7 +172,14 @@ impl Default for ModuleResolver {
     }
 }
 
-impl ModuleResolver {
+impl ModuleResolver for FsModuleResolver {
+    fn name_to_resource(&self, name: &Identifier, from: Option<FileId>) -> Result<Url, Error> {
+        Url::from_file_path(self.name_to_path(name, from)?)
+            .map_err(|_| Error::UrlParseError { source: None })
+    }
+}
+
+impl FsModuleResolver {
     /// Add the provided path to the beginning of the search list.
     pub fn prepend_to_search_path(&mut self, path: &Path) {
         self.search_path.append(PathBuf::from(path));
@@ -215,7 +191,7 @@ impl ModuleResolver {
     }
 
     /// Return a file system path for the resource that /should/ contain the named module.
-    pub fn name_to_path(&self, name: &Identifier) -> Result<PathBuf, Error> {
+    pub fn name_to_path(&self, name: &Identifier, from: Option<FileId>) -> Result<PathBuf, Error> {
         trace_entry!("ModuleResolver", "name_to_path" => "{}", name);
         if let Some(catalog) = &self.catalog {
             let name: String = name.to_string();
@@ -240,31 +216,65 @@ impl ModuleResolver {
                             })
                     })
             })
-            .ok_or_else(|| module_file_not_found(name.clone()))
+            .ok_or_else(|| {
+                imported_module_not_found(
+                    from.unwrap_or_default(),
+                    name.source_span().map(|span| span.into()),
+                    name,
+                )
+                .into()
+            })
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl Default for ModuleLoader {
+impl Default for DiagnosticReporter {
+    fn default() -> Self {
+        Self::Interactive(Default::default())
+    }
+}
+
+impl Reporter for DiagnosticReporter {
+    fn emit(&self, diagnostic: &Diagnostic, sources: &SourceFiles) -> Result<(), Error> {
+        match self {
+            DiagnosticReporter::Interactive(v) => v.emit(diagnostic, sources),
+            DiagnosticReporter::FailFast(v) => v.emit(diagnostic, sources),
+        }
+    }
+
+    fn done(&self, top_module_name: Option<String>) -> Result<(), Error> {
+        match self {
+            DiagnosticReporter::Interactive(v) => v.done(top_module_name),
+            DiagnosticReporter::FailFast(v) => v.done(top_module_name),
+        }
+    }
+}
+
+impl DiagnosticReporter {
+    pub fn is_interactive(&self) -> bool {
+        matches!(self, Self::Interactive(_))
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Default for FsModuleLoader {
     fn default() -> Self {
         Self {
             resolver: Default::default(),
             module_file_ids: Default::default(),
             module_files: SimpleFiles::new(),
+            reporter: DiagnosticReporter::Interactive(StandardStreamReporter::default()),
         }
     }
 }
 
-impl ModuleLoader {
-    pub fn with_resolver(self, resolver: ModuleResolver) -> Self {
-        Self { resolver, ..self }
-    }
-
-    /// Load the named module using the loader's current resolver.
-    pub fn load(
+impl ModuleLoader for FsModuleLoader {
+    fn load(
         &mut self,
         name: &Identifier,
+        from: Option<FileId>,
         cache: &mut ModuleCache,
         recursive: bool,
     ) -> Result<Identifier, Error> {
@@ -272,9 +282,48 @@ impl ModuleLoader {
         if stdlib::library_module(name).is_some() {
             Ok(name.clone())
         } else {
-            let file = self.resolver.name_to_path(name)?;
+            let file = match self.resolver.name_to_path(name, from) {
+                Ok(f) => f,
+                Err(Error::LanguageValidationError { source }) => {
+                    self.report(&source)?;
+                    return Err(source.into());
+                }
+                Err(e) => return Err(e),
+            };
             self.load_from_file(file, cache, recursive)
         }
+    }
+
+    fn resolver(&self) -> &impl ModuleResolver {
+        &self.resolver
+    }
+
+    fn get_file_id(&self, name: &Identifier) -> Option<sdml_error::FileId> {
+        self.module_file_ids.get(name).copied()
+    }
+
+    fn get_source(&self, file_id: FileId) -> Option<Source> {
+        match self.files().get(file_id) {
+            Ok(file) => Some(file.source().clone()),
+            Err(err) => {
+                error!("Could not retrieve module: {file_id:?}, error: {err}");
+                None
+            }
+        }
+    }
+
+    fn report(&self, diagnostic: &Diagnostic) -> Result<(), Error> {
+        self.reporter.emit(diagnostic, self.files())
+    }
+
+    fn reporter_done(&self, top_module_name: Option<String>) -> Result<(), Error> {
+        self.reporter.done(top_module_name)
+    }
+}
+
+impl FsModuleLoader {
+    pub fn with_resolver(self, resolver: FsModuleResolver) -> Self {
+        Self { resolver, ..self }
     }
 
     /// Load a module from the source in `file`.
@@ -294,12 +343,12 @@ impl ModuleLoader {
             if let Some(catalog) = catalog {
                 let name = module.name().to_string();
                 if let Some(url) = catalog.resolve_uri(&name) {
-                    module.set_base_uri(url);
+                    module.set_base_uri(HeaderValue::from(url));
                 }
             } else {
                 let file = file.canonicalize()?;
                 match Url::from_file_path(file) {
-                    Ok(base) => module.set_base_uri(base),
+                    Ok(base) => module.set_base_uri(HeaderValue::from(base)),
                     Err(_) => warn!("Could not construct a base URI"),
                 }
             }
@@ -318,20 +367,6 @@ impl ModuleLoader {
         self.load_inner(reader, None, cache, recursive)
     }
 
-    pub fn get_source(&self, name: &Identifier) -> Option<Source> {
-        if let Some(file_id) = self.module_file_ids.get(name) {
-            match self.files().get(*file_id) {
-                Ok(file) => Some(file.source().clone()),
-                Err(err) => {
-                    error!("Could not retrieve module: {file_id:?}, error: {err}");
-                    None
-                }
-            }
-        } else {
-            None
-        }
-    }
-
     fn load_inner(
         &mut self,
         reader: &mut dyn Read,
@@ -347,10 +382,9 @@ impl ModuleLoader {
             .unwrap_or_default();
         let file_id = self.module_files.add(file_name, source.into());
 
-        let (module, counters) = parse_str(file_id, self)?.into_inner();
+        let module = parse_str(file_id, self)?;
 
         let name = module.name().clone();
-        counters.display(&name)?;
 
         let _ = self.module_file_ids.insert(name.clone(), file_id);
 
@@ -367,17 +401,16 @@ impl ModuleLoader {
             };
             for name in &dependencies {
                 if !cache.contains(name) {
-                    self.load(name, cache, recursive)?;
+                    debug!("didn't find module {name} in cache, loading");
+                    self.load(name, Some(file_id), cache, recursive)?;
+                } else {
+                    debug!("found module {name} in cache");
                 }
             }
         }
+        self.reporter.done(Some(name.to_string()))?;
 
         Ok(name)
-    }
-
-    #[inline(always)]
-    pub fn resolver(&self) -> &ModuleResolver {
-        &self.resolver
     }
 
     #[inline(always)]

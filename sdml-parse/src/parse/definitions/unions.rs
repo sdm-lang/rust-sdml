@@ -3,6 +3,7 @@ use crate::parse::definitions::parse_annotation_only_body;
 use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::ParseContext;
 use sdml_core::error::Error;
+use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{HasVariants, TypeVariant, UnionBody, UnionDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
@@ -93,10 +94,10 @@ fn parse_type_variant<'a>(
     let mut type_variant = if let Some(child) = node.child_by_field_name(FIELD_NAME_RENAME) {
         context.check_if_error(&child, RULE_NAME)?;
         let rename = parse_identifier(context, &child)?;
-        context.start_member(&rename)?;
+        context.start_variant(&rename)?;
         type_variant.with_rename(rename)
     } else {
-        // FIX: context.start_member(type_variant.name());
+        context.start_variant(type_variant.name())?;
         type_variant
     };
 
