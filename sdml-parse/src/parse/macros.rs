@@ -13,7 +13,7 @@ macro_rules! unexpected_node {
         let expected = [$(
             $expected,
         )+].join(" | ");
-        let diagnostic = ::sdml_error::diagnostics::unexpected_node_kind(
+        let diagnostic = ::sdml_error::diagnostics::functions::unexpected_node_kind(
             $context.file_id,
             $node.start_byte()..$node.end_byte(),
             expected,
@@ -24,7 +24,7 @@ macro_rules! unexpected_node {
         return Err(diagnostic.into())
     };
     ($context: expr, $parse_fn: expr, $node: expr, $expected: expr) => {
-        let diagnostic = ::sdml_error::diagnostics::unexpected_node_kind(
+        let diagnostic = ::sdml_error::diagnostics::functions::unexpected_node_kind(
             $context.file_id,
             $node.start_byte()..$node.end_byte(),
             $expected,
@@ -38,7 +38,7 @@ macro_rules! unexpected_node {
 
 macro_rules! missing_node {
     ($context: expr, $parse_fn: expr, $parent_node: expr, $variable_name: expr, $node_kind: expr) => {
-        let diagnostic = ::sdml_error::diagnostics::missing_node(
+        let diagnostic = ::sdml_error::diagnostics::functions::missing_node(
             $context.file_id,
             $parent_node.start_byte()..$parent_node.end_byte(),
             $node_kind,

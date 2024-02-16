@@ -16,7 +16,7 @@ use sdml_core::syntax::{
     FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
 };
-use sdml_error::diagnostics::invalid_value_for_type_named;
+use sdml_error::diagnostics::functions::invalid_value_for_type_named;
 use sdml_error::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;

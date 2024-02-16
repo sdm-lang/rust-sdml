@@ -16,7 +16,7 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::{Import, Module};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::NODE_KIND_MODULE;
-use sdml_error::diagnostics::{
+use sdml_error::diagnostics::functions::{
     duplicate_definition, duplicate_definition_import, duplicate_member, duplicate_module_import,
     duplicate_variant, found_error_node,
 };
@@ -128,7 +128,7 @@ impl<'a> ParseContext<'a> {
                     import.source_span().unwrap().byte_range(),
                 )
             };
-            emit_diagnostic!(self.loader, &diagnostic);
+            self.loader.report(&diagnostic).unwrap();
         } else {
             self.imports.insert(import.clone());
         }
@@ -142,7 +142,7 @@ impl<'a> ParseContext<'a> {
                 name.source_span().unwrap().byte_range(),
                 type_defn.source_span().unwrap().byte_range(),
             );
-            emit_diagnostic!(self.loader, &diagnostic);
+            self.loader.report(&diagnostic).unwrap();
         } else {
             self.type_names.insert(name.clone());
         }
@@ -156,7 +156,7 @@ impl<'a> ParseContext<'a> {
                 member.source_span().unwrap().byte_range(),
                 name.source_span().unwrap().byte_range(),
             );
-            emit_diagnostic!(self.loader, &diagnostic);
+            self.loader.report(&diagnostic).unwrap();
         } else {
             self.member_names.insert(name.clone());
         }
@@ -170,7 +170,7 @@ impl<'a> ParseContext<'a> {
                 member.source_span().unwrap().byte_range(),
                 name.source_span().unwrap().byte_range(),
             );
-            emit_diagnostic!(self.loader, &diagnostic);
+            self.loader.report(&diagnostic).unwrap();
         } else {
             self.member_names.insert(name.clone());
         }

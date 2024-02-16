@@ -10,7 +10,9 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
-use sdml_error::diagnostics::{imported_module_not_found, BailoutReporter, StandardStreamReporter};
+use sdml_error::diagnostics::{
+    functions::imported_module_not_found, reporter::BailoutReporter, StandardStreamReporter,
+};
 use sdml_error::{Diagnostic, Reporter, Source, SourceFiles};
 use sdml_error::{Error, FileId};
 use search_path::SearchPath;
@@ -408,8 +410,6 @@ impl FsModuleLoader {
                 }
             }
         }
-        self.reporter.done(Some(name.to_string()))?;
-
         Ok(name)
     }
 
