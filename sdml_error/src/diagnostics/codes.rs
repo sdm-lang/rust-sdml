@@ -60,6 +60,7 @@ pub enum ErrorCode {
     IncompleteMember = 502,
     StringWithoutLanguage = 503,
     UnconstrainedDatatype = 504,
+    DoubleUnderscoredIdentifier = 505,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -84,11 +85,13 @@ impl Display for ErrorCode {
 }
 
 impl ErrorCode {
+    /// Return the numeric value for this code.
     #[inline(always)]
     pub fn number(&self) -> u32 {
         *self as u32
     }
 
+    /// Return the severity of this code.
     #[inline(always)]
     pub fn severity(&self) -> Severity {
         match self {
@@ -124,10 +127,12 @@ impl ErrorCode {
             | Self::IncompleteDefinition
             | Self::IncompleteMember
             | Self::StringWithoutLanguage
-            | Self::UnconstrainedDatatype => Severity::Note,
+            | Self::UnconstrainedDatatype
+            | Self::DoubleUnderscoredIdentifier => Severity::Note,
         }
     }
 
+    /// Return the descriptive message for this code.
     pub fn message(&self) -> String {
         match self {
             Self::TreeSitterErrorNode => i18n!("msg_treesitter_error_node"),
@@ -177,9 +182,11 @@ impl ErrorCode {
             Self::IncompleteMember => i18n!("msg_incomplete_member"),
             Self::StringWithoutLanguage => i18n!("msg_string_without_language"),
             Self::UnconstrainedDatatype => i18n!("msg_unconstrained_datatype"),
+            Self::DoubleUnderscoredIdentifier => i18n!("msg_double_underscored_identifier"),
         }
     }
 
+    /// Return a URL (as String) for the associated help documentation.
     #[inline(always)]
     pub fn url_string(&self) -> String {
         format!("https://sdml.io/errors/#{self}")

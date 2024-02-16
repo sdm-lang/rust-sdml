@@ -15,6 +15,7 @@ lbl_expected_version_uri = expected version URI: `<{$url}>`
 lbl_expecting_node_kind = expecting node kind: {$kind}
 lbl_expecting_one_of_node_kind = expecting one of node kinds: {$kind}
 lbl_here = here
+lbl_identifier = identifier: `{$name}`
 lbl_in_grammar_rule = in grammar rule: `{$name}`
 lbl_missing_node_kind = missing node of kind: `{$kind}`
 lbl_missing_node_kind_in_variable = missing node of kind: `{$kind}`, in variable: `{$variable}`
@@ -45,6 +46,7 @@ lbl_value = value: `{$val}`
 
 msg_datatype_invalid_base = invalid type for datatype base, not a datatype
 msg_definition_not_found = definition not found in module
+msg_double_underscored_identifier = identifiers should avoid using double underscores
 msg_duplicate_definition_import = duplicate import of definition
 msg_duplicate_definition_name = a definition with this name already exists in this module
 msg_duplicate_member_name = a member with this name already exists in this definition

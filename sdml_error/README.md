@@ -30,6 +30,13 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.1.2**
+
+- Feature: add new diagnostic for `DoubleUnderscoredIdentifier` where an identifier include two (or more) consecutive
+  - underscore characters.
+  - Add new code to `ErrorCode`
+  - Add new function `double_underscored_identifier`
+
 **Version 0.1.1**
 
 - Feature: add new diagnostic for `PropertyReferenceNotProperty` where the property name in a member does not resolve to

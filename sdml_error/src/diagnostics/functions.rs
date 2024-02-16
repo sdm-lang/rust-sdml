@@ -523,7 +523,7 @@ where
     S: Into<String>,
 {
     new_diagnostic!(
-        FeatureSetNotUnion,
+        PropertyReferenceNotProperty,
         |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
                 .with_message(i18n!("lbl_this_reference"))])
@@ -689,6 +689,28 @@ where
             ])
         } else {
             diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
+        }
+    )
+}
+
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn double_underscored_identifier<S>(
+    file_id: FileId,
+    location: Option<Span>,
+    name: S,
+) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(
+        DoubleUnderscoredIdentifier,
+        |diagnostic: Diagnostic| if let Some(location) = location {
+            diagnostic.with_labels(vec![
+                Label::primary(file_id, location).with_message(i18n!("lbl_this_identifier"))
+            ])
+        } else {
+            diagnostic.with_notes(vec![i18n!("lbl_identifier", name = name.into())])
         }
     )
 }
