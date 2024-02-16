@@ -512,6 +512,27 @@ where
     )
 }
 
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn property_reference_not_property<S>(
+    file_id: FileId,
+    reference_location: Option<Span>,
+    name: S,
+) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(
+        FeatureSetNotUnion,
+        |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
+            diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
+                .with_message(i18n!("lbl_this_reference"))])
+        } else {
+            diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
+        }
+    )
+}
+
 // ------------------------------------------------------------------------------------------------
 // Public Functions  Warnings
 // ------------------------------------------------------------------------------------------------

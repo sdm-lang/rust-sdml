@@ -65,6 +65,7 @@ msg_module_version_info_empty = module's version info string is empty
 msg_module_version_mismatch = actual module URI does not match import requirement
 msg_module_version_not_found = imported module has no version URI
 msg_property_incompatible = a property definition is not compatible in this location
+msg_property_reference_not_property = member references a non-property as a property
 msg_rdf_definition_incompatible = an RDF definition is not compatible in this location
 msg_string_without_language = this string value has no language tag
 msg_treesitter_error_node = tree-sitter parse error

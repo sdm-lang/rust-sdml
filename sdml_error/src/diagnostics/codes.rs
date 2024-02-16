@@ -42,6 +42,7 @@ pub enum ErrorCode {
     PropertyIncompatible = 117,
     RdfDefinitionIncompatible = 118,
     FeatureSetNotUnion = 119,
+    PropertyReferenceNotProperty = 120,
 
     // --------------------------------------------------------------------------------------------
     // Warnings
@@ -113,7 +114,8 @@ impl ErrorCode {
             | Self::TypeClassIncompatible
             | Self::PropertyIncompatible
             | Self::RdfDefinitionIncompatible
-            | Self::FeatureSetNotUnion => Severity::Error,
+            | Self::FeatureSetNotUnion
+            | Self::PropertyReferenceNotProperty => Severity::Error,
             Self::DuplicateModuleImport
             | Self::DuplicateDefinitionImport
             | Self::ValidationIncomplete
@@ -128,52 +130,53 @@ impl ErrorCode {
 
     pub fn message(&self) -> String {
         match self {
-            ErrorCode::TreeSitterErrorNode => i18n!("msg_treesitter_error_node"),
-            ErrorCode::TreeSitterUnexpectedNode => i18n!("msg_treesitter_unexpected_node"),
-            ErrorCode::TreeSitterMissingNode => i18n!("msg_treesitter_missing_node"),
-            ErrorCode::TreeSitterMissingVariable => i18n!("msg_treesitter_missing_variable"),
-            ErrorCode::ModuleNotFound => i18n!("msg_module_not_found"),
-            ErrorCode::ImportedModuleNotFound => i18n!("msg_imported_module_not_found"),
-            ErrorCode::ModuleVersionNotFound => i18n!("msg_module_version_not_found"),
-            ErrorCode::ModuleVersionMismatch => {
+            Self::TreeSitterErrorNode => i18n!("msg_treesitter_error_node"),
+            Self::TreeSitterUnexpectedNode => i18n!("msg_treesitter_unexpected_node"),
+            Self::TreeSitterMissingNode => i18n!("msg_treesitter_missing_node"),
+            Self::TreeSitterMissingVariable => i18n!("msg_treesitter_missing_variable"),
+            Self::ModuleNotFound => i18n!("msg_module_not_found"),
+            Self::ImportedModuleNotFound => i18n!("msg_imported_module_not_found"),
+            Self::ModuleVersionNotFound => i18n!("msg_module_version_not_found"),
+            Self::ModuleVersionMismatch => {
                 i18n!("msg_module_version_mismatch")
             }
-            ErrorCode::DuplicateDefinitionName => {
+            Self::DuplicateDefinitionName => {
                 i18n!("msg_duplicate_definition_name")
             }
-            ErrorCode::DuplicateMemberName => {
+            Self::DuplicateMemberName => {
                 i18n!("msg_duplicate_member_name")
             }
-            ErrorCode::DuplicateVariantName => {
+            Self::DuplicateVariantName => {
                 i18n!("msg_duplicate_variant_name")
             }
-            ErrorCode::InvalidIdentifier => i18n!("msg_invalid_identifier"),
-            ErrorCode::InvalidLanguageTag => i18n!("msg_invalid_language_tag"),
-            ErrorCode::InvalidValueForType => i18n!("msg_invalid_value_for_type"),
-            ErrorCode::InvalidModuleBaseUrl => i18n!("msg_invalid_module_base_url"),
-            ErrorCode::InvalidModuleVersionUrl => i18n!("msg_invalid_module_version_url"),
-            ErrorCode::DefinitionNotFound => i18n!("msg_definition_not_found"),
-            ErrorCode::TypeDefinitionNotFound => i18n!("msg_type_definition_not_found"),
-            ErrorCode::DatatypeInvalidBase => i18n!("msg_datatype_invalid_base"),
-            ErrorCode::TypeClassIncompatible => {
+            Self::InvalidIdentifier => i18n!("msg_invalid_identifier"),
+            Self::InvalidLanguageTag => i18n!("msg_invalid_language_tag"),
+            Self::InvalidValueForType => i18n!("msg_invalid_value_for_type"),
+            Self::InvalidModuleBaseUrl => i18n!("msg_invalid_module_base_url"),
+            Self::InvalidModuleVersionUrl => i18n!("msg_invalid_module_version_url"),
+            Self::DefinitionNotFound => i18n!("msg_definition_not_found"),
+            Self::TypeDefinitionNotFound => i18n!("msg_type_definition_not_found"),
+            Self::DatatypeInvalidBase => i18n!("msg_datatype_invalid_base"),
+            Self::TypeClassIncompatible => {
                 i18n!("msg_typeclass_incompatible")
             }
-            ErrorCode::PropertyIncompatible => {
+            Self::PropertyIncompatible => {
                 i18n!("msg_property_incompatible")
             }
-            ErrorCode::RdfDefinitionIncompatible => {
+            Self::RdfDefinitionIncompatible => {
                 i18n!("msg_rdf_definition_incompatible")
             }
-            ErrorCode::FeatureSetNotUnion => i18n!("msg_featureset_not_union"),
-            ErrorCode::DuplicateModuleImport => i18n!("msg_duplicate_module_import"),
-            ErrorCode::DuplicateDefinitionImport => i18n!("msg_duplicate_definition_import"),
-            ErrorCode::ValidationIncomplete => i18n!("msg_validation_incomplete"),
-            ErrorCode::ModuleVersionInfoEmpty => i18n!("msg_module_version_info_empty"),
-            ErrorCode::IncompleteModule => i18n!("msg_incomplete_module"),
-            ErrorCode::IncompleteDefinition => i18n!("msg_incomplete_definition"),
-            ErrorCode::IncompleteMember => i18n!("msg_incomplete_member"),
-            ErrorCode::StringWithoutLanguage => i18n!("msg_string_without_language"),
-            ErrorCode::UnconstrainedDatatype => i18n!("msg_unconstrained_datatype"),
+            Self::FeatureSetNotUnion => i18n!("msg_featureset_not_union"),
+            Self::PropertyReferenceNotProperty => i18n!("msg_property_reference_not_property"),
+            Self::DuplicateModuleImport => i18n!("msg_duplicate_module_import"),
+            Self::DuplicateDefinitionImport => i18n!("msg_duplicate_definition_import"),
+            Self::ValidationIncomplete => i18n!("msg_validation_incomplete"),
+            Self::ModuleVersionInfoEmpty => i18n!("msg_module_version_info_empty"),
+            Self::IncompleteModule => i18n!("msg_incomplete_module"),
+            Self::IncompleteDefinition => i18n!("msg_incomplete_definition"),
+            Self::IncompleteMember => i18n!("msg_incomplete_member"),
+            Self::StringWithoutLanguage => i18n!("msg_string_without_language"),
+            Self::UnconstrainedDatatype => i18n!("msg_unconstrained_datatype"),
         }
     }
 

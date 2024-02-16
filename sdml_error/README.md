@@ -30,6 +30,13 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.1.1**
+
+- Feature: add new diagnostic for `PropertyReferenceNotProperty` where the property name in a member does not resolve to
+  a property definition.
+  - Add new code to `ErrorCode`
+  - Add new function `property_reference_not_property`
+
 **Version 0.1.0**
 
 Initial Release.
