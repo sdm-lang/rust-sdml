@@ -2,11 +2,12 @@ use clap::builder::FalseyValueParser;
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use sdml_core::cache::ModuleCache;
 use sdml_core::load::{ModuleLoader, ModuleResolver};
+use sdml_core::model::check::terms::{default_term_set, validate_module_terms};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
 use sdml_core::stdlib;
-use sdml_error::diagnostics::{Reporter, StandardStreamReporter, set_diagnostic_level_filter, SeverityFilter};
+use sdml_error::diagnostics::{set_diagnostic_level_filter, SeverityFilter};
 use sdml_error::Error;
 use sdml_generate::{GenerateToFile, GenerateToWriter};
 use sdml_parse::load::{FsModuleLoader, FsModuleResolver};
@@ -354,12 +355,20 @@ macro_rules! call_with_module {
                 )?
             } else if let Some(file_name) = &$cmd.files.input_file {
                 match loader.load_from_file(file_name.clone(), &mut cache, true) {
-                    Err(e) => {
+                    Err(Error::LanguageValidationError { source: _ }) => {
+                        loader.reporter_done(None)?;
+                        return Ok(());
+                    }
+                    Err(err @ Error::IoError { source: _ }) => {
                         println!(
-                            "Error: the input file `{}` does not exist.",
+                            "Error: the input file `{}` could not be found, or read.",
                             file_name.display()
                         );
-                        return Err(e);
+                        return Err(err);
+                    }
+                    Err(err) => {
+                        loader.reporter_done(None)?;
+                        return Err(err);
                     }
                     Ok(loaded) => loaded,
                 }
@@ -391,13 +400,11 @@ fn main() -> ExitCode {
     if let Err(e) = init_logging(cli.log_filter) {
         error!("init_logging failed, exiting. error: {e:?}");
         ExitCode::FAILURE
+    } else if let Err(e) = cli.command.execute() {
+        error!("command.execute failed, exiting. error: {e:?}");
+        ExitCode::FAILURE
     } else {
-        if let Err(e) = cli.command.execute() {
-            error!("command.execute failed, exiting. error: {e:?}");
-            ExitCode::FAILURE
-        } else {
-            ExitCode::SUCCESS
-        }
+        ExitCode::SUCCESS
     }
 }
 
@@ -569,12 +576,7 @@ impl Execute for Deps {
 
             let mut generator =
                 sdml_generate::actions::deps::DependencyViewGenerator::new(self.depth);
-            generator.write_in_format(
-                module,
-                cache,
-                &mut writer,
-                self.output_format.into(),
-            )?;
+            generator.write_in_format(module, cache, &mut writer, self.output_format.into())?;
 
             Ok(())
         });
@@ -715,7 +717,7 @@ impl Execute for Convert {
 impl Execute for Draw {
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module: &Module, cache: &ModuleCache, _| {
-            let format = self.output_format.clone().unwrap_or_default().into();
+            let format = self.output_format.unwrap_or_default().into();
 
             info!("Generating {:?} diagram in {format:?} form.", self.diagram);
 
@@ -762,7 +764,7 @@ impl Execute for View {
             let mut writer = self.files.output_writer()?;
 
             let mut generator = sdml_generate::convert::source::SourceGenerator::default();
-            generator.write_in_format(module, cache, &mut writer, self.level.clone().into())?;
+            generator.write_in_format(module, cache, &mut writer, self.level.into())?;
 
             Ok(())
         });
@@ -775,14 +777,15 @@ impl Execute for View {
 
 impl Execute for Validate {
     fn execute(&self) -> Result<(), Error> {
-        call_with_module!(self, |module: &Module, cache, loader| {
+        set_diagnostic_level_filter(self.level.into());
 
-            set_diagnostic_level_filter(self.level.into()).unwrap();
-
-            let reporter = StandardStreamReporter::default();
-
+        call_with_module!(self, |module: &Module, cache, loader: &FsModuleLoader| {
             module.validate(cache, loader, self.check_constraints);
-            reporter.done(Some(module.name().to_string()))?;
+
+            let term_set = default_term_set()?;
+            validate_module_terms(module, &term_set, loader);
+
+            loader.reporter_done(Some(module.name().to_string()))?;
 
             Ok(())
         });
@@ -791,16 +794,15 @@ impl Execute for Validate {
 
 impl From<DiagnosticLevel> for SeverityFilter {
     fn from(value: DiagnosticLevel) -> Self {
-        match value
- {
-    DiagnosticLevel::None => SeverityFilter::None,
-    DiagnosticLevel::Bugs => SeverityFilter::Bug,
-    DiagnosticLevel::Errors => SeverityFilter::Error,
-    DiagnosticLevel::Warnings => SeverityFilter::Warning,
-    DiagnosticLevel::Notes => SeverityFilter::Note,
-    DiagnosticLevel::Help => SeverityFilter::Help,
-    DiagnosticLevel::All => SeverityFilter::Help,
- }
+        match value {
+            DiagnosticLevel::None => SeverityFilter::None,
+            DiagnosticLevel::Bugs => SeverityFilter::Bug,
+            DiagnosticLevel::Errors => SeverityFilter::Error,
+            DiagnosticLevel::Warnings => SeverityFilter::Warning,
+            DiagnosticLevel::Notes => SeverityFilter::Note,
+            DiagnosticLevel::Help => SeverityFilter::Help,
+            DiagnosticLevel::All => SeverityFilter::Help,
+        }
     }
 }
 

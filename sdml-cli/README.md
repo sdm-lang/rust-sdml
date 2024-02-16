@@ -11,25 +11,29 @@ The project's intent is to provide an idiomatic implementation of the in-memory 
 The following figure demonstrates this package in the broader project context.
 
 ```
-                         ╭───────╮
-                         │  CLI  │
-                    ╔══  │ crate │  ══╗
-                    ║    ╰───────╯    ║
-┌╌╌╌╌╌╌╌╌┐          V                 V
-┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
-┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
-┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
-┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
-└╌╌╌╌╌╌╌╌┘   │           core crate             │
-             ╰──────────────────────────────────╯
- ┌───────┐                  ⋀
- │ other │                  ║
- │ tools │  ════════════════╝
+                            ╭───────╮
+                            │  CLI  │
+                       ╔══  │ crate │  ══╗
+                       ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐             V                 V
+┆        ┆       ╭──────────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │  parse   │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆    ╭──│  crate   │───────│   crate  │──╮    Documentation
+┆        ┆    │  ╰──────────╯       ╰──────────╯  │    Diagrams
+└╌╌╌╌╌╌╌╌┘    │             core crate            │──╮
+              ╰───────────────────────────────────╯  │
+ ┌───────┐             ⋀          error crate        │
+ │ other │             ║  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌─────────────╯
+ │ tools │  ═══════════╝
  └───────┘
 ```
 
 ## 
 ## Changes
+
+**Version 0.2.7**
+
+* Feature: better error handling in conjunction with the validation and diagnostics in `sdml_error`.
 
 **Version 0.2.6**
 
