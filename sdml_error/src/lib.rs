@@ -1,14 +1,10 @@
 /*!
-One-line description.
+This crate provides the common error and diagnostics for SDML.
 
-More detailed description, with
+For passing errors the typical [`Error`] and [`Result`] types are provided.
 
-# Example
-
-End of file during parsingSymbol’s value as variable is void: rustEnd of file during parsing
-
-# Features
-
+For fine-grained reporting of model issues the [`Diagnostics`] and [`Reporter`] allow for describing
+and emitting structured values.
  */
 
 #![warn(
@@ -68,6 +64,9 @@ pub type FileId = usize;
 #[derive(Clone, Debug)]
 pub struct Source(String);
 
+///
+/// The mapping of module names to corresponding source code.
+///
 pub type SourceFiles = SimpleFiles<String, Source>;
 
 ///
@@ -119,8 +118,6 @@ impl Source {
 
 #[macro_use]
 mod i18n;
-
-pub mod codes;
 
 pub mod errors;
 pub use errors::Error;

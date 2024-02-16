@@ -27,19 +27,23 @@ pub enum Error {
     FromUtf8Error {
         source: std::string::FromUtf8Error,
     },
+    /// An error was signaled while parsing a [`Url`]. Note that the methods `from_file_path` and
+    /// `from_directory_path` return `()` on error.
     UrlParseError {
-        // from_file_path and from_directory_path return () on error.
         source: Option<url::ParseError>,
     },
+    /// An error was signaled while parsing a tracing filter expression.
     TracingFilterError {
         source: tracing_subscriber::filter::ParseError,
     },
+    /// An error was signaled while initializing a tracing subscriber..
     TracingSubscriberError {
         source: tracing::subscriber::SetGlobalDefaultError,
     },
     CodespanReportingError {
         source: codespan_reporting::files::Error,
     },
+    /// This allows for a complete `Diagnostic` structure to be passed as an Error.
     LanguageValidationError {
         source: Diagnostic,
     },
