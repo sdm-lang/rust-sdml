@@ -51,6 +51,7 @@ pub enum ErrorCode {
     DuplicateDefinitionImport = 302,
     ValidationIncomplete = 303,
     ModuleVersionInfoEmpty = 304,
+    DeprecatedTermUsed = 305,
 
     // --------------------------------------------------------------------------------------------
     // Informational
@@ -122,7 +123,8 @@ impl ErrorCode {
             Self::DuplicateModuleImport
             | Self::DuplicateDefinitionImport
             | Self::ValidationIncomplete
-            | Self::ModuleVersionInfoEmpty => Severity::Warning,
+            | Self::ModuleVersionInfoEmpty
+            | Self::DeprecatedTermUsed => Severity::Warning,
             Self::IncompleteModule
             | Self::IncompleteDefinition
             | Self::IncompleteMember
@@ -173,6 +175,7 @@ impl ErrorCode {
             }
             Self::FeatureSetNotUnion => i18n!("msg_featureset_not_union"),
             Self::PropertyReferenceNotProperty => i18n!("msg_property_reference_not_property"),
+            Self::DeprecatedTermUsed => i18n!("msg_deprecated_term_used"),
             Self::DuplicateModuleImport => i18n!("msg_duplicate_module_import"),
             Self::DuplicateDefinitionImport => i18n!("msg_duplicate_definition_import"),
             Self::ValidationIncomplete => i18n!("msg_validation_incomplete"),

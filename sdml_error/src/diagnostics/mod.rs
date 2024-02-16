@@ -5,7 +5,10 @@ Provides project-wide diagnostic types that describe more fine-grained error con
 
 use crate::FileId;
 use codespan_reporting::diagnostic::Severity;
-use std::{fmt::Display, sync::OnceLock};
+use std::{
+    fmt::Display,
+    sync::{OnceLock, RwLock},
+};
 use tracing::trace;
 
 // ------------------------------------------------------------------------------------------------
@@ -34,21 +37,27 @@ pub enum SeverityFilter {
     None,
 }
 
-static DIAGNOSTIC_LEVEL: OnceLock<SeverityFilter> = OnceLock::new();
+static DIAGNOSTIC_LEVEL: OnceLock<RwLock<SeverityFilter>> = OnceLock::new();
 
 ///
 /// Return the current filter value.
 ///
 pub fn get_diagnostic_level_filter() -> SeverityFilter {
-    *DIAGNOSTIC_LEVEL.get_or_init(|| SeverityFilter::None)
+    *DIAGNOSTIC_LEVEL
+        .get_or_init(|| RwLock::new(SeverityFilter::None))
+        .read()
+        .unwrap()
 }
 
 ///
 /// Set the value of the current filter level.
 ///
-pub fn set_diagnostic_level_filter(level: SeverityFilter) -> Result<(), SeverityFilter> {
+pub fn set_diagnostic_level_filter(level: SeverityFilter) {
     trace!("set_diagnostic_level_filter({level})");
-    DIAGNOSTIC_LEVEL.set(level)
+    *DIAGNOSTIC_LEVEL
+        .get_or_init(|| RwLock::new(SeverityFilter::None))
+        .write()
+        .unwrap() = level;
 }
 
 ///

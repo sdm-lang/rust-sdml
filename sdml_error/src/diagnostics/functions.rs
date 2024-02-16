@@ -259,7 +259,7 @@ pub fn duplicate_member(file_id: FileId, first: Span, second: Span) -> Diagnosti
 #[inline]
 #[allow(clippy::redundant_closure_call)]
 pub fn duplicate_variant(file_id: FileId, first: Span, second: Span) -> Diagnostic {
-    new_diagnostic!(DuplicateDefinitionName, |diagnostic: Diagnostic| diagnostic
+    new_diagnostic!(DuplicateVariantName, |diagnostic: Diagnostic| diagnostic
         .with_labels(vec![
             Label::primary(file_id, second).with_message(i18n!("lbl_this_variant_name")),
             Label::secondary(file_id, first).with_message(i18n!("lbl_previously_defined_here")),
@@ -394,7 +394,7 @@ where
     S: Into<String>,
 {
     new_diagnostic!(
-        DefinitionNotFound,
+        TypeDefinitionNotFound,
         |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
                 .with_message(i18n!("lbl_this_reference"))])
@@ -593,6 +593,45 @@ pub fn module_version_info_empty(file_id: FileId, location: Option<Span>) -> Dia
             diagnostic
         }
     )
+}
+
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn deprecated_term_used<S>(
+    file_id: FileId,
+    location: Option<Span>,
+    value: S,
+    term_name: &str,
+    alternative_terms: &[String],
+    reason: Option<&String>,
+) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(DeprecatedTermUsed, |diagnostic: Diagnostic| {
+        let diagnostic = if let Some(location) = location {
+            diagnostic.with_labels(vec![
+                Label::primary(file_id, location).with_message(i18n!("lbl_here"))
+            ])
+        } else {
+            diagnostic.with_notes(vec![
+                i18n!("lbl_term_name", name = term_name),
+                i18n!("lbl_in_this", val = value.into()),
+            ])
+        }
+        .with_notes(vec![i18n!(
+            "help_alternative_terms",
+            terms = alternative_terms.join(", ")
+        )]);
+        if let Some(reason) = reason {
+            diagnostic.with_notes(vec![i18n!(
+                "help_deprecated_term_reason",
+                reason = reason.as_str()
+            )])
+        } else {
+            diagnostic
+        }
+    })
 }
 
 // ------------------------------------------------------------------------------------------------
