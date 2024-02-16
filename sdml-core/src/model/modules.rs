@@ -11,9 +11,9 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
     HasBody, HasName, HasSourceSpan, Span,
 };
-use sdml_error::diagnostics::{
-    definition_not_found, imported_module_not_found, module_version_info_empty,
-    module_version_not_found, module_is_incomplete, module_version_mismatch,
+use sdml_error::diagnostics::functions::{
+    definition_not_found, imported_module_not_found, module_is_incomplete,
+    module_version_info_empty, module_version_mismatch, module_version_not_found,
 };
 use sdml_error::FileId;
 use std::collections::HashMap;
@@ -261,11 +261,11 @@ impl Module {
             if self.is_incomplete(cache) {
                 loader
                     .report(&module_is_incomplete(
-                    self.file_id().copied().unwrap_or_default(),
-                    self.source_span().map(|span| span.byte_range()),
-                    self.name(),
-                ))
-                .unwrap()
+                        self.file_id().copied().unwrap_or_default(),
+                        self.source_span().map(|span| span.byte_range()),
+                        self.name(),
+                    ))
+                    .unwrap()
             }
         }
     }
@@ -582,24 +582,27 @@ impl Validate for ImportStatement {
                     if let Some(actual_module) = cache.get(module_ref.name()) {
                         match (module_ref.version_uri(), actual_module.version_uri()) {
                             (None, _) => {}
-                            (Some(expected), Some(actual)) => if actual != expected {
-                                loader.report(&module_version_mismatch(
-                                    top.file_id().copied().unwrap_or_default(),
-                                    expected.source_span().map(|s| s.byte_range()),
-                                    expected.as_ref().to_string(),
-                                    actual_module.file_id().copied().unwrap_or_default(),
-                                    actual.source_span().map(|s| s.byte_range()),
-                                    actual.as_ref().to_string(),
-                                ))
-                                .unwrap();
-                            },
+                            (Some(expected), Some(actual)) => {
+                                if actual != expected {
+                                    loader
+                                        .report(&module_version_mismatch(
+                                            top.file_id().copied().unwrap_or_default(),
+                                            expected.source_span().map(|s| s.byte_range()),
+                                            expected.as_ref().to_string(),
+                                            actual_module.file_id().copied().unwrap_or_default(),
+                                            actual.source_span().map(|s| s.byte_range()),
+                                            actual.as_ref().to_string(),
+                                        ))
+                                        .unwrap();
+                                }
+                            }
                             (Some(expected), None) => {
                                 loader
                                     .report(&module_version_not_found(
-                                    top.file_id().copied().unwrap_or_default(),
-                                    module_ref.source_span().map(|s| s.byte_range()),
-                                    expected.as_ref().to_string(),
-                                    actual_module.file_id().copied().unwrap_or_default(),
+                                        top.file_id().copied().unwrap_or_default(),
+                                        module_ref.source_span().map(|s| s.byte_range()),
+                                        expected.as_ref().to_string(),
+                                        actual_module.file_id().copied().unwrap_or_default(),
                                         actual_module.source_span().map(|s| s.byte_range()),
                                         actual_module.name(),
                                     ))

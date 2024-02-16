@@ -10,14 +10,14 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference},
     Span,
 };
-use sdml_error::diagnostics::{datatype_invalid_base_type, type_definition_not_found};
+use sdml_error::diagnostics::functions::{datatype_invalid_base_type, type_definition_not_found};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Datatypes
+// Public Types
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `data_type_def`.
@@ -35,7 +35,7 @@ pub struct DatatypeDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Datatypes
+// Implementations
 // ------------------------------------------------------------------------------------------------
 
 impl_has_source_span_for!(DatatypeDef);
@@ -57,9 +57,21 @@ impl Validate for DatatypeDef {
         _check_constraints: bool,
     ) {
         if let Some(defn) = find_definition(self.base_type(), top, cache) {
-            if let Definition::Datatype(base) = defn {
+            if let Definition::Datatype(_base) = defn {
                 // TODO: check restriction annotations.
             } else if let Definition::Rdf(base) = defn {
+                if !base.is_datatype() {
+                loader
+                    .report(&datatype_invalid_base_type(
+                        top.file_id().copied().unwrap_or_default(),
+                        self.base_type()
+                            .source_span()
+                            .as_ref()
+                            .map(|span| (*span).into()),
+                        self.base_type(),
+                    ))
+                    .unwrap();
+                 }
                 // TODO: check type and restrictions
             } else {
                 loader

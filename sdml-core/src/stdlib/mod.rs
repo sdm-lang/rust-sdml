@@ -39,6 +39,21 @@ pub fn is_library_module(name: &Identifier) -> bool {
     .contains(&name.as_ref())
 }
 
+pub fn is_builtin_type_name(name: &Identifier) -> bool {
+    [
+        sdml::BINARY,
+        sdml::BOOLEAN,
+        sdml::DECIMAL,
+        sdml::DOUBLE,
+        sdml::INTEGER,
+        sdml::IRI,
+        sdml::LANGUAGE,
+        sdml::STRING,
+        sdml::UNSIGNED
+    ]
+    .contains(&name.as_ref())
+}
+
 pub fn library_module(name: &Identifier) -> Option<Module> {
     match name.as_ref() {
         dc::MODULE_NAME => Some(dc::module()),

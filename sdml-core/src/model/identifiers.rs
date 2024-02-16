@@ -4,7 +4,7 @@ use crate::model::Span;
 use convert_case::{Case, Casing};
 use lazy_static::lazy_static;
 use regex::Regex;
-use sdml_error::diagnostics::invalid_identifier;
+use sdml_error::diagnostics::functions::invalid_identifier;
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
@@ -170,16 +170,6 @@ impl Hash for Identifier {
     }
 }
 
-//#[cfg(feature = "serde")]
-//impl<'de> Deserialize<'de> for Identifier {
-//    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//        where D: Deserializer<'de>
-//    {
-//        let s = String::deserialize(deserializer)?;
-//        FromStr::from_str(&s).map_err(de::Error::custom)
-//    }
-//}
-
 impl_has_source_span_for!(Identifier);
 
 impl Identifier {
@@ -212,7 +202,7 @@ impl Identifier {
         if !Self::is_valid(&self.value) {
             loader
                 .report(&invalid_identifier(
-                    top.file_id().map(|id| *id).unwrap_or_default(),
+                    top.file_id().copied().unwrap_or_default(),
                     self.span.clone().map(|s| s.into()),
                     &self.value,
                 ))

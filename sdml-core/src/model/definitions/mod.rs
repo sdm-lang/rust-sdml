@@ -1,13 +1,13 @@
 use crate::{
-    model::check::MaybeIncomplete,
     cache::ModuleCache,
     load::ModuleLoader,
+    model::check::MaybeIncomplete,
     model::members::Member,
     model::{HasName, HasSourceSpan},
 };
 use std::fmt::Debug;
 
-use sdml_error::diagnostics::definition_is_incomplete;
+use sdml_error::diagnostics::functions::definition_is_incomplete;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

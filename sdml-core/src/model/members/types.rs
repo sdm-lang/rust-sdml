@@ -1,12 +1,13 @@
 use crate::cache::ModuleCache;
 use crate::load::ModuleLoader;
-use crate::model::check::{find_definition, Validate, MaybeIncomplete};
+use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::IdentifierReference;
 use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, References, Span};
+use crate::stdlib::is_builtin_type_name;
 use crate::syntax::KW_TYPE_UNKNOWN;
-use sdml_error::diagnostics::{
+use sdml_error::diagnostics::functions::{
     feature_set_not_a_union, property_incompatible_usage, rdf_definition_incompatible_usage,
     type_class_incompatible_usage, type_definition_not_found,
 };
@@ -130,13 +131,15 @@ impl Validate for TypeReference {
         match self {
             TypeReference::Unknown => {}
             TypeReference::Type(name) => match find_definition(name, top, cache) {
-                None => loader
-                    .report(&type_definition_not_found(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap(),
+                None => if !name.as_identifier().map(is_builtin_type_name).unwrap_or_default() {
+                    loader
+                        .report(&type_definition_not_found(
+                            top.file_id().copied().unwrap_or_default(),
+                            name.source_span().as_ref().map(|span| (*span).into()),
+                            name,
+                        ))
+                        .unwrap()
+                },
                 Some(Definition::TypeClass(_)) => loader
                     .report(&type_class_incompatible_usage(
                         top.file_id().copied().unwrap_or_default(),
@@ -151,13 +154,15 @@ impl Validate for TypeReference {
                         name,
                     ))
                     .unwrap(),
-                Some(Definition::Rdf(_)) => loader
-                    .report(&rdf_definition_incompatible_usage(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap(),
+                Some(Definition::Rdf(defn)) => if !(defn.is_datatype() || defn.is_class()) {
+                    loader
+                        .report(&rdf_definition_incompatible_usage(
+                            top.file_id().copied().unwrap_or_default(),
+                            name.source_span().as_ref().map(|span| (*span).into()),
+                            name,
+                        ))
+                        .unwrap()
+                },
                 _ => {}
             },
             TypeReference::FeatureSet(name) => match find_definition(name, top, cache) {

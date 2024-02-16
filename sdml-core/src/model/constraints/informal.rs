@@ -5,7 +5,7 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use regex::Regex;
-use sdml_error::diagnostics::invalid_language_tag;
+use sdml_error::diagnostics::functions::invalid_language_tag;
 use std::{fmt::Display, str::FromStr};
 use tracing::warn;
 

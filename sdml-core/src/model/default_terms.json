@@ -1,0 +1,27 @@
+{
+  "name": "Inclusive Terms",
+  "terms": {
+    "blacklist": {
+      "regex": "(?i)\\bblack[ _-]?list\\b",
+      "alternative_terms": [
+        "Block list", "Blocked",
+        "Deny list", "Denied",
+        "Exclusion list", "Excluded",
+        "Unsafe list",
+        "Unapproved"
+      ],
+      "reason": "Applies a negative connotation to things that are black and a positive connotation to those that are white."
+    },
+    "whitelist": {
+      "regex": "(?i)\\bwhite[ _-]?list\\b",
+      "alternative_terms": [
+        "Allow list", "Allowed",
+        "Deny list", "Denied",
+        "Inclusion list", "Included",
+        "Safe list",
+        "Approved"
+      ],
+      "reason": "Applies a negative connotation to things that are black and a positive connotation to those that are white."
+    }
+  }
+}

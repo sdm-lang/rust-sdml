@@ -3,7 +3,7 @@ use crate::{
     load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
-        check::{Validate, MaybeIncomplete},
+        check::{MaybeIncomplete, Validate},
         definitions::EntityIdentityDef,
         identifiers::{Identifier, IdentifierReference},
         members::{Cardinality, HasCardinality, HasType, MemberDef, TypeReference},
@@ -104,7 +104,7 @@ impl_has_source_span_for!(PropertyBody);
 impl_maybe_invalid_for!(PropertyBody; over roles);
 
 impl Validate for PropertyBody {
-   fn validate(
+    fn validate(
         &self,
         top: &Module,
         cache: &ModuleCache,

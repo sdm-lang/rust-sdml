@@ -11,26 +11,32 @@ project's intent is to provide an idiomatic implementation of the in-memory mode
 The following figure demonstrates this package in the broader project context.
 
 ```
-                         ╭───────╮
-                         │  CLI  │
-                    ╔══  │ crate │  ══╗
-                    ║    ╰───────╯    ║
-┌╌╌╌╌╌╌╌╌┐          V                 V
-┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
-┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
-┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
-┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
-└╌╌╌╌╌╌╌╌┘   │           core crate             │
-             ╰──────────────────────────────────╯
- ┌───────┐                  ⋀
- │ other │                  ║
- │ tools │  ════════════════╝
+                            ╭───────╮
+                            │  CLI  │
+                       ╔══  │ crate │  ══╗
+                       ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐             V                 V
+┆        ┆       ╭──────────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │  parse   │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆    ╭──│  crate   │───────│   crate  │──╮    Documentation
+┆        ┆    │  ╰──────────╯       ╰──────────╯  │    Diagrams
+└╌╌╌╌╌╌╌╌┘    │             core crate            │──╮
+              ╰───────────────────────────────────╯  │
+ ┌───────┐             ⋀          error crate        │
+ │ other │             ║  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌─────────────╯
+ │ tools │  ═══════════╝
  └───────┘
 ```
 
 Note that other tools can use the `sdml_core` API to create or manipulate models.
 
 ## Changes
+
+**Version 0.2.11**
+
+* Refactor: moved errors and diagnostics to new crate `sdml_error`.
+* Feature: started on diagnostics and verification, working but incomplete.
+* Added: 'deprecated' terminology validation.
 
 **Version 0.2.10**
 

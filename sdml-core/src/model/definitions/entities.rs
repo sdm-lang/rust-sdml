@@ -161,9 +161,7 @@ impl_has_source_span_for!(EntityIdentity);
 impl MaybeIncomplete for EntityIdentity {
     fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
         match &self.kind {
-            MemberKind::PropertyReference(_) => {
-                false
-            }
+            MemberKind::PropertyReference(_) => false,
             MemberKind::Definition(v) => v.is_incomplete(top, cache),
         }
     }

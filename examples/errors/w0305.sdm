@@ -1,0 +1,8 @@
+module example <https://example.com/api> is
+
+  structure AccessRecord is
+    black_list -> {0..} string
+    white_list -> {0..} string
+  end
+
+end

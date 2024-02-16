@@ -5,10 +5,12 @@ use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
-use crate::model::{References, Span, HasSourceSpan, HasName};
+use crate::model::{HasName, HasSourceSpan, References, Span};
+use sdml_error::diagnostics::functions::{
+    member_is_incomplete, property_reference_not_property, type_definition_not_found,
+};
 use std::collections::HashSet;
 use std::fmt::Debug;
-use sdml_error::diagnostics::member_is_incomplete;
 use tracing::{error, trace};
 
 #[cfg(feature = "serde")]
@@ -28,6 +30,13 @@ pub struct Member {
     kind: MemberKind,
 }
 
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum MemberKind {
+    PropertyReference(IdentifierReference),
+    Definition(MemberDef),
+}
+
 /// Corresponds to the definition component within grammar rule `by_reference_member`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
@@ -43,17 +52,6 @@ pub struct MemberDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Types ❱ Members ❱ MemberKind
-// ------------------------------------------------------------------------------------------------
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-enum MemberKind {
-    PropertyReference(IdentifierReference),
-    Definition(MemberDef),
-}
-
-// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ Member
 // ------------------------------------------------------------------------------------------------
 
@@ -64,7 +62,19 @@ impl_has_source_span_for!(Member);
 impl MaybeIncomplete for Member {
     fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
         match &self.kind {
-            MemberKind::PropertyReference(name) => false,
+            MemberKind::PropertyReference(name) => {
+                if let Some(defn) = find_definition(name, top, cache) {
+                    if matches!(defn, Definition::Property(_)) {
+                        defn.is_incomplete(top, cache)
+                    } else {
+                        error!("Member property reference not a property");
+                        false
+                    }
+                } else {
+                    error!("Member property reference not found");
+                    false
+                }
+            }
             MemberKind::Definition(v) => v.is_incomplete(top, cache),
         }
     }
@@ -83,11 +93,24 @@ impl Validate for Member {
             MemberKind::PropertyReference(name) => {
                 if let Some(defn) = find_definition(name, top, cache) {
                     if !matches!(defn, Definition::Property(_)) {
-                        panic!();
+                        error!("Member property reference not a property");
+                        loader
+                            .report(&property_reference_not_property(
+                                top.file_id().copied().unwrap_or_default(),
+                                name.source_span().map(|span| span.byte_range()),
+                                name,
+                            ))
+                            .unwrap()
                     }
                 } else {
-                    error!("Definition {name} not found");
-                    panic!();
+                    error!("Member property reference not found");
+                    loader
+                        .report(&type_definition_not_found(
+                            top.file_id().copied().unwrap_or_default(),
+                            name.source_span().map(|span| span.byte_range()),
+                            name,
+                        ))
+                        .unwrap()
                 }
             }
             MemberKind::Definition(v) => {
@@ -101,7 +124,7 @@ impl Validate for Member {
                         ))
                         .unwrap()
                 }
-            },
+            }
         }
     }
 }
@@ -153,6 +176,10 @@ impl Member {
     // --------------------------------------------------------------------------------------------
     // Member :: Variants
     // --------------------------------------------------------------------------------------------
+
+    pub const fn kind(&self) -> &MemberKind {
+        &self.kind
+    }
 
     pub const fn is_property_reference(&self) -> bool {
         matches!(self.kind, MemberKind::PropertyReference(_))
@@ -223,7 +250,6 @@ impl Validate for MemberDef {
         trace!("MemberDef::is_valid");
         // TODO: check inverse name exists
         // TODO: check target type exists
-        // TODO: check property reference exists
         self.target_type()
             .validate(top, cache, loader, check_constraints);
         self.target_cardinality()

@@ -50,6 +50,18 @@ pub trait HasAnnotations {
         )
     }
 
+    fn has_rdf_type(&self, type_id: &IdentifierReference) -> bool {
+        self.rdf_types().any(|id| id == type_id)
+    }
+
+    fn rdf_types(&self) -> Box<dyn Iterator<Item = &IdentifierReference> + '_> {
+        Box::new(
+            self.annotation_properties()
+                .filter(|ann| ann.name_reference() == "rdf:type")
+                .filter_map(|ann| ann.value().as_reference()),
+        )
+    }
+
     fn preferred_label(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
         Box::new(
             self.annotation_properties()

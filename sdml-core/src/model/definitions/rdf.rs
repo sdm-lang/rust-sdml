@@ -93,6 +93,13 @@ impl RdfDef {
         ))
     }
 
+    pub fn is_class(&self) -> bool {
+        self.body.has_rdf_type(&QualifiedIdentifier::new(
+            Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+            Identifier::new_unchecked(stdlib::rdfs::CLASS),
+        ).into())
+    }
+
     pub fn datatype(name: Identifier) -> Self {
         Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
@@ -100,11 +107,25 @@ impl RdfDef {
         ))
     }
 
+    pub fn is_datatype(&self) -> bool {
+        self.body.has_rdf_type(&QualifiedIdentifier::new(
+            Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+            Identifier::new_unchecked(stdlib::rdfs::DATATYPE),
+        ).into())
+    }
+
     pub fn property(name: Identifier) -> Self {
         Self::new(name).with_type(QualifiedIdentifier::new(
             Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
             Identifier::new_unchecked(stdlib::rdf::PROPERTY),
         ))
+    }
+
+    pub fn is_property(&self) -> bool {
+        self.body.has_rdf_type(&QualifiedIdentifier::new(
+            Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
+            Identifier::new_unchecked(stdlib::rdf::PROPERTY),
+        ).into())
     }
 
     pub fn individual(name: Identifier) -> Self {

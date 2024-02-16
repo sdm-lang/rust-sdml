@@ -57,7 +57,7 @@ pub const BINARY: &str = "binary";
 pub const BOOLEAN: &str = "boolean";
 pub const DECIMAL: &str = "decimal";
 pub const DOUBLE: &str = "double";
-pub const INTEGER: &str = "string";
+pub const INTEGER: &str = "integer";
 pub const IRI: &str = "iri";
 pub const LANGUAGE: &str = "language";
 pub const STRING: &str = "string";
@@ -152,6 +152,9 @@ pub fn module() -> Module {
             .into(),
         rdf!(datatype IRI, MODULE_IRI)
             .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::ANY_URI))
+            .into(),
+        rdf!(datatype STRING, MODULE_IRI)
+            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::STRING))
             .into(),
         rdf!(datatype LANGUAGE, MODULE_IRI)
             .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::LANGUAGE))
