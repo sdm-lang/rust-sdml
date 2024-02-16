@@ -11,20 +11,20 @@ The project's intent is to provide an idiomatic implementation of the in-memory 
 The following figure demonstrates this package in the broader project context.
 
 ```
-                         ╭───────╮
-                         │  CLI  │
-                    ╔══  │ crate │  ══╗
-                    ║    ╰───────╯    ║
-┌╌╌╌╌╌╌╌╌┐          V                 V
-┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
-┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
-┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
-┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
-└╌╌╌╌╌╌╌╌┘   │           core crate             │
-             ╰──────────────────────────────────╯
- ┌───────┐                  ⋀
- │ other │                  ║
- │ tools │  ════════════════╝
+                            ╭───────╮
+                            │  CLI  │
+                       ╔══  │ crate │  ══╗
+                       ║    ╰───────╯    ║
+┌╌╌╌╌╌╌╌╌┐             V                 V
+┆        ┆       ╭──────────╮       ╭──────────╮       Formatted Source
+┆ source ┆  ══>  │  parse   │  ══>  │ generate │  ══>  RDF Representation 
+┆  file  ┆    ╭──│  crate   │───────│   crate  │──╮    Documentation
+┆        ┆    │  ╰──────────╯       ╰──────────╯  │    Diagrams
+└╌╌╌╌╌╌╌╌┘    │             core crate            │──╮
+              ╰───────────────────────────────────╯  │
+ ┌───────┐             ⋀          error crate        │
+ │ other │             ║  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌─────────────╯
+ │ tools │  ═══════════╝
  └───────┘
 ```
 

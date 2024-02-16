@@ -28,6 +28,7 @@ The following figure demonstrates this package in the broader project context.
  └───────┘
 ```
 
+## 
 Note that other tools can use the `sdml_core` API to create or manipulate models.
 
 ## Changes
