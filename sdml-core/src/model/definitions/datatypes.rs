@@ -61,17 +61,17 @@ impl Validate for DatatypeDef {
                 // TODO: check restriction annotations.
             } else if let Definition::Rdf(base) = defn {
                 if !base.is_datatype() {
-                loader
-                    .report(&datatype_invalid_base_type(
-                        top.file_id().copied().unwrap_or_default(),
-                        self.base_type()
-                            .source_span()
-                            .as_ref()
-                            .map(|span| (*span).into()),
-                        self.base_type(),
-                    ))
-                    .unwrap();
-                 }
+                    loader
+                        .report(&datatype_invalid_base_type(
+                            top.file_id().copied().unwrap_or_default(),
+                            self.base_type()
+                                .source_span()
+                                .as_ref()
+                                .map(|span| (*span).into()),
+                            self.base_type(),
+                        ))
+                        .unwrap();
+                }
                 // TODO: check type and restrictions
             } else {
                 loader

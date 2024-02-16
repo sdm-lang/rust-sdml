@@ -81,23 +81,23 @@ pub mod terms {
     use std::collections::HashMap;
 
     use crate::load::ModuleLoader;
-    use crate::model::*;
     use crate::model::annotations::*;
     use crate::model::constraints::*;
     use crate::model::definitions::*;
     use crate::model::identifiers::*;
     use crate::model::members::*;
     use crate::model::modules::*;
-    use sdml_error::Error;
+    use crate::model::values::*;
+    use crate::model::*;
     use sdml_error::diagnostics::functions::deprecated_term_used;
+    use sdml_error::Error;
     use serde::{Deserialize, Serialize};
 
     // --------------------------------------------------------------------------------------------
     // Public Types
     // --------------------------------------------------------------------------------------------
 
-    #[derive(Clone, Debug)]
-    #[derive(Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     pub struct TermSet {
         name: String,
         #[serde(skip_serializing_if = "Option::is_none")]
@@ -107,8 +107,7 @@ pub mod terms {
         terms: HashMap<String, Term>,
     }
 
-    #[derive(Clone, Debug)]
-    #[derive(Deserialize, Serialize)]
+    #[derive(Clone, Debug, Deserialize, Serialize)]
     pub struct Term {
         #[serde(skip_serializing_if = "Option::is_none", with = "serde_regex")]
         regex: Option<regex::Regex>,
@@ -175,27 +174,37 @@ pub mod terms {
                 };
                 term_map.insert(term.clone(), new_info);
             }
-            Self { term_map, seen: Default::default() }
+            Self {
+                term_map,
+                seen: Default::default(),
+            }
         }
     }
 
     impl Validator<'_> {
-        fn check_for_matches<S>(&mut self, value: S, span: Option<&Span>, top: &Module, loader: &impl ModuleLoader)
-        where
-            S: Into<String>
+        fn check_for_matches<S>(
+            &mut self,
+            value: S,
+            span: Option<&Span>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) where
+            S: Into<String>,
         {
             let value = value.into();
             if self.seen.insert(value.clone()) {
                 for (term, info) in &self.term_map {
                     if info.regex.is_match(value.as_ref()) {
-                        loader.report(&deprecated_term_used(
-                            top.file_id().copied().unwrap_or_default(),
-                            span.map(|span| span.byte_range()),
-                            &value,
-                            term,
-                            info.alternative_terms,
-                            info.reason.as_ref(),
-                        )).unwrap()
+                        loader
+                            .report(&deprecated_term_used(
+                                top.file_id().copied().unwrap_or_default(),
+                                span.map(|span| span.byte_range()),
+                                &value,
+                                term,
+                                info.alternative_terms,
+                                info.reason.as_ref(),
+                            ))
+                            .unwrap()
                     }
                 }
             }
@@ -205,24 +214,44 @@ pub mod terms {
     // --------------------------------------------------------------------------------------------
 
     trait ValidateTerms {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader);
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        );
     }
 
     impl ValidateTerms for Identifier {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             validator.check_for_matches(self, self.source_span(), top, loader);
         }
     }
 
     impl ValidateTerms for QualifiedIdentifier {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.module().validate_terms(validator, top, loader);
             self.member().validate_terms(validator, top, loader);
         }
     }
 
     impl ValidateTerms for IdentifierReference {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             match self {
                 Self::Identifier(v) => v.validate_terms(validator, top, loader),
                 Self::QualifiedIdentifier(v) => v.validate_terms(validator, top, loader),
@@ -231,7 +260,12 @@ pub mod terms {
     }
 
     impl ValidateTerms for Annotation {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             match self {
                 Self::Property(v) => v.validate_terms(validator, top, loader),
                 Self::Constraint(v) => v.validate_terms(validator, top, loader),
@@ -240,14 +274,107 @@ pub mod terms {
     }
 
     impl ValidateTerms for AnnotationProperty {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name_reference().validate_terms(validator, top, loader);
-            // TODO: Value
+            self.value().validate_terms(validator, top, loader);
+        }
+    }
+
+    impl ValidateTerms for Value {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            match self {
+                Self::Simple(v) => v.validate_terms(validator, top, loader),
+                Self::ValueConstructor(v) => v.validate_terms(validator, top, loader),
+                Self::Mapping(v) => v.validate_terms(validator, top, loader),
+                Self::Reference(v) => v.validate_terms(validator, top, loader),
+                Self::List(v) => v.validate_terms(validator, top, loader),
+            }
+        }
+    }
+
+    impl ValidateTerms for SimpleValue {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            if let SimpleValue::String(value) = self {
+                validator.check_for_matches(value.value(), value.source_span(), top, loader);
+            }
+        }
+    }
+
+    impl ValidateTerms for ValueConstructor {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.type_name().validate_terms(validator, top, loader);
+            self.value().validate_terms(validator, top, loader);
+        }
+    }
+
+    impl ValidateTerms for SequenceOfValues {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            for value in self.iter() {
+                value.validate_terms(validator, top, loader);
+            }
+        }
+    }
+
+    impl ValidateTerms for SequenceMember {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            match self {
+                Self::Simple(v) => v.validate_terms(validator, top, loader),
+                Self::ValueConstructor(v) => v.validate_terms(validator, top, loader),
+                Self::Reference(v) => v.validate_terms(validator, top, loader),
+                Self::Mapping(v) => v.validate_terms(validator, top, loader),
+            }
+        }
+    }
+
+    impl ValidateTerms for MappingValue {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.domain().validate_terms(validator, top, loader);
+            self.range().validate_terms(validator, top, loader);
         }
     }
 
     impl ValidateTerms for AnnotationOnlyBody {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             for annotation in self.annotations() {
                 annotation.validate_terms(validator, top, loader);
             }
@@ -255,14 +382,49 @@ pub mod terms {
     }
 
     impl ValidateTerms for Constraint {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
-            // TODO: check informal and formal.
+            match self.body() {
+                ConstraintBody::Informal(v) => v.validate_terms(validator, top, loader),
+                ConstraintBody::Formal(v) => v.validate_terms(validator, top, loader),
+            }
+        }
+    }
+
+    impl ValidateTerms for ControlledLanguageString {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            validator.check_for_matches(self.value(), self.source_span(), top, loader);
+        }
+    }
+
+    impl ValidateTerms for FormalConstraint {
+        fn validate_terms(
+            &self,
+            _validator: &mut Validator<'_>,
+            _top: &Module,
+            _loader: &impl ModuleLoader,
+        ) {
+            todo!()
         }
     }
 
     impl ValidateTerms for Definition {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             match self {
                 Self::Datatype(v) => v.validate_terms(validator, top, loader),
                 Self::Entity(v) => v.validate_terms(validator, top, loader),
@@ -278,7 +440,12 @@ pub mod terms {
     }
 
     impl ValidateTerms for DatatypeDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             self.base_type().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
@@ -288,7 +455,12 @@ pub mod terms {
     }
 
     impl ValidateTerms for EntityDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
@@ -302,46 +474,98 @@ pub mod terms {
     }
 
     impl ValidateTerms for EnumDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.name().validate_terms(validator, top, loader);
+            if let Some(body) = self.body() {
+                for annotation in body.annotations() {
+                    annotation.validate_terms(validator, top, loader);
+                }
+                for variant in body.variants() {
+                    variant.validate_terms(validator, top, loader);
+                }
+            }
+        }
+    }
+
+    impl ValidateTerms for ValueVariant {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
                     annotation.validate_terms(validator, top, loader);
                 }
             }
-            todo!("validate variants")
         }
     }
 
     impl ValidateTerms for EventDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             self.event_source().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
                     annotation.validate_terms(validator, top, loader);
-                for member in body.members() {
-                    member.validate_terms(validator, top, loader);
-                }
+                    for member in body.members() {
+                        member.validate_terms(validator, top, loader);
+                    }
                 }
             }
         }
     }
 
     impl ValidateTerms for PropertyDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
                     annotation.validate_terms(validator, top, loader);
                 }
+                for role in body.roles() {
+                    role.validate_terms(validator, top, loader);
+                }
             }
-            todo!("validate roles")
+        }
+    }
+
+    impl ValidateTerms for PropertyRole {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.name().validate_terms(validator, top, loader);
+            todo!()
         }
     }
 
     impl ValidateTerms for RdfDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             for annotation in self.body().annotations() {
                 annotation.validate_terms(validator, top, loader);
@@ -350,7 +574,12 @@ pub mod terms {
     }
 
     impl ValidateTerms for StructureDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
@@ -364,7 +593,12 @@ pub mod terms {
     }
 
     impl ValidateTerms for TypeClassDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
@@ -376,19 +610,50 @@ pub mod terms {
     }
 
     impl ValidateTerms for UnionDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 for annotation in body.annotations() {
                     annotation.validate_terms(validator, top, loader);
                 }
+                for variant in body.variants() {
+                    variant.validate_terms(validator, top, loader);
+                }
             }
-            todo!("validate variants")
+        }
+    }
+
+    impl ValidateTerms for TypeVariant {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.name_reference().validate_terms(validator, top, loader);
+            if let Some(rename) = self.rename() {
+                rename.validate_terms(validator, top, loader);
+            }
+            if let Some(body) = self.body() {
+                for annotation in body.annotations() {
+                    annotation.validate_terms(validator, top, loader);
+                }
+            }
         }
     }
 
     impl ValidateTerms for Member {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             self.name().validate_terms(validator, top, loader);
             match self.kind() {
                 MemberKind::PropertyReference(v) => v.validate_terms(validator, top, loader),
@@ -398,7 +663,12 @@ pub mod terms {
     }
 
     impl ValidateTerms for MemberDef {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             if let Some(inverse_name) = self.inverse_name() {
                 inverse_name.validate_terms(validator, top, loader);
             }
@@ -410,15 +680,20 @@ pub mod terms {
     }
 
     impl ValidateTerms for TypeReference {
-        fn validate_terms(&self, validator: &mut Validator<'_>, top: &Module, loader: &impl ModuleLoader) {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
             match self {
-                Self::Unknown => {},
+                Self::Unknown => {}
                 Self::Type(v) => v.validate_terms(validator, top, loader),
                 Self::FeatureSet(v) => v.validate_terms(validator, top, loader),
                 Self::MappingType(v) => {
                     v.domain().validate_terms(validator, top, loader);
                     v.range().validate_terms(validator, top, loader);
-                },
+                }
             }
         }
     }

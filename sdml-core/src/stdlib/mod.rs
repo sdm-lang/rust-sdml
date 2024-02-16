@@ -49,7 +49,7 @@ pub fn is_builtin_type_name(name: &Identifier) -> bool {
         sdml::IRI,
         sdml::LANGUAGE,
         sdml::STRING,
-        sdml::UNSIGNED
+        sdml::UNSIGNED,
     ]
     .contains(&name.as_ref())
 }

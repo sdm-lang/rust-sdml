@@ -33,6 +33,10 @@ Note that other tools can use the `sdml_core` API to create or manipulate models
 
 ## Changes
 
+**Version 0.2.12**
+
+* Feature: more term validation, mainly to reduce the number of `todo!()` panics.
+
 **Version 0.2.11**
 
 * Refactor: moved errors and diagnostics to new crate `sdml_error`.
