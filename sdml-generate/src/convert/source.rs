@@ -140,10 +140,15 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
 
         let body = module.body();
         if body.has_imports() || body.has_annotations() || body.has_definitions() {
-            writer.write_all(format!("{}\n\n", keyword("is")).as_bytes())?;
+            writer.write_all(format!("{}\n", keyword("is")).as_bytes())?;
 
-            self.write_module_imports(body, writer, &options)?;
+            if body.has_imports() {
+                writer.write_all(EOL)?;
+                self.write_module_imports(body, writer, &options)?;
+            }
+
             if body.has_annotations() {
+                writer.write_all(EOL)?;
                 self.write_annotations(
                     body.annotations(),
                     writer,
@@ -151,7 +156,9 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
                     &options,
                 )?;
             }
-            self.write_module_definitions(body, writer, &options)?;
+            if body.has_definitions() {
+                self.write_module_definitions(body, writer, &options)?;
+            }
 
             writer.write_all(format!("\n{}\n", keyword("end")).as_bytes())?;
         } else {
@@ -193,9 +200,7 @@ impl SourceGenerator {
                     format!("{indentation}{} {imported}\n", keyword("import")).as_bytes(),
                 )?;
             }
-            writer.write_all(EOL)?;
         }
-
         Ok(())
     }
 
@@ -357,6 +362,9 @@ impl SourceGenerator {
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    if body.has_members() {
+                        writer.write_all(EOL)?;
+                    }
                 }
                 for member in body.members() {
                     self.write_member(member, writer, options)?;
@@ -398,9 +406,11 @@ impl SourceGenerator {
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    if body.has_variants() {
+                        writer.write_all(EOL)?;
+                    }
                 }
                 if body.has_variants() {
-                    writer.write_all(b"\n")?;
                     for variant in body.variants() {
                         self.write_value_variant(variant, writer, options)?;
                     }
@@ -477,6 +487,9 @@ impl SourceGenerator {
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    if body.has_members() {
+                        writer.write_all(EOL)?;
+                    }
                 }
                 for member in body.members() {
                     self.write_member(member, writer, options)?;
@@ -523,15 +536,17 @@ impl SourceGenerator {
             self.write_type_reference(defn.target_type(), writer, options)?;
             if let Some(body) = defn.body() {
                 if body.has_annotations() && options.generate_member_bodies() {
-                    writer.write_all(b" is")?;
+                    writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                     self.write_annotations(
                         body.annotations(),
                         writer,
-                        DEFINITION_ANNOTATION_INDENT,
+                        MEMBER_ANNOTATION_INDENT,
                         options,
                     )?;
-                    writer.write_all(b"end")?;
+                    writer.write_all(format!("{indentation}{}\n", keyword("end")).as_bytes())?;
                 }
+            } else {
+                writer.write_all(EOL)?;
             }
         } else {
             unreachable!()
@@ -603,7 +618,6 @@ impl SourceGenerator {
                 writer.write_all(paren_end().as_bytes())?;
             }
         }
-        writer.write_all(EOL)?;
         Ok(())
     }
 
@@ -633,6 +647,9 @@ impl SourceGenerator {
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    if body.has_roles() {
+                        writer.write_all(EOL)?;
+                    }
                 }
                 // TODO: roles
                 writer.write_all(format!("\n{indentation}{}\n", keyword("end")).as_bytes())?;
@@ -715,6 +732,9 @@ impl SourceGenerator {
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    if body.has_members() {
+                        writer.write_all(EOL)?;
+                    }
                 }
                 for member in body.members() {
                     self.write_member(member, writer, options)?;
@@ -756,6 +776,9 @@ impl SourceGenerator {
                         DEFINITION_ANNOTATION_INDENT,
                         options,
                     )?;
+                    if body.has_variants() {
+                        writer.write_all(EOL)?;
+                    }
                 }
                 if body.has_variants() {
                     for variant in body.variants() {

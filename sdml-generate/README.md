@@ -30,9 +30,14 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.2.9**
+
+* Fix: formatting of annotations was broken for the view command.
+
 **Version 0.2.8**
 
 * Feature: adapted to new `HeaderValue` type in core.
+
 **Version 0.2.7**
 
 * Feature: Document generation for org-mode now includes the RDF version of a module and the dependency graph.
