@@ -1,10 +1,12 @@
 use crate::load::ModuleLoader;
 use crate::model::modules::Module;
-use crate::model::Span;
+use crate::model::{HasSourceSpan, Span};
 use convert_case::{Case, Casing};
 use lazy_static::lazy_static;
 use regex::Regex;
-use sdml_error::diagnostics::functions::invalid_identifier;
+use sdml_error::diagnostics::functions::{
+    identifier_not_preferred_case, invalid_identifier, IdentifierCaseConvention,
+};
 use std::{
     fmt::{Debug, Display},
     hash::Hash,
@@ -198,7 +200,12 @@ impl Identifier {
     // Identifier :: Helpers
     // --------------------------------------------------------------------------------------------
 
-    pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
+    pub fn validate(
+        &self,
+        top: &Module,
+        loader: &impl ModuleLoader,
+        as_case: Option<IdentifierCaseConvention>,
+    ) {
         if !Self::is_valid(&self.value) {
             loader
                 .report(&invalid_identifier(
@@ -207,6 +214,18 @@ impl Identifier {
                     &self.value,
                 ))
                 .unwrap();
+        }
+        if let Some(case) = as_case {
+            if !case.is_valid(self) {
+                loader
+                    .report(&identifier_not_preferred_case(
+                        top.file_id().copied().unwrap_or_default(),
+                        self.source_span().map(|span| span.byte_range()),
+                        self,
+                        case,
+                    ))
+                    .unwrap();
+            }
         }
     }
 
@@ -326,8 +345,10 @@ impl QualifiedIdentifier {
     // --------------------------------------------------------------------------------------------
 
     pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
-        self.module.validate(top, loader);
-        self.member.validate(top, loader);
+        self.module
+            .validate(top, loader, Some(IdentifierCaseConvention::Module));
+        self.member
+            .validate(top, loader, Some(IdentifierCaseConvention::ImportedMember));
     }
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
@@ -420,7 +441,7 @@ impl IdentifierReference {
 
     pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
         match self {
-            IdentifierReference::Identifier(v) => v.validate(top, loader),
+            IdentifierReference::Identifier(v) => v.validate(top, loader, None),
             IdentifierReference::QualifiedIdentifier(v) => v.validate(top, loader),
         };
     }

@@ -5,7 +5,7 @@ use crate::model::check::MaybeIncomplete;
 use crate::model::members::TypeReference;
 use crate::model::References;
 use crate::model::{
-    annotations::{Annotation, HasAnnotations},
+    annotations::Annotation,
     check::Validate,
     definitions::HasMembers,
     identifiers::{Identifier, IdentifierReference},
@@ -15,6 +15,7 @@ use crate::model::{
 };
 use std::{collections::HashSet, fmt::Debug};
 
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 use tracing::warn;
@@ -89,11 +90,25 @@ impl_has_source_span_for!(EntityDef);
 
 impl_references_for!(EntityDef => delegate optional body);
 
-impl_validate_for!(EntityDef => delegate optional body);
-
 impl_annotation_builder!(EntityDef, optional body);
 
 impl_maybe_invalid_for!(EntityDef);
+
+impl Validate for EntityDef {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.name
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl EntityDef {
     // --------------------------------------------------------------------------------------------
@@ -117,9 +132,26 @@ impl_has_members_for!(EntityBody);
 
 impl_has_source_span_for!(EntityBody);
 
-impl_validate_for_annotations_and_members!(EntityBody);
-
 impl_maybe_invalid_for!(EntityBody; over members);
+
+impl Validate for EntityBody {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.identity
+            .validate(top, cache, loader, check_constraints);
+        for annotation in &self.annotations {
+            annotation.validate(top, cache, loader, check_constraints);
+        }
+        for member in &self.members {
+            member.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl References for EntityBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -291,8 +323,7 @@ impl Validate for EntityIdentityDef {
         _loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {
-        warn!("");
-        // TODO: check type reference
+        warn!("EntityIdentityDef::Validate nope");
     }
 }
 

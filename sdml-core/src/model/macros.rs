@@ -488,22 +488,6 @@ macro_rules! impl_validate_for {
             }
         }
     };
-    ($type: ty => delegate optional $inner: ident) => {
-        impl $crate::model::check::Validate for $type {
-            fn validate(
-                &self,
-                top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache,
-                loader: &impl $crate::load::ModuleLoader,
-                check_constraints: bool,
-            ) {
-                match &self.$inner {
-                    Some(inner) => inner.validate(top, cache, loader, check_constraints),
-                    None => {},
-                }
-            }
-        }
-    };
 }
 
 macro_rules! impl_validate_for_annotations_and_members {

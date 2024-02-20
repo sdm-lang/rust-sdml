@@ -15,8 +15,9 @@ use crate::model::annotations::Annotation;
 use crate::model::check::Validate;
 use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
 use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::{References, Span};
+use crate::model::{HasName, References, Span};
 
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -126,11 +127,13 @@ impl References for TypeClassDef {
 impl Validate for TypeClassDef {
     fn validate(
         &self,
-        _top: &crate::model::modules::Module,
+        top: &crate::model::modules::Module,
         _cache: &ModuleCache,
-        _loader: &impl ModuleLoader,
+        loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
         todo!()
     }
 }

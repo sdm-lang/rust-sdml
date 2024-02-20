@@ -8,6 +8,7 @@ use crate::model::{
 };
 use std::{collections::HashSet, fmt::Debug};
 
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -50,11 +51,25 @@ impl_has_source_span_for!(StructureDef);
 
 impl_references_for!(StructureDef => delegate optional body);
 
-impl_validate_for!(StructureDef => delegate optional body);
-
 impl_annotation_builder!(StructureDef, optional body);
 
 impl_maybe_invalid_for!(StructureDef);
+
+impl Validate for StructureDef {
+    fn validate(
+        &self,
+        top: &crate::model::modules::Module,
+        cache: &crate::cache::ModuleCache,
+        loader: &impl crate::load::ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.name
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl StructureDef {
     // --------------------------------------------------------------------------------------------

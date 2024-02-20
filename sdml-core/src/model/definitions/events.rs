@@ -1,8 +1,10 @@
 use crate::model::{
+    check::Validate,
     definitions::StructureBody,
     identifiers::{Identifier, IdentifierReference},
-    Span,
+    HasName, Span,
 };
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 use std::fmt::Debug;
 
 #[cfg(feature = "serde")]
@@ -42,8 +44,22 @@ impl_has_source_span_for!(EventDef);
 
 impl_maybe_invalid_for!(EventDef);
 
-// TODO: need to include event_source in validation!!
-impl_validate_for!(EventDef => delegate optional body);
+impl Validate for EventDef {
+    fn validate(
+        &self,
+        top: &crate::model::modules::Module,
+        cache: &crate::cache::ModuleCache,
+        loader: &impl crate::load::ModuleLoader,
+        check_constraints: bool,
+    ) {
+        // TODO: need to include event_source in validation!!
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl_annotation_builder!(EventDef, optional body);
 

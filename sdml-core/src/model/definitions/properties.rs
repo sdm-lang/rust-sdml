@@ -8,9 +8,10 @@ use crate::{
         identifiers::{Identifier, IdentifierReference},
         members::{Cardinality, HasCardinality, HasType, MemberDef, TypeReference},
         modules::Module,
-        HasOptionalBody, References, Span,
+        HasName, HasOptionalBody, References, Span,
     },
 };
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 use std::{collections::HashSet, fmt::Debug};
 use tracing::warn;
 
@@ -77,9 +78,23 @@ impl_references_for!(PropertyDef => delegate optional body);
 
 impl_maybe_invalid_for!(PropertyDef);
 
-impl_validate_for!(PropertyDef => delegate optional body);
-
 impl_annotation_builder!(PropertyDef, optional body);
+
+impl Validate for PropertyDef {
+    fn validate(
+        &self,
+        top: &crate::model::modules::Module,
+        cache: &crate::cache::ModuleCache,
+        loader: &impl crate::load::ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl PropertyDef {
     // --------------------------------------------------------------------------------------------

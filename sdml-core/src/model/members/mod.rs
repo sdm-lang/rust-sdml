@@ -8,10 +8,11 @@ use crate::model::modules::Module;
 use crate::model::{HasName, HasSourceSpan, References, Span};
 use sdml_error::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
+    IdentifierCaseConvention,
 };
 use std::collections::HashSet;
 use std::fmt::Debug;
-use tracing::{error, trace};
+use tracing::error;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -88,7 +89,8 @@ impl Validate for Member {
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
-        trace!("Member::is_valid");
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::Member));
         match &self.kind {
             MemberKind::PropertyReference(name) => {
                 if let Some(defn) = find_definition(name, top, cache) {
@@ -247,7 +249,6 @@ impl Validate for MemberDef {
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
-        trace!("MemberDef::is_valid");
         // TODO: check inverse name exists
         // TODO: check target type exists
         self.target_type()

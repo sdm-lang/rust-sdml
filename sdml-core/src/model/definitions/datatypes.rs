@@ -8,9 +8,11 @@ use crate::model::References;
 use crate::model::{
     annotations::AnnotationOnlyBody,
     identifiers::{Identifier, IdentifierReference},
-    Span,
+    HasName, Span,
 };
-use sdml_error::diagnostics::functions::{datatype_invalid_base_type, type_definition_not_found};
+use sdml_error::diagnostics::functions::{
+    datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
+};
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
@@ -56,6 +58,11 @@ impl Validate for DatatypeDef {
         loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {
+        self.name().validate(
+            top,
+            loader,
+            Some(IdentifierCaseConvention::DatatypeDefinition),
+        );
         if let Some(defn) = find_definition(self.base_type(), top, cache) {
             if let Definition::Datatype(_base) = defn {
                 // TODO: check restriction annotations.

@@ -33,6 +33,10 @@ Note that other tools can use the `sdml_core` API to create or manipulate models
 
 ## Changes
 
+**Version 0.2.13**
+
+* Feature: add new validation for `IdentifierNotPreferredCase`, to enforce case conventions.
+
 **Version 0.2.12**
 
 * Feature: more term validation, mainly to reduce the number of `todo!()` panics.

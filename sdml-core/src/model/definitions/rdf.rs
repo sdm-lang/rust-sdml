@@ -10,7 +10,7 @@ use crate::{
     },
     stdlib,
 };
-use tracing::info;
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -64,12 +64,14 @@ impl_maybe_invalid_for!(RdfDef; always false);
 impl Validate for RdfDef {
     fn validate(
         &self,
-        _top: &Module,
-        _cache: &ModuleCache,
-        _loader: &impl ModuleLoader,
-        _check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
     ) {
-        info!("RdfDef is always valid.");
+        self.name
+            .validate(top, loader, Some(IdentifierCaseConvention::RdfDefinition));
+        self.body.validate(top, cache, loader, check_constraints);
     }
 }
 

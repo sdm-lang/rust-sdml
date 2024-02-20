@@ -7,9 +7,10 @@ use crate::{
         definitions::HasVariants,
         identifiers::{Identifier, IdentifierReference},
         modules::Module,
-        References, Span,
+        HasName, References, Span,
     },
 };
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 use std::{collections::HashSet, fmt::Debug};
 use tracing::warn;
 
@@ -70,8 +71,22 @@ impl_has_source_span_for!(EnumDef);
 
 impl_maybe_invalid_for!(EnumDef; exists body);
 
-// TODO check that any equivalent class is a datatype.
-impl_validate_for!(EnumDef => delegate optional body);
+impl Validate for EnumDef {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        // TODO check that any equivalent class is a datatype.
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl_annotation_builder!(EnumDef, optional body);
 
@@ -125,12 +140,14 @@ impl_annotation_builder!(ValueVariant, optional body);
 impl Validate for ValueVariant {
     fn validate(
         &self,
-        _top: &Module,
+        top: &Module,
         _cache: &ModuleCache,
-        _loader: &impl ModuleLoader,
+        loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {
         warn!("Missing validation for ValueVariant values.");
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::ValueVariant));
     }
 }
 

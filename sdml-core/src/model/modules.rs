@@ -14,6 +14,7 @@ use crate::model::{
 use sdml_error::diagnostics::functions::{
     definition_not_found, imported_module_not_found, module_is_incomplete,
     module_version_info_empty, module_version_mismatch, module_version_not_found,
+    IdentifierCaseConvention,
 };
 use sdml_error::FileId;
 use std::collections::HashMap;
@@ -246,7 +247,8 @@ impl Module {
         check_constraints: bool,
     ) {
         if !self.is_library_module() {
-            self.name.validate(self, loader);
+            self.name
+                .validate(self, loader, Some(IdentifierCaseConvention::Module));
             if let Some(version_info) = self.version_info() {
                 if version_info.as_ref().is_empty() {
                     loader
@@ -578,7 +580,9 @@ impl Validate for ImportStatement {
         for import in self.imports() {
             match import {
                 Import::Module(module_ref) => {
-                    module_ref.name().validate(top, loader);
+                    module_ref
+                        .name()
+                        .validate(top, loader, Some(IdentifierCaseConvention::Module));
                     if let Some(actual_module) = cache.get(module_ref.name()) {
                         match (module_ref.version_uri(), actual_module.version_uri()) {
                             (None, _) => {}

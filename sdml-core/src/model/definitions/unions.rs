@@ -10,8 +10,8 @@ use crate::{
         References, Span,
     },
 };
+use sdml_error::diagnostics::functions::IdentifierCaseConvention;
 use std::{collections::HashSet, fmt::Debug};
-use tracing::warn;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -70,9 +70,23 @@ impl_has_optional_body_for!(UnionDef, UnionBody);
 
 impl_has_source_span_for!(UnionDef);
 
-impl_validate_for!(UnionDef => delegate optional body);
-
 impl_maybe_invalid_for!(UnionDef; exists body);
+
+impl Validate for UnionDef {
+    fn validate(
+        &self,
+        top: &crate::model::modules::Module,
+        cache: &crate::cache::ModuleCache,
+        loader: &impl crate::load::ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.name
+            .validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
+    }
+}
 
 impl References for UnionDef {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -143,12 +157,18 @@ impl_annotation_builder!(TypeVariant, optional body);
 impl Validate for TypeVariant {
     fn validate(
         &self,
-        _top: &Module,
-        _cache: &ModuleCache,
-        _loader: &impl ModuleLoader,
-        _check_constraints: bool,
+        top: &Module,
+        cache: &ModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
     ) {
-        warn!("Missing Validation for TypeVariant");
+        self.name_reference.validate(top, loader);
+        if let Some(rename) = &self.rename {
+            rename.validate(top, loader, Some(IdentifierCaseConvention::TypeDefinition));
+        }
+        if let Some(body) = &self.body {
+            body.validate(top, cache, loader, check_constraints);
+        }
     }
 }
 
