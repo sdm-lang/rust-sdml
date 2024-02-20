@@ -23,6 +23,7 @@ use sdml_error::diagnostics::functions::{
 use sdml_error::Error;
 use sdml_error::{FileId, Source};
 use std::collections::HashSet;
+use tracing::trace;
 use tree_sitter::Node;
 use tree_sitter::Parser;
 use tree_sitter_sdml::language;
@@ -44,16 +45,19 @@ mod macros;
 
 // This should only be called by `ModuleLoader`
 pub(crate) fn parse_str(file_id: FileId, loader: &FsModuleLoader) -> Result<Module, Error> {
+    trace!("parse_str({file_id}, ...)");
     let file_cache = loader.files();
     let source = file_cache.get(file_id).unwrap().source();
     let mut parser = Parser::new();
     parser
         .set_language(language())
         .expect("Error loading SDML grammar");
-    let tree = parser.parse(source, None).unwrap();
 
+    let tree = parser.parse(source, None).unwrap();
     let node = tree.root_node();
+
     let mut context = ParseContext::new(file_id, loader);
+    context.check_if_error(&node, "module")?;
 
     if node.kind() == NODE_KIND_MODULE {
         let mut cursor = tree.walk();
@@ -107,7 +111,9 @@ impl<'a> ParseContext<'a> {
 
     fn check_if_error(&self, node: &Node<'a>, rule: &str) -> Result<(), Error> {
         if node.is_error() {
-            Err(found_error_node(self.file_id, node.byte_range(), rule).into())
+            let diagnostic = found_error_node(self.file_id, node.byte_range(), rule);
+            self.loader.report(&diagnostic).unwrap();
+            Err(diagnostic.into())
         } else {
             Ok(())
         }
