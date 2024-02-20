@@ -15,10 +15,10 @@ pub enum ErrorCode {
     // --------------------------------------------------------------------------------------------
     // Bugs
     // --------------------------------------------------------------------------------------------
-    TreeSitterErrorNode = 2,
-    TreeSitterUnexpectedNode = 3,
-    TreeSitterMissingNode = 4,
-    TreeSitterMissingVariable = 5,
+    TreeSitterErrorNode = 1,
+    TreeSitterUnexpectedNode = 2,
+    TreeSitterMissingNode = 3,
+    TreeSitterMissingVariable = 4,
 
     // --------------------------------------------------------------------------------------------
     // Errors

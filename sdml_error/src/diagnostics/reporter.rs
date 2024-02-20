@@ -2,6 +2,7 @@
 This module contains the trait [`Reporter`] and common implementations.
  */
 
+use crate::diagnostics::color::UseColor;
 use crate::diagnostics::{diagnostic_level_enabled, Diagnostic, ErrorCode, SeverityFilter};
 use crate::errors::Error;
 use crate::SourceFiles;
@@ -153,7 +154,7 @@ impl ErrorCounters {
 
 impl Default for StandardStreamReporter {
     fn default() -> Self {
-        Self::stderr(Default::default())
+        Self::stderr(UseColor::from_env().into())
     }
 }
 
@@ -235,9 +236,17 @@ impl StandardStreamReporter {
             )?;
             writer.reset()?;
             writer.write_all(b": ")?;
-            if let Some(name) = module_name {
-                writer.write_all(i18n!("lbl_module_name", name = name).as_bytes())?;
-            }
+            writer.write_all(
+                format!(
+                    "{} ",
+                    if let Some(name) = module_name {
+                        i18n!("lbl_module_name_short", name = name)
+                    } else {
+                        i18n!("lbl_parser")
+                    }
+                )
+                .as_bytes(),
+            )?;
             let mut count_strings: Vec<String> = Default::default();
             if counters.bugs > 0 {
                 count_strings.push(i18n!("count_of_bugs", count = counters.bugs));
@@ -280,3 +289,7 @@ impl Reporter for BailoutReporter {
         Ok(())
     }
 }
+
+// ------------------------------------------------------------------------------------------------
+// Private Functions
+// ------------------------------------------------------------------------------------------------

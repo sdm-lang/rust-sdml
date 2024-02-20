@@ -30,6 +30,11 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.1.4**
+
+* Feature: improved a number of diagnostic help messages.
+* Feature: added shared `UseColor` type.
+
 **Version 0.1.3**
 
 - Feature: add new diagnostic for `DeprecatedTermUsed` where an identifier include two (or more) consecutive

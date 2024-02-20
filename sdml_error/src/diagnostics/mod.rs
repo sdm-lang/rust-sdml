@@ -114,6 +114,9 @@ impl From<Severity> for SeverityFilter {
 pub mod codes;
 pub use codes::ErrorCode;
 
+pub mod color;
+pub use color::UseColor;
+
 pub mod functions;
 
 pub mod reporter;

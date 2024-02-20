@@ -43,7 +43,10 @@ where
         .with_labels(vec![
             Label::primary(file_id, location).with_message(i18n!("lbl_here"))
         ])
-        .with_notes(vec![i18n!("lbl_in_grammar_rule", name = in_rule.into())]))
+        .with_notes(vec![
+            i18n!("lbl_in_grammar_rule", name = in_rule.into()),
+            i18n!("help_error_node"),
+        ]))
 }
 
 ///
@@ -393,15 +396,15 @@ pub fn type_definition_not_found<S>(
 where
     S: Into<String>,
 {
-    new_diagnostic!(
-        TypeDefinitionNotFound,
-        |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
+    new_diagnostic!(TypeDefinitionNotFound, |diagnostic: Diagnostic| {
+        if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
                 .with_message(i18n!("lbl_this_reference"))])
         } else {
             diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
         }
-    )
+        .with_notes(vec![i18n!("help_type_definition_not_found")])
+    })
 }
 
 #[inline]
@@ -414,15 +417,15 @@ pub fn datatype_invalid_base_type<S>(
 where
     S: Into<String>,
 {
-    new_diagnostic!(
-        DatatypeInvalidBase,
-        |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
+    new_diagnostic!(DatatypeInvalidBase, |diagnostic: Diagnostic| {
+        if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
                 .with_message(i18n!("lbl_this_reference"))])
         } else {
             diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
         }
-    )
+        .with_notes(vec![i18n!("help_datatype_invalid_base_type")])
+    })
 }
 
 #[inline]
@@ -501,15 +504,15 @@ pub fn feature_set_not_a_union<S>(
 where
     S: Into<String>,
 {
-    new_diagnostic!(
-        FeatureSetNotUnion,
-        |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
+    new_diagnostic!(FeatureSetNotUnion, |diagnostic: Diagnostic| {
+        if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
                 .with_message(i18n!("lbl_this_reference"))])
         } else {
             diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
         }
-    )
+        .with_notes(vec![i18n!("help_feature_set_not_a_union")])
+    })
 }
 
 #[inline]
@@ -522,15 +525,15 @@ pub fn property_reference_not_property<S>(
 where
     S: Into<String>,
 {
-    new_diagnostic!(
-        PropertyReferenceNotProperty,
-        |diagnostic: Diagnostic| if let Some(reference_location) = reference_location {
+    new_diagnostic!(PropertyReferenceNotProperty, |diagnostic: Diagnostic| {
+        if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
                 .with_message(i18n!("lbl_this_reference"))])
         } else {
             diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
         }
-    )
+        .with_notes(vec![i18n!("help_property_reference_not_property")])
+    })
 }
 
 // ------------------------------------------------------------------------------------------------
