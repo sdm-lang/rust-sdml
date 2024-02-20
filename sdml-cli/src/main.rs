@@ -414,7 +414,7 @@ fn main() -> ExitCode {
 
 fn init_color(no_color: bool) {
     if no_color {
-        sdml_generate::color::set_colorize(sdml_generate::color::UseColor::Never);
+        sdml_generate::color::set_colorize(sdml_error::diagnostics::UseColor::Never);
     }
 }
 
