@@ -1,4 +1,4 @@
-use crate::cache::ModuleCache;
+use crate::cache::{ModuleCache, ModuleStore};
 use crate::load::ModuleLoader;
 use crate::model::definitions::{
     DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,

@@ -24,6 +24,32 @@ use url::Url;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// A trait for any type that /stores/ modules and can retrieve them by name and by URI.
+///
+pub trait ModuleStore {
+    /// Return the number of modules in the store.
+    fn len(&self) -> usize;
+    /// Return `true` if there are no modules in this store, else `false`.
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Returns `true` if the loader's cache contains a module with the name `name`, else `false`.
+    fn contains(&self, name: &Identifier) -> bool;
+    /// Returns `true` if the loader's cache contains a module with the base URI `uri`, else `false`.
+    fn contains_by_uri(&self, uri: &Url) -> bool;
+
+    fn get(&self, name: &Identifier) -> Option<&Module>;
+    fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module>;
+    fn get_by_uri(&self, uri: &Url) -> Option<&Module>;
+    fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module>;
+
+    fn insert(&mut self, module: Module);
+    fn remove(&mut self, name: &Identifier) -> bool;
+    fn remove_by_uri(&mut self, uri: &Url) -> bool;
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct ModuleCache {
     uri_map: HashMap<Url, Identifier>,
@@ -45,6 +71,69 @@ pub struct ModuleCache {
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
+
+impl ModuleStore for ModuleCache {
+    fn len(&self) -> usize {
+        self.modules.len()
+    }
+
+    fn contains(&self, name: &Identifier) -> bool {
+        self.modules.contains_key(name)
+    }
+
+    fn contains_by_uri(&self, uri: &Url) -> bool {
+        self.uri_map.contains_key(uri)
+    }
+
+    fn get(&self, name: &Identifier) -> Option<&Module> {
+        self.modules.get(name)
+    }
+
+    fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module> {
+        self.modules.get_mut(name)
+    }
+
+    fn get_by_uri(&self, uri: &Url) -> Option<&Module> {
+        match self.uri_map.get(uri) {
+            Some(name) => self.get(name),
+            _ => None,
+        }
+    }
+
+    fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module> {
+        let name = self.uri_map.get_mut(uri).map(|n| n.clone());
+        match name {
+            Some(name) => self.get_mut(&name),
+            _ => None,
+        }
+    }
+
+    fn insert(&mut self, module: Module) {
+        if let Some(base_uri) = module.base_uri() {
+            self.uri_map
+                .insert(base_uri.value().clone(), module.name().clone());
+        }
+        self.modules.insert(module.name().clone(), module);
+    }
+
+    fn remove(&mut self, name: &Identifier) -> bool {
+        if self.modules.remove(name).is_some() {
+            self.uri_map.retain(|_, v| v == name);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn remove_by_uri(&mut self, uri: &Url) -> bool {
+        if let Some(name) = self.uri_map.remove(uri) {
+            self.modules.remove(&name);
+            true
+        } else {
+            false
+        }
+    }
+}
 
 impl ModuleCache {
     ///
@@ -74,56 +163,8 @@ impl ModuleCache {
         self_mut
     }
 
-    pub fn len(&self) -> usize {
-        self.modules.len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.modules.is_empty()
-    }
-
     pub fn iter(&self) -> impl Iterator<Item = &Module> {
         self.modules.values()
-    }
-
-    /// Returns `true` if the loader's cache contains a module with the name `name`, else `false`.
-    pub fn contains(&self, name: &Identifier) -> bool {
-        self.modules.contains_key(name)
-    }
-
-    pub fn contains_by_uri(&self, uri: &Url) -> bool {
-        self.uri_map.contains_key(uri)
-    }
-
-    pub fn insert(&mut self, module: Module) {
-        if let Some(base_uri) = module.base_uri() {
-            self.uri_map
-                .insert(base_uri.value().clone(), module.name().clone());
-        }
-        self.modules.insert(module.name().clone(), module);
-    }
-
-    pub fn get(&self, name: &Identifier) -> Option<&Module> {
-        self.modules.get(name)
-    }
-
-    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module> {
-        self.modules.get_mut(name)
-    }
-
-    pub fn get_by_uri(&self, uri: &Url) -> Option<&Module> {
-        match self.uri_map.get(uri) {
-            Some(name) => self.get(name),
-            _ => None,
-        }
-    }
-
-    pub fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module> {
-        let name = self.uri_map.get_mut(uri).map(|n| n.clone());
-        match name {
-            Some(name) => self.get_mut(&name),
-            _ => None,
-        }
     }
 
     pub fn identifier_for_url(&self, url: &Url) -> Option<&Identifier> {

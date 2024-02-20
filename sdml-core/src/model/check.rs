@@ -5,7 +5,7 @@ Provides types for model checking.
 
 use super::definitions::Definition;
 use super::identifiers::IdentifierReference;
-use crate::cache::ModuleCache;
+use crate::cache::{ModuleCache, ModuleStore};
 use crate::load::ModuleLoader;
 use crate::model::modules::Module;
 use crate::model::HasBody;
