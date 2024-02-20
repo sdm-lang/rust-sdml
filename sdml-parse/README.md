@@ -31,6 +31,10 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.2.10**
+
+* Fix: Handle tree-sitter ERROR nodes correctly when they cause the top-level rule to fail.
+
 **Version 0.2.9**
 
 * Build: Using core 0.2.11 for updated validation.
