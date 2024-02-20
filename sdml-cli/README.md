@@ -28,17 +28,68 @@ The following figure demonstrates this package in the broader project context.
  └───────┘
 ```
 
+
+## Installation
+
+Installation of command-line interface is via the `cargo` command. Cargo is usually installed with the Rust toolchain
+using [rustup](https://rustup.rs/).
+
+The following command should download and build the tool, and will also work to install any updates.
+
+```
+❯ cargo install sdml-cli
+```
+
+Cargo will sometimes report that you have the latest version installed, to be sure you can force it to install
+regardless with the `--force` option.
+
+```
+❯ cargo install sdml-cli --force
+```
+
+You can check that you have the tool installed and on the path with the following check.
+
+```
+❯ sdml versions               
+SDML CLI:        0.2.7
+SDML grammar:    0.2.16
+Tree-Sitter ABI: 14
+```
+
+## Global Options
+
+Certain command-line options act on all commands, these must appear before the command. The SDML tool has a log-filter
+and a no-color global option.
+
+The set of packages making up `rust-sdml` all have extensive logging which can be enabled when running the tool. The
+global argument `--log-filter` takes a log level and displays any log event with a severity greater than, or equal to,
+the filter.
+
+```
+❯ sdml --log-filter tracing versions
+2024-02-20T19:06:53.141741Z  INFO sdml: Log level set to `LevelFilter::Tracing`
+2024-02-20T19:06:53.141877Z TRACE sdml: Commands::execute self: Versions
+SDML CLI:        0.2.7
+SDML grammar:    0.2.16
+Tree-Sitter ABI: 14
+```
+
+Some of the commands will, by default, use colored output which can be a problem if you save a file for future
+processing as the control characters play havoc with diff tools for example. 
+
+```
+❯ sdml --no-color versions
+❯ NO_COLOR=1  sdml versions
+❯ CLI_COLOR=0 sdml versions
+```
+
 ## Commands
 
 Input Files
 
-Logging
-
-Color
-
 ### Getting Help
 
-```sh
+```
 ❯ sdml --help
 Rust CLI for Simple Domain Modeling Language (SDML)
 
@@ -86,13 +137,32 @@ Options:
 
 Output Format: json, json-pretty, rdf, s-expressions (Lispy)
 
+### Diagram Generation
+
+TBD
+
+```
+❯ sdml draw --diagram concepts --output-format svg -i example/example.sdm
+❯ open -a Safari example.svg
+```
+
+
+```
+❯ sdml draw --diagram entity-relationship --output-format source -i example/example.sdm
+```
+
+
+```
+❯ sdml draw --diagram uml-class --output-format svg -i example/example.sdm
+❯ open -a Safari example.svg
+```
+
 ### Dependency Visualization
 
-Output Format: graph, rdf, tree
+This command (`deps`) allows you to view the transitive dependencies of a specific module. The `--output-format` option may be one of
+`graph`, `rdf`, or `tree`; the default is `tree`.
 
-Depth: ...
-
-```sh
+```
 ❯ sdml deps sdml
 sdml
 ├── owl
@@ -111,7 +181,10 @@ sdml
 └── xsd
 ```
 
-```sh
+In some cases the entire set of dependencies is not necessary and the `--depth` argument can be added to only show a
+number of levels of import from the root. 
+
+```
 ❯ sdml deps --depth 1 sdml
 sdml
 ├── owl
@@ -121,7 +194,9 @@ sdml
 └── xsd
 ```
 
-```sh
+The `rdf` output format dumps raw N-Triples with OWL import statements for each module import.
+
+```
 ❯ sdml deps --depth 1 --output-format rdf sdml
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2002/07/owl#> .
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -130,7 +205,9 @@ sdml
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2001/XMLSchema#> .
 ```
 
-```sh
+The `graph` output format outputs an SVG representation of the dependency graph.
+
+```
 ❯ sdml deps --output-format graph sdml > sdml-deps.svg
 ❯ open -a Safari sdml-deps.svg
 ```
@@ -139,9 +216,116 @@ sdml
 
 ### Document Generation
 
-Output Format: markdown, org-mode
+The documentation command (`doc`) generates documentation in `--output-format` Markdown (`markdown`) or Emacs Org-mode (`org-mode`).
+The generated documentation will cover all elements in the module only, although an appendix with the module's
+dependency graph is included. Additional appendices have the original source as well as the RDF representation of the
+module.
+
+### Module Highlighting
+
+TBD
+
+### XRef Tag Generation
+
+TBD
 
 ### Validation
+
+The validation command (`validate`) runs not only error checks on a module, but it's transitively loaded dependencies.
+By default the command only shows diagnostics with severity `bug` and `error`, but `warning`, `notes`, and `help` can be
+output with the `--level` argument. This argument also takes the values `none` and `all`.
+
+
+```
+❯ sdml validate --level all -i examples/errors/i0506.sdm
+note[I0506]: identifier not using preferred casing
+  ┌─ examples/errors/i0506.sdm:1:8
+  │
+1 │ module Example <https://example.com/api> is
+  │        ^^^^^^^ this identifier
+  │
+  = expected snake case (snake_case)
+  = help: for more details, see <https://sdml.io/errors/#I0506>
+
+note[I0506]: identifier not using preferred casing
+  ┌─ examples/errors/i0506.sdm:3:13
+  │
+3 │   structure access_record is
+  │             ^^^^^^^^^^^^^ this identifier
+  │
+  = expected upper camel case (UpperCamelCase)
+  = help: for more details, see <https://sdml.io/errors/#I0506>
+```
+
+### Version Information
+
+This command shows more information than the simple `--version` global argument and is useful for debugging.
+
+```
+❯ sdml versions               
+SDML CLI:        0.2.7
+SDML grammar:    0.2.16
+Tree-Sitter ABI: 14
+```
+
+### Module Viewer
+
+The module viewer (`view`) command may not seem exciting at first, it displays a highlighted copy of a file:
+
+```
+❯ sdml view -i examples/example.sdm 
+module example <https://example.com/api> is
+
+  import [ dc xsd ]
+
+  datatype Uuid <- sdml:string is
+    @xsd:pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"
+  end
+
+  entity Example is
+    version -> Uuid
+    name -> sdml:string is
+      @dc:description = "the name of this thing"@en
+    end
+  end
+
+end
+```
+
+The `--level` argument can be used to elide content and get an overview of a module. The `definitions` value will only
+show top-level definitions and any that had bodies previously will be followed by the string `";; ..."`.
+
+```
+❯ sdml view --level definitions -i examples/example.sdm
+module example <https://example.com/api> is
+
+  import [ dc xsd ]
+
+  datatype Uuid <- sdml:string ;; ...
+
+  entity Example ;; ...
+
+end
+```
+
+To see a little more, the `members` value will similarly show the members of product types and variants of sum types but
+not their bodies if present.
+
+```
+❯ sdml view --level members -i examples/example.sdm
+module example <https://example.com/api> is
+
+  import [ dc xsd ]
+
+  datatype Uuid <- sdml:string ;; ...
+
+  entity Example is
+    version -> Uuid
+    name -> sdml:string ;; ...
+  end
+
+end
+```
 
 ## Changes
 
