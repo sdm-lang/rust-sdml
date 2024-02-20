@@ -37,6 +37,10 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.11*
+
+- Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
+
 *Version 0.2.10*
 
 - Fix: Handle tree-sitter =ERROR= nodes correctly when they cause the top-level rule to fail.

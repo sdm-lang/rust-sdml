@@ -4,7 +4,7 @@
 
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
-use sdml_core::cache::ModuleCache;
+use sdml_core::cache::{ModuleCache, ModuleStore};
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
@@ -404,6 +404,7 @@ impl FsModuleLoader {
             for name in &dependencies {
                 if !cache.contains(name) {
                     debug!("didn't find module {name} in cache, loading");
+                    // TODO: this bails on the first missing import, is that what we want?
                     self.load(name, Some(file_id), cache, recursive)?;
                 } else {
                     debug!("found module {name} in cache");
