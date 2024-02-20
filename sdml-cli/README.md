@@ -28,7 +28,121 @@ The following figure demonstrates this package in the broader project context.
  └───────┘
 ```
 
-## 
+## Commands
+
+Input Files
+
+Logging
+
+Color
+
+### Getting Help
+
+```sh
+❯ sdml --help
+Rust CLI for Simple Domain Modeling Language (SDML)
+
+Usage: sdml [OPTIONS] <COMMAND>
+
+Commands:
+  convert    Convert module into alternate representations
+  draw       Draw diagrams from a module
+  deps       Show module dependencies
+  doc        Document a module
+  highlight  Syntax highlight a module source
+  tags       Extract tags from a module
+  validate   Validate a module
+  versions   Show tool and library versions
+  view       View formatted module source code
+  help       Print this message or the help of the given subcommand(s)
+
+Options:
+      --log-filter <LOG_FILTER>
+          Level of logging to enable
+          
+          [default: none]
+
+          Possible values:
+          - none:        Turn off all logging
+          - errors:      Enable error logging only
+          - warnings:    Enable warnings and above
+          - information: Enable information and above
+          - debugging:   Enable debugging and above
+          - tracing:     Enable tracing (ALL) and above
+
+      --no-color
+          Turn off color for code emitters
+          
+          [env: NO_COLOR=]
+
+  -h, --help
+          Print help (see a summary with '-h')
+
+  -V, --version
+          Print version
+```
+
+### Representation Conversion
+
+Output Format: json, json-pretty, rdf, s-expressions (Lispy)
+
+### Dependency Visualization
+
+Output Format: graph, rdf, tree
+
+Depth: ...
+
+```sh
+❯ sdml deps sdml
+sdml
+├── owl
+│   ├── rdf
+│   │   └── rdfs
+│   │       └── rdf
+│   ├── rdfs
+│   └── xsd
+│       ├── rdf
+│       └── rdfs
+├── rdf
+├── rdfs
+├── skos
+│   ├── rdf
+│   └── rdfs
+└── xsd
+```
+
+```sh
+❯ sdml deps --depth 1 sdml
+sdml
+├── owl
+├── rdf
+├── rdfs
+├── skos
+└── xsd
+```
+
+```sh
+❯ sdml deps --depth 1 --output-format rdf sdml
+<http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2002/07/owl#> .
+<http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+<http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2000/01/rdf-schema#> .
+<http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2004/02/skos/core#> .
+<http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2001/XMLSchema#> .
+```
+
+```sh
+❯ sdml deps --output-format graph sdml > sdml-deps.svg
+❯ open -a Safari sdml-deps.svg
+```
+
+![example dependency graph](https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example_deps_graph.svg)
+
+### Document Generation
+
+Output Format: markdown, org-mode
+
+### Validation
+
 ## Changes
 
 **Version 0.2.7**
