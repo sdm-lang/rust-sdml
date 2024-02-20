@@ -1,6 +1,6 @@
 use clap::builder::FalseyValueParser;
 use clap::{Args, Parser, Subcommand, ValueEnum};
-use sdml_core::cache::ModuleCache;
+use sdml_core::cache::{ModuleCache, ModuleStore};
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::model::check::terms::{default_term_set, validate_module_terms};
 use sdml_core::model::identifiers::Identifier;
@@ -15,7 +15,7 @@ use std::io::Read;
 use std::path::PathBuf;
 use std::process::ExitCode;
 use std::str::FromStr;
-use tracing::{error, info};
+use tracing::{error, info, trace};
 use tracing_subscriber::filter::EnvFilter;
 use tracing_subscriber::filter::LevelFilter as TracingLevelFilter;
 use tracing_subscriber::FmtSubscriber;
@@ -70,24 +70,24 @@ enum LogFilter {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Validate a module
-    Validate(Validate),
-    /// Document a module
-    Doc(Doc),
-    /// Show module dependencies
-    Deps(Deps),
-    /// Extract tags from a module
-    Tags(Tags),
-    /// Syntax highlight a module source
-    Highlight(Highlight),
     /// Convert module into alternate representations
     Convert(Convert),
     /// Draw diagrams from a module
     Draw(Draw),
-    /// View formatted module source code
-    View(View),
+    /// Show module dependencies
+    Deps(Deps),
+    /// Document a module
+    Doc(Doc),
+    /// Syntax highlight a module source
+    Highlight(Highlight),
+    /// Extract tags from a module
+    Tags(Tags),
+    /// Validate a module
+    Validate(Validate),
     /// Show tool and library versions.
     Versions,
+    /// View formatted module source code
+    View(View),
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -226,12 +226,12 @@ struct Deps {
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq, Hash)]
 enum DepsFormat {
-    /// A hierarchical tree format
-    Tree,
     /// GraphViz DOT format
     Graph,
     /// As RDF/OWL import triples
     Rdf,
+    /// A hierarchical tree format
+    Tree,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -250,10 +250,10 @@ struct Doc {
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq, Hash)]
 enum DocFormat {
-    /// Emacs org-mode
-    OrgMode,
     /// Markdown
     Markdown,
+    /// Emacs org-mode
+    OrgMode,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -291,12 +291,12 @@ struct Convert {
 
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq, Hash)]
 enum ConvertFormat {
-    /// RDF Abstract Model
-    Rdf,
     /// JSON
     Json,
     /// Pretty-printed JSON
     JsonPretty,
+    /// RDF Abstract Model
+    Rdf,
     /// S-Expressions
     SExpr,
 }
@@ -409,16 +409,6 @@ fn main() -> ExitCode {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Main ❱ Color
-// ------------------------------------------------------------------------------------------------
-
-fn init_color(no_color: bool) {
-    if no_color {
-        sdml_generate::color::set_colorize(sdml_error::diagnostics::UseColor::Never);
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
 // Main ❱ Logging
 // ------------------------------------------------------------------------------------------------
 
@@ -447,6 +437,17 @@ fn init_logging(log_filter: LogFilter) -> Result<(), Error> {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Main ❱ Color
+// ------------------------------------------------------------------------------------------------
+
+fn init_color(no_color: bool) {
+    if no_color {
+        info!("Turning off color");
+        sdml_generate::color::set_colorize(sdml_error::diagnostics::UseColor::Never);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Command Wrappers
 // ------------------------------------------------------------------------------------------------
 
@@ -460,6 +461,7 @@ trait Execute {
 
 impl Execute for Commands {
     fn execute(&self) -> Result<(), Error> {
+        trace!("Commands::execute self: {self:?}");
         match self {
             Commands::Highlight(cmd) => cmd.execute(),
             Commands::Doc(cmd) => cmd.execute(),
@@ -817,7 +819,9 @@ impl From<DepsFormat> for sdml_generate::actions::deps::DependencyViewRepresenta
                 sdml_generate::actions::deps::DependencyViewRepresentation::TextTree
             }
             DepsFormat::Graph => {
-                sdml_generate::actions::deps::DependencyViewRepresentation::DotGraph
+                sdml_generate::actions::deps::DependencyViewRepresentation::DotGraph(
+                    Default::default(),
+                )
             }
             DepsFormat::Rdf => {
                 sdml_generate::actions::deps::DependencyViewRepresentation::RdfImports

@@ -334,6 +334,10 @@ end
 
 * Changes
 
+*Version 0.2.8*
+
+- Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
+
 *Version 0.2.7*
 
 - Feature: better error handling in conjunction with the validation and diagnostics in =sdml_error=.
