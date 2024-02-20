@@ -13,13 +13,17 @@ use crate::exec::CommandArg;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum OutputFormat {
     Source,
     ImageJpeg,
     ImagePng,
     ImageSvg,
 }
+
+pub const DOT_PROGRAM: &str = "dot";
+
+pub const UML_PROGRAM: &str = "plantuml";
 
 // ------------------------------------------------------------------------------------------------
 // Implementations

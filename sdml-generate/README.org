@@ -36,6 +36,10 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.10*
+
+- Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
+
 *Version 0.2.9*
 
 - Fix: formatting of annotations was broken for the view command.

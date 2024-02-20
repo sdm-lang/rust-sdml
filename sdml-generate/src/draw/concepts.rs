@@ -35,6 +35,8 @@ use sdml_core::model::{HasBody, HasName, HasOptionalBody};
 use std::collections::HashSet;
 use std::io::Write;
 
+use super::DOT_PROGRAM;
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -45,8 +47,6 @@ pub struct ConceptDiagramGenerator {}
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
-
-pub const DOT_PROGRAM: &str = "dot";
 
 impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
     fn write_in_format<W>(

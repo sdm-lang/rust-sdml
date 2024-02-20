@@ -9,7 +9,7 @@ YYYYY
 
 */
 
-use crate::draw::OutputFormat;
+use crate::draw::{OutputFormat, DOT_PROGRAM};
 use crate::exec::exec_with_temp_input;
 use crate::GenerateToWriter;
 use sdml_core::cache::ModuleCache;
@@ -52,8 +52,6 @@ pub struct ErdDiagramGenerator {
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
-
-pub const DOT_PROGRAM: &str = "dot";
 
 impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
     fn write_in_format<W>(

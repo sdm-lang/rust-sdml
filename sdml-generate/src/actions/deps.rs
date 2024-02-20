@@ -6,6 +6,9 @@ Generate a text-based dependency tree, or GraphViz-based dependency graph, start
 use crate::color;
 use crate::color::rdf::format_url;
 use crate::color::rdf::Separator;
+use crate::draw::OutputFormat;
+use crate::draw::DOT_PROGRAM;
+use crate::exec::exec_with_temp_input;
 use crate::GenerateToWriter;
 use nu_ansi_term::Style;
 use sdml_core::error::Error;
@@ -13,7 +16,10 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
-use sdml_core::{cache::ModuleCache, stdlib::is_library_module};
+use sdml_core::{
+    cache::{ModuleCache, ModuleStore},
+    stdlib::is_library_module,
+};
 use std::collections::HashSet;
 use std::io::Write;
 use text_trees::{FormatCharacters, TreeFormatting, TreeNode};
@@ -97,7 +103,7 @@ pub enum DependencyViewRepresentation {
     /// }
     /// ```
     ///
-    DotGraph,
+    DotGraph(OutputFormat),
     ///
     /// ```bash
     /// $ cargo run deps -f rdf sdml
@@ -167,8 +173,23 @@ impl GenerateToWriter<DependencyViewRepresentation> for DependencyViewGenerator 
             DependencyViewRepresentation::TextTree => {
                 self.write_text_tree(module, cache, self.depth, writer)
             }
-            DependencyViewRepresentation::DotGraph => {
-                self.write_dot_graph(module, cache, self.depth, writer)
+            DependencyViewRepresentation::DotGraph(format) => {
+                let mut buffer = Vec::new();
+                self.write_dot_graph(module, cache, self.depth, &mut buffer)?;
+                if format == OutputFormat::Source {
+                    writer.write_all(&buffer)?;
+                } else {
+                    let source = String::from_utf8(buffer).unwrap();
+                    match exec_with_temp_input(DOT_PROGRAM, vec![format.into()], source) {
+                        Ok(result) => {
+                            writer.write_all(result.as_bytes())?;
+                        }
+                        Err(e) => {
+                            panic!("exec_with_input failed: {:?}", e);
+                        }
+                    }
+                }
+                Ok(())
             }
             DependencyViewRepresentation::RdfImports => {
                 self.write_rdf_imports(module, cache, self.depth, writer)

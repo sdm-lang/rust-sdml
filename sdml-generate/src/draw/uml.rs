@@ -9,7 +9,7 @@ YYYYY
 
 */
 
-use crate::draw::OutputFormat;
+use crate::draw::{OutputFormat, UML_PROGRAM};
 use crate::exec::{exec_with_temp_input, CommandArg};
 use crate::GenerateToFile;
 use sdml_core::cache::ModuleCache;
@@ -67,8 +67,6 @@ struct DiagramOutput {
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
-
-pub const UML_PROGRAM: &str = "plantuml";
 
 impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
     fn write_to_file_in_format(

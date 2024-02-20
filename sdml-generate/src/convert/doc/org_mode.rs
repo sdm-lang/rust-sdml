@@ -12,6 +12,7 @@ YYYYY
 use crate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
 use crate::color::set_colorize;
 use crate::convert::rdf::RdfModelGenerator;
+use crate::draw::OutputFormat;
 use crate::{GenerateToWriter, NoFormatOptions};
 use sdml_core::cache::ModuleCache;
 use sdml_core::error::Error;
@@ -143,7 +144,7 @@ impl GenerateToWriter<NoFormatOptions> for DocumentationGenerator<'_> {
         let dot_graph = generator.write_to_string_in_format(
             module,
             cache,
-            DependencyViewRepresentation::DotGraph,
+            DependencyViewRepresentation::DotGraph(OutputFormat::Source),
         )?;
 
         writer.write_all(
