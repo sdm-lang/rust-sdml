@@ -252,7 +252,7 @@ impl Module {
                     loader
                         .report(&module_version_info_empty(
                             self.file_id().copied().unwrap_or_default(),
-                            None,
+                            version_info.source_span().map(|span| span.byte_range()),
                         ))
                         .unwrap();
                 }
