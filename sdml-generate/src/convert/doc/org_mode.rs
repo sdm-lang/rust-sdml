@@ -10,7 +10,7 @@ YYYYY
 */
 
 use crate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
-use crate::color::{set_colorize, UseColor};
+use crate::color::set_colorize;
 use crate::convert::rdf::RdfModelGenerator;
 use crate::{GenerateToWriter, NoFormatOptions};
 use sdml_core::cache::ModuleCache;
@@ -24,6 +24,7 @@ use sdml_core::model::definitions::{
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
+use sdml_error::diagnostics::UseColor;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------

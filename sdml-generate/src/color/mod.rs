@@ -3,7 +3,7 @@
 */
 
 use nu_ansi_term::{Color, Style};
-use std::env;
+use sdml_error::diagnostics::UseColor;
 use std::fmt::Display;
 use std::sync::OnceLock;
 use std::sync::RwLock;
@@ -27,13 +27,6 @@ macro_rules! method {
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum UseColor {
-    Always,
-    Auto,
-    Never,
-}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum LanguageElement {
@@ -137,53 +130,11 @@ pub fn set_colorize(colorize: UseColor) {
 // ------------------------------------------------------------------------------------------------
 
 fn init_colorize() -> RwLock<UseColor> {
-    let mut colorize = UseColor::Always;
-
-    if env::var("NO_COLOR").is_ok() {
-        colorize = UseColor::Never;
-    } else if let Ok(value) = env::var("CLICOLOR") {
-        if value == "0" {
-            colorize = UseColor::Never;
-        } else if value == "1" {
-            colorize = UseColor::Always
-        }
-    };
-
-    RwLock::new(colorize)
+    RwLock::new(UseColor::from_env())
 }
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
-// ------------------------------------------------------------------------------------------------
-
-impl Default for UseColor {
-    fn default() -> Self {
-        Self::Auto
-    }
-}
-
-impl UseColor {
-    #[inline(always)]
-    pub fn colorize(&self) -> bool {
-        *self != Self::Never
-    }
-
-    #[inline(always)]
-    pub fn always(&self) -> bool {
-        *self == Self::Always
-    }
-
-    #[inline(always)]
-    pub fn auto(&self) -> bool {
-        *self == Self::Auto
-    }
-
-    #[inline(always)]
-    pub fn never(&self) -> bool {
-        *self == Self::Never
-    }
-}
-
 // ------------------------------------------------------------------------------------------------
 
 impl Display for LanguageElement {
@@ -235,7 +186,7 @@ impl Colorizer for ConsoleColor {
     where
         S: AsRef<str>,
     {
-        if colorize().colorize() {
+        if colorize().use_color() {
             self.style(el).paint(value.as_ref()).to_string()
         } else {
             value.as_ref().to_string()
@@ -305,7 +256,7 @@ impl Colorizer for HtmlColor {
     where
         S: AsRef<str>,
     {
-        if colorize().colorize() {
+        if colorize().use_color() {
             format!(
                 "<span class=\"{}\">{}</span>",
                 el.to_string().replace('.', "-"),

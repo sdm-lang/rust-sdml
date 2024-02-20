@@ -478,7 +478,7 @@ impl<'a> Node<'a> {
                 String::new()
             }
         );
-        if color::colorize().colorize() {
+        if color::colorize().use_color() {
             let mut style = Style::new();
 
             if is_root {
