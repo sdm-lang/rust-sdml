@@ -1,0 +1,16 @@
+module Example <https://example.com/api> is
+
+  structure access_record is
+    Name -> string
+  end
+
+  enum Foo of
+    one
+    two
+  end
+
+  union Bar of
+    Foo as foo
+  end
+
+end

@@ -62,6 +62,7 @@ pub enum ErrorCode {
     StringWithoutLanguage = 503,
     UnconstrainedDatatype = 504,
     DoubleUnderscoredIdentifier = 505,
+    IdentifierNotPreferredCase = 506,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -130,7 +131,8 @@ impl ErrorCode {
             | Self::IncompleteMember
             | Self::StringWithoutLanguage
             | Self::UnconstrainedDatatype
-            | Self::DoubleUnderscoredIdentifier => Severity::Note,
+            | Self::DoubleUnderscoredIdentifier
+            | Self::IdentifierNotPreferredCase => Severity::Note,
         }
     }
 
@@ -186,6 +188,7 @@ impl ErrorCode {
             Self::StringWithoutLanguage => i18n!("msg_string_without_language"),
             Self::UnconstrainedDatatype => i18n!("msg_unconstrained_datatype"),
             Self::DoubleUnderscoredIdentifier => i18n!("msg_double_underscored_identifier"),
+            Self::IdentifierNotPreferredCase => i18n!("msg_not_preferred_case"),
         }
     }
 

@@ -54,6 +54,15 @@ lbl_this_variant_name = this variant name
 lbl_type_name = type name: `{$name}`
 lbl_typeclass_name = type-class name: `{$name}`
 lbl_value = value: `{$val}`
+lbl_expected_case = expected {$case}
+
+lbl_case_module = snake case (snake_case)
+lbl_case_member = snake case (snake_case)
+lbl_case_imported_member = snake (snake_case) or upper camel case (UpperCamelCase)
+lbl_case_datatype = snake (snake_case) or upper camel case (UpperCamelCase)
+lbl_case_rdf = snake case (snake_case)
+lbl_case_type_defn = upper camel case (UpperCamelCase)
+lbl_case_value_variant= upper camel (UpperCamelCase) or shouty snake case (SHOUTY_SNAKE_CASE)
 
 msg_datatype_invalid_base = invalid type for datatype base, not a datatype
 msg_definition_not_found = definition not found in module
@@ -90,6 +99,7 @@ msg_type_definition_not_found = type definition not found in module
 msg_typeclass_incompatible = a type-class definition is not compatible in this location
 msg_unconstrained_datatype = this datatype is used without any constraint
 msg_validation_incomplete = validation may not be complete for this type
+msg_not_preferred_case = identifier not using preferred casing
 
 word_bug = bug
 word_error = error

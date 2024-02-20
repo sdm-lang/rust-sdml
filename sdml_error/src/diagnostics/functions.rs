@@ -12,6 +12,22 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 use crate::diagnostics::{Diagnostic, ErrorCode};
 use crate::{FileId, Span};
 use codespan_reporting::diagnostic::Label;
+use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+
+// ------------------------------------------------------------------------------------------------
+// Public Types
+// ------------------------------------------------------------------------------------------------
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum IdentifierCaseConvention {
+    Module,
+    Member,
+    ImportedMember,
+    DatatypeDefinition,
+    RdfDefinition,
+    TypeDefinition,
+    ValueVariant,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros
@@ -755,4 +771,80 @@ where
             diagnostic.with_notes(vec![i18n!("lbl_identifier", name = name.into())])
         }
     )
+}
+
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn identifier_not_preferred_case<S>(
+    file_id: FileId,
+    location: Option<Span>,
+    name: S,
+    case: IdentifierCaseConvention,
+) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(IdentifierNotPreferredCase, |diagnostic: Diagnostic| {
+        if let Some(location) = location {
+            diagnostic.with_labels(vec![
+                Label::primary(file_id, location).with_message(i18n!("lbl_this_identifier"))
+            ])
+        } else {
+            diagnostic.with_notes(vec![i18n!("lbl_identifier", name = name.into())])
+        }
+        .with_notes(vec![i18n!(
+            "lbl_expected_case",
+            case = match case {
+                IdentifierCaseConvention::Module => i18n!("lbl_case_module"),
+                IdentifierCaseConvention::Member => i18n!("lbl_case_member"),
+                IdentifierCaseConvention::ImportedMember => i18n!("lbl_case_imported_member"),
+                IdentifierCaseConvention::DatatypeDefinition => i18n!("lbl_case_datatype"),
+                IdentifierCaseConvention::RdfDefinition => i18n!("lbl_case_rdf"),
+                IdentifierCaseConvention::TypeDefinition => i18n!("lbl_case_type_defn"),
+                IdentifierCaseConvention::ValueVariant => i18n!("lbl_case_value_variant"),
+            }
+        )])
+    })
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations
+// ------------------------------------------------------------------------------------------------
+
+impl IdentifierCaseConvention {
+    pub fn is_valid<S>(&self, id: S) -> bool
+    where
+        S: Into<String>,
+    {
+        let id = id.into();
+        match self {
+            Self::Module => id == Self::to_snake_case(&id),
+            Self::Member => id == Self::to_snake_case(&id),
+            Self::ImportedMember => {
+                id == Self::to_snake_case(&id) || id == Self::to_upper_camel_case(&id)
+            }
+            Self::DatatypeDefinition => {
+                id == Self::to_snake_case(&id) || id == Self::to_upper_camel_case(&id)
+            }
+            Self::RdfDefinition => {
+                id == Self::to_snake_case(&id) || id == Self::to_upper_camel_case(&id)
+            }
+            Self::TypeDefinition => id == Self::to_upper_camel_case(&id),
+            Self::ValueVariant => {
+                id == Self::to_upper_camel_case(&id) || id == Self::to_shouty_snake_case(&id)
+            }
+        }
+    }
+
+    fn to_snake_case(id: &str) -> String {
+        id.to_snake_case()
+    }
+
+    fn to_upper_camel_case(id: &str) -> String {
+        id.to_upper_camel_case()
+    }
+
+    fn to_shouty_snake_case(id: &str) -> String {
+        id.to_shouty_snake_case()
+    }
 }

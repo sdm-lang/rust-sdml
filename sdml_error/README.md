@@ -30,6 +30,14 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+**Version 0.1.5**
+
+- Feature: add new diagnostic for `IdentifierNotPreferredCase` where an identifier is not in the preferred case style for
+  its usage.
+  - Add new code to `ErrorCode`
+  - Add new function `identifier_not_preferred_case`
+  * Add new enum `IdentifierCaseConvention` used to identify the case style to enforce.
+
 **Version 0.1.4**
 
 * Feature: improved a number of diagnostic help messages.
@@ -37,15 +45,14 @@ The following figure demonstrates this package in the broader project context.
 
 **Version 0.1.3**
 
-- Feature: add new diagnostic for `DeprecatedTermUsed` where an identifier include two (or more) consecutive
-  - underscore characters.
+- Feature: add new diagnostic for `DeprecatedTermUsed` where an identifier includes a term listed in a supplied `TermSet`.
   - Add new code to `ErrorCode`
   - Add new function `deprecated_term_used`
 
 **Version 0.1.2**
 
 - Feature: add new diagnostic for `DoubleUnderscoredIdentifier` where an identifier include two (or more) consecutive
-  - underscore characters.
+  underscore characters.
   - Add new code to `ErrorCode`
   - Add new function `double_underscored_identifier`
 
