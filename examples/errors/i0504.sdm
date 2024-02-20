@@ -1,0 +1,8 @@
+module example <https://example.com/api> is
+
+  structure Foo is
+    name -> string
+    age -> integer
+  end
+
+end

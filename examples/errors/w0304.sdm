@@ -1,0 +1,4 @@
+module example <https://example.com/api>
+  version "" <https://example.com/api/v2> is
+
+end

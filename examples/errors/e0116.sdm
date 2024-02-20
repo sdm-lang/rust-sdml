@@ -1,0 +1,9 @@
+module example <https://example.com/api> is
+
+  class Foo(T)
+
+  structure Bar is
+    name -> Foo
+  end
+
+end

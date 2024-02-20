@@ -1,0 +1,7 @@
+module example <https://example.com/api> is
+
+  import dc
+
+  @dc:description = "in unspecified language"
+
+end

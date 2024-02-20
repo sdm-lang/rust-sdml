@@ -1,0 +1,13 @@
+module example <https://example.com/api> is
+
+  import rdf
+
+  rdf Foo is
+    @rdf:type = rdf:Resource
+  end
+
+  structure Bar is
+    name -> Foo
+  end
+
+end

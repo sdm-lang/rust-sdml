@@ -1,0 +1,3 @@
+module example <https://example.com/api> version "" is
+  ; missing the version URI
+end
