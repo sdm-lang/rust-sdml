@@ -2,13 +2,11 @@ use std::io::Cursor;
 
 use paste::paste;
 use sdml_core::{
-    cache::ModuleCache,
+    cache::{ModuleCache, ModuleStore},
     model::{modules::Module, HasName},
 };
-use sdml_generate::{
-    color::{set_colorize, UseColor},
-    GenerateToWriter,
-};
+use sdml_error::diagnostics::UseColor;
+use sdml_generate::{color::set_colorize, GenerateToWriter};
 use sdml_parse::load::FsModuleLoader;
 
 const MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
@@ -54,7 +52,7 @@ macro_rules! test_example {
 
                 println!("Reading test example from {:?}", input);
                 let mut cache = ::sdml_core::cache::ModuleCache::default();
-                let mut loader = ::sdml_parse::load::ModuleLoader::default();
+                let mut loader = ::sdml_parse::load::FsModuleLoader::default();
                 let module = loader.load_from_file(input, &mut cache, false);
                 if let Err(e) = module {
                     panic!("Load/Parse error: {}", e);

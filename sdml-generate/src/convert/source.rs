@@ -12,7 +12,7 @@ use sdml_generate::convert::source::SourceGenerator;
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
 # fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
-# sdml_generate::color::set_colorize(sdml_generate::color::UseColor::Never);
+# sdml_generate::color::set_colorize(sdml_error::diagnostics::color::UseColor::Never);
 
 let (module, cache) = load_module();
 

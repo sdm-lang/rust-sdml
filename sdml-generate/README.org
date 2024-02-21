@@ -36,6 +36,15 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.11*
+
+- Feature: add initial implementation for =DiagramContentFilter=.
+  - Add: module and member import filters.
+  - Add: local definition filter.
+  - Add: association filter.
+
+This release does not use the content filter yet, it is to elicit feedback on the provided filters.
+
 *Version 0.2.10*
 
 - Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.

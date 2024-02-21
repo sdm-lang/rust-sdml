@@ -58,3 +58,5 @@ pub mod concepts;
 pub mod erd;
 
 pub mod uml;
+
+pub mod filter;
