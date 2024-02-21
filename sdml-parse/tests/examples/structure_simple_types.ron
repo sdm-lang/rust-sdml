@@ -2,6 +2,9 @@ Module {
     source_file: Some(
         "MANIFEST_PATH/tests/examples/structure_simple_types.sdm",
     ),
+    file_id: Some(
+        0,
+    ),
     span: Some(
         Span {
             start: 0,

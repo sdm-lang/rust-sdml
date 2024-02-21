@@ -2,6 +2,9 @@ Module {
     source_file: Some(
         "MANIFEST_PATH/tests/examples/import_multiple_module_version.sdm",
     ),
+    file_id: Some(
+        0,
+    ),
     span: Some(
         Span {
             start: 0,
@@ -38,7 +41,12 @@ Module {
                 imports: [
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 35,
+                                    end: 39,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {
@@ -53,7 +61,12 @@ Module {
                     ),
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 44,
+                                    end: 87,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {
@@ -64,29 +77,42 @@ Module {
                                 value: "customer",
                             },
                             version_uri: Some(
-                                Url {
-                                    scheme: "https",
-                                    cannot_be_a_base: false,
-                                    username: "",
-                                    password: None,
-                                    host: Some(
-                                        Domain(
-                                            "example.org",
+                                HeaderValue {
+                                    span: Some(
+                                        Span {
+                                            start: 53,
+                                            end: 87,
+                                        },
+                                    ),
+                                    value: Url {
+                                        scheme: "https",
+                                        cannot_be_a_base: false,
+                                        username: "",
+                                        password: None,
+                                        host: Some(
+                                            Domain(
+                                                "example.org",
+                                            ),
                                         ),
-                                    ),
-                                    port: None,
-                                    path: "/v2/Customer",
-                                    query: None,
-                                    fragment: Some(
-                                        "",
-                                    ),
+                                        port: None,
+                                        path: "/v2/Customer",
+                                        query: None,
+                                        fragment: Some(
+                                            "",
+                                        ),
+                                    },
                                 },
                             ),
                         },
                     ),
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 92,
+                                    end: 95,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {
@@ -101,7 +127,12 @@ Module {
                     ),
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 96,
+                                    end: 100,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {

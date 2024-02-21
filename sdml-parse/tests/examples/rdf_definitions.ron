@@ -2,6 +2,9 @@ Module {
     source_file: Some(
         "MANIFEST_PATH/tests/examples/rdf_definitions.sdm",
     ),
+    file_id: Some(
+        0,
+    ),
     span: Some(
         Span {
             start: 0,
@@ -18,22 +21,30 @@ Module {
         value: "rdfs",
     },
     base_uri: Some(
-        Url {
-            scheme: "http",
-            cannot_be_a_base: false,
-            username: "",
-            password: None,
-            host: Some(
-                Domain(
-                    "www.w3.org",
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 12,
+                    end: 51,
+                },
+            ),
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "www.w3.org",
+                    ),
                 ),
-            ),
-            port: None,
-            path: "/2000/01/rdf-schema",
-            query: None,
-            fragment: Some(
-                "",
-            ),
+                port: None,
+                path: "/2000/01/rdf-schema",
+                query: None,
+                fragment: Some(
+                    "",
+                ),
+            },
         },
     ),
     version_info: None,
@@ -56,7 +67,12 @@ Module {
                 imports: [
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 67,
+                                    end: 70,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {
@@ -71,7 +87,12 @@ Module {
                     ),
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 71,
+                                    end: 74,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {

@@ -2,6 +2,9 @@ Module {
     source_file: Some(
         "MANIFEST_PATH/tests/examples/module_empty_with_version.sdm",
     ),
+    file_id: Some(
+        0,
+    ),
     span: Some(
         Span {
             start: 0,
@@ -18,44 +21,68 @@ Module {
         value: "Campaign",
     },
     base_uri: Some(
-        Url {
-            scheme: "https",
-            cannot_be_a_base: false,
-            username: "",
-            password: None,
-            host: Some(
-                Domain(
-                    "example.org",
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 16,
+                    end: 49,
+                },
+            ),
+            value: Url {
+                scheme: "https",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
                 ),
-            ),
-            port: None,
-            path: "/v/Campaign",
-            query: None,
-            fragment: Some(
-                "",
-            ),
+                port: None,
+                path: "/v/Campaign",
+                query: None,
+                fragment: Some(
+                    "",
+                ),
+            },
         },
     ),
     version_info: Some(
-        "2",
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 60,
+                    end: 63,
+                },
+            ),
+            value: "2",
+        },
     ),
     version_uri: Some(
-        Url {
-            scheme: "https",
-            cannot_be_a_base: false,
-            username: "",
-            password: None,
-            host: Some(
-                Domain(
-                    "example.org",
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 64,
+                    end: 98,
+                },
+            ),
+            value: Url {
+                scheme: "https",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
                 ),
-            ),
-            port: None,
-            path: "/v2/Campaign",
-            query: None,
-            fragment: Some(
-                "",
-            ),
+                port: None,
+                path: "/v2/Campaign",
+                query: None,
+                fragment: Some(
+                    "",
+                ),
+            },
         },
     ),
     body: ModuleBody {

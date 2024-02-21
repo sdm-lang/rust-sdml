@@ -1,4 +1,4 @@
-use sdml_core::cache::ModuleCache;
+use sdml_core::cache::{ModuleCache, ModuleStore};
 use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::modules::ImportStatement;

@@ -2,6 +2,9 @@ Module {
     source_file: Some(
         "MANIFEST_PATH/tests/examples/import_multiple_mixed.sdm",
     ),
+    file_id: Some(
+        0,
+    ),
     span: Some(
         Span {
             start: 0,
@@ -38,7 +41,12 @@ Module {
                 imports: [
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 64,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {
@@ -109,7 +117,12 @@ Module {
                     ),
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 83,
+                                    end: 87,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {

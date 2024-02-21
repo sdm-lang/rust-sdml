@@ -2,6 +2,9 @@ Module {
     source_file: Some(
         "MANIFEST_PATH/tests/examples/import_module_only.sdm",
     ),
+    file_id: Some(
+        0,
+    ),
     span: Some(
         Span {
             start: 0,
@@ -38,7 +41,12 @@ Module {
                 imports: [
                     Module(
                         ModuleImport {
-                            span: None,
+                            span: Some(
+                                Span {
+                                    start: 60,
+                                    end: 63,
+                                },
+                            ),
                             name: Identifier {
                                 span: Some(
                                     Span {
