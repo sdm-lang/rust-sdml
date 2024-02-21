@@ -1,5 +1,5 @@
 /*!
-Provide a generator for "concept" diagrams via GraphViz..
+Provide a generator for "concept" diagrams via GraphViz.
 
 # Example
 

@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
+Provide a generator for UML class diagrams via PlantUML.
 
 */
 

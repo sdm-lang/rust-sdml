@@ -13,6 +13,9 @@ use crate::exec::CommandArg;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// The format for image output.
+///
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum OutputFormat {
     Source,
@@ -21,8 +24,10 @@ pub enum OutputFormat {
     ImageSvg,
 }
 
+/// Name of the command-line tool for GraphViz generation.
 pub const DOT_PROGRAM: &str = "dot";
 
+/// Name of the command-line tool for PlantUML generation.
 pub const UML_PROGRAM: &str = "plantuml";
 
 // ------------------------------------------------------------------------------------------------
