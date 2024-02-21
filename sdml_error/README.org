@@ -8,7 +8,7 @@
 Rust Library containing the error and diagnostic types for the Simple Domain Modeling Language (SDML).
 
 [[https://crates.io/crates/sdml_error][https://img.shields.io/crates/v/sdml_error.svg]]
-[[https://docs.rs/sdml_error][]https://docs.rs/sdml_error/badge.svg]]
+[[https://docs.rs/sdml_error][https://img.shields.io/docsrs/sdml_error]]
 
 This package is part of the Rust SDML project and specifically defines the error and diagnostic types for the project.
 The project's intent is to provide an idiomatic implementation of the in-memory model, parser, generators, and the CLI tool.
