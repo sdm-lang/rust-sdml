@@ -8,7 +8,7 @@
 Rust in-Memory model of the Simple Domain Modeling Language (SDML).
 
 [[https://crates.io/crates/sdml_core][https://img.shields.io/crates/v/sdml_core.svg]]
-[[https://docs.rs/sdml_core][https://img.shields.io/docsrs/sdml-core]]
+[[https://docs.rs/sdml_core][https://img.shields.io/docsrs/sdml-core.svg]]
 
 This package is part of the Rust SDML project and specifically defines the in-memory model of an SDML module. The
 project's intent is to provide an idiomatic implementation of the in-memory model, parser, generators, and the CLI tool.
