@@ -37,6 +37,14 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.12*
+
+- Fix: update all test cases with latest API changes.
+  - Add file ID into all test example "ron" files.
+  - Add module import Span into all test example "ron" files.
+  - Use new HeaderValue in relevant test example "ron" files.
+  - Add use of ModuleStore trait.
+
 *Version 0.2.11*
 
 - Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
