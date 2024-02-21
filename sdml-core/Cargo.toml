@@ -1,7 +1,7 @@
 [package]
 name = "sdml-core"
 description = "Core Model for Simple Domain Modeling Language (SDML)"
-version = "0.2.14"
+version = "0.2.15"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license-file = "../LICENSE"

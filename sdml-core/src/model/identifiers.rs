@@ -12,6 +12,7 @@ use std::{
     hash::Hash,
     str::FromStr,
 };
+use tracing::error;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -116,6 +117,7 @@ impl FromStr for Identifier {
                 value: s.to_string(),
             })
         } else {
+            error!("Identifier::from_str({s}) is invalid");
             Err(invalid_identifier(0, None, s).into())
         }
     }
@@ -231,7 +233,7 @@ impl Identifier {
 
     #[inline(always)]
     pub fn is_valid(s: &str) -> bool {
-        IDENTIFIER.is_match(s) && !Self::is_keyword(s) && !Self::is_type_name(s)
+        IDENTIFIER.is_match(s) && !Self::is_keyword(s)
     }
 
     #[inline(always)]
@@ -292,6 +294,12 @@ impl From<QualifiedIdentifier> for String {
 impl From<&QualifiedIdentifier> for String {
     fn from(value: &QualifiedIdentifier) -> Self {
         value.to_string()
+    }
+}
+
+impl From<(Identifier, Identifier)> for QualifiedIdentifier {
+    fn from(value: (Identifier, Identifier)) -> Self {
+        Self::new(value.0, value.1)
     }
 }
 

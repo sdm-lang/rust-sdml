@@ -39,6 +39,10 @@ Note that other tools can use the =sdml_core= API to create or manipulate models
 
 * Changes
 
+*Version 0.2.15*
+
+- Fix: =Identifier::from_str= should allow type names.
+
 *Version 0.2.14*
 
 - Feature: add new =ModuleStore= trait, implemented by =ModuleCache=.
