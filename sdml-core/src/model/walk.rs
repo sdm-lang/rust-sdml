@@ -4,9 +4,9 @@ Provides the capability to walk the in-memory model of an SDML module.
 To use the model walker:
 
 1. Provide a type, say `MyModuleWalker`.
-2. Provide an implementation of [`ModuleWalker`] for `MyModuleWalker`.
-2. Implement any methods from the trait [`ModuleWalker`] of interest to you.
-3. Use the function [`walk_module`] and provide the module you wish to walk and your walker.
+2. Provide an implementation of [`SimpleModuleWalker`] for `MyModuleWalker`.
+2. Implement any methods from the trait [`SimpleModuleWalker`] of interest to you.
+3. Use the function [`walk_module_simple`] and provide the module you wish to walk and your walker.
 
 ```rust,ignore
 #[derive(Debug, Default)]
@@ -16,7 +16,7 @@ impl ModuleWalker for MyModuleWalker {
     // implement some methods...
 }
 
-walk_module(&some_module, &mut MyModuleWalker::default());
+walk_module_simple(&some_module, &mut MyModuleWalker::default());
 ```
 
 */
@@ -47,7 +47,7 @@ use super::definitions::RdfDef;
 // ------------------------------------------------------------------------------------------------
 
 ///
-/// The trait that captures the callbacks that [`walk_module`] uses as it traverses the module.
+/// The trait that captures the callbacks that [`walk_module_simple`] uses as it traverses the module.
 ///
 pub trait SimpleModuleWalker {
     fn start_module(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {

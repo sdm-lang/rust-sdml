@@ -27,7 +27,7 @@ pub enum Error {
     FromUtf8Error {
         source: std::string::FromUtf8Error,
     },
-    /// An error was signaled while parsing a [`Url`]. Note that the methods `from_file_path` and
+    /// An error was signaled while parsing a `Url`. Note that the methods `from_file_path` and
     /// `from_directory_path` return `()` on error.
     UrlParseError {
         source: Option<url::ParseError>,

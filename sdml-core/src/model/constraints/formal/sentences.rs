@@ -27,7 +27,7 @@ use serde::{Deserialize, Serialize};
 /// Corresponds to the grammar rule `constraint_sentence`.
 ///
 /// A `ConstraintSentence` is either a [`SimpleSentence`], a [`BooleanSentence`], or
-/// a [`QuantitySentence`].
+/// a [`QuantifiedSentence`].
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]

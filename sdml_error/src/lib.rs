@@ -3,7 +3,7 @@ This crate provides the common error and diagnostics for SDML.
 
 For passing errors the typical [`Error`] and [`Result`] types are provided.
 
-For fine-grained reporting of model issues the [`Diagnostics`] and [`Reporter`] allow for describing
+For fine-grained reporting of model issues the [`diagnostics`] module allow for describing
 and emitting structured values.
  */
 

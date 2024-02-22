@@ -2,12 +2,12 @@
 This library provides a parser for the Simple Domain Modeling Language (SDML) and produces an in-memory representation
 using the crate [sdml-core](https://crates.io/crates/sdml-core).
 
-The [ModuleLoader] trait from, `sdml-core`, provides the interface for finding, parsing, and loading modules and the
-[load::ModuleLoader] implementation is provided in this crate for file-system based module definitions.
+The `ModuleLoader` trait from, `sdml-core`, provides the interface for finding, parsing, and loading modules and the
+[`load::FsModuleLoader`] implementation is provided in this crate for file-system based module definitions.
 
 # Example
 
-The following example demonstrates the [ModuleLoader] to resolve a module name to a file and parse it.
+The following example demonstrates the `FsModuleLoader` to resolve a module name to a file and parse it.
 
 
 ```rust,no_run

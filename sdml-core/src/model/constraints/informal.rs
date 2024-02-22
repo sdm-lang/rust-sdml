@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// We classify the last example as *semi-formal*, even though ACE is formally defined,
 /// because SDML does not expect (although does not prohibit) the translation from this form into
-/// the logical structure of a [`ConstraintSentence`].
+/// the logical structure of a `ConstraintSentence`.
 ///
 /// In the last example above the prefix `a:` on manual identifies the term *manual* it as an
 /// adjective applied to the word term *transmission*.
