@@ -1,11 +1,17 @@
 use clap::builder::FalseyValueParser;
 use clap::{Parser, ValueEnum};
+use sdml_error::diagnostics::UseColor;
 use sdml_error::Error;
+use sdml_generate::color::set_colorize;
 use std::process::ExitCode;
 use tracing::{error, info};
 use tracing_subscriber::filter::EnvFilter;
 use tracing_subscriber::filter::LevelFilter as TracingLevelFilter;
 use tracing_subscriber::FmtSubscriber;
+
+// ------------------------------------------------------------------------------------------------
+// Sub-command definitions
+// ------------------------------------------------------------------------------------------------
 
 pub mod commands;
 use commands::Command;
@@ -29,7 +35,6 @@ struct Cli {
     /// Turn off color for code emitters
     #[arg(
         long,
-        global = true,
         action = clap::ArgAction::SetTrue,
         env = "NO_COLOR",
         value_parser = FalseyValueParser::new(),
@@ -111,6 +116,6 @@ fn init_logging(log_filter: LogFilter) -> Result<(), Error> {
 fn init_color(no_color: bool) {
     if no_color {
         info!("Turning off color");
-        sdml_generate::color::set_colorize(sdml_error::diagnostics::UseColor::Never);
+        set_colorize(UseColor::Never);
     }
 }

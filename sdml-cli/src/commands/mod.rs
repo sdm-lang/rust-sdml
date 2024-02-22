@@ -79,7 +79,7 @@ pub(crate) enum Commands {
 
 #[derive(Args, Debug)]
 pub(crate) struct FileArgs {
-    /// File name to write to ('-' for stdout), if not provided will write to stdout
+    /// File name to write to, or '-' to write to stdout
     #[arg(short, long)]
     #[clap(value_parser, default_value = "-")]
     output: clio::Output,
@@ -91,7 +91,7 @@ pub(crate) struct FileArgs {
         value_parser = Identifier::from_str)]
     module: Option<Identifier>,
 
-    /// Input SDML file name ('-' for stdin), load without resolver
+    /// Input SDML file name to read from, or '-' to read from stdin
     #[arg(short, long)]
     #[clap(value_parser, default_value = "-", conflicts_with = "resolver")]
     input: clio::Input,
