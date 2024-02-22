@@ -2,6 +2,7 @@ use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
 use sdml_core::{cache::ModuleStore, load::ModuleLoader};
 use sdml_error::Error;
+use sdml_generate::convert::source::SourceGenerator;
 use sdml_generate::GenerateToWriter;
 
 // ------------------------------------------------------------------------------------------------
@@ -43,9 +44,10 @@ pub(crate) enum SourceGenerationLevel {
 impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module: &Module, cache, _| {
-            let mut writer = self.files.output_writer()?;
+            let mut generator = SourceGenerator::default();
+            let mut output = self.files.output.clone();
+            let mut writer = output.lock();
 
-            let mut generator = sdml_generate::convert::source::SourceGenerator::default();
             generator.write_in_format(module, cache, &mut writer, self.level.into())?;
 
             Ok(())

@@ -2,6 +2,7 @@ use clap::{Args, ValueEnum};
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::stdlib;
 use sdml_error::Error;
+use sdml_parse::load::FsModuleLoader;
 use std::io::Read;
 
 // ------------------------------------------------------------------------------------------------
@@ -37,7 +38,7 @@ pub(crate) enum OutputFormat {
 
 impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
-        let loader = self.files.loader();
+        let loader = FsModuleLoader::default();
         let resolver = loader.resolver();
 
         let source = if let Some(module_name) = &self.files.module {
@@ -50,25 +51,21 @@ impl super::Command for Command {
                 let file_path = resource.to_file_path().unwrap();
                 std::fs::read_to_string(file_path)?
             }
-        } else if let Some(module_file) = &self.files.input_file {
-            if module_file.is_file() {
-                std::fs::read_to_string(module_file)?
+        } else {
+            let mut input = self.files.input.clone();
+            if input.path().is_file() {
+                let mut reader = input.lock();
+                let mut source = String::new();
+                reader.read_to_string(&mut source)?;
+                source
             } else {
-                println!(
-                    "Error: the input file `{}` does not exist.",
-                    module_file.display()
-                );
+                println!("Error: the input file `{}` does not exist.", input.path());
                 return Err(std::io::Error::from(std::io::ErrorKind::NotFound).into());
             }
-        } else {
-            let stdin = std::io::stdin();
-            let mut handle = stdin.lock();
-            let mut source = String::new();
-            handle.read_to_string(&mut source)?;
-            source
         };
 
-        let mut writer = self.files.output_writer()?;
+        let mut output = self.files.output.clone();
+        let mut writer = output.lock();
 
         match self.output_format {
             OutputFormat::Ansi => {

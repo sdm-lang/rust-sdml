@@ -10,7 +10,7 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::{HasBody, HasName, HasOptionalBody, HasSourceSpan};
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -24,7 +24,14 @@ use std::path::{Path, PathBuf};
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> Result<(), Error> {
+pub fn write_ctags<W: Write>(
+    module: &Module,
+    file_name: Option<&PathBuf>,
+    w: &mut W,
+) -> Result<(), Error> {
+    let file_name: String = file_name
+        .map(|file| file.to_string_lossy().into_owned())
+        .unwrap_or_else(|| module.name().to_string());
     let mut tags: Vec<(String, String)> = Default::default();
     tags.push(ctag_line(module, &file_name));
 
@@ -114,19 +121,20 @@ pub fn write_ctags<W: Write>(module: &Module, file_name: PathBuf, w: &mut W) -> 
 // ------------------------------------------------------------------------------------------------
 
 #[inline(always)]
-fn ctag_line(named: &impl HasName, file_name: &Path) -> (String, String) {
+fn ctag_line(named: &impl HasName, file_name: &str) -> (String, String) {
     ctag_line_from(named.name(), file_name)
 }
 
 #[inline(always)]
-fn ctag_line_from(name: &Identifier, file_name: &Path) -> (String, String) {
-    let file_name = file_name.to_str().unwrap();
+fn ctag_line_from(name: &Identifier, file_name: &str) -> (String, String) {
     (
         name.to_string(),
         format!(
             "{}\t{}go",
             file_name,
-            name.source_span().unwrap().start() + 1
+            name.source_span()
+                .map(|span| span.start() + 1)
+                .unwrap_or_default()
         ),
     )
 }

@@ -34,14 +34,11 @@ pub(crate) enum OutputFormat {
 impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module: &Module, _, _| {
-            let mut writer = self.files.output_writer()?;
+            let mut output = self.files.output.clone();
+            let mut writer = output.lock();
 
             match self.output_format {
-                OutputFormat::CTags => write_ctags(
-                    module,
-                    module.source_file().cloned().unwrap_or_default(),
-                    &mut writer,
-                )?,
+                OutputFormat::CTags => write_ctags(module, module.source_file(), &mut writer)?,
             }
 
             Ok(())

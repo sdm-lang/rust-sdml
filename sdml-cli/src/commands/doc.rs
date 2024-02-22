@@ -74,11 +74,9 @@ impl Command {
         cache: &ModuleCache,
         generator: &mut sdml_generate::convert::doc::org_mode::DocumentationGenerator,
     ) -> Result<(), Error> {
-        if let Some(path) = &self.files.output_file {
-            generator.write_to_file_in_format(model, cache, path, Default::default())?;
-        } else {
-            generator.write_in_format(model, cache, &mut std::io::stdout(), Default::default())?;
-        }
-        Ok(())
+        let mut output = self.files.output.clone();
+        let mut writer = output.lock();
+
+        generator.write_in_format(model, cache, &mut writer, Default::default())
     }
 }

@@ -54,29 +54,28 @@ impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module: &Module, cache: &ModuleCache, _| {
             let format = self.output_format.unwrap_or_default().into();
+            let mut output = self.files.output.clone();
+            let mut writer = output.lock();
 
             match self.diagram {
                 DrawDiagram::Concepts => {
                     let mut generator =
                         sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    if let Some(path) = &self.files.output_file {
-                        generator.write_to_file_in_format(module, cache, path, format)?;
-                    } else {
-                        generator.write_in_format(module, cache, &mut std::io::stdout(), format)?;
-                    }
+                    generator.write_in_format(module, cache, &mut writer, format)?;
                 }
                 DrawDiagram::EntityRelationship => {
                     let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    if let Some(path) = &self.files.output_file {
-                        generator.write_to_file_in_format(module, cache, path, format)?;
-                    } else {
-                        generator.write_in_format(module, cache, &mut std::io::stdout(), format)?;
-                    }
+                    generator.write_in_format(module, cache, &mut writer, format)?;
                 }
                 DrawDiagram::UmlClass => {
                     let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default();
-                    if let Some(path) = &self.files.output_file {
-                        generator.write_to_file_in_format(module, cache, path, format)?;
+                    if self.files.output.is_local() {
+                        generator.write_to_file_in_format(
+                            module,
+                            cache,
+                            self.files.output.path(),
+                            format,
+                        )?;
                     } else {
                         println!("Sorry, writing UML diagrams requires an explicit output file");
                     }

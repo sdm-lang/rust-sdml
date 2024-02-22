@@ -43,26 +43,13 @@ pub(crate) enum ConvertFormat {
 impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module: &Module, cache: &ModuleCache, _| {
-            let mut writer = self.files.output_writer()?;
+            let mut output = self.files.output.clone();
+            let mut writer = output.lock();
 
             match self.output_format {
                 ConvertFormat::Rdf => {
                     let mut generator = rdf::RdfModelGenerator::default();
-                    if let Some(path) = &self.files.output_file {
-                        generator.write_to_file_in_format(
-                            module,
-                            cache,
-                            path,
-                            Default::default(),
-                        )?;
-                    } else {
-                        generator.write_in_format(
-                            module,
-                            cache,
-                            &mut std::io::stdout(),
-                            Default::default(),
-                        )?;
-                    }
+                    generator.write_in_format(module, cache, &mut writer, Default::default())?;
                 }
                 ConvertFormat::Json | ConvertFormat::JsonPretty => {
                     let mut generator = json::Generator::default();
@@ -71,16 +58,7 @@ impl super::Command for Command {
                     } else {
                         json::GeneratorOptions::default()
                     };
-                    if let Some(path) = &self.files.output_file {
-                        generator.write_to_file_in_format(module, cache, path, options)?;
-                    } else {
-                        generator.write_in_format(
-                            module,
-                            cache,
-                            &mut std::io::stdout(),
-                            options,
-                        )?;
-                    }
+                    generator.write_in_format(module, cache, &mut writer, options)?;
                 }
                 ConvertFormat::SExpr => {
                     sexpr::write_as_sexpr(module, &mut writer)?;
