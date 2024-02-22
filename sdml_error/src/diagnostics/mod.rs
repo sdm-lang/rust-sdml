@@ -5,11 +5,7 @@ Provides project-wide diagnostic types that describe more fine-grained error con
 
 use crate::FileId;
 use codespan_reporting::diagnostic::Severity;
-use std::{
-    fmt::Display,
-    sync::{OnceLock, RwLock},
-};
-use tracing::trace;
+use std::fmt::Display;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types  Diagnostics and Reporter
@@ -37,46 +33,15 @@ pub enum SeverityFilter {
     None,
 }
 
-static DIAGNOSTIC_LEVEL: OnceLock<RwLock<SeverityFilter>> = OnceLock::new();
-
-///
-/// Return the current filter value.
-///
-pub fn get_diagnostic_level_filter() -> SeverityFilter {
-    *DIAGNOSTIC_LEVEL
-        .get_or_init(|| RwLock::new(SeverityFilter::None))
-        .read()
-        .unwrap()
-}
-
-///
-/// Set the value of the current filter level.
-///
-pub fn set_diagnostic_level_filter(level: SeverityFilter) {
-    trace!("set_diagnostic_level_filter({level})");
-    *DIAGNOSTIC_LEVEL
-        .get_or_init(|| RwLock::new(SeverityFilter::None))
-        .write()
-        .unwrap() = level;
-}
-
-///
-/// Returns `true` if the provided `level` is enabled according to the current filter value.
-///
-pub fn diagnostic_level_enabled(level: Severity) -> bool {
-    match get_diagnostic_level_filter() {
-        SeverityFilter::Bug => level >= Severity::Bug,
-        SeverityFilter::Error => level >= Severity::Error,
-        SeverityFilter::Warning => level >= Severity::Warning,
-        SeverityFilter::Note => level >= Severity::Note,
-        SeverityFilter::Help => level >= Severity::Help,
-        SeverityFilter::None => false,
-    }
-}
-
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
+
+impl Default for SeverityFilter {
+    fn default() -> Self {
+        Self::Error
+    }
+}
 
 impl Display for SeverityFilter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -84,12 +49,12 @@ impl Display for SeverityFilter {
             f,
             "{}",
             match self {
-                SeverityFilter::Bug => "=bugs",
-                SeverityFilter::Error => ">=errors",
-                SeverityFilter::Warning => ">=warnings",
-                SeverityFilter::Note => ">=notes",
-                SeverityFilter::Help => ">=help",
-                SeverityFilter::None => "none",
+                Self::Bug => "=bugs",
+                Self::Error => ">=errors",
+                Self::Warning => ">=warnings",
+                Self::Note => ">=notes",
+                Self::Help => ">=help",
+                Self::None => "none",
             }
         )
     }
@@ -98,11 +63,11 @@ impl Display for SeverityFilter {
 impl From<Severity> for SeverityFilter {
     fn from(value: Severity) -> Self {
         match value {
-            Severity::Bug => SeverityFilter::Bug,
-            Severity::Error => SeverityFilter::Error,
-            Severity::Warning => SeverityFilter::Warning,
-            Severity::Note => SeverityFilter::Note,
-            Severity::Help => SeverityFilter::Help,
+            Severity::Bug => Self::Bug,
+            Severity::Error => Self::Error,
+            Severity::Warning => Self::Warning,
+            Severity::Note => Self::Note,
+            Severity::Help => Self::Help,
         }
     }
 }

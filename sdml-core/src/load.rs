@@ -10,7 +10,7 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
  */
 
 use crate::{cache::ModuleCache, model::identifiers::Identifier};
-use sdml_error::{Diagnostic, FileId, Source};
+use sdml_error::{diagnostics::SeverityFilter, Diagnostic, FileId, Source};
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
@@ -50,6 +50,8 @@ pub trait ModuleLoader: Default {
 
     fn report(&self, diagnostic: &Diagnostic) -> Result<(), sdml_error::Error>;
     fn reporter_done(&self, top_module_name: Option<String>) -> Result<(), sdml_error::Error>;
+
+    fn set_severity_filter(&mut self, filter: SeverityFilter);
 }
 
 // ------------------------------------------------------------------------------------------------

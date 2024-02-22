@@ -7,7 +7,7 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
 use sdml_core::stdlib;
-use sdml_error::diagnostics::{set_diagnostic_level_filter, SeverityFilter};
+use sdml_error::diagnostics::SeverityFilter;
 use sdml_error::Error;
 use sdml_generate::{GenerateToFile, GenerateToWriter};
 use sdml_parse::load::{FsModuleLoader, FsModuleResolver};
@@ -343,7 +343,7 @@ enum DiagramFormat {
 
 macro_rules! call_with_module {
     ($cmd: expr, $callback_fn: expr) => {
-        let (module_name, cache, loader) = {
+        let (module_name, cache, mut loader) = {
             let mut cache = ModuleCache::default().with_stdlib();
             let mut loader = $cmd.files.loader();
             let module_name = if let Some(module_name) = &$cmd.files.module {
@@ -382,7 +382,7 @@ macro_rules! call_with_module {
         let module = cache
             .get(&module_name)
             .expect("Error: module not found in cache");
-        return $callback_fn(module, &cache, &loader);
+        return $callback_fn(module, &cache, &mut loader);
     };
 }
 
@@ -779,18 +779,20 @@ impl Execute for View {
 
 impl Execute for Validate {
     fn execute(&self) -> Result<(), Error> {
-        set_diagnostic_level_filter(self.level.into());
+        call_with_module!(
+            self,
+            |module: &Module, cache, loader: &mut FsModuleLoader| {
+                loader.set_severity_filter(self.level.into());
+                module.validate(cache, loader, self.check_constraints);
 
-        call_with_module!(self, |module: &Module, cache, loader: &FsModuleLoader| {
-            module.validate(cache, loader, self.check_constraints);
+                let term_set = default_term_set()?;
+                validate_module_terms(module, &term_set, loader);
 
-            let term_set = default_term_set()?;
-            validate_module_terms(module, &term_set, loader);
+                loader.reporter_done(Some(module.name().to_string()))?;
 
-            loader.reporter_done(Some(module.name().to_string()))?;
-
-            Ok(())
-        });
+                Ok(())
+            }
+        );
     }
 }
 

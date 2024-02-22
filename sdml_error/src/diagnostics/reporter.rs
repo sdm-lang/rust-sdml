@@ -3,7 +3,7 @@ This module contains the trait [`Reporter`] and common implementations.
  */
 
 use crate::diagnostics::color::UseColor;
-use crate::diagnostics::{diagnostic_level_enabled, Diagnostic, ErrorCode, SeverityFilter};
+use crate::diagnostics::{Diagnostic, ErrorCode, SeverityFilter};
 use crate::errors::Error;
 use crate::SourceFiles;
 use codespan_reporting::{
@@ -57,17 +57,35 @@ pub trait Reporter: Default {
             ),
         }
     }
+
+    fn severity_filter(&self) -> SeverityFilter;
+
+    fn set_severity_filter(&mut self, filter: SeverityFilter);
+
+    fn is_enabled(&self, level: Severity) -> bool {
+        match self.severity_filter() {
+            SeverityFilter::Bug => level >= Severity::Bug,
+            SeverityFilter::Error => level >= Severity::Error,
+            SeverityFilter::Warning => level >= Severity::Warning,
+            SeverityFilter::Note => level >= Severity::Note,
+            SeverityFilter::Help => level >= Severity::Help,
+            SeverityFilter::None => false,
+        }
+    }
 }
 
 #[derive(Debug)]
 pub struct StandardStreamReporter {
     stream: StandardStream,
+    filter: SeverityFilter,
     config: Config,
     counters: RefCell<ErrorCounters>,
 }
 
 #[derive(Debug, Default)]
-pub struct BailoutReporter;
+pub struct BailoutReporter {
+    filter: SeverityFilter,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Types
@@ -160,7 +178,7 @@ impl Default for StandardStreamReporter {
 
 impl Reporter for StandardStreamReporter {
     fn emit(&self, diagnostic: &Diagnostic, sources: &SourceFiles) -> Result<(), Error> {
-        if diagnostic_level_enabled(diagnostic.severity) {
+        if self.is_enabled(diagnostic.severity) {
             <StandardStreamReporter as Reporter>::log(diagnostic);
             let mut counters = self.counters.borrow_mut();
             counters.report(diagnostic.severity);
@@ -180,12 +198,21 @@ impl Reporter for StandardStreamReporter {
         let _ = self.counters.replace(ErrorCounters::default());
         Ok(())
     }
+
+    fn severity_filter(&self) -> SeverityFilter {
+        self.filter
+    }
+
+    fn set_severity_filter(&mut self, filter: SeverityFilter) {
+        self.filter = filter;
+    }
 }
 
 impl StandardStreamReporter {
     pub fn stderr(color_choice: ColorChoice) -> Self {
         Self {
             stream: StandardStream::stderr(color_choice),
+            filter: Default::default(),
             config: Self::default_config(),
             counters: Default::default(),
         }
@@ -194,9 +221,14 @@ impl StandardStreamReporter {
     pub fn stdout(color_choice: ColorChoice) -> Self {
         Self {
             stream: StandardStream::stdout(color_choice),
+            filter: Default::default(),
             config: Self::default_config(),
             counters: Default::default(),
         }
+    }
+
+    pub fn with_severity_filter(self, filter: SeverityFilter) -> Self {
+        Self { filter, ..self }
     }
 
     fn default_config() -> Config {
@@ -277,7 +309,7 @@ impl StandardStreamReporter {
 
 impl Reporter for BailoutReporter {
     fn emit(&self, diagnostic: &Diagnostic, _: &SourceFiles) -> Result<(), Error> {
-        if diagnostic_level_enabled(diagnostic.severity) {
+        if self.is_enabled(diagnostic.severity) {
             <BailoutReporter as Reporter>::log(diagnostic);
             Err(diagnostic.clone().into())
         } else {
@@ -287,6 +319,14 @@ impl Reporter for BailoutReporter {
 
     fn done(&self, _: Option<String>) -> Result<(), Error> {
         Ok(())
+    }
+
+    fn severity_filter(&self) -> SeverityFilter {
+        self.filter
+    }
+
+    fn set_severity_filter(&mut self, filter: SeverityFilter) {
+        self.filter = filter;
     }
 }
 

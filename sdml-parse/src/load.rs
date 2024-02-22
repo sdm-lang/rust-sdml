@@ -10,6 +10,7 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
+use sdml_error::diagnostics::SeverityFilter;
 use sdml_error::diagnostics::{
     functions::imported_module_not_found, reporter::BailoutReporter, StandardStreamReporter,
 };
@@ -251,6 +252,20 @@ impl Reporter for DiagnosticReporter {
             DiagnosticReporter::FailFast(v) => v.done(top_module_name),
         }
     }
+
+    fn severity_filter(&self) -> sdml_error::diagnostics::SeverityFilter {
+        match self {
+            DiagnosticReporter::Interactive(v) => v.severity_filter(),
+            DiagnosticReporter::FailFast(v) => v.severity_filter(),
+        }
+    }
+
+    fn set_severity_filter(&mut self, filter: sdml_error::diagnostics::SeverityFilter) {
+        match self {
+            DiagnosticReporter::Interactive(v) => v.set_severity_filter(filter),
+            DiagnosticReporter::FailFast(v) => v.set_severity_filter(filter),
+        }
+    }
 }
 
 impl DiagnosticReporter {
@@ -320,6 +335,10 @@ impl ModuleLoader for FsModuleLoader {
 
     fn reporter_done(&self, top_module_name: Option<String>) -> Result<(), Error> {
         self.reporter.done(top_module_name)
+    }
+
+    fn set_severity_filter(&mut self, filter: SeverityFilter) {
+        self.reporter.set_severity_filter(filter);
     }
 }
 
