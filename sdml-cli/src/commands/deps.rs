@@ -102,6 +102,7 @@ pub(crate) enum OutputFormat {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
+    #[allow(clippy::redundant_closure_call)]
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module, cache: &ModuleCache, _| {
             let mut generator = DependencyViewGenerator::new(self.depth);

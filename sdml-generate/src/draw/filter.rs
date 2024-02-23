@@ -7,7 +7,7 @@ The intent is less for clients to use the API directly but to be able to load a 
 
 # Filters
 
-All filters are exact as *exclusions*, that is they define names to **not* show for their context.
+All filters are exact as *exclusions*, that is they define names to **not** show for their context.
 
 ## Import Filters
 
@@ -110,78 +110,6 @@ assert!(!filter.draw_member_import_pair(
     &Identifier::from_str("NMTOKEN").unwrap(),
 ));
 ```
-
-## Name Filters
-
-Name filters have three actions:
-
-1. Apply to `All` names in a scope.
-2. Apply to any name in the `Named` list.
-3. Apply to any name that `Matches` the provided regex.
-
-The following demonstrates all three of these actions in a single member import filter.
-
-```json
-{
-  "member_import_filter": {
-    "sdml": "all",
-    "skos": {
-      "named": [
-        "changeNote",
-        "editorialNote",
-        "historyNote",
-        "scopeNote"
-      ],
-    },
-    "xsd": {
-      "matches": "^[A-Z]+$"
-    }
-  }
-}
-```
-
-## Definition Filters
-
-A definition filter allows the hiding of definitions in the current module using a combination of **definition kind**
-and **name filter**. In a similar way to name filters there are three actions:
-
-1. Apply to all definitions of `Kind`.
-2. Apply to all definitions `Named` according to a name filter.
-3. Apply to all definitions where `Both` the kind *and*  name filter match.
-
-
-```json
-{
- "definition_filter": [
-    {
-      "both": {
-        "kind": "enum",
-        "names": {
-          "matches": "_AC$"
-        }
-      }
-    }
-  ]
-}```
-
-```rust
-use regex::Regex;
-use sdml_generate::draw::filter::{
-    DefinitionFilter, DefinitionKind, DiagramContentFilter
-};
-
-let filter = DiagramContentFilter::default()
-    .with_definition_filter(
-        DefinitionFilter::Both {
-            kind: DefinitionKind::Enum,
-            names: Regex::new("_AC$").unwrap().into(),
-        }
-    );
-```
-
-## Association Filters
-
-TBD
  */
 
 use regex::Regex;
@@ -206,6 +134,11 @@ use std::{
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// A *content filter* is created to determine elements of a module to **exclude** from a diagram.
+/// For example, you may wish to create a diagram with only structures and create associations
+/// for only target types which are also structures.
+///
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct DiagramContentFilter {
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -214,10 +147,40 @@ pub struct DiagramContentFilter {
     member_import_filter: Option<QualifiedNameFilter>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     definition_filter: Vec<DefinitionFilter>,
-    #[serde(skip_serializing_if = "Option::is_none", default)]
-    association_filter: Option<NameFilter>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    association_filter: Vec<DefinitionFilter>,
 }
 
+///
+/// A *name filter* filters out elements that match by their name (an `Identifier`).
+///
+/// Name filters have three actions:
+///
+/// 1. Apply to `All` names in a scope.
+/// 2. Apply to any name in the `Named` list.
+/// 3. Apply to any name that `Matches` the provided regex.
+///
+/// The following demonstrates all three of these actions in a single member import filter.
+///
+/// ```json
+/// {
+///   "member_import_filter": {
+///     "sdml": "all",
+///     "skos": {
+///       "named": [
+///         "changeNote",
+///         "editorialNote",
+///         "historyNote",
+///         "scopeNote"
+///       ],
+///     },
+///     "xsd": {
+///       "matches": "^[A-Z]+$"
+///     }
+///   }
+/// }
+/// ```
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum NameFilter {
@@ -226,16 +189,26 @@ pub enum NameFilter {
     All,
 }
 
+///
+/// This type is a wrapper around the core `Identifier` type to allow serde to serialize and deserialize names as
+/// strings.
+///
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct IdentifierString(Identifier);
 
+///
+/// A *qualified name filter* is a map from a namespace name to a `NameFilter` to exclude members of the namespace.
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct QualifiedNameFilter {
     #[serde(flatten)]
     name_map: HashMap<IdentifierString, NameFilter>,
 }
 
+///
+/// This enumeration represents the set of `Definition` types that are present in a module.
+///
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DefinitionKind {
@@ -250,6 +223,44 @@ pub enum DefinitionKind {
     Union,
 }
 
+///
+/// A *definition filter* allows the hiding of definitions in the current module using a combination of [`DefinitionKind`]
+/// and [`NameFilter`]. In a similar way to name filters there are three actions:
+///
+/// 1. Apply to all definitions of `Kind`.
+/// 2. Apply to all definitions `Named` according to a name filter.
+/// 3. Apply to all definitions where `Both` the kind *and*  name filter match.
+///
+/// ```json
+/// {
+///  "definition_filter": [
+///     {
+///       "both": {
+///         "kind": "enum",
+///         "names": {
+///           "matches": "_AC$"
+///         }
+///       }
+///     }
+///   ]
+/// }
+/// ```
+///
+/// ```rust
+/// use regex::Regex;
+/// use sdml_generate::draw::filter::{
+///     DefinitionFilter, DefinitionKind, DiagramContentFilter
+/// };
+///
+/// let filter = DiagramContentFilter::default()
+///     .with_definition_filter(
+///         DefinitionFilter::Both {
+///             kind: DefinitionKind::Enum,
+///             names: Regex::new("_AC$").unwrap().into(),
+///         }
+///     );
+/// ```
+///
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DefinitionFilter {
@@ -284,6 +295,9 @@ pub enum DefinitionFilter {
 // ------------------------------------------------------------------------------------------------
 
 impl DiagramContentFilter {
+    ///
+    /// Builder function to set the *module import filter*.
+    ///
     pub fn with_module_import_filter(self, filter: NameFilter) -> Self {
         Self {
             module_import_filter: Some(filter),
@@ -291,6 +305,9 @@ impl DiagramContentFilter {
         }
     }
 
+    ///
+    /// Builder function to set the *module import filter* to exclude all standard library modules.
+    ///
     pub fn filter_stdlib_imports(self) -> Self {
         let mut self_mut = self;
 
@@ -320,6 +337,9 @@ impl DiagramContentFilter {
         self_mut
     }
 
+    ///
+    /// Builder function to set the *member import filter*.
+    ///
     pub fn with_member_import_filter<F>(self, filter: F) -> Self
     where
         F: Into<QualifiedNameFilter>,
@@ -330,6 +350,9 @@ impl DiagramContentFilter {
         }
     }
 
+    ///
+    /// Builder function to set the *definition filter*.
+    ///
     pub fn with_definition_filter<F>(self, filter: F) -> Self
     where
         F: Into<DefinitionFilter>,
@@ -340,6 +363,9 @@ impl DiagramContentFilter {
         }
     }
 
+    ///
+    /// Builder function to set the *definition filter*.
+    ///
     pub fn with_definition_filters(self, filter: Vec<DefinitionFilter>) -> Self {
         Self {
             definition_filter: filter,
@@ -347,23 +373,43 @@ impl DiagramContentFilter {
         }
     }
 
+    ///
+    /// Builder function to set the *association filter*.
+    ///
     pub fn with_association_filter<F>(self, filter: F) -> Self
     where
-        F: Into<NameFilter>,
+        F: Into<DefinitionFilter>,
     {
         Self {
-            association_filter: Some(filter.into()),
+            association_filter: vec![filter.into()],
             ..self
         }
     }
 
+    ///
+    /// Builder function to set the *association filter*.
+    ///
+    pub fn with_association_filters(self, filter: Vec<DefinitionFilter>) -> Self {
+        Self {
+            association_filter: filter,
+            ..self
+        }
+    }
+
+    ///
+    /// Returns `true` if the filter has no sub-filters, else `false`.
+    ///
     pub fn is_empty(&self) -> bool {
         self.module_import_filter.is_none()
             && self.member_import_filter.is_none()
             && self.definition_filter.is_empty()
-            && self.association_filter.is_none()
+            && self.association_filter.is_empty()
     }
 
+    ///
+    /// Returns `true` if the diagram should draw an import relationship to the module named
+    /// `id`, else `false`.
+    ///
     pub fn draw_module_import(&self, id: &Identifier) -> bool {
         !self
             .module_import_filter
@@ -372,6 +418,10 @@ impl DiagramContentFilter {
             .unwrap_or_default()
     }
 
+    ///
+    /// Returns `true` if the diagram should draw an import relationship to the member named
+    /// `id`, else `false`.
+    ///
     pub fn draw_member_import(&self, id: &QualifiedIdentifier) -> bool {
         !self
             .member_import_filter
@@ -380,14 +430,21 @@ impl DiagramContentFilter {
             .unwrap_or_default()
     }
 
-    pub fn draw_member_import_pair(&self, qid: &Identifier, id: &Identifier) -> bool {
+    ///
+    /// Returns `true` if the diagram should draw an import relationship to the module named
+    /// `id` in module `nsid`, else `false`.
+    ///
+    pub fn draw_member_import_pair(&self, nsid: &Identifier, id: &Identifier) -> bool {
         !self
             .member_import_filter
             .as_ref()
-            .map(|names| names.is_excluded_pair(qid, id))
+            .map(|names| names.is_excluded_pair(nsid, id))
             .unwrap_or_default()
     }
 
+    ///
+    /// Returns `true` if the diagram should draw the definition `defn`, else `false`.
+    ///
     pub fn draw_definition(&self, defn: &Definition) -> bool {
         !self
             .definition_filter
@@ -395,13 +452,19 @@ impl DiagramContentFilter {
             .any(|names| names.is_excluded(defn))
     }
 
-    pub fn draw_member_as_attribute(&self, id: &Identifier) -> bool {
+    ///
+    /// Returns `true` if the diagram should draw a member as an association
+    /// (or attribute) depending on it's target type, else `false`.
+    ///
+    pub fn draw_member_as_association(&self, defn: &Definition) -> bool {
         self.association_filter
-            .as_ref()
-            .map(|names| names.is_excluded(id))
-            .unwrap_or_default()
+            .iter()
+            .any(|names| names.is_excluded(defn))
     }
 
+    ///
+    /// Write this filter to the file named `file` in JSON format.
+    ///
     pub fn write_to_file<P>(&self, file: P) -> Result<(), Error>
     where
         P: AsRef<Path>,
@@ -415,6 +478,9 @@ impl DiagramContentFilter {
         )
     }
 
+    ///
+    /// Write this filter to the provided writer in JSON format.
+    ///
     pub fn write_to_writer<W>(&self, writer: W) -> Result<(), Error>
     where
         W: Write,
@@ -422,6 +488,9 @@ impl DiagramContentFilter {
         serde_json::to_writer_pretty(writer, self).map_err(into_generator_error)
     }
 
+    ///
+    /// Read a filter from the file named `file` in JSON format.
+    ///
     pub fn read_from_file<P>(file: P) -> Result<Self, Error>
     where
         P: AsRef<Path>,
@@ -431,6 +500,9 @@ impl DiagramContentFilter {
         Self::read_from_reader(reader)
     }
 
+    ///
+    /// Read a filter from the provided reader in JSON format.
+    ///
     pub fn read_from_reader<R>(reader: R) -> Result<Self, Error>
     where
         R: Read,
@@ -459,6 +531,10 @@ impl From<&Definition> for DefinitionKind {
 }
 
 impl DefinitionKind {
+    ///
+    /// Returns `true` if the definition is excluded by virtue of matching this specific
+    /// definition kind, else `false`.
+    ///
     pub fn is_excluded(&self, defn: &Definition) -> bool {
         *self == defn.into()
     }
@@ -488,6 +564,9 @@ impl From<(DefinitionKind, NameFilter)> for DefinitionFilter {
 }
 
 impl DefinitionFilter {
+    ///
+    /// Constructor for a filter based on a [`NameFilter`].
+    ///
     pub fn exclude_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -497,52 +576,90 @@ impl DefinitionFilter {
         }
     }
 
+    ///
+    /// Constructor for a filter that excludes all datatype definitions.
+    ///
     pub fn exclude_datatypes() -> Self {
         Self::Kind {
             kind: DefinitionKind::Datatype,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all entity definitions.
+    ///
     pub fn exclude_entities() -> Self {
         Self::Kind {
             kind: DefinitionKind::Entity,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all enum definitions.
+    ///
     pub fn exclude_enums() -> Self {
         Self::Kind {
             kind: DefinitionKind::Enum,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all event definitions.
+    ///
     pub fn exclude_events() -> Self {
         Self::Kind {
             kind: DefinitionKind::Event,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all property definitions.
+    ///
     pub fn exclude_properties() -> Self {
         Self::Kind {
             kind: DefinitionKind::Property,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all rdf definitions.
+    ///
     pub fn exclude_rdfs() -> Self {
         Self::Kind {
             kind: DefinitionKind::Rdf,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all structure definitions.
+    ///
     pub fn exclude_structures() -> Self {
         Self::Kind {
             kind: DefinitionKind::Structure,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all type-class definitions.
+    ///
     pub fn exclude_typeclasses() -> Self {
         Self::Kind {
             kind: DefinitionKind::TypeClass,
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes all union definitions.
+    ///
     pub fn exclude_unions() -> Self {
         Self::Kind {
             kind: DefinitionKind::Union,
         }
     }
 
+    ///
+    /// Constructor for a filter that excludes any datatype definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_datatypes_named_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -552,6 +669,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any entity definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_entities_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -561,6 +682,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any enum definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_enums_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -570,6 +695,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any event definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_events_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -579,6 +708,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any property definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_properties_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -588,6 +721,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any rdf definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_rdfs_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -597,6 +734,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any structure definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_structures_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -606,6 +747,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any type-class definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_typeclasses_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -615,6 +760,10 @@ impl DefinitionFilter {
             names: names.into(),
         }
     }
+
+    ///
+    /// Constructor for a filter that excludes any union definition that match the provided [`NameFilter`].
+    ///
     pub fn exclude_unions_named<F>(names: F) -> Self
     where
         F: Into<NameFilter>,
@@ -625,10 +774,16 @@ impl DefinitionFilter {
         }
     }
 
+    ///
+    /// Returns `true` if the definition `defn` is excluded, else `false`.
+    ///
     pub fn is_excluded(&self, defn: &Definition) -> bool {
         self.is_excluded_pair(defn.into(), defn.name())
     }
 
+    ///
+    /// Returns `true` if a definition of `subject_kind` and name `subject_id` is excluded, else `false`.
+    ///
     pub fn is_excluded_pair(&self, subject_kind: DefinitionKind, subject_id: &Identifier) -> bool {
         match self {
             Self::Kind { kind } => *kind == subject_kind,
@@ -663,11 +818,15 @@ impl From<Vec<(IdentifierString, NameFilter)>> for QualifiedNameFilter {
 }
 
 impl QualifiedNameFilter {
+    ///
+    /// Returns `true` if the qualified name `qid` is excluded, else `false`.
+    ///
     pub fn is_excluded(&self, qid: &QualifiedIdentifier) -> bool {
         self.is_excluded_pair(qid.module(), qid.member())
     }
 
-    pub fn is_excluded_pair(&self, qid: &Identifier, id: &Identifier) -> bool {
+    /// Returns `true` if the member `id` in namespace `nsid` is excluded, else `false`.
+    pub fn is_excluded_pair(&self, nsid: &Identifier, id: &Identifier) -> bool {
         let qid = IdentifierString::from(qid.clone());
         self.name_map
             .get(&qid)
@@ -706,6 +865,9 @@ impl From<Regex> for NameFilter {
 }
 
 impl NameFilter {
+    ///
+    /// Returns `true` if the name `id` is excluded, else `false`.
+    ///
     pub fn is_excluded(&self, id: &Identifier) -> bool {
         let id = IdentifierString::from(id.clone());
         match self {

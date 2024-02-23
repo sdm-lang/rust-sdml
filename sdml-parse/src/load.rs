@@ -227,7 +227,7 @@ impl Default for FsModuleLoader {
             resolver: Default::default(),
             module_file_ids: Default::default(),
             module_files: SimpleFiles::new(),
-            reporter: Box::new(StandardStreamReporter::default()),
+            reporter: Box::<StandardStreamReporter>::default(),
         }
     }
 }

@@ -102,9 +102,9 @@ pub(crate) enum DiagnosticLevel {
 impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
         let reporter: Box<dyn Reporter> = if self.short_form {
-            Box::new(CompactStreamReporter::default())
+            Box::<CompactStreamReporter>::default()
         } else {
-            Box::new(StandardStreamReporter::default())
+            Box::<StandardStreamReporter>::default()
         };
         call_with_module!(
             self,
