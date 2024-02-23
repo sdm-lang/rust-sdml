@@ -827,9 +827,9 @@ impl QualifiedNameFilter {
 
     /// Returns `true` if the member `id` in namespace `nsid` is excluded, else `false`.
     pub fn is_excluded_pair(&self, nsid: &Identifier, id: &Identifier) -> bool {
-        let qid = IdentifierString::from(qid.clone());
+        let nsid = IdentifierString::from(nsid.clone());
         self.name_map
-            .get(&qid)
+            .get(&nsid)
             .map(|names| names.is_excluded(id))
             .unwrap_or_default()
     }
