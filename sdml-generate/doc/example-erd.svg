@@ -1,0 +1,18 @@
+digraph G {
+  bgcolor="transparent";
+  rankdir="TB";
+  fontname="Helvetica,Arial,sans-serif";
+  node [fontname="Helvetica,Arial,sans-serif"; fontsize=10];
+  edge [fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
+        labelfontcolor="blue"; labeldistance=2.0];
+  graph [pad="0.5", nodesep="1", ranksep="1"];
+  splines="ortho";
+
+  dc [label="dc"; style="dashed"; color="dimgrey"; fontcolor="dimgrey"];
+  xsd [label="xsd"; style="dashed"; color="dimgrey"; fontcolor="dimgrey"];
+  uuid [label="■ Uuid"; style="dashed"; color="dimgrey"; fontcolor="dimgrey"];
+  example [label="Example"; penwidth=1.5];
+  example -> uuid [tooltip="example_id";dir="both";arrowtail="teetee";arrowhead="teetee"];
+  example -> uuid [tooltip="version";dir="both"; arrowhead="teetee"];
+  example -> sdml__string [tooltip="name";dir="both"; arrowhead="teetee"];
+}

@@ -9,12 +9,77 @@ use sdml_generate::GenerateToWriter;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// View formatted module source code
+/// View formatted module source.
+///
+/// This command will generate source code from a module file, which at first seems redundant.
+/// However, this view provides levels of detail that allow for an overview of module definitions.
+/// The `--level` argument can be used to elide content and get an overview of a module.
+///
+/// - Definitions (default) :: Show only the definitions in the module, any definition body will
+///   be elided, for an overview of the module contents. Elided definitions are followed by
+///   `";; ..."`.
+///
+/// ```
+/// ❯ sdml view --level definitions -i examples/example.sdm
+/// module example <https://example.com/api> is
+///
+///   import [ dc xsd ]
+///
+///   datatype Uuid <- sdml:string ;; ...
+///
+///   entity Example ;; ...
+///
+/// end
+/// ```
+///
+/// - Members :: Show definitions in the module and show the members of product types and variants
+///   of sum types but not their bodies if present.
+///
+/// ```
+/// ❯ sdml view --level members -i examples/example.sdm
+/// module example <https://example.com/api> is
+///
+///   import [ dc xsd ]
+///
+///   datatype Uuid <- sdml:string ;; ...
+///
+///   entity Example is
+///     version -> Uuid
+///     name -> sdml:string ;; ...
+///   end
+///
+/// end
+/// ```
+///
+/// - Full :: Show all contents of the module.
+///
+/// ```
+/// ❯ sdml view --level full -i examples/example.sdm
+/// module example <https://example.com/api> is
+///
+///   import [ dc xsd ]
+///
+///   datatype Uuid <- sdml:string is
+///     @xsd:pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"
+///   end
+///
+///   entity Example is
+///     version -> Uuid
+///     name -> sdml:string is
+///       @dc:description = "the name of this thing"@en
+///     end
+///   end
+///
+/// end
+/// ```
+///
+/// Indentation level can also be specified, although the default remains 2 spaces.
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
     #[arg(short = 'l', long)]
     #[arg(value_enum)]
-    #[arg(default_value_t = SourceGenerationLevel::Full)]
+    #[arg(default_value_t = SourceGenerationLevel::Definitions)]
     level: SourceGenerationLevel,
 
     /// Set the number of spaces for indentation

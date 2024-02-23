@@ -1,0 +1,42 @@
+@startuml example-uml
+skinparam backgroundColor transparent
+skinparam style strictuml
+skinparam linetype polyline
+skinparam nodesep 50
+
+hide methods
+hide circle
+
+show << datatype >> circle
+show << entity >> circle
+show enum circle
+show << event >> circle
+show << union >> circle
+
+package "xsd" as s_xsd <<module>> #white {
+}
+
+package "dc" as s_dc <<module>> #white {
+}
+
+
+package "example" as s_example <<module>> {
+  class "Uuid" as s_Uuid << (D, orchid) datatype >> {
+{xsd:pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"}
+  }
+  hide s_Uuid methods
+  class "Example" as s_Example << (E, orchid) entity >> {
+    +example_id: Uuid
+    --
+    +version: Uuid
+    +name: sdml:string
+  }
+
+  s_Uuid --|> s_sdml__string
+}
+
+s_example ..> s_xsd: <<import>>
+s_example ..> s_dc: <<import>>
+
+
+@enduml

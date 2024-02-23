@@ -5,6 +5,17 @@ use clap::Args;
 // ------------------------------------------------------------------------------------------------
 
 /// Show tool and library versions.
+///
+/// This command shows more information than the simple `--version` global argument and is useful
+/// for debugging.
+///
+/// ```
+/// ❯ sdml versions               
+/// SDML CLI:        0.2.7
+/// SDML grammar:    0.2.16
+/// Tree-Sitter ABI: 14
+/// ```
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command;
 

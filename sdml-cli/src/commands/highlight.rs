@@ -9,7 +9,14 @@ use std::io::Read;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// Syntax highlight a module source
+/// Syntax highlight a module source.
+///
+/// This
+///
+/// - Ansi (default) ::
+///
+/// - Html ::
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
     #[arg(short = 'f', long)]

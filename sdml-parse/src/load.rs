@@ -11,9 +11,7 @@ use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
 use sdml_error::diagnostics::SeverityFilter;
-use sdml_error::diagnostics::{
-    functions::imported_module_not_found, reporter::BailoutReporter, StandardStreamReporter,
-};
+use sdml_error::diagnostics::{functions::imported_module_not_found, StandardStreamReporter};
 use sdml_error::{Diagnostic, Reporter, Source, SourceFiles};
 use sdml_error::{Error, FileId};
 use search_path::SearchPath;
@@ -51,15 +49,6 @@ pub const SDML_FILE_EXTENSION_LONG: &str = "sdml";
 /// The name used for resolver catalog files.
 pub const SDML_CATALOG_FILE_NAME: &str = "sdml-catalog.json";
 
-// ------------------------------------------------------------------------------------------------
-
-#[derive(Debug)]
-#[allow(clippy::large_enum_variant)]
-pub enum DiagnosticReporter {
-    Interactive(StandardStreamReporter),
-    FailFast(BailoutReporter),
-}
-
 ///
 /// The loader is used to manage the process of creating an in-memory model from file-system resources.
 ///
@@ -74,7 +63,7 @@ pub struct FsModuleLoader {
     resolver: FsModuleResolver,
     module_file_ids: HashMap<Identifier, usize>,
     module_files: SourceFiles,
-    reporter: DiagnosticReporter,
+    reporter: Box<dyn Reporter>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -232,57 +221,13 @@ impl FsModuleResolver {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Default for DiagnosticReporter {
-    fn default() -> Self {
-        Self::Interactive(Default::default())
-    }
-}
-
-impl Reporter for DiagnosticReporter {
-    fn emit(&self, diagnostic: &Diagnostic, sources: &SourceFiles) -> Result<(), Error> {
-        match self {
-            DiagnosticReporter::Interactive(v) => v.emit(diagnostic, sources),
-            DiagnosticReporter::FailFast(v) => v.emit(diagnostic, sources),
-        }
-    }
-
-    fn done(&self, top_module_name: Option<String>) -> Result<(), Error> {
-        match self {
-            DiagnosticReporter::Interactive(v) => v.done(top_module_name),
-            DiagnosticReporter::FailFast(v) => v.done(top_module_name),
-        }
-    }
-
-    fn severity_filter(&self) -> sdml_error::diagnostics::SeverityFilter {
-        match self {
-            DiagnosticReporter::Interactive(v) => v.severity_filter(),
-            DiagnosticReporter::FailFast(v) => v.severity_filter(),
-        }
-    }
-
-    fn set_severity_filter(&mut self, filter: sdml_error::diagnostics::SeverityFilter) {
-        match self {
-            DiagnosticReporter::Interactive(v) => v.set_severity_filter(filter),
-            DiagnosticReporter::FailFast(v) => v.set_severity_filter(filter),
-        }
-    }
-}
-
-impl DiagnosticReporter {
-    pub fn is_interactive(&self) -> bool {
-        matches!(self, Self::Interactive(_))
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-
 impl Default for FsModuleLoader {
     fn default() -> Self {
         Self {
             resolver: Default::default(),
             module_file_ids: Default::default(),
             module_files: SimpleFiles::new(),
-            reporter: DiagnosticReporter::Interactive(StandardStreamReporter::default()),
+            reporter: Box::new(StandardStreamReporter::default()),
         }
     }
 }
@@ -345,6 +290,10 @@ impl ModuleLoader for FsModuleLoader {
 impl FsModuleLoader {
     pub fn with_resolver(self, resolver: FsModuleResolver) -> Self {
         Self { resolver, ..self }
+    }
+
+    pub fn with_reporter(self, reporter: Box<dyn Reporter>) -> Self {
+        Self { reporter, ..self }
     }
 
     /// Load a module from the source in `file`.

@@ -11,7 +11,19 @@ use sdml_generate::{GenerateToFile, GenerateToWriter};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// Draw diagrams from a module
+/// Draw diagrams from a module.
+///
+/// This command generates diagrams of a module with different perspectives.
+///
+/// - Concepts ::
+///
+/// - Entity-Relationship ::
+///
+/// - UML Class ::
+///
+/// The diagrams can be generated in jpeg, png, or svg image formats, or in their source form
+/// for further processing or inclusion in other documents.
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
     /// Diagram kind to draw

@@ -15,6 +15,7 @@ use codespan_reporting::{
     },
 };
 use std::cell::RefCell;
+use std::fmt::Debug;
 use std::io::Write;
 use std::ops::{Add, AddAssign};
 use tracing::{error, info, warn};
@@ -26,7 +27,7 @@ use tracing::{error, info, warn};
 ///
 /// This trait describes a facility to report diagnostics.
 ///
-pub trait Reporter: Default {
+pub trait Reporter: Debug {
     ///
     /// Emit a diagnostic, providing a mapping for source code.
     ///
@@ -38,7 +39,7 @@ pub trait Reporter: Default {
 
     fn done(&self, module_name: Option<String>) -> Result<(), Error>;
 
-    fn log(diagnostic: &Diagnostic) {
+    fn log(&self, diagnostic: &Diagnostic) {
         match diagnostic.severity {
             Severity::Bug | Severity::Error => error!(
                 "[{}] {}",
@@ -80,6 +81,12 @@ pub struct StandardStreamReporter {
     filter: SeverityFilter,
     config: Config,
     counters: RefCell<ErrorCounters>,
+}
+
+#[derive(Debug)]
+pub struct CompactStreamReporter {
+    stream: StandardStream,
+    filter: SeverityFilter,
 }
 
 #[derive(Debug, Default)]
@@ -179,7 +186,7 @@ impl Default for StandardStreamReporter {
 impl Reporter for StandardStreamReporter {
     fn emit(&self, diagnostic: &Diagnostic, sources: &SourceFiles) -> Result<(), Error> {
         if self.is_enabled(diagnostic.severity) {
-            <StandardStreamReporter as Reporter>::log(diagnostic);
+            self.log(diagnostic);
             let mut counters = self.counters.borrow_mut();
             counters.report(diagnostic.severity);
             Ok(emit(
@@ -307,10 +314,82 @@ impl StandardStreamReporter {
 
 // ------------------------------------------------------------------------------------------------
 
+impl Default for CompactStreamReporter {
+    fn default() -> Self {
+        Self {
+            stream: StandardStream::stdout(UseColor::from_env().into()),
+            filter: Default::default(),
+        }
+    }
+}
+
+impl Reporter for CompactStreamReporter {
+    fn emit(&self, diagnostic: &Diagnostic, sources: &SourceFiles) -> Result<(), Error> {
+        use codespan_reporting::files::Files;
+        if self.is_enabled(diagnostic.severity) {
+            self.log(diagnostic);
+            let mut stream = self.stream.lock();
+            let (file_name, start, end) = if let Some(label) = diagnostic.labels.first() {
+                let file_id = label.file_id;
+                let start = sources.location(file_id, label.range.start)?;
+                let end = sources.location(file_id, label.range.end)?;
+                (
+                    sources.name(file_id)?,
+                    (start.line_number, start.column_number),
+                    (end.line_number, end.column_number),
+                )
+            } else {
+                (String::new(), (0, 0), (0, 0))
+            };
+            stream.write_all(
+                format!(
+                    "{},{},{},{},{},{},{},{}\n",
+                    match diagnostic.severity {
+                        Severity::Bug => i18n!("word_bug"),
+                        Severity::Error => i18n!("word_error"),
+                        Severity::Warning => i18n!("word_warning"),
+                        Severity::Note => i18n!("word_note"),
+                        Severity::Help => i18n!("word_help"),
+                    },
+                    file_name,
+                    start.0,
+                    start.1,
+                    end.0,
+                    end.1,
+                    diagnostic.code.as_ref().unwrap(),
+                    diagnostic.message
+                )
+                .as_bytes(),
+            )?;
+        }
+        Ok(())
+    }
+
+    fn done(&self, _: Option<String>) -> Result<(), Error> {
+        Ok(())
+    }
+
+    fn severity_filter(&self) -> SeverityFilter {
+        self.filter
+    }
+
+    fn set_severity_filter(&mut self, filter: SeverityFilter) {
+        self.filter = filter;
+    }
+}
+
+impl CompactStreamReporter {
+    pub fn with_severity_filter(self, filter: SeverityFilter) -> Self {
+        Self { filter, ..self }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl Reporter for BailoutReporter {
     fn emit(&self, diagnostic: &Diagnostic, _: &SourceFiles) -> Result<(), Error> {
         if self.is_enabled(diagnostic.severity) {
-            <BailoutReporter as Reporter>::log(diagnostic);
+            self.log(diagnostic);
             Err(diagnostic.clone().into())
         } else {
             Ok(())

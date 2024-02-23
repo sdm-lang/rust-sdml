@@ -140,32 +140,31 @@ Options:
 
 ** Representation Conversion
 
-Output Format: json, json-pretty, rdf, s-expressions (Lispy)
+This command allows the conversion of a module from the SDML surface syntax into one of a number of alternate
+representations.
 
-** Diagram Generation
+*** RDF
 
-TBD
+This uses the surface to RDF mapping defined in the SDML Language Reference. The mapping is normative and stable.
 
-#+BEGIN_EXAMPLE bash
-❯ sdml draw --diagram concepts --output-format svg -i example/example.sdm
-❯ open -a Safari example.svg
-#+END_EXAMPLE
+*** JSON
 
+This is a direct representation of the in-memory model in the Rust package =sdml_core= in JSON. This mapping is
+non-normative and may change according to any model structure change.
 
-#+BEGIN_EXAMPLE bash
-❯ sdml draw --diagram entity-relationship --output-format source -i example/example.sdm
-#+END_EXAMPLE
+*** S-Expression
 
-
-#+BEGIN_EXAMPLE bash
-❯ sdml draw --diagram uml-class --output-format svg -i example/example.sdm
-❯ open -a Safari example.svg
-#+END_EXAMPLE
+This is a debugging representation, and supported as the underlying tree-sitter library uses s-expressions as a
+parse-tree visualization.
 
 ** Dependency Visualization
 
-This command (=deps=) allows you to view the transitive dependencies of a specific module. The =--output-format= option may be one of
-=graph=, =rdf=, or =tree=; the default is =tree=.
+This command generates a representation of the transitive closure of dependencies for a given module into one of a
+number of alternate representations.
+
+*** Tree
+
+Show dependencies as a text tree with the original as the root.
 
 #+BEGIN_EXAMPLE bash
 ❯ sdml deps sdml
@@ -187,7 +186,8 @@ sdml
 #+END_EXAMPLE
 
 In some cases the entire set of dependencies is not necessary and the =--depth= argument can be added to only show a
-number of levels of import from the root. 
+number of levels of import from the root. The depth argument instructs to command to stop after that many dependencies
+away from the original module. Setting depth to 1 will only show the direct dependencies of the original.
 
 #+BEGIN_EXAMPLE bash
 ❯ sdml deps --depth 1 sdml
@@ -199,7 +199,20 @@ sdml
 └── xsd
 #+END_EXAMPLE
 
-The =rdf= output format dumps raw N-Triples with OWL import statements for each module import.
+*** Graph
+
+Create an SVG representation of the dependency graph using GraphViz.
+
+#+BEGIN_EXAMPLE bash
+❯ sdml deps --output-format graph sdml > sdml-deps.svg
+❯ open -a Safari sdml-deps.svg
+#+END_EXAMPLE
+
+[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example_deps_graph.svg]]
+
+*** RDF
+
+Create a set of RDF statements,as N-Triples, that represent the individual OWL import relationships.
 
 #+BEGIN_EXAMPLE bash
 ❯ sdml deps --depth 1 --output-format rdf sdml
@@ -210,21 +223,51 @@ The =rdf= output format dumps raw N-Triples with OWL import statements for each 
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2001/XMLSchema#> .
 #+END_EXAMPLE
 
-The =graph= output format outputs an SVG representation of the dependency graph.
+** Diagram Generation
+
+This command generates diagrams of a module with different perspectives.
+
+*** Concepts
 
 #+BEGIN_EXAMPLE bash
-❯ sdml deps --output-format graph sdml > sdml-deps.svg
-❯ open -a Safari sdml-deps.svg
+❯ sdml draw --diagram concepts --o example-concepts.svg -i example/example.sdm
+❯ open -a Safari example-concepts.svg
 #+END_EXAMPLE
 
-[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example_deps_graph.svg]]
+[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-concepts.svg]]
+
+*** Entity Relationship
+
+#+BEGIN_EXAMPLE bash
+❯ sdml draw --diagram entity-relationship --o example-erd.svg -i example/example.sdm
+❯ open -a Safari example-erd.svg
+#+END_EXAMPLE
+
+[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-erd.svg]]
+
+*** UML Class
+
+#+BEGIN_EXAMPLE bash
+❯ sdml draw --diagram uml-class --o example-uml.svg -i example/example.sdm
+❯ open -a Safari example-uml.svg
+#+END_EXAMPLE
+
+[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-uml.svg]]
 
 ** Document Generation
 
-The documentation command (=doc=) generates documentation in =--output-format= Markdown (=markdown=) or Emacs Org-mode (=org-mode=).
-The generated documentation will cover all elements in the module only, although an appendix with the module's
-dependency graph is included. Additional appendices have the original source as well as the RDF representation of the
-module.
+This command creates structured documentation for a module, and includes annotations, constraints and all definition
+types. The generated documentation also include diagrams and dependency graphs.
+
+*** Org-mode
+
+Create an Emacs org-mode formatted file. This format allows all content to be written into a single file with export
+options to HTML, LaTeX, Word, PDF and more.
+
+*** Markdown
+
+Create a markdown formatted file, this file uses GitHub-flavored markdown to allow for some better content formatting
+than CommonMark.
 
 ** Module Highlighting
 
@@ -236,10 +279,8 @@ TBD
 
 ** Validation
 
-The validation command (=validate=) runs not only error checks on a module, but it's transitively loaded dependencies.
-By default the command only shows diagnostics with severity =bug= and =error=, but =warning=, =notes=, and =help= can be
-output with the =--level= argument. This argument also takes the values =none= and =all=.
-
+This command provides deep validation of a module's content, including errors, warnings, and linter-like advice. Checks
+are run not only on the initial module, but it's transitively loaded dependencies.
 
 #+BEGIN_EXAMPLE bash
 ❯ sdml validate --level all -i examples/errors/i0506.sdm
@@ -262,6 +303,15 @@ note[I0506]: identifier not using preferred casing
   = help: for more details, see <https://sdml.io/errors/#I0506>
 #+END_EXAMPLE
 
+Additionally, a `short-form` option will generate diagnostics using a CSV format that is easier for tools to parse. The
+fields in this format are: severity, file name, start line, start column, end line, end column, error code, and message.
+
+#+BEGIN_EXAMPLE bash
+❯ sdml validate --level all --short-form -i examples/errors/i0506.sdm
+note,examples/errors/i0506.sdm,1,8,1,15,I0506,identifier not using preferred casing
+note,examples/errors/i0506.sdm,3,13,3,26,I0506,identifier not using preferred casing
+#+END_EXAMPLE
+
 ** Version Information
 
 This command shows more information than the simple =--version= global argument and is useful for debugging.
@@ -275,30 +325,14 @@ Tree-Sitter ABI: 14
 
 ** Module Viewer
 
-The module viewer (=view=) command may not seem exciting at first, it displays a highlighted copy of a file:
+This command will generate source code from a module file, which at first seems redundant. However, this view provides
+levels of detail that allow for an overview of module definitions. The =--level= argument can be used to elide content and
+get an overview of a module.
 
-#+BEGIN_EXAMPLE bash
-❯ sdml view -i examples/example.sdm
-module example <https://example.com/api> is
+*** Definitions Only
 
-  import [ dc xsd ]
-
-  datatype Uuid <- sdml:string is
-    @xsd:pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"
-  end
-
-  entity Example is
-    version -> Uuid
-    name -> sdml:string is
-      @dc:description = "the name of this thing"@en
-    end
-  end
-
-end
-#+END_EXAMPLE
-
-The =--level= argument can be used to elide content and get an overview of a module. The =definitions= value will only
-show top-level definitions and any that had bodies previously will be followed by the string =";; ..."=.
+Show only the definitions in the module, any definition body will be elided, for an overview of the module contents.
+Elided definitions are followed by =";; ..."=.
 
 #+BEGIN_EXAMPLE bash
 ❯ sdml view --level definitions -i examples/example.sdm
@@ -313,7 +347,9 @@ module example <https://example.com/api> is
 end
 #+END_EXAMPLE
 
-To see a little more, the =members= value will similarly show the members of product types and variants of sum types but
+*** Members
+
+Show definitions in the module and show the members of product types and variants of sum types but
 not their bodies if present.
 
 #+BEGIN_EXAMPLE bash
@@ -327,6 +363,30 @@ module example <https://example.com/api> is
   entity Example is
     version -> Uuid
     name -> sdml:string ;; ...
+  end
+
+end
+#+END_EXAMPLE
+
+*** Full
+
+Show all contents of the module.
+
+#+BEGIN_EXAMPLE bash
+❯ sdml view --level full -i examples/example.sdm
+module example <https://example.com/api> is
+
+  import [ dc xsd ]
+
+  datatype Uuid <- sdml:string is
+    @xsd:pattern = "[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}"
+  end
+
+  entity Example is
+    version -> Uuid
+    name -> sdml:string is
+      @dc:description = "the name of this thing"@en
+    end
   end
 
 end

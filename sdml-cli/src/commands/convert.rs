@@ -12,10 +12,24 @@ use sdml_generate::GenerateToWriter;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// Convert module into alternate representations
+/// Convert a module into an alternate representation.
+///
+/// This command allows the conversion of a module from the SDML surface syntax into one of a
+/// number of alternate representations.
+///
+/// - RDF :: This uses the surface to RDF mapping defined in the SDML Language Reference. The
+///   mapping is normative and stable.
+///
+/// - JSON :: This is a direct representation of the in-memory model in the Rust package
+///   `sdml_core` in JSON. This mapping is non-normative and may change according to any model
+///   structure change.
+///
+/// - S-Expression :: This is a debugging representation, and supported as the underlying
+///   tree-sitter library uses s-expressions as a parse-tree visualization.
+///
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
-    /// Module representation to convert into
     #[arg(short = 'f', long)]
     #[arg(value_enum)]
     output_format: ConvertFormat,
@@ -24,6 +38,7 @@ pub(crate) struct Command {
     files: super::FileArgs,
 }
 
+/// Module representation to convert into
 #[derive(ValueEnum, Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub(crate) enum ConvertFormat {
     /// JSON

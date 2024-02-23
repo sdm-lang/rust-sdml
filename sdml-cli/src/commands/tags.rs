@@ -8,7 +8,12 @@ use sdml_generate::actions::tags::write_ctags;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// Extract tags from a module
+/// Extract tags from a module.
+///
+/// This
+///
+/// - CTags ::
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
     #[arg(short = 'f', long)]

@@ -10,9 +10,13 @@ use tracing::trace;
 
 macro_rules! call_with_module {
     ($cmd: expr, $callback_fn: expr) => {
+        let reporter = ::sdml_error::diagnostics::StandardStreamReporter::default();
+        call_with_module!($cmd, Box::new(reporter), $callback_fn);
+    };
+    ($cmd: expr, $reporter:expr, $callback_fn: expr) => {
         let (module_name, cache, mut loader) = {
             let mut cache = ::sdml_core::cache::ModuleCache::default().with_stdlib();
-            let mut loader = ::sdml_parse::load::FsModuleLoader::default();
+            let mut loader = ::sdml_parse::load::FsModuleLoader::default().with_reporter($reporter);
             let module_name = if let Some(module_name) = &$cmd.files.module {
                 loader.load(
                     module_name,

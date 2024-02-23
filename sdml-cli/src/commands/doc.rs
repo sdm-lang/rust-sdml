@@ -13,7 +13,19 @@ use sdml_parse::load::FsModuleLoader;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// Produce structured doocument a module
+/// Produce structured documentation for a module.
+///
+/// This command creates structured documentation for a module, and includes annotations,
+/// constraints and all definition types. The generated documentation also include diagrams and
+/// dependency graphs.
+///
+/// - Org-Mode (default) :: Create an Emacs org-mode formatted file. This format allows all
+///   content to be written into a single file with export options to HTML, LaTeX, Word, PDF and
+///   more.
+///
+/// - Markdown :: Create a markdown formatted file, this file uses GitHub-flavored markdown to
+///   allow for some better content formatting than CommonMark.
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
     #[arg(short = 'f', long)]

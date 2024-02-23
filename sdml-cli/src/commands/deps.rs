@@ -11,7 +11,65 @@ use sdml_generate::GenerateToWriter;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// Show a module's imported  dependencies
+/// Show a module's imported  dependencies.
+///
+/// This command generates a representation of the transitive closure of dependencies for a given
+/// module.
+///
+/// - Tree (default) :: Show dependencies as a text tree with the original as the root.
+///
+/// ```
+/// ❯ sdml deps sdml
+/// sdml
+/// ├── owl
+/// │   ├── rdf
+/// │   │   └── rdfs
+/// │   │       └── rdf
+/// │   ├── rdfs
+/// │   └── xsd
+/// │       ├── rdf
+/// │       └── rdfs
+/// ├── rdf
+/// ├── rdfs
+/// ├── skos
+/// │   ├── rdf
+/// │   └── rdfs
+/// └── xsd
+/// ```
+///
+/// - Graph :: Create an SVG representation of the dependency graph using GraphViz.
+///
+/// ```
+/// ❯ sdml deps --output-format graph -o sdml-deps.svg sdml
+/// ❯ open -a Safari sdml-deps.svg
+/// ```
+///
+/// - RDF :: Create a set of RDF statements,as N-Triples, that represent the individual OWL import relationships.
+///
+/// ```
+/// ❯ sdml deps --depth 1 --output-format rdf sdml
+/// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2002/07/owl#> .
+/// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+/// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2000/01/rdf-schema#> .
+/// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2004/02/skos/core#> .
+/// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2001/XMLSchema#> .
+/// ```
+///
+/// In some cases the entire set of dependencies is not necessary and the `--depth` argument can
+/// be added to only show a number of levels of import from the root. The depth argument
+/// instructs to command to stop after that many dependencies away from the original module.
+/// Setting depth to 1 will only show the direct dependencies of the original.
+///
+/// ```
+/// ❯ sdml deps --depth 1 sdml
+/// sdml
+/// ├── owl
+/// ├── rdf
+/// ├── rdfs
+/// ├── skos
+/// └── xsd
+/// ```
+///
 #[derive(Args, Debug)]
 pub(crate) struct Command {
     #[arg(short = 'f', long)]
