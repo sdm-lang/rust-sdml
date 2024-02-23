@@ -1,12 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
-
+This module provides a generator for Emacs org-mode documentation from a module.
 */
 
 use crate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
@@ -36,6 +29,9 @@ use std::io::Write;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Generator for Emacs org-mode documentation.
+///
 #[derive(Debug, Default)]
 pub struct DocumentationGenerator<'a> {
     source: Option<&'a str>,

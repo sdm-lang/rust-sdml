@@ -18,7 +18,9 @@ use std::io::Write;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-/// The type that implements the generator.
+///
+/// Generator for the JSON representation of a module's in-memory model.
+///
 #[derive(Debug, Default)]
 pub struct Generator {}
 

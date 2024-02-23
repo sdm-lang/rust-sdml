@@ -23,7 +23,7 @@ use sdml_parse::load::FsModuleLoader;
 /// `notes`, and `help` can be output with the `--level` argument. This argument also takes the
 /// values `none` and `all`.
 ///
-/// ```
+/// ```text
 /// ❯ sdml validate --level all -i examples/errors/i0506.sdm
 /// note[I0506]: identifier not using preferred casing
 ///   ┌─ examples/errors/i0506.sdm:1:8
@@ -51,7 +51,7 @@ use sdml_parse::load::FsModuleLoader;
 /// easier for tools to parse. The fields in this format are: severity, file name, start line,
 /// start column, end line, end column, error code, and message.
 ///
-/// ```
+/// ```text
 /// ❯ sdml validate --level all --short-form -i examples/errors/i0506.sdm
 /// note,examples/errors/i0506.sdm,1,8,1,15,I0506,identifier not using preferred casing
 /// note,examples/errors/i0506.sdm,3,13,3,26,I0506,identifier not using preferred casing

@@ -19,7 +19,7 @@ use sdml_generate::GenerateToWriter;
 ///   be elided, for an overview of the module contents. Elided definitions are followed by
 ///   `";; ..."`.
 ///
-/// ```
+/// ```text
 /// ❯ sdml view --level definitions -i examples/example.sdm
 /// module example <https://example.com/api> is
 ///
@@ -35,7 +35,7 @@ use sdml_generate::GenerateToWriter;
 /// - Members :: Show definitions in the module and show the members of product types and variants
 ///   of sum types but not their bodies if present.
 ///
-/// ```
+/// ```text
 /// ❯ sdml view --level members -i examples/example.sdm
 /// module example <https://example.com/api> is
 ///
@@ -53,7 +53,7 @@ use sdml_generate::GenerateToWriter;
 ///
 /// - Full :: Show all contents of the module.
 ///
-/// ```
+/// ```text
 /// ❯ sdml view --level full -i examples/example.sdm
 /// module example <https://example.com/api> is
 ///

@@ -1,5 +1,5 @@
 /*!
-Provide a generator for "entity relationship" diagrams via GraphViz.
+Provide a generator for Entity-Relationship diagrams via GraphViz.
 
 */
 

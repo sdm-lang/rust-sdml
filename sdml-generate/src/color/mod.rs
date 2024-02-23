@@ -1,5 +1,5 @@
 /*!
-
+This module provides syntax coloring support for SDML and RDF.
 */
 
 use nu_ansi_term::{Color, Style};
@@ -28,6 +28,10 @@ macro_rules! method {
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// These are the language elements used in RDF and SDML and map to the dotted-name format
+/// used in tree-sitter queries.
+///
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum LanguageElement {
     Comment,
@@ -63,7 +67,13 @@ pub enum LanguageElement {
     VariableParameter,
 }
 
+///
+/// This trait is implemented by format-specific providers.
+///
 pub trait Colorizer {
+    ///
+    /// Colorize the `value` according to the language element type `el`.
+    ///
     fn colorize<S>(&self, el: LanguageElement, value: S) -> String
     where
         S: AsRef<str>;
@@ -101,9 +111,15 @@ pub trait Colorizer {
     method!(variable_parameter, VariableParameter);
 }
 
+///
+/// An implementation of [`Colorizer`] for ANSI terminal coloring.
+///
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct ConsoleColor {}
 
+///
+/// An implementation of [`Colorizer`] for HTML `pre>code` spans.
+///
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct HtmlColor {}
 
@@ -113,10 +129,16 @@ pub struct HtmlColor {}
 
 static COLORIZE: OnceLock<RwLock<UseColor>> = OnceLock::new();
 
+///
+/// Return the value of the global color flag.
+///
 pub fn colorize() -> UseColor {
     *COLORIZE.get_or_init(init_colorize).read().unwrap()
 }
 
+///
+/// Set the value of the global color flag.
+///
 pub fn set_colorize(colorize: UseColor) {
     *COLORIZE.get_or_init(init_colorize).write().unwrap() = colorize;
 }

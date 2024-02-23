@@ -18,7 +18,7 @@ use sdml_generate::GenerateToWriter;
 ///
 /// - Tree (default) :: Show dependencies as a text tree with the original as the root.
 ///
-/// ```
+/// ```text
 /// ❯ sdml deps sdml
 /// sdml
 /// ├── owl
@@ -39,14 +39,14 @@ use sdml_generate::GenerateToWriter;
 ///
 /// - Graph :: Create an SVG representation of the dependency graph using GraphViz.
 ///
-/// ```
+/// ```text
 /// ❯ sdml deps --output-format graph -o sdml-deps.svg sdml
 /// ❯ open -a Safari sdml-deps.svg
 /// ```
 ///
 /// - RDF :: Create a set of RDF statements,as N-Triples, that represent the individual OWL import relationships.
 ///
-/// ```
+/// ```text
 /// ❯ sdml deps --depth 1 --output-format rdf sdml
 /// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2002/07/owl#> .
 /// <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -60,7 +60,7 @@ use sdml_generate::GenerateToWriter;
 /// instructs to command to stop after that many dependencies away from the original module.
 /// Setting depth to 1 will only show the direct dependencies of the original.
 ///
-/// ```
+/// ```text
 /// ❯ sdml deps --depth 1 sdml
 /// sdml
 /// ├── owl

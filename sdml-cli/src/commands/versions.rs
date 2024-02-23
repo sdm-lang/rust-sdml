@@ -9,7 +9,7 @@ use clap::Args;
 /// This command shows more information than the simple `--version` global argument and is useful
 /// for debugging.
 ///
-/// ```
+/// ```text
 /// ❯ sdml versions               
 /// SDML CLI:        0.2.7
 /// SDML grammar:    0.2.16

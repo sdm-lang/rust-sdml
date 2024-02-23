@@ -45,6 +45,9 @@ use std::{fmt::Display, io::Write};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Generator for the formal RDF representation of a module.
+///
 #[derive(Debug, Default)]
 pub struct RdfModelGenerator {}
 

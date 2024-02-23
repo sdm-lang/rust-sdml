@@ -33,11 +33,17 @@ use url::Url;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Generator for a module's transitive dependency graph.
+///
 #[derive(Debug, Default)]
 pub struct DependencyViewGenerator {
     depth: usize,
 }
 
+///
+/// The supported variations of dependency view.
+///
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum DependencyViewRepresentation {
     ///

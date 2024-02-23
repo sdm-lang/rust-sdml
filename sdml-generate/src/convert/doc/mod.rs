@@ -1,5 +1,5 @@
 /*!
-This module contains the generators for documentation of modules..
+This module provides generators that create documentation of a module given its in-memory representation.
  */
 
 pub mod markdown;
