@@ -382,7 +382,10 @@ impl CardinalityRange {
     // --------------------------------------------------------------------------------------------
 
     pub const fn new_range(min: u32, max: u32) -> Self {
-        assert!(max > 0 && max >= min);
+        assert!(
+            max > 0 && max > min,
+            "Zero, or negative, cardinality range is not allowed."
+        );
         Self {
             span: None,
             min,
@@ -399,7 +402,10 @@ impl CardinalityRange {
     }
 
     pub const fn new_single(min_and_max: u32) -> Self {
-        assert!(min_and_max > 0);
+        assert!(
+            min_and_max != 0,
+            "Zero width cardinality range is not allowed."
+        );
         Self {
             span: None,
             min: min_and_max,
