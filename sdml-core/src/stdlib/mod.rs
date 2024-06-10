@@ -36,7 +36,8 @@ pub fn is_library_module(name: &Identifier) -> bool {
         skos::MODULE_NAME,
         xsd::MODULE_NAME,
     ]
-    .contains(&name.as_ref())
+
+        .contains(&name.as_ref())
 }
 
 pub fn is_builtin_type_name(name: &Identifier) -> bool {
