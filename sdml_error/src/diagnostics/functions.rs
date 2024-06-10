@@ -13,6 +13,7 @@ use crate::diagnostics::{Diagnostic, ErrorCode};
 use crate::{FileId, Span};
 use codespan_reporting::diagnostic::Label;
 use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+use std::error::Error;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -355,18 +356,20 @@ where
 
 #[inline]
 #[allow(clippy::redundant_closure_call)]
-pub fn invalid_value_for_type_named<S1, S2>(
+pub fn invalid_value_for_type_named<S1, S2, E>(
     value_file_id: FileId,
     value_location: Option<Span>,
     value: S1,
     type_name: S2,
+    rust_error: Option<E>,
 ) -> Diagnostic
 where
     S1: Into<String>,
     S2: Into<String>,
+    E: Error,
 {
     new_diagnostic!(InvalidValueForType, |diagnostic: Diagnostic| {
-        if let Some(location) = value_location {
+        let diagnostic = if let Some(location) = value_location {
             diagnostic
                 .with_labels(vec![
                     Label::primary(value_file_id, location).with_message(i18n!("lbl_this_value"))
@@ -377,6 +380,14 @@ where
                 i18n!("lbl_value", val = value.into()),
                 i18n!("lbl_type_name", name = type_name.into()),
             ])
+        };
+        if let Some(rust_error) = rust_error {
+            diagnostic.with_notes(vec![i18n!(
+                "lbl_specific_error",
+                err = rust_error.to_string()
+            )])
+        } else {
+            diagnostic
         }
     })
 }

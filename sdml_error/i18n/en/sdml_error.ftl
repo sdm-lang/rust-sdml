@@ -55,6 +55,7 @@ lbl_type_name = type name: `{$name}`
 lbl_typeclass_name = type-class name: `{$name}`
 lbl_value = value: `{$val}`
 lbl_expected_case = expected {$case}
+lbl_specific_error = specific error: {$err}
 
 lbl_case_module = snake case (snake_case)
 lbl_case_member = snake case (snake_case)
@@ -81,7 +82,7 @@ msg_invalid_identifier = invalid value for an identifier
 msg_invalid_language_tag = invalid value for a language tag
 msg_invalid_module_base_url = module base URL is invalid or not absolute
 msg_invalid_module_version_url = module base URL is invalid or not absolute
-msg_invalid_value_for_type = invalid value literal for type
+msg_invalid_value_for_type = invalid literal value for it's type
 msg_imported_module_not_found = module named in import statement not found
 msg_module_not_found = module not found
 msg_module_version_info_empty = module's version info string is empty
