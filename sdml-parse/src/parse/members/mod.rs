@@ -43,12 +43,13 @@ pub(crate) fn parse_cardinality_expression<'a>(
     let child = node.child_by_field_name(FIELD_NAME_MIN).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
     let text = context.node_source(&child)?;
-    let min = u32::from_str(text).map_err(|_| {
+    let min = u32::from_str(text).map_err(|err| {
         invalid_value_for_type_named(
             context.file_id,
             Some(child.byte_range()),
             text,
             NODE_KIND_UNSIGNED,
+            Some(err),
         )
     })?;
 
@@ -56,12 +57,13 @@ pub(crate) fn parse_cardinality_expression<'a>(
         if let Some(child) = child.child_by_field_name(FIELD_NAME_MAX) {
             context.check_if_error(&child, RULE_NAME)?;
             let text = context.node_source(&child)?;
-            let max = u32::from_str(text).map_err(|_| {
+            let max = u32::from_str(text).map_err(|err| {
                 invalid_value_for_type_named(
                     context.file_id,
                     Some(child.byte_range()),
                     text,
                     NODE_KIND_UNSIGNED,
+                    Some(err),
                 )
             })?;
             Cardinality::new_range(min, max)

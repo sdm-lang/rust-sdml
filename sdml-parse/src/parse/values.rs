@@ -86,32 +86,86 @@ pub(crate) fn parse_simple_value<'a>(
             context.check_if_error(&node, RULE_NAME)?;
             if node.is_named() {
                 match node.kind() {
-                    // TODO: convert expect into actual errors.
                     NODE_KIND_BOOLEAN => {
                         let value = context.node_source(&node)?;
-                        // TODO: this doesn't take top and bottom into account
-                        let value = bool::from_str(value).expect("Invalid value for Boolean");
-                        return Ok(SimpleValue::Boolean(value));
+                        return if value == "⊤" {
+                            Ok(SimpleValue::Boolean(true))
+                        } else if value == "⊥" {
+                            Ok(SimpleValue::Boolean(false))
+                        } else {
+                            match bool::from_str(value) {
+                                Ok(value) => Ok(SimpleValue::Boolean(value)),
+                                Err(err) => {
+                                    invalid_value_for_node_type!(
+                                        context,
+                                        RULE_NAME,
+                                        node,
+                                        value,
+                                        Some(err)
+                                    );
+                                }
+                            }
+                        };
                     }
                     NODE_KIND_UNSIGNED => {
                         let value = context.node_source(&node)?;
-                        let value = i64::from_str(value).expect("Invalid value for Unsigned");
-                        return Ok(SimpleValue::Integer(value));
+                        return match u64::from_str(value) {
+                            Ok(value) => Ok(SimpleValue::Unsigned(value)),
+                            Err(err) => {
+                                invalid_value_for_node_type!(
+                                    context,
+                                    RULE_NAME,
+                                    node,
+                                    value,
+                                    Some(err)
+                                );
+                            }
+                        };
                     }
                     NODE_KIND_INTEGER => {
                         let value = context.node_source(&node)?;
-                        let value = i64::from_str(value).expect("Invalid value for Integer");
-                        return Ok(SimpleValue::Integer(value));
+                        return match i64::from_str(value) {
+                            Ok(value) => Ok(SimpleValue::Integer(value)),
+                            Err(err) => {
+                                invalid_value_for_node_type!(
+                                    context,
+                                    RULE_NAME,
+                                    node,
+                                    value,
+                                    Some(err)
+                                );
+                            }
+                        };
                     }
                     NODE_KIND_DECIMAL => {
                         let value = context.node_source(&node)?;
-                        let value = Decimal::from_str(value).expect("Invalid value for Decimal");
-                        return Ok(SimpleValue::Decimal(value));
+                        return match Decimal::from_str(value) {
+                            Ok(value) => Ok(SimpleValue::Decimal(value)),
+                            Err(err) => {
+                                invalid_value_for_node_type!(
+                                    context,
+                                    RULE_NAME,
+                                    node,
+                                    value,
+                                    Some(err)
+                                );
+                            }
+                        };
                     }
                     NODE_KIND_DOUBLE => {
                         let value = context.node_source(&node)?;
-                        let value = f64::from_str(value).expect("Invalid value for Double");
-                        return Ok(SimpleValue::Double(value.into()));
+                        return match f64::from_str(value) {
+                            Ok(value) => Ok(SimpleValue::Double(value.into())),
+                            Err(err) => {
+                                invalid_value_for_node_type!(
+                                    context,
+                                    RULE_NAME,
+                                    node,
+                                    value,
+                                    Some(err)
+                                );
+                            }
+                        };
                     }
                     NODE_KIND_STRING => {
                         let value = parse_string(context, cursor)?;
@@ -119,9 +173,18 @@ pub(crate) fn parse_simple_value<'a>(
                     }
                     NODE_KIND_IRI => {
                         let value = context.node_source(&node)?;
-                        let value = Url::from_str(&value[1..(value.len() - 1)])
-                            .expect("Invalid value for IriReference");
-                        return Ok(SimpleValue::IriReference(value));
+                        return match Url::from_str(&value[1..(value.len() - 1)]) {
+                            Ok(value) => Ok(SimpleValue::IriReference(value)),
+                            Err(err) => {
+                                invalid_value_for_node_type!(
+                                    context,
+                                    RULE_NAME,
+                                    node,
+                                    value,
+                                    Some(err)
+                                );
+                            }
+                        };
                     }
                     NODE_KIND_BINARY => {
                         let value = parse_binary(context, cursor)?;

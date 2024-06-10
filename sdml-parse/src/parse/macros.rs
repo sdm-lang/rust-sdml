@@ -36,6 +36,20 @@ macro_rules! unexpected_node {
     };
 }
 
+macro_rules! invalid_value_for_node_type {
+    ($context: expr, $parse_fn: expr, $node: expr, $value: expr, $error: expr) => {
+        let diagnostic = ::sdml_error::diagnostics::functions::invalid_value_for_type_named(
+            $context.file_id,
+            Some($node.start_byte()..$node.end_byte()),
+            $value,
+            $node.kind(),
+            $error,
+        );
+        emit_diagnostic!($context.loader, &diagnostic);
+
+        return Err(diagnostic.into())
+    };
+}
 macro_rules! missing_node {
     ($context: expr, $parse_fn: expr, $parent_node: expr, $variable_name: expr, $node_kind: expr) => {
         let diagnostic = ::sdml_error::diagnostics::functions::missing_node(
