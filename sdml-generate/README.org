@@ -36,6 +36,11 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.12*
+
+- Build: update dependency from =sdml_error= to =sdml-errors=.
+- Build: bump version of =sdml-core=.
+
 *Version 0.2.11*
 
 - Feature: add initial implementation for =DiagramContentFilter=.

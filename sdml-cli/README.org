@@ -394,6 +394,11 @@ end
 
 * Changes
 
+*Version 0.2.9*
+
+- Build: update dependency from =sdml_error= to =sdml-errors=.
+- Build: bump versions of =sdml-core=, =sdml-parse=, and =sdml-generate=.
+
 *Version 0.2.8*
 
 - Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
