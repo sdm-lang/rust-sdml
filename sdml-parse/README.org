@@ -37,6 +37,10 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.3*
+
+- Build: update dependency from =sdml_error= to =sdml-errors=.
+
 *Version 0.2.12*
 
 - Fix: update all test cases with latest API changes.
