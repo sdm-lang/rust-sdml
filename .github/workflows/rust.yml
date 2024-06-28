@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         package:
-          - sdml-error
+          - sdml-errors
           - sdml-core
           - sdml-parse
           - sdml-generate
