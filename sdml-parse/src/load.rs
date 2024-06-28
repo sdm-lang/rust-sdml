@@ -1,5 +1,6 @@
 /*!
-
+This module contains implementations of the [`ModuleResolver`] and [`ModuleLoader`] traits for
+file-system based modules.
 */
 
 use crate::parse::parse_str;
