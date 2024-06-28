@@ -140,7 +140,7 @@ Options:
 
 ** Representation Conversion
 
-This command allows the conversion of a module from the SDML surface syntax into one of a number of alternate
+This command (convert) allows the conversion of a module from the SDML surface syntax into one of a number of alternate
 representations.
 
 *** RDF
@@ -159,7 +159,7 @@ parse-tree visualization.
 
 ** Dependency Visualization
 
-This command generates a representation of the transitive closure of dependencies for a given module into one of a
+This command (dep) generates a representation of the transitive closure of dependencies for a given module into one of a
 number of alternate representations.
 
 *** Tree
@@ -225,7 +225,7 @@ Create a set of RDF statements,as N-Triples, that represent the individual OWL i
 
 ** Diagram Generation
 
-This command generates diagrams of a module with different perspectives.
+This command (draw) generates diagrams of a module with different perspectives.
 
 *** Concepts
 
@@ -254,9 +254,19 @@ This command generates diagrams of a module with different perspectives.
 
 [[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-uml.svg]]
 
-** Document Generation
+** Document (Project) Generation
 
-This command creates structured documentation for a module, and includes annotations, constraints and all definition
+This command (doc-book) creates structured documentation for a collection of modules, and includes annotations,
+constraints and all definition types. The generated documentation also include diagrams and dependency graphs.
+
+*** Org-mode
+
+Create an Emacs org-mode formatted file. This format allows all content to be written into a single file with export
+options to HTML, LaTeX, Word, PDF and more.
+
+** Document (Module) Generation
+
+This command (doc) creates structured documentation for a module, and includes annotations, constraints and all definition
 types. The generated documentation also include diagrams and dependency graphs.
 
 *** Org-mode
@@ -279,7 +289,7 @@ TBD
 
 ** Validation
 
-This command provides deep validation of a module's content, including errors, warnings, and linter-like advice. Checks
+This command (validate) provides deep validation of a module's content, including errors, warnings, and linter-like advice. Checks
 are run not only on the initial module, but it's transitively loaded dependencies.
 
 #+BEGIN_EXAMPLE bash
@@ -314,7 +324,7 @@ note,examples/errors/i0506.sdm,3,13,3,26,I0506,identifier not using preferred ca
 
 ** Version Information
 
-This command shows more information than the simple =--version= global argument and is useful for debugging.
+This command (versions) shows more information than the simple =--version= global argument and is useful for debugging.
 
 #+BEGIN_EXAMPLE bash
 ❯ sdml versions               
@@ -325,7 +335,7 @@ Tree-Sitter ABI: 14
 
 ** Module Viewer
 
-This command will generate source code from a module file, which at first seems redundant. However, this view provides
+This command (view) will generate source code from a module file, which at first seems redundant. However, this view provides
 levels of detail that allow for an overview of module definitions. The =--level= argument can be used to elide content and
 get an overview of a module.
 
@@ -394,10 +404,15 @@ end
 
 * Changes
 
+*Version 0.2.10*
+
+- Feature: added new command =doc-book= to create a more complex documentation output for a collection of modules.
+- Build: bump version of =sdml-errors=, =sdml-core=, and =sdml-generate=.
+
 *Version 0.2.9*
 
 - Build: update dependency from =sdml_error= to =sdml-errors=.
-- Build: bump versions of =sdml-core=, =sdml-parse=, and =sdml-generate=.
+- Build: bump versions of =sdml-core=, =sdml-parse=, =sdml-generate=.
 
 *Version 0.2.8*
 

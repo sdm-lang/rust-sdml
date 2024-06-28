@@ -36,6 +36,13 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.2.13*
+
+- Feature: added new command =doc-book= to create a more complex documentation output for a collection of modules.
+  - Refactor: added more traits for documentation generation allowing existing =doc= code to be reused by =doc-book=.
+  - Refactor: added a =common= module for low-level formatting traits.
+- Build: bump version of =sdml-errors= and =sdml-core=.
+
 *Version 0.2.12*
 
 - Build: update dependency from =sdml_error= to =sdml-errors=.

@@ -39,6 +39,14 @@ Note that other tools can use the =sdml_core= API to create or manipulate models
 
 * Changes
 
+*Version 0.2.17*
+
+- Feature: inverted the logic for determining whether a definition is incomplete.
+  - Rename: trait =MaybeInvalid= to =MaybeIncomplete=.
+- Feature: added method =has_source= to the trait =ModuleLoader=.
+- Feature: added implementation of =FromStr= for both =QualifiedReference= and =IdentifierReference=.
+- Build: bump version of =sdml-errors=.
+
 *Version 0.2.16*
 
 - Fix: [[https://github.com/sdm-lang/rust-sdml/issues/11][sdml:srcLabel lacks surrounding quotation in Turtle serialization]] (#11).

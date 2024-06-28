@@ -36,6 +36,10 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.1.6*
+
+- Feature: add a new variant in =Error=, =GeneratorError= for use by the =sdml-generator= crate.
+
 *Version 0.1.5*
 
 - Feature: add new diagnostic for =IdentifierNotPreferredCase= where an identifier is not in the preferred case style for
