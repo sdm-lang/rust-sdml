@@ -47,7 +47,7 @@ This [[./sdml-errors/README.org][package]] contains the common =Error= type as w
 
 ** core
 
-This [[./sdml_core/README.org][package]] contains the in-memory model of an sdml module, the major component of the project itself. It also has
+This [[./sdml-core/README.org][package]] contains the in-memory model of an sdml module, the major component of the project itself. It also has
 traits (`ModuleLoader`, `ModuleResolver`, `ModuleStore`) that are required by packages that follow.
 
 [[https://crates.io/crates/sdml_core][https://img.shields.io/crates/v/sdml_core.svg]]
@@ -55,14 +55,14 @@ traits (`ModuleLoader`, `ModuleResolver`, `ModuleStore`) that are required by pa
 
 ** parse
 
-This [[./sdml_parse/README.org][package]] contains the bridge from the tree-sitter SDML library to the in-memory model in =sdml_core=.
+This [[./sdml-parse/README.org][package]] contains the bridge from the tree-sitter SDML library to the in-memory model in =sdml_core=.
 
 [[https://crates.io/crates/sdml_parse][https://img.shields.io/crates/v/sdml_parse.svg]]
 [[https://docs.rs/sdml_parse][https://img.shields.io/docsrs/sdml-parse.svg]]
 
 ** generate
 
-This [[./sdml_generate/README.org][package]] contains a set of tools for generating alternative representations of an in-memory module as well as
+This [[./sdml-generate/README.org][package]] contains a set of tools for generating alternative representations of an in-memory module as well as
 related actions for the CLI.
 
 [[https://crates.io/crates/sdml_generate][https://img.shields.io/crates/v/sdml_generate.svg]]
@@ -70,7 +70,7 @@ related actions for the CLI.
 
 ** cli
 
-This [[./sdml_cli/README.org][package]] contains the entry-point for the command-line tool.
+This [[./sdml-cli/README.org][package]] contains the entry-point for the command-line tool.
 
 [[https://crates.io/crates/sdml_cli][https://img.shields.io/crates/v/sdml_cli.svg]]
 
