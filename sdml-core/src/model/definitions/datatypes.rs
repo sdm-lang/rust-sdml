@@ -10,7 +10,7 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference},
     HasName, Span,
 };
-use sdml_error::diagnostics::functions::{
+use sdml_errors::diagnostics::functions::{
     datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
 };
 use std::{collections::HashSet, fmt::Debug};

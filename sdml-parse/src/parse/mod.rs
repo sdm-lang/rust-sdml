@@ -16,12 +16,12 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::{Import, Module};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::NODE_KIND_MODULE;
-use sdml_error::diagnostics::functions::{
+use sdml_errors::diagnostics::functions::{
     duplicate_definition, duplicate_definition_import, duplicate_member, duplicate_module_import,
     duplicate_variant, found_error_node,
 };
-use sdml_error::Error;
-use sdml_error::{FileId, Source};
+use sdml_errors::Error;
+use sdml_errors::{FileId, Source};
 use std::collections::HashSet;
 use tracing::trace;
 use tree_sitter::Node;

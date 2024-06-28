@@ -5,7 +5,7 @@ use sdml_core::{
     cache::{ModuleCache, ModuleStore},
     model::{modules::Module, HasName},
 };
-use sdml_error::diagnostics::UseColor;
+use sdml_errors::diagnostics::UseColor;
 use sdml_generate::{color::set_colorize, GenerateToWriter};
 use sdml_parse::load::FsModuleLoader;
 

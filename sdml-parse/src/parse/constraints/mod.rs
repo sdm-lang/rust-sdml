@@ -6,7 +6,7 @@ use sdml_core::syntax::{
     FIELD_NAME_NAME, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
     NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_LINE_COMMENT,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

@@ -5,7 +5,7 @@ use sdml_core::{
     model::modules::Module,
     model::HasName,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use sdml_generate::GenerateToWriter;
 use sdml_parse::load::FsModuleLoader;
 

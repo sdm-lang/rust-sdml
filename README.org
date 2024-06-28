@@ -49,10 +49,10 @@ traits (`ModuleLoader`, `ModuleResolver`, `ModuleStore`) that are required by pa
 
 ** error
 
-This [[./sdml_error/README.org][package]] contains the common =Error= type as well as a diagnostic set for reporting language parse and model issues.
+This [[./sdml-errors/README.org][package]] contains the common =Error= type as well as a diagnostic set for reporting language parse and model issues.
 
-[[https://crates.io/crates/sdml_error][https://img.shields.io/crates/v/sdml_error.svg]]
-[[https://docs.rs/sdml_error][https://img.shields.io/docsrs/sdml_error.svg]]
+[[https://crates.io/crates/sdml-errors][https://img.shields.io/crates/v/sdml-errors.svg]]
+[[https://docs.rs/sdml-errors][https://img.shields.io/docsrs/sdml-errors.svg]]
 
 ** parse
 

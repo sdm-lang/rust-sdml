@@ -4,7 +4,7 @@ use crate::model::{HasSourceSpan, Span};
 use convert_case::{Case, Casing};
 use lazy_static::lazy_static;
 use regex::Regex;
-use sdml_error::diagnostics::functions::{
+use sdml_errors::diagnostics::functions::{
     identifier_not_preferred_case, invalid_identifier, IdentifierCaseConvention,
 };
 use std::{

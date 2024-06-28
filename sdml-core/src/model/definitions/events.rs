@@ -4,7 +4,7 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference},
     HasName, Span,
 };
-use sdml_error::diagnostics::functions::IdentifierCaseConvention;
+use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::fmt::Debug;
 
 #[cfg(feature = "serde")]

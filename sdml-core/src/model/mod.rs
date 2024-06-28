@@ -143,15 +143,15 @@ impl From<Node<'_>> for Span {
     }
 }
 
-impl From<Span> for sdml_error::Span {
+impl From<Span> for sdml_errors::Span {
     fn from(value: Span) -> Self {
         value.byte_range()
     }
 }
 
-impl From<&Span> for sdml_error::Span {
+impl From<&Span> for sdml_errors::Span {
     fn from(value: &Span) -> Self {
-        sdml_error::Span::from(value.clone())
+        sdml_errors::Span::from(value.clone())
     }
 }
 

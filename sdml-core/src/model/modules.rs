@@ -11,12 +11,12 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
     HasBody, HasName, HasSourceSpan, Span,
 };
-use sdml_error::diagnostics::functions::{
+use sdml_errors::diagnostics::functions::{
     definition_not_found, imported_module_not_found, module_is_incomplete,
     module_version_info_empty, module_version_mismatch, module_version_not_found,
     IdentifierCaseConvention,
 };
-use sdml_error::FileId;
+use sdml_errors::FileId;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::Hash;

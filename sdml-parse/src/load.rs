@@ -11,10 +11,10 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
-use sdml_error::diagnostics::SeverityFilter;
-use sdml_error::diagnostics::{functions::imported_module_not_found, StandardStreamReporter};
-use sdml_error::{Diagnostic, Reporter, Source, SourceFiles};
-use sdml_error::{Error, FileId};
+use sdml_errors::diagnostics::SeverityFilter;
+use sdml_errors::diagnostics::{functions::imported_module_not_found, StandardStreamReporter};
+use sdml_errors::{Diagnostic, Reporter, Source, SourceFiles};
+use sdml_errors::{Error, FileId};
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -261,7 +261,7 @@ impl ModuleLoader for FsModuleLoader {
         &self.resolver
     }
 
-    fn get_file_id(&self, name: &Identifier) -> Option<sdml_error::FileId> {
+    fn get_file_id(&self, name: &Identifier) -> Option<sdml_errors::FileId> {
         self.module_file_ids.get(name).copied()
     }
 

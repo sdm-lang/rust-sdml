@@ -18,7 +18,7 @@ use sdml_core::syntax::{
     NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_RESERVED_SELF, NODE_KIND_SIMPLE_SENTENCE,
     NODE_KIND_TERM, NODE_KIND_UNARY_BOOLEAN_SENTENCE,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 

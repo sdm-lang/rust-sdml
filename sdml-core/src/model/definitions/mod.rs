@@ -7,7 +7,7 @@ use crate::{
 };
 use std::fmt::Debug;
 
-use sdml_error::diagnostics::functions::definition_is_incomplete;
+use sdml_errors::diagnostics::functions::definition_is_incomplete;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

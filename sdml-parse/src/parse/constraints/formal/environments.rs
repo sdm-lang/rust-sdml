@@ -11,7 +11,7 @@ use sdml_core::syntax::{
     NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_ENVIRONMENT_DEF, NODE_KIND_FUNCTION_DEF,
     NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ use sdml_core::syntax::{
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
     NODE_KIND_RESERVED_SELF, NODE_KIND_SEQUENCE_BUILDER,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

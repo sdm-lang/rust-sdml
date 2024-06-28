@@ -14,7 +14,7 @@ use sdml_core::syntax::{
     NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_UNSIGNED,
     NODE_KIND_VALUE_CONSTRUCTOR,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 use url::Url;

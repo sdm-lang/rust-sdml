@@ -119,7 +119,7 @@ use sdml_core::model::{
     HasName,
 };
 use sdml_core::stdlib;
-use sdml_error::Error;
+use sdml_errors::Error;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
@@ -905,7 +905,7 @@ impl From<IdentifierString> for String {
 }
 
 impl FromStr for IdentifierString {
-    type Err = sdml_error::Error;
+    type Err = sdml_errors::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(Identifier::from_str(s)?))
@@ -913,7 +913,7 @@ impl FromStr for IdentifierString {
 }
 
 impl TryFrom<String> for IdentifierString {
-    type Error = sdml_error::Error;
+    type Error = sdml_errors::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         Ok(Self(Identifier::from_str(&value)?))

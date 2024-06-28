@@ -9,7 +9,7 @@ use sdml_core::syntax::{
     NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VARIABLE,
     NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_QUANTIFIED_SENTENCE,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use std::collections::HashSet;
 use tree_sitter::TreeCursor;
 

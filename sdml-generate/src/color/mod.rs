@@ -3,7 +3,7 @@ This module provides syntax coloring support for SDML and RDF.
 */
 
 use nu_ansi_term::{Color, Style};
-use sdml_error::diagnostics::UseColor;
+use sdml_errors::diagnostics::UseColor;
 use std::fmt::Display;
 use std::sync::OnceLock;
 use std::sync::RwLock;

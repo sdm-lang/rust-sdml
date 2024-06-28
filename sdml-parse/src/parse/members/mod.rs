@@ -10,8 +10,8 @@ use sdml_core::syntax::{
     NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_UNKNOWN_TYPE,
     NODE_KIND_UNSIGNED,
 };
-use sdml_error::diagnostics::functions::invalid_value_for_type_named;
-use sdml_error::Error;
+use sdml_errors::diagnostics::functions::invalid_value_for_type_named;
+use sdml_errors::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 

@@ -1,7 +1,7 @@
 use clap::builder::FalseyValueParser;
 use clap::{Parser, ValueEnum};
-use sdml_error::diagnostics::UseColor;
-use sdml_error::Error;
+use sdml_errors::diagnostics::UseColor;
+use sdml_errors::Error;
 use sdml_generate::color::set_colorize;
 use std::process::ExitCode;
 use tracing::{error, info};
@@ -100,11 +100,11 @@ fn init_logging(log_filter: LogFilter) -> Result<(), Error> {
     let filter = EnvFilter::from_default_env().add_directive(
         format!("{}={}", module_path!(), log_level_filter)
             .parse()
-            .map_err(sdml_error::Error::from)?,
+            .map_err(sdml_errors::Error::from)?,
     );
     let subscriber = FmtSubscriber::builder().with_env_filter(filter).finish();
 
-    tracing::subscriber::set_global_default(subscriber).map_err(sdml_error::Error::from)?;
+    tracing::subscriber::set_global_default(subscriber).map_err(sdml_errors::Error::from)?;
 
     info!("Log level set to `LevelFilter::{:?}`", log_filter);
 

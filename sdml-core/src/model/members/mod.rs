@@ -6,7 +6,7 @@ use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
 use crate::model::{HasName, HasSourceSpan, References, Span};
-use sdml_error::diagnostics::functions::{
+use sdml_errors::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
     IdentifierCaseConvention,
 };

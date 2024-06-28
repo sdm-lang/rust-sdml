@@ -18,7 +18,7 @@ use sdml_core::model::definitions::{
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
-use sdml_error::diagnostics::UseColor;
+use sdml_errors::diagnostics::UseColor;
 use std::io::Write;
 
 // ------------------------------------------------------------------------------------------------

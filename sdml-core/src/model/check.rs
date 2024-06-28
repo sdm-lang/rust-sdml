@@ -89,8 +89,8 @@ pub mod terms {
     use crate::model::modules::*;
     use crate::model::values::*;
     use crate::model::*;
-    use sdml_error::diagnostics::functions::deprecated_term_used;
-    use sdml_error::Error;
+    use sdml_errors::diagnostics::functions::deprecated_term_used;
+    use sdml_errors::Error;
     use serde::{Deserialize, Serialize};
 
     // --------------------------------------------------------------------------------------------

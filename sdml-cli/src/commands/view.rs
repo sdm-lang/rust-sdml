@@ -1,7 +1,7 @@
 use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
 use sdml_core::{cache::ModuleStore, load::ModuleLoader};
-use sdml_error::Error;
+use sdml_errors::Error;
 use sdml_generate::convert::source::SourceGenerator;
 use sdml_generate::GenerateToWriter;
 

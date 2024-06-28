@@ -60,7 +60,7 @@ generators.
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-pub use sdml_error::errors as error;
+pub use sdml_errors::errors as error;
 
 pub mod cache;
 

@@ -8,7 +8,7 @@ use crate::model::{
 };
 use std::{collections::HashSet, fmt::Debug};
 
-use sdml_error::diagnostics::functions::IdentifierCaseConvention;
+use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

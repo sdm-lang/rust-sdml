@@ -1,5 +1,5 @@
 [package]
-name = "sdml_error"
+name = "sdml-errors"
 description = "Simple Domain Modeling Language (SDML) errors and diagnostics."
 version = "0.1.5"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]

@@ -6,7 +6,7 @@ use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
 use rust_decimal::Decimal;
-use sdml_error::diagnostics::functions::invalid_language_tag;
+use sdml_errors::diagnostics::functions::invalid_language_tag;
 use std::{
     fmt::{Debug, Display},
     str::FromStr,

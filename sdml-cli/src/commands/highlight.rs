@@ -1,7 +1,7 @@
 use clap::{Args, ValueEnum};
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::stdlib;
-use sdml_error::Error;
+use sdml_errors::Error;
 use sdml_parse::load::FsModuleLoader;
 use std::io::Read;
 

@@ -7,7 +7,7 @@ use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, References, Span};
 use crate::stdlib::is_builtin_type_name;
 use crate::syntax::KW_TYPE_UNKNOWN;
-use sdml_error::diagnostics::functions::{
+use sdml_errors::diagnostics::functions::{
     feature_set_not_a_union, property_incompatible_usage, rdf_definition_incompatible_usage,
     type_class_incompatible_usage, type_definition_not_found,
 };

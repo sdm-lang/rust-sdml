@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 use sdml_core::model::identifiers::Identifier;
-use sdml_error::Error;
+use sdml_errors::Error;
 use std::str::FromStr;
 use tracing::trace;
 
@@ -10,7 +10,7 @@ use tracing::trace;
 
 macro_rules! call_with_module {
     ($cmd: expr, $callback_fn: expr) => {
-        let reporter = ::sdml_error::diagnostics::StandardStreamReporter::default();
+        let reporter = ::sdml_errors::diagnostics::StandardStreamReporter::default();
         call_with_module!($cmd, Box::new(reporter), $callback_fn);
     };
     ($cmd: expr, $reporter:expr, $callback_fn: expr) => {
@@ -27,11 +27,11 @@ macro_rules! call_with_module {
             } else if $cmd.files.input.is_local() {
                 let file_name = $cmd.files.input.path();
                 match loader.load_from_file(file_name.to_path_buf(), &mut cache, true) {
-                    Err(::sdml_error::Error::LanguageValidationError { source: _ }) => {
+                    Err(::sdml_errors::Error::LanguageValidationError { source: _ }) => {
                         loader.reporter_done(None)?;
                         return Ok(());
                     }
-                    Err(err @ ::sdml_error::Error::IoError { source: _ }) => {
+                    Err(err @ ::sdml_errors::Error::IoError { source: _ }) => {
                         println!(
                             "Error: the input file `{}` could not be found, or read.",
                             file_name.display()

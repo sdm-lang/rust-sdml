@@ -5,7 +5,7 @@ use sdml_core::model::constraints::{EnvironmentDef, FormalConstraint};
 use sdml_core::syntax::{
     NODE_KIND_CONSTRAINT_ENVIRONMENT, NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_LINE_COMMENT,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ use crate::{
         References, Span,
     },
 };
-use sdml_error::diagnostics::functions::IdentifierCaseConvention;
+use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]

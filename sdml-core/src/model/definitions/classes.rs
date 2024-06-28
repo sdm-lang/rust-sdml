@@ -17,7 +17,7 @@ use crate::model::constraints::{ConstraintSentence, FunctionCardinality, Functio
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::{HasName, References, Span};
 
-use sdml_error::diagnostics::functions::IdentifierCaseConvention;
+use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

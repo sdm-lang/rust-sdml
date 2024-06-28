@@ -10,7 +10,7 @@ use clap::Args;
 /// for debugging.
 ///
 /// ```text
-/// ❯ sdml versions               
+/// ❯ sdml versions
 /// SDML CLI:        0.2.7
 /// SDML grammar:    0.2.16
 /// Tree-Sitter ABI: 14
@@ -26,7 +26,7 @@ pub(crate) struct Command;
 const CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), sdml_error::Error> {
+    fn execute(&self) -> Result<(), sdml_errors::Error> {
         println!("SDML CLI:        {}", CLI_VERSION);
         println!("SDML grammar:    {}", tree_sitter_sdml::GRAMMAR_VERSION);
         println!(

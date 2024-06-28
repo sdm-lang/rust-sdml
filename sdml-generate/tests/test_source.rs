@@ -2,7 +2,7 @@ use pretty_assertions::assert_eq;
 use sdml_core::cache::ModuleCache;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
-use sdml_error::diagnostics::UseColor;
+use sdml_errors::diagnostics::UseColor;
 use sdml_generate::color::set_colorize;
 use sdml_generate::convert::source::SourceGenerator;
 use sdml_generate::GenerateToWriter;

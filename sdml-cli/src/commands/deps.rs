@@ -3,7 +3,7 @@ use sdml_core::{
     cache::{ModuleCache, ModuleStore},
     load::ModuleLoader,
 };
-use sdml_error::Error;
+use sdml_errors::Error;
 use sdml_generate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
 use sdml_generate::GenerateToWriter;
 
