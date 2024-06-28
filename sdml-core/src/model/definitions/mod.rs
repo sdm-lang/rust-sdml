@@ -5,9 +5,9 @@ use crate::{
     model::members::Member,
     model::{HasName, HasSourceSpan},
 };
+use sdml_errors::diagnostics::functions::definition_is_incomplete;
 use std::fmt::Debug;
 
-use sdml_errors::diagnostics::functions::definition_is_incomplete;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -94,7 +94,7 @@ impl_has_source_span_for!(Definition => variants Datatype, Entity, Enum, Event, 
 
 impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_maybe_invalid_for!(Definition; variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+impl_maybe_incomplete_for!(Definition; variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
 impl Validate for Definition {
     fn validate(

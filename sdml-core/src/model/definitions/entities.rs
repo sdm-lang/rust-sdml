@@ -92,7 +92,7 @@ impl_references_for!(EntityDef => delegate optional body);
 
 impl_annotation_builder!(EntityDef, optional body);
 
-impl_maybe_invalid_for!(EntityDef);
+impl_maybe_incomplete_for!(EntityDef);
 
 impl Validate for EntityDef {
     fn validate(
@@ -132,7 +132,7 @@ impl_has_members_for!(EntityBody);
 
 impl_has_source_span_for!(EntityBody);
 
-impl_maybe_invalid_for!(EntityBody; over members);
+impl_maybe_incomplete_for!(EntityBody; over members);
 
 impl Validate for EntityBody {
     fn validate(

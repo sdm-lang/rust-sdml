@@ -394,12 +394,12 @@ macro_rules! impl_references_for {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros ❱ trait MaybeInvalid
+// Public Macros ❱ trait MaybeIncomplete
 // ------------------------------------------------------------------------------------------------
 
-macro_rules! impl_maybe_invalid_for {
+macro_rules! impl_maybe_incomplete_for {
     ($type: ty) => {
-        impl_maybe_invalid_for!($type; optional body);
+        impl_maybe_incomplete_for!($type; optional body);
     };
     ($type: ty; always $default: expr) => {
         impl $crate::model::check::MaybeIncomplete for $type {

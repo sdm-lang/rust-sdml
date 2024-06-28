@@ -76,7 +76,7 @@ impl_has_source_span_for!(PropertyDef);
 
 impl_references_for!(PropertyDef => delegate optional body);
 
-impl_maybe_invalid_for!(PropertyDef);
+impl_maybe_incomplete_for!(PropertyDef);
 
 impl_annotation_builder!(PropertyDef, optional body);
 
@@ -116,7 +116,7 @@ impl_has_annotations_for!(PropertyBody);
 
 impl_has_source_span_for!(PropertyBody);
 
-impl_maybe_invalid_for!(PropertyBody; over roles);
+impl_maybe_incomplete_for!(PropertyBody; over roles);
 
 impl Validate for PropertyBody {
     fn validate(
@@ -249,7 +249,7 @@ impl_has_type_for!(PropertyRoleDef => variants Identity, Member);
 
 impl_has_optional_body_for!(PropertyRoleDef => variants Identity, Member);
 
-impl_maybe_invalid_for!(PropertyRoleDef; variants Identity, Member);
+impl_maybe_incomplete_for!(PropertyRoleDef; variants Identity, Member);
 
 impl References for PropertyRoleDef {
     fn referenced_types(&self, _: &mut HashSet<&IdentifierReference>) {}

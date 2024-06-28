@@ -38,6 +38,7 @@ pub struct UmlDiagramGenerator {
     assoc_src: Option<String>,
     refs: Option<String>,
     emit_annotations: bool,
+    output_format: OutputFormat,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -63,25 +64,24 @@ struct DiagramOutput {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
-    fn write_to_file_in_format(
+    fn write_to_file(
         &mut self,
         module: &Module,
         _cache: &ModuleCache,
         path: &Path,
-        format: OutputFormat,
     ) -> Result<(), Error> {
         trace_entry!(
             "UmlDiagramGenerator",
             "write_to_file_in_format" =>
-            "{}, _, {:?}, {:?}",
+            "{}, _, {:?}",
             module.name(),
-            path,
-            format);
+            path);
         self.imports = make_imports(module);
         self.output = Some(path_to_output(path, module.name())?);
 
         walk_module_simple(module, self)?;
 
+        let format = *self.format_options();
         if format == OutputFormat::Source {
             std::fs::write(path, &self.buffer)?;
         } else {
@@ -106,6 +106,15 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
         }
 
         Ok(())
+    }
+
+    fn with_format_options(mut self, format_options: OutputFormat) -> Self {
+        self.output_format = format_options;
+        self
+    }
+
+    fn format_options(&self) -> &OutputFormat {
+        &self.output_format
     }
 }
 

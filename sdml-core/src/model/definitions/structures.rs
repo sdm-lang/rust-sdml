@@ -53,7 +53,7 @@ impl_references_for!(StructureDef => delegate optional body);
 
 impl_annotation_builder!(StructureDef, optional body);
 
-impl_maybe_invalid_for!(StructureDef);
+impl_maybe_incomplete_for!(StructureDef);
 
 impl Validate for StructureDef {
     fn validate(
@@ -93,7 +93,7 @@ impl_has_members_for!(StructureBody);
 
 impl_has_source_span_for!(StructureBody);
 
-impl_maybe_invalid_for!(StructureBody; over members);
+impl_maybe_incomplete_for!(StructureBody; over members);
 
 impl_validate_for_annotations_and_members!(StructureBody);
 

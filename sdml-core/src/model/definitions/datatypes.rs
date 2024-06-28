@@ -46,7 +46,7 @@ impl_has_name_for!(DatatypeDef);
 
 impl_has_optional_body_for!(DatatypeDef);
 
-impl_maybe_invalid_for!(DatatypeDef; exists body);
+impl_maybe_incomplete_for!(DatatypeDef; always false);
 
 impl_annotation_builder!(DatatypeDef, optional body);
 

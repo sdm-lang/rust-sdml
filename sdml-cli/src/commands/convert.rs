@@ -63,17 +63,18 @@ impl super::Command for Command {
 
             match self.output_format {
                 ConvertFormat::Rdf => {
-                    let mut generator = rdf::RdfModelGenerator::default();
-                    generator.write_in_format(module, cache, &mut writer, Default::default())?;
+                    let mut generator =
+                        rdf::RdfModelGenerator::default().with_format_options(Default::default());
+                    generator.write(module, cache, &mut writer)?;
                 }
                 ConvertFormat::Json | ConvertFormat::JsonPretty => {
-                    let mut generator = json::Generator::default();
                     let options = if self.output_format == ConvertFormat::JsonPretty {
                         json::GeneratorOptions::pretty_printer()
                     } else {
                         json::GeneratorOptions::default()
                     };
-                    generator.write_in_format(module, cache, &mut writer, options)?;
+                    let mut generator = json::Generator::default().with_format_options(options);
+                    generator.write(module, cache, &mut writer)?;
                 }
                 ConvertFormat::SExpr => {
                     sexpr::write_as_sexpr(module, &mut writer)?;

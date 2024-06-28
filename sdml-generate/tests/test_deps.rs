@@ -83,10 +83,9 @@ fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &FsModuleLo
     set_colorize(UseColor::Never);
     let mut buffer = Cursor::new(Vec::new());
     let view = sdml_generate::actions::deps::DependencyViewRepresentation::TextTree;
-    let mut generator = sdml_generate::actions::deps::DependencyViewGenerator::default();
-    generator
-        .write_in_format(module, cache, &mut buffer, view)
-        .unwrap();
+    let mut generator =
+        sdml_generate::actions::deps::DependencyViewGenerator::default().with_format_options(view);
+    generator.write(module, cache, &mut buffer).unwrap();
     String::from_utf8(buffer.into_inner()).unwrap()
 }
 

@@ -22,7 +22,9 @@ use std::io::Write;
 /// Generator for the JSON representation of a module's in-memory model.
 ///
 #[derive(Debug, Default)]
-pub struct Generator {}
+pub struct Generator {
+    format_options: GeneratorOptions,
+}
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Hash)]
 pub struct GeneratorOptions {
@@ -58,20 +60,23 @@ impl GeneratorOptions {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<GeneratorOptions> for Generator {
-    fn write_in_format<W>(
-        &mut self,
-        module: &Module,
-        _: &ModuleCache,
-        writer: &mut W,
-        options: GeneratorOptions,
-    ) -> Result<(), Error>
+    fn with_format_options(mut self, format: GeneratorOptions) -> Self {
+        self.format_options = format;
+        self
+    }
+
+    fn format_options(&self) -> &GeneratorOptions {
+        &self.format_options
+    }
+
+    fn write<W>(&mut self, module: &Module, _: &ModuleCache, writer: &mut W) -> Result<(), Error>
     where
         W: Write + Sized,
     {
-        if options.pretty_print {
-            Ok(serde_json::to_writer_pretty(writer, module).map_err(to_generator_error)?)
+        if self.format_options.pretty_print {
+            Ok(serde_json::to_writer_pretty(writer, module).map_err(into_generator_error)?)
         } else {
-            Ok(serde_json::to_writer(writer, module).map_err(to_generator_error)?)
+            Ok(serde_json::to_writer(writer, module).map_err(into_generator_error)?)
         }
     }
 }
@@ -81,10 +86,8 @@ impl GenerateToWriter<GeneratorOptions> for Generator {
 // ------------------------------------------------------------------------------------------------
 
 #[inline(always)]
-fn to_generator_error(e: serde_json::Error) -> Error {
-    Error::GeneratorError {
-        message: e.to_string(),
-    }
+fn into_generator_error(e: serde_json::Error) -> Error {
+    crate::errors::into_generator_error("JSON", e)
 }
 
 // ------------------------------------------------------------------------------------------------

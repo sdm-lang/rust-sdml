@@ -42,7 +42,7 @@ impl_references_for!(EventDef => delegate optional body);
 
 impl_has_source_span_for!(EventDef);
 
-impl_maybe_invalid_for!(EventDef);
+impl_maybe_incomplete_for!(EventDef);
 
 impl Validate for EventDef {
     fn validate(

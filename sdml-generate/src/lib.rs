@@ -24,8 +24,9 @@ use std::io::stdout;
 let (module, cache) = load_module();
 
 let view = DependencyViewRepresentation::TextTree;
-let mut generator = DependencyViewGenerator::default();
-generator.write_in_format(&module, &cache, &mut stdout(), view)
+let mut generator = DependencyViewGenerator::default()
+    .with_format_options(view);
+generator.write(&module, &cache, &mut stdout())
          .expect("write to stdout failed");
 ```
 
@@ -101,6 +102,12 @@ macro_rules! trace_entry {
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///
 pub trait GenerateToFile<F: Default + Debug>: Debug {
+    /// Add options to the implementation.
+    fn with_format_options(self, format_options: F) -> Self;
+
+    /// Return current options
+    fn format_options(&self) -> &F;
+
     ///
     /// Generate from the given module into the provided file path. This method uses the
     /// default value of the format type `F`.
@@ -110,27 +117,6 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
         module: &Module,
         cache: &ModuleCache,
         path: &Path,
-    ) -> Result<(), Error> {
-        trace_entry!(
-            "GenerateToFile",
-            "write_to_file" =>
-                "module: {}, cache: {}, path: {:?}",
-            module.name(),
-            cache_to_string(cache),
-            path
-        );
-        self.write_to_file_in_format(module, cache, path, F::default())
-    }
-
-    ///
-    /// Generate from the given module, in the requested format, into the provided file path.
-    ///
-    fn write_to_file_in_format(
-        &mut self,
-        module: &Module,
-        cache: &ModuleCache,
-        path: &Path,
-        format: F,
     ) -> Result<(), Error>;
 }
 
@@ -143,42 +129,22 @@ pub trait GenerateToFile<F: Default + Debug>: Debug {
 /// The type parameter `F` is used to describe any format information required by the generator.
 ///
 pub trait GenerateToWriter<F: Default + Debug>: Debug {
+    fn with_format_options(self, format_options: F) -> Self;
+
+    fn format_options(&self) -> &F;
+
     // --------------------------------------------------------------------------------------------
     // Write to ❱ implementation of `Write`
     // --------------------------------------------------------------------------------------------
 
     ///
-    /// Generate from the given module into the provided writer. This method uses the
-    /// default value of the format type `F`.
+    /// Generate from the given module into the provided writer.
     ///
     fn write<W>(
         &mut self,
         module: &Module,
         cache: &ModuleCache,
         writer: &mut W,
-    ) -> Result<(), Error>
-    where
-        W: Write + Sized,
-    {
-        trace_entry!(
-            "GenerateToWriter",
-            "write" =>
-                "module: {}, cache: {}, ...",
-            module.name(),
-            cache_to_string(cache)
-        );
-        self.write_in_format(module, cache, writer, F::default())
-    }
-
-    ///
-    /// Generate from the given module, in the requested format, into the provided writer.
-    ///
-    fn write_in_format<W>(
-        &mut self,
-        module: &Module,
-        cache: &ModuleCache,
-        writer: &mut W,
-        format: F,
     ) -> Result<(), Error>
     where
         W: Write + Sized;
@@ -188,8 +154,7 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     // --------------------------------------------------------------------------------------------
 
     ///
-    /// Generate from the given module into a string. This method uses the
-    /// default value of the format type `F`.
+    /// Generate from the given module into a string.
     ///
     fn write_to_string(&mut self, module: &Module, cache: &ModuleCache) -> Result<String, Error> {
         trace_entry!(
@@ -199,28 +164,8 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
             module.name(),
             cache_to_string(cache)
         );
-        self.write_to_string_in_format(module, cache, F::default())
-    }
-
-    ///
-    /// Generate from the given module, in the requested format, into a string.
-    ///
-    fn write_to_string_in_format(
-        &mut self,
-        module: &Module,
-        cache: &ModuleCache,
-        format: F,
-    ) -> Result<String, Error> {
-        trace_entry!(
-            "GenerateToWriter",
-            "write_to_string_in_format" =>
-                "module: {}, cache: {}, format: {:?}",
-            module.name(),
-            cache_to_string(cache),
-            format
-        );
         let mut buffer = Cursor::new(Vec::new());
-        self.write_in_format(module, cache, &mut buffer, format)?;
+        self.write(module, cache, &mut buffer)?;
         Ok(String::from_utf8(buffer.into_inner())?)
     }
 
@@ -229,8 +174,7 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
     // --------------------------------------------------------------------------------------------
 
     ///
-    /// Generate from the given module into the provided file path. This method uses the
-    /// default value of the format type `F`.
+    /// Generate from the given module into the provided file path.
     ///
     fn write_to_file(
         &mut self,
@@ -246,30 +190,8 @@ pub trait GenerateToWriter<F: Default + Debug>: Debug {
             cache_to_string(cache),
             path
         );
-        self.write_to_file_in_format(module, cache, path, F::default())
-    }
-
-    ///
-    /// Generate from the given module, in the requested format, into the provided file path.
-    ///
-    fn write_to_file_in_format(
-        &mut self,
-        module: &Module,
-        cache: &ModuleCache,
-        path: &Path,
-        format: F,
-    ) -> Result<(), Error> {
-        trace_entry!(
-            "GenerateToWriter",
-            "write_to_file_in_format" =>
-                "module: {}, cache: {}, path: {:?}, format: {:?}",
-            module.name(),
-            cache_to_string(cache),
-            path,
-            format
-        );
         let mut file = File::create(path)?;
-        self.write_in_format(module, cache, &mut file, format)?;
+        self.write(module, cache, &mut file)?;
         Ok(())
     }
 }
@@ -317,6 +239,8 @@ fn cache_to_string(cache: &ModuleCache) -> String {
 
 #[macro_use]
 mod macros;
+
+mod errors;
 
 mod exec;
 

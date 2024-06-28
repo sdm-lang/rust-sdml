@@ -303,6 +303,23 @@ impl From<(Identifier, Identifier)> for QualifiedIdentifier {
     }
 }
 
+impl FromStr for QualifiedIdentifier {
+    type Err = crate::error::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts = s.split(Self::SEPARATOR_STR).collect::<Vec<&str>>();
+        if parts.len() == 2 {
+            Ok(Self::new(
+                Identifier::from_str(parts[0])?,
+                Identifier::from_str(parts[1])?,
+            ))
+        } else {
+            error!("QualifiedIdentifier::from_str({s:?}) is invalid");
+            Err(invalid_identifier(0, None, s).into())
+        }
+    }
+}
+
 impl PartialEq<str> for QualifiedIdentifier {
     fn eq(&self, other: &str) -> bool {
         self.to_string().as_str() == other
@@ -328,6 +345,8 @@ impl Hash for QualifiedIdentifier {
 impl_has_source_span_for!(QualifiedIdentifier, span);
 
 impl QualifiedIdentifier {
+    const SEPARATOR_STR: &'static str = ":";
+
     // --------------------------------------------------------------------------------------------
     // QualifiedIdentifier :: Constructors
     // --------------------------------------------------------------------------------------------
@@ -377,6 +396,27 @@ impl From<&IdentifierReference> for String {
         match value {
             IdentifierReference::Identifier(v) => v.to_string(),
             IdentifierReference::QualifiedIdentifier(v) => v.to_string(),
+        }
+    }
+}
+
+impl FromStr for IdentifierReference {
+    type Err = crate::error::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts = s
+            .split(QualifiedIdentifier::SEPARATOR_STR)
+            .collect::<Vec<&str>>();
+        if parts.len() == 1 {
+            Ok(Self::Identifier(Identifier::from_str(parts[0])?))
+        } else if parts.len() == 2 {
+            Ok(Self::QualifiedIdentifier(QualifiedIdentifier::new(
+                Identifier::from_str(parts[0])?,
+                Identifier::from_str(parts[1])?,
+            )))
+        } else {
+            error!("QualifiedIdentifier::from_str({s:?}) is invalid");
+            Err(invalid_identifier(0, None, s).into())
         }
     }
 }

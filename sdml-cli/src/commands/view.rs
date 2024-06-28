@@ -109,11 +109,11 @@ pub(crate) enum SourceGenerationLevel {
 impl super::Command for Command {
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module: &Module, cache, _| {
-            let mut generator = SourceGenerator::default();
+            let mut generator = SourceGenerator::default().with_format_options(self.level.into());
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
-            generator.write_in_format(module, cache, &mut writer, self.level.into())?;
+            generator.write(module, cache, &mut writer)?;
 
             Ok(())
         });

@@ -59,7 +59,7 @@ impl_references_for!(RdfDef => delegate body);
 
 impl_annotation_builder!(RdfDef);
 
-impl_maybe_invalid_for!(RdfDef; always false);
+impl_maybe_incomplete_for!(RdfDef; always false);
 
 impl Validate for RdfDef {
     fn validate(

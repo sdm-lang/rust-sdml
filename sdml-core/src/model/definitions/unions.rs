@@ -70,7 +70,7 @@ impl_has_optional_body_for!(UnionDef, UnionBody);
 
 impl_has_source_span_for!(UnionDef);
 
-impl_maybe_invalid_for!(UnionDef; exists body);
+impl_maybe_incomplete_for!(UnionDef; exists body);
 
 impl Validate for UnionDef {
     fn validate(
@@ -214,6 +214,8 @@ impl TypeVariant {
             ..self
         }
     }
+
+    get_and_set!(pub name_reference, set_name_reference => IdentifierReference);
 
     get_and_set!(pub rename, set_rename, unset_rename => optional has_rename, Identifier);
 

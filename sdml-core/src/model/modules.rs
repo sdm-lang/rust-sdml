@@ -377,7 +377,7 @@ impl References for ModuleBody {
     }
 }
 
-impl_maybe_invalid_for!(ModuleBody; over definitions);
+impl_maybe_incomplete_for!(ModuleBody; over definitions);
 
 impl Validate for ModuleBody {
     ///

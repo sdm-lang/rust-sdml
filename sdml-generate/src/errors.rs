@@ -9,9 +9,7 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 
  */
 
-use crate::{cache::ModuleCache, model::identifiers::Identifier};
-use sdml_errors::{diagnostics::SeverityFilter, Diagnostic, FileId, Source};
-use url::Url;
+use sdml_errors::Error;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -21,46 +19,28 @@ use url::Url;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-pub trait ModuleResolver: Default {
-    fn name_to_resource(
-        &self,
-        name: &Identifier,
-        from: Option<FileId>,
-    ) -> Result<Url, sdml_errors::Error>;
-}
-
-pub trait ModuleLoader: Default {
-    fn load(
-        &mut self,
-        name: &Identifier,
-        from: Option<FileId>,
-        cache: &mut ModuleCache,
-        recursive: bool,
-    ) -> Result<Identifier, sdml_errors::Error>;
-
-    fn resolver(&self) -> &impl ModuleResolver;
-
-    fn get_file_id(&self, name: &Identifier) -> Option<FileId>;
-
-    fn get_source_by_name(&self, name: &Identifier) -> Option<Source> {
-        self.get_file_id(name).and_then(|id| self.get_source(id))
-    }
-
-    fn has_source(&self, file_id: FileId) -> bool {
-        self.get_source(file_id).is_some()
-    }
-
-    fn get_source(&self, file_id: FileId) -> Option<Source>;
-
-    fn report(&self, diagnostic: &Diagnostic) -> Result<(), sdml_errors::Error>;
-    fn reporter_done(&self, top_module_name: Option<String>) -> Result<(), sdml_errors::Error>;
-
-    fn set_severity_filter(&mut self, filter: SeverityFilter);
-}
-
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
+
+pub(crate) fn into_generator_error<S, E>(name: S, error: E) -> Error
+where
+    S: Into<String>,
+    E: std::error::Error,
+{
+    generator_error(name, error.to_string())
+}
+
+pub(crate) fn generator_error<S1, S2>(name: S1, message: S2) -> Error
+where
+    S1: Into<String>,
+    S2: Into<String>,
+{
+    Error::GeneratorError {
+        name: name.into(),
+        message: message.into(),
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros

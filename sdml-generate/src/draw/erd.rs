@@ -29,6 +29,7 @@ pub struct ErdDiagramGenerator {
     buffer: String,
     entity: Option<String>,
     seen: Vec<String>,
+    format_options: OutputFormat,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -48,12 +49,11 @@ pub struct ErdDiagramGenerator {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
-    fn write_in_format<W>(
+    fn write<W>(
         &mut self,
         module: &Module,
         _cache: &ModuleCache,
         writer: &mut W,
-        format: OutputFormat,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
@@ -61,11 +61,11 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
         trace_entry!(
             "ErdDiagramGenerator",
             "write_in_format" =>
-                "{}, _, _, {:?}",
-            module.name(),
-            format);
+                "{}, _, _",
+            module.name());
         walk_module_simple(module, self)?;
 
+        let format = *self.format_options();
         if format == OutputFormat::Source {
             writer.write_all(self.buffer.as_bytes())?;
         } else {
@@ -80,6 +80,15 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
         }
 
         Ok(())
+    }
+
+    fn with_format_options(mut self, format_options: OutputFormat) -> Self {
+        self.format_options = format_options;
+        self
+    }
+
+    fn format_options(&self) -> &OutputFormat {
+        &self.format_options
     }
 }
 

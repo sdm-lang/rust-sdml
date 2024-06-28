@@ -39,6 +39,7 @@ use url::Url;
 #[derive(Debug, Default)]
 pub struct DependencyViewGenerator {
     depth: usize,
+    format_options: DependencyViewRepresentation,
 }
 
 ///
@@ -165,28 +166,28 @@ impl Default for DependencyViewRepresentation {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<DependencyViewRepresentation> for DependencyViewGenerator {
-    fn write_in_format<W>(
+    fn write<W>(
         &mut self,
         module: &Module,
         cache: &ModuleCache,
         writer: &mut W,
-        format: DependencyViewRepresentation,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
     {
+        let format = self.format_options();
         match format {
             DependencyViewRepresentation::TextTree => {
                 self.write_text_tree(module, cache, self.depth, writer)
             }
-            DependencyViewRepresentation::DotGraph(format) => {
+            DependencyViewRepresentation::DotGraph(inner_format) => {
                 let mut buffer = Vec::new();
                 self.write_dot_graph(module, cache, self.depth, &mut buffer)?;
-                if format == OutputFormat::Source {
+                if *inner_format == OutputFormat::Source {
                     writer.write_all(&buffer)?;
                 } else {
                     let source = String::from_utf8(buffer).unwrap();
-                    match exec_with_temp_input(DOT_PROGRAM, vec![format.into()], source) {
+                    match exec_with_temp_input(DOT_PROGRAM, vec![(*inner_format).into()], source) {
                         Ok(result) => {
                             writer.write_all(result.as_bytes())?;
                         }
@@ -202,11 +203,23 @@ impl GenerateToWriter<DependencyViewRepresentation> for DependencyViewGenerator 
             }
         }
     }
+
+    fn with_format_options(mut self, format: DependencyViewRepresentation) -> Self {
+        self.format_options = format;
+        self
+    }
+
+    fn format_options(&self) -> &DependencyViewRepresentation {
+        &self.format_options
+    }
 }
 
 impl DependencyViewGenerator {
     pub fn new(depth: usize) -> Self {
-        Self { depth }
+        Self {
+            depth,
+            format_options: Default::default(),
+        }
     }
 
     // --------------------------------------------------------------------------------------------

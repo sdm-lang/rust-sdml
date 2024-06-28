@@ -58,17 +58,12 @@ impl super::Command for Command {
                 match self.output_format {
                     OutputFormat::OrgMode => {
                         let source = loader.get_source_by_name(module.name());
-                        if let Some(source) = source {
-                            let mut generator =
-                            sdml_generate::convert::doc::org_mode::DocumentationGenerator::with_source(
-                                source.as_ref(),
+                        let mut generator =
+                            sdml_generate::convert::doc::org_mode::DocumentationGenerator::new(
+                                source,
+                                Default::default(),
                             );
-                            self.write_org(module, cache, &mut generator)?;
-                        } else {
-                            let mut generator =
-                            sdml_generate::convert::doc::org_mode::DocumentationGenerator::default();
-                            self.write_org(module, cache, &mut generator)?;
-                        };
+                        self.write_org(module, cache, &mut generator)?;
                     }
                     OutputFormat::Markdown => {}
                 }
@@ -89,6 +84,6 @@ impl Command {
         let mut output = self.files.output.clone();
         let mut writer = output.lock();
 
-        generator.write_in_format(model, cache, &mut writer, Default::default())
+        generator.write(model, cache, &mut writer)
     }
 }

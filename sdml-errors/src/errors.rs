@@ -48,6 +48,7 @@ pub enum Error {
         source: Diagnostic,
     },
     GeneratorError {
+        name: String,
         message: String,
     },
 }
@@ -98,8 +99,8 @@ impl Display for Error {
                     format!("An error occurred formatting codespan reports; source: {source}"),
                 Self::LanguageValidationError { source } =>
                     format!("Validation diagnostic: {}", source.message),
-                Self::GeneratorError { message } =>
-                    format!("An error occurred in a generator: {message}"),
+                Self::GeneratorError { name, message } =>
+                    format!("An error occurred in a generator named `{name}`: {message}"),
             }
         )
     }

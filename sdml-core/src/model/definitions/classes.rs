@@ -108,7 +108,7 @@ impl_has_source_span_for!(TypeClassDef);
 
 impl_annotation_builder!(TypeClassDef, optional body);
 
-impl_maybe_invalid_for!(TypeClassDef; exists body);
+impl_maybe_incomplete_for!(TypeClassDef; exists body);
 
 impl References for TypeClassDef {
     fn referenced_types<'a>(

@@ -69,7 +69,7 @@ impl_has_optional_body_for!(EnumDef, EnumBody);
 
 impl_has_source_span_for!(EnumDef);
 
-impl_maybe_invalid_for!(EnumDef; exists body);
+impl_maybe_incomplete_for!(EnumDef; exists body);
 
 impl Validate for EnumDef {
     fn validate(

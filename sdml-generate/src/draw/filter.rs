@@ -931,9 +931,7 @@ impl AsRef<str> for IdentifierString {
 // ------------------------------------------------------------------------------------------------
 
 fn into_generator_error(e: serde_json::Error) -> Error {
-    Error::GeneratorError {
-        message: e.to_string(),
-    }
+    crate::errors::into_generator_error("draw::filter", e)
 }
 
 // ------------------------------------------------------------------------------------------------

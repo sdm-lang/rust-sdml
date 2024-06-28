@@ -105,11 +105,12 @@ impl super::Command for Command {
     #[allow(clippy::redundant_closure_call)]
     fn execute(&self) -> Result<(), Error> {
         call_with_module!(self, |module, cache: &ModuleCache, _| {
-            let mut generator = DependencyViewGenerator::new(self.depth);
+            let mut generator = DependencyViewGenerator::new(self.depth)
+                .with_format_options(self.output_format.into());
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
-            generator.write_in_format(module, cache, &mut writer, self.output_format.into())
+            generator.write(module, cache, &mut writer)
         });
     }
 }

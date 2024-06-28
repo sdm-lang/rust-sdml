@@ -72,22 +72,20 @@ impl super::Command for Command {
             match self.diagram {
                 DrawDiagram::Concepts => {
                     let mut generator =
-                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
-                    generator.write_in_format(module, cache, &mut writer, format)?;
+                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default()
+                            .with_format_options(format);
+                    generator.write(module, cache, &mut writer)?;
                 }
                 DrawDiagram::EntityRelationship => {
-                    let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
-                    generator.write_in_format(module, cache, &mut writer, format)?;
+                    let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default()
+                        .with_format_options(format);
+                    generator.write(module, cache, &mut writer)?;
                 }
                 DrawDiagram::UmlClass => {
-                    let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default();
+                    let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default()
+                        .with_format_options(format);
                     if self.files.output.is_local() {
-                        generator.write_to_file_in_format(
-                            module,
-                            cache,
-                            self.files.output.path(),
-                            format,
-                        )?;
+                        generator.write_to_file(module, cache, self.files.output.path())?;
                     } else {
                         println!("Sorry, writing UML diagrams requires an explicit output file");
                     }

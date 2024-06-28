@@ -42,19 +42,20 @@ use super::DOT_PROGRAM;
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Debug, Default)]
-pub struct ConceptDiagramGenerator {}
+pub struct ConceptDiagramGenerator {
+    format_options: OutputFormat,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
-    fn write_in_format<W>(
+    fn write<W>(
         &mut self,
         module: &Module,
         _cache: &ModuleCache,
         writer: &mut W,
-        format: OutputFormat,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
@@ -62,11 +63,11 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
         let mut buffer = Vec::new();
         write_module(module, &mut buffer)?;
 
-        if format == OutputFormat::Source {
+        if *self.format_options() == OutputFormat::Source {
             writer.write_all(&buffer)?;
         } else {
             let source = String::from_utf8(buffer).unwrap();
-            match exec_with_temp_input(DOT_PROGRAM, vec![format.into()], source) {
+            match exec_with_temp_input(DOT_PROGRAM, vec![(*self.format_options()).into()], source) {
                 Ok(result) => {
                     writer.write_all(result.as_bytes())?;
                 }
@@ -77,6 +78,15 @@ impl GenerateToWriter<OutputFormat> for ConceptDiagramGenerator {
         }
 
         Ok(())
+    }
+
+    fn with_format_options(mut self, format_options: OutputFormat) -> Self {
+        self.format_options = format_options;
+        self
+    }
+
+    fn format_options(&self) -> &OutputFormat {
+        &self.format_options
     }
 }
 

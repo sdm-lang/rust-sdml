@@ -98,7 +98,7 @@ pub trait HasAnnotations {
         self.annotations().any(|a| a.is_constraint())
     }
 
-    fn annotation_constraints<I>(&self) -> Box<dyn Iterator<Item = &Constraint> + '_> {
+    fn annotation_constraints(&self) -> Box<dyn Iterator<Item = &Constraint> + '_> {
         Box::new(self.annotations().filter_map(|a| a.as_constraint()))
     }
 }

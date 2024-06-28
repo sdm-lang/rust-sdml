@@ -18,15 +18,19 @@ nu-ansi-term = "0.50.0"
 regex = "1.10.3"
 sdml-core = { version = "0.2.16", features = ["serde"], path = "../sdml-core" }
 sdml-errors = { version = "0.1.5", path = "../sdml-errors" }
+sdml-parse = { version = "0.2.12", path = "../sdml-parse" }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.113"
 serde_regex = "1.1.0"
 tempfile = "3.10.0"
 text_trees = "0.1.2"
+toml = "0.8.14"
 tracing = "0.1.40"
 tree-sitter-highlight = "0.20.1"
 tree-sitter-sdml = "0.2"
 url = "2.5.0"
+indicatif = "0.17.8"
+console = "0.15.8"
 
 [dev-dependencies]
 paste = "1.0.14"

@@ -49,7 +49,9 @@ use std::{fmt::Display, io::Write};
 /// Generator for the formal RDF representation of a module.
 ///
 #[derive(Debug, Default)]
-pub struct RdfModelGenerator {}
+pub struct RdfModelGenerator {
+    format_options: RdfRepresentation,
+}
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum RdfRepresentation {
@@ -87,12 +89,11 @@ macro_rules! write_annotations {
 // ------------------------------------------------------------------------------------------------
 
 impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
-    fn write_in_format<W>(
+    fn write<W>(
         &mut self,
         module: &Module,
         cache: &ModuleCache,
         writer: &mut W,
-        _format: RdfRepresentation,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
@@ -225,6 +226,15 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
         }
 
         Ok(())
+    }
+
+    fn with_format_options(mut self, format_options: RdfRepresentation) -> Self {
+        self.format_options = format_options;
+        self
+    }
+
+    fn format_options(&self) -> &RdfRepresentation {
+        &self.format_options
     }
 }
 
