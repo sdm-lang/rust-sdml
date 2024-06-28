@@ -29,7 +29,7 @@ tool. The following figure shows the usage and relationships of the packages in 
 ┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
 ┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
 ┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
-└╌╌╌╌╌╌╌╌┘   │           core crate             │
+└╌╌╌╌╌╌╌╌┘   │        core/errors crate         │
              ╰──────────────────────────────────╯
  ┌───────┐                  ⋀
  │ other │                  ║
@@ -38,6 +38,12 @@ tool. The following figure shows the usage and relationships of the packages in 
 #+END_EXAMPLE
 
 * Packages
+** errors
+
+This [[./sdml-errors/README.org][package]] contains the common =Error= type as well as a diagnostic set for reporting language parse and model issues.
+
+[[https://crates.io/crates/sdml-errors][https://img.shields.io/crates/v/sdml-errors.svg]]
+[[https://docs.rs/sdml-errors][https://img.shields.io/docsrs/sdml-errors.svg]]
 
 ** core
 
@@ -46,13 +52,6 @@ traits (`ModuleLoader`, `ModuleResolver`, `ModuleStore`) that are required by pa
 
 [[https://crates.io/crates/sdml_core][https://img.shields.io/crates/v/sdml_core.svg]]
 [[https://docs.rs/sdml_core][https://img.shields.io/docsrs/sdml-core.svg]]
-
-** error
-
-This [[./sdml-errors/README.org][package]] contains the common =Error= type as well as a diagnostic set for reporting language parse and model issues.
-
-[[https://crates.io/crates/sdml-errors][https://img.shields.io/crates/v/sdml-errors.svg]]
-[[https://docs.rs/sdml-errors][https://img.shields.io/docsrs/sdml-errors.svg]]
 
 ** parse
 
@@ -80,12 +79,11 @@ This [[./sdml_cli/README.org][package]] contains the entry-point for the command
 This repository, and all contents, are released under the Apache License, Version 2.0. See [[./LICENSE][LICENSE]] file
 for details.
 
-For information on contributing, see [[./doc/contributing.org][How to Contribute]], and the
-[[./doc/code_of_conduct.org][Code of Conduct]].
+For information on contributing, see [[./doc/contributing.org][How to Contribute]], and the [[./doc/code_of_conduct.org][Code of Conduct]].
 
 * Changes
 
-After version 0.1.4 the single crate has been replaced with the four =sdml_core=, =sdml_error=, =sdml_parse=, =sdml_generate=, and =sdml_cli=.
+After version 0.1.4 the single crate has been replaced with the four =sdml-core=, =sdml-errors=, =sdml-parse=, =sdml-generate=, and =sdml-cli=.
 Each will have it's own version history starting with *0.1.5*.
 
 *Version: 0.1.4*
@@ -112,7 +110,6 @@ Each will have it's own version history starting with *0.1.5*.
 *Version: 0.1.0*
 
 - Initial version, limited to basic drawings
-
 
 * Other Links
 
