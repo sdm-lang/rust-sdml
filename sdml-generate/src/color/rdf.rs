@@ -209,20 +209,12 @@ pub fn format_str<S>(v: S) -> String
 where
     S: AsRef<str>,
 {
-    COLORIZER.string(format!("{:?}", v.as_ref()))
+    COLORIZER.string(v.as_ref()))
 }
 
 #[inline]
 pub fn format_lang_str(v: &LanguageString) -> String {
-    COLORIZER.string(format!(
-        "{:?}{}",
-        v.value(),
-        if let Some(lang) = v.language() {
-            lang.to_string()
-        } else {
-            String::new()
-        }
-    ))
+    format_str(v.to_string())
 }
 
 #[inline]
