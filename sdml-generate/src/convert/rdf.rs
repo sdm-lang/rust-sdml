@@ -161,7 +161,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
                 color::predicate_with_value(
                     stdlib::owl::MODULE_NAME,
                     stdlib::owl::VERSION_INFO,
-                    format_str(version_info.as_ref()),
+                    format_str(format!("{:?}", version_info.as_ref())),
                     Separator::Predicate,
                 )
                 .as_bytes(),
@@ -203,7 +203,7 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
                 stdlib::sdml::SRC_LABEL,
-                color::format_str(module_name),
+                color::format_str(format!("{:?}", module_name.as_ref())),
                 Separator::Statement,
             )
             .as_bytes(),
@@ -996,7 +996,7 @@ impl RdfModelGenerator {
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
                 stdlib::sdml::SRC_LABEL,
-                format_str(name),
+                format_str(format!("{:?}", name.as_ref())),
                 Separator::Predicate,
             )
             .as_bytes(),
