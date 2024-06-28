@@ -39,6 +39,10 @@ Note that other tools can use the =sdml_core= API to create or manipulate models
 
 * Changes
 
+*Version 0.2.16*
+
+- Fix: [[https://github.com/sdm-lang/rust-sdml/issues/11][sdml:srcLabel lacks surrounding quotation in Turtle serialization]] (#11).
+
 *Version 0.2.15*
 
 - Fix: =Identifier::from_str= should allow type names.
