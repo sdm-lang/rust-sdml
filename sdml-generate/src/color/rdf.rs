@@ -209,7 +209,7 @@ pub fn format_str<S>(v: S) -> String
 where
     S: AsRef<str>,
 {
-    COLORIZER.string(v.as_ref()))
+    COLORIZER.string(v.as_ref())
 }
 
 #[inline]
