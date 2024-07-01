@@ -185,6 +185,7 @@ pub enum ContentItem {
 
 /// The generated document format.
 #[derive(Clone, Copy, Debug, Default, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum DocumentFormat {
     /// Emacs Org-Mode
     #[default]
@@ -203,25 +204,45 @@ pub struct BookConfig {
     /// The format of the document itself, usually a markup language. The default value is
     /// [`DocumentFormat::OrgMode`].
     #[serde(default)]
-    format: DocumentFormat,
-    /// The name of the root document. Default is `"index.org"`
+    output_format: DocumentFormat,
+    /// The name of the root document. Default is `"index.org"`.
     output_file: PathBuf,
-    /// If `true`, include a Table of Contents in the root document. Default is `true`
-    #[serde(default = "default_to_true")]
-    include_toc: bool,
-    /// If `true`, attempt to construct the root document as a link-only file. Default is `true`
-    #[serde(default = "default_to_true")]
-    multi_part: bool,
-    /// If `true`, attempt to copy any included file into the directory of the root file. Default is `false`.
-    #[serde(default)]
-    copy_includes: bool,
     /// A BCP-47 language-tag to identify the output language.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
     language: Option<String>,
+    /// The set of boolean options for document generation.
+    #[serde(flatten)]
+    options: BookOptions,
     /// Mapping from a category to a set of annotation Identifier references.
     #[serde(skip)]
     annotation_categories: AnnotationCategories,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize, PartialEq)]
+pub struct BookOptions {
+    /// If `true`, include a Table of Contents in the root document. Default is `true`.
+    #[serde(default = "default_to_true")]
+    include_toc: bool,
+    /// If `true`, attempt to construct the root document as a link-only file. Default is `true`.
+    #[serde(default = "default_to_true")]
+    multi_part: bool,
+    /// If `true`, attempt to copy any included file into the directory of the root file.
+    /// Default is `false`.
+    #[serde(default)]
+    copy_includes: bool,
+    /// If `true`, the appendix containing a module's dependency graph will not be generated.
+    /// Default is `false`.
+    #[serde(default)]
+    skip_dependency_graphs: bool,
+    /// If `true`, the appendix containing a module's source listing will not be generated.
+    /// Default is `false`.
+    #[serde(default)]
+    skip_sdml_listings: bool,
+    /// If `true`, the appendix containing a module's RDF representation listing will not be
+    /// generated. Default is `false`.
+    #[serde(default)]
+    skip_rdf_listings: bool,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -285,23 +306,23 @@ impl Default for AnnotationCategories {
 }
 
 impl AnnotationCategories {
-    pub fn label_properties(&self) -> &Vec<IdentifierReference> {
+    pub const fn label_properties(&self) -> &Vec<IdentifierReference> {
         &self.labels
     }
 
-    pub fn definition_properties(&self) -> &Vec<IdentifierReference> {
+    pub const fn definition_properties(&self) -> &Vec<IdentifierReference> {
         &self.definitions
     }
 
-    pub fn description_properties(&self) -> &Vec<IdentifierReference> {
+    pub const fn description_properties(&self) -> &Vec<IdentifierReference> {
         &self.descriptions
     }
 
-    pub fn comment_properties(&self) -> &Vec<IdentifierReference> {
+    pub const fn comment_properties(&self) -> &Vec<IdentifierReference> {
         &self.comments
     }
 
-    pub fn reference_properties(&self) -> &Vec<IdentifierReference> {
+    pub const fn reference_properties(&self) -> &Vec<IdentifierReference> {
         &self.references
     }
 }
@@ -353,28 +374,105 @@ impl Heading {
         Self::new(Self::LEVEL_SUBSUBSECTION, title)
     }
 
-    pub fn level(&self) -> u8 {
+    pub const fn level(&self) -> u8 {
         self.level
     }
 
-    pub fn is_section(&self) -> bool {
+    pub const fn is_section(&self) -> bool {
         self.level == Self::LEVEL_SECTION
     }
 
-    pub fn is_subsection(&self) -> bool {
+    pub const fn is_subsection(&self) -> bool {
         self.level == Self::LEVEL_SUBSECTION
     }
 
-    pub fn is_subsubsection(&self) -> bool {
+    pub const fn is_subsubsection(&self) -> bool {
         self.level == Self::LEVEL_SUBSUBSECTION
     }
 
-    pub fn title(&self) -> &str {
+    pub const fn title(&self) -> &str {
         &self.title
     }
 
-    pub fn label(&self) -> Option<&String> {
+    pub const fn label(&self) -> Option<&String> {
         self.label.as_ref()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Default for BookOptions {
+    fn default() -> Self {
+        Self {
+            include_toc: true,
+            multi_part: true,
+            copy_includes: Default::default(),
+            skip_dependency_graphs: Default::default(),
+            skip_sdml_listings: Default::default(),
+            skip_rdf_listings: Default::default(),
+        }
+    }
+}
+
+impl BookOptions {
+    pub const fn with_toc(self, include_toc: bool) -> Self {
+        let mut self_mut = self;
+        self_mut.include_toc = include_toc;
+        self_mut
+    }
+
+    pub const fn include_toc(&self) -> bool {
+        self.include_toc
+    }
+
+    pub const fn with_multi_part(self, multi_part: bool) -> Self {
+        let mut self_mut = self;
+        self_mut.multi_part = multi_part;
+        self_mut
+    }
+
+    pub const fn multi_part(&self) -> bool {
+        self.multi_part
+    }
+
+    pub const fn with_copy_includes(self, copy_includes: bool) -> Self {
+        let mut self_mut = self;
+        self_mut.copy_includes = copy_includes;
+        self_mut
+    }
+
+    pub const fn copy_includes(&self) -> bool {
+        self.copy_includes
+    }
+
+    pub const fn with_dependency_graphs(self, dependency_graphs: bool) -> Self {
+        let mut self_mut = self;
+        self_mut.skip_dependency_graphs = dependency_graphs;
+        self_mut
+    }
+
+    pub const fn skip_dependency_graphs(&self) -> bool {
+        self.skip_dependency_graphs
+    }
+
+    pub const fn with_sdml_listings(self, sdml_listings: bool) -> Self {
+        let mut self_mut = self;
+        self_mut.skip_sdml_listings = sdml_listings;
+        self_mut
+    }
+
+    pub const fn skip_sdml_listings(&self) -> bool {
+        self.skip_sdml_listings
+    }
+
+    pub const fn with_rdf_listings(self, rdf_listings: bool) -> Self {
+        let mut self_mut = self;
+        self_mut.skip_rdf_listings = rdf_listings_graphs;
+        self_mut
+    }
+
+    pub const fn skip_rdf_listings(&self) -> bool {
+        self.skip_rdf_listings
     }
 }
 
@@ -386,12 +484,10 @@ impl Default for BookConfig {
             title: Default::default(),
             introduction: Default::default(),
             content: Default::default(),
-            format: DocumentFormat::OrgMode,
+            output_format: DocumentFormat::OrgMode,
             output_file: "index.org".into(),
-            include_toc: true,
-            multi_part: false,
-            copy_includes: false,
             language: Default::default(),
+            options: Default::default(),
             annotation_categories: Default::default(),
         }
     }
@@ -434,7 +530,7 @@ impl BookConfig {
         self_mut
     }
 
-    pub fn title(&self) -> &String {
+    pub const fn title(&self) -> &String {
         &self.title
     }
 
@@ -447,7 +543,7 @@ impl BookConfig {
         self_mut
     }
 
-    pub fn introduction(&self) -> Option<&PathBuf> {
+    pub const fn introduction(&self) -> Option<&PathBuf> {
         self.introduction.as_ref()
     }
 
@@ -457,18 +553,18 @@ impl BookConfig {
         self_mut
     }
 
-    pub fn content(&self) -> &ContentSection {
+    pub const fn content(&self) -> &ContentSection {
         &self.content
     }
 
-    pub fn with_format<S>(self, format: DocumentFormat) -> Self {
+    pub fn with_output_format<S>(self, output_format: DocumentFormat) -> Self {
         let mut self_mut = self;
-        self_mut.format = format;
+        self_mut.output_format = output_format;
         self_mut
     }
 
-    pub fn format(&self) -> DocumentFormat {
-        self.format
+    pub const fn output_format(&self) -> DocumentFormat {
+        self.output_format
     }
 
     pub fn with_output_file<P>(self, output_file: P) -> Self
@@ -480,34 +576,8 @@ impl BookConfig {
         self_mut
     }
 
-    pub fn with_toc(self, include_toc: bool) -> Self {
-        let mut self_mut = self;
-        self_mut.include_toc = include_toc;
-        self_mut
-    }
-
-    pub fn include_toc(&self) -> bool {
-        self.include_toc
-    }
-
-    pub fn with_multi_part(self, multi_part: bool) -> Self {
-        let mut self_mut = self;
-        self_mut.multi_part = multi_part;
-        self_mut
-    }
-
-    pub fn multi_part(&self) -> bool {
-        self.multi_part
-    }
-
-    pub fn with_copy_includes(self, copy_includes: bool) -> Self {
-        let mut self_mut = self;
-        self_mut.copy_includes = copy_includes;
-        self_mut
-    }
-
-    pub fn copy_includes(&self) -> bool {
-        self.copy_includes
+    pub const fn output_file(&self) -> &PathBuf {
+        &self.output_file
     }
 
     pub fn with_language<S>(self, language: S) -> Self
@@ -519,8 +589,18 @@ impl BookConfig {
         self_mut
     }
 
-    pub fn language(&self) -> Option<&String> {
+    pub const fn language(&self) -> Option<&String> {
         self.language.as_ref()
+    }
+
+    pub fn with_options(self, options: BookOptions) -> Self {
+        let mut self_mut = self;
+        self_mut.options = options;
+        self_mut
+    }
+
+    pub const fn options(&self) -> &BookOptions {
+        &self.options
     }
 
     pub fn with_annotation_categories(self, annotation_categories: AnnotationCategories) -> Self {
@@ -529,7 +609,7 @@ impl BookConfig {
         self_mut
     }
 
-    pub fn annotation_categories(&self) -> &AnnotationCategories {
+    pub const fn annotation_categories(&self) -> &AnnotationCategories {
         &self.annotation_categories
     }
 }
@@ -708,11 +788,13 @@ mod tests {
       { "module_path": "./account_enums.sdml" }
     ]
   },
-  "format": "OrgMode",
+  "output_format": "org-mode",
   "output_file": "index.org",
-  "include_toc": false,
-  "multi_part": false,
-  "copy_includes": false
+  "options": {
+    "include_toc": false,
+    "multi_part": false,
+    "copy_includes": false
+  }
 }"##;
         let config: BookConfig = serde_json::from_str(JSON).unwrap();
         println!("{config:?}");

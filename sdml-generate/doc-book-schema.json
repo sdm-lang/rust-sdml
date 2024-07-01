@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdml.io/v/doc-book-schema.json",
+  "title": "Schema for the SDML 'doc-book' configuration file.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "description": "Overall title for output.",
+      "type": "string"
+    },
+    "introduction": {
+      "description": "Optional path to include introduction content.",
+      "type": "string"
+    },
+    "content": {
+      "description": "The primary content section.",
+      "type": "object",
+      "$ref": "#/$defs/content_section"
+    },
+    "output_format": {
+      "description": "The format of the generated output.",
+      "type": "string",
+      "enum": [ "org-mode" ]
+    },
+    "output_file": {
+      "description": "The path of the file to generate.",
+      "type": "string"
+    },
+    "language": {
+      "description": "A BCP-47 language-tag to identify the output language.",
+      "type": "string"
+    },
+    "options": {
+      "type": "object",
+      "$ref": "#/$defs/options"
+    }
+  },
+  "required": [
+    "title",
+    "content"
+  ],
+  "$defs": {
+    "include_file": {
+      "description": "The path to a file of content to include.",
+      "type": "object",
+      "properties": {
+        "include_file_path": {
+          "description": "File path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "include_file_path"
+      ]
+    },
+    "include_module": {
+      "description": "Include the description of a module, by module name.",
+      "type": "object",
+      "properties": {
+        "module": {
+          "description": "Module name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module"
+      ]
+    },
+    "include_module_by_path": {
+      "description": "Include the description of a module, by the module's file path.",
+      "type": "object",
+      "properties": {
+        "module_path": {
+          "description": "File path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module_path"
+      ]
+    },
+    "include_sub_section": {
+      "description": "A sub-section of content.",
+      "type": "object",
+      "properties": {
+        "sub_section": {
+          "description": "Section content",
+          "$ref": "#/$defs/content_section"
+        }
+      },
+      "required": [
+        "sub_section"
+      ]
+    },
+    "content_section": {
+      "description": "A content section is a named array of items.",
+      "properties": {
+        "heading": {
+          "description": "The heading text for this section.",
+          "type": "string"
+        },
+        "items": {
+          "description": "The array of unique items to include.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/$defs/content_item"
+          }
+        },
+        "uniqueItems": true
+      },
+      "required": [
+        "heading"
+      ]
+    },
+    "content_item": {
+      "type": "object",
+      "oneOf": [
+        { "$ref": "#/$defs/include_file" },
+        { "$ref": "#/$defs/include_module" },
+        { "$ref": "#/$defs/include_module_by_path" },
+        { "$ref": "#/$defs/include_sub_section" }
+      ]
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "include_toc": {
+          "description": "Include a table of contents, defaults to true.",
+          "type": "boolean"
+        },
+        "multi_part": {
+          "description": "Generate as a multi-part output, defaults to true.",
+          "type": "boolean"
+        },
+        "copy_includes": {
+          "description": "Copy any included file into the output directory, defaults to false.",
+          "type": "boolean"
+        },
+        "skip_dependency_graphs": {
+          "description": "Skip generation of dependency graph appendices, defaults to false.",
+          "type": "boolean"
+        },
+        "skip_sdml_listings": {
+          "description": "Skip generation of SDML Source listing appendices, defaults to false.",
+          "type": "boolean"
+        },
+        "skip_rdf_listings": {
+          "description": "Skip generation of RDF listing appendices, defaults to false.",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
