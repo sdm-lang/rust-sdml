@@ -33,11 +33,27 @@ The following figure demonstrates this package in the broader project context.
  └───────┘
 #+END_EXAMPLE
 
-
 * Installation
 
-Installing the command-line interface is via the =cargo= command. Cargo is usually installed with the Rust toolchain
-using [[https://rustup.rs/[rustup]].
+To install the command-line tool on MacOS or Linux use the Homebrew package manager and the SDML Tap. Installing in this
+way also installs dependencies such as GraphViz and PlantUML used for diagram generation.
+
+#+BEGIN_SRC sh :exports code :eval never
+❯ brew install sdm-lang/sdml/sdml
+#+END_SRC
+
+You can check that you have the tool installed and on the path with the following check.
+
+#+BEGIN_EXAMPLE bash
+❯ sdml versions               
+SDML CLI:        0.2.7
+SDML grammar:    0.2.16
+Tree-Sitter ABI: 14
+#+END_EXAMPLE
+
+** Install via cargo
+
+Cargo is usually installed with the Rust toolchain using [[https://rustup.rs/[rustup]].
 
 The following command should download and build the tool, and will also work to install any updates.
 
@@ -52,13 +68,20 @@ regardless with the =--force= option.
 ❯ cargo install sdml-cli --force
 #+END_EXAMPLE
 
-You can check that you have the tool installed and on the path with the following check.
+** Install from source
+
+To install the CLI from source you need to clone the entire repository.
 
 #+BEGIN_EXAMPLE bash
-❯ sdml versions               
-SDML CLI:        0.2.7
-SDML grammar:    0.2.16
-Tree-Sitter ABI: 14
+❯ git clone https://github.com/sdm-lang/rust-sdml.git
+#+END_EXAMPLE
+
+In the =rust-sdml= directory you can build/test/install using the following commands.
+
+#+BEGIN_EXAMPLE bash
+❯ cargo build
+❯ cargo test
+❯ cargo install --path sdml-cli
 #+END_EXAMPLE
 
 * Global Options

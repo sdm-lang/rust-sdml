@@ -37,6 +37,12 @@ tool. The following figure shows the usage and relationships of the packages in 
  └───────┘
 #+END_EXAMPLE
 
+To install the command-line tool on MacOS or Linux use the Homebrew package manager and the SDML Tap.
+
+#+BEGIN_SRC sh :exports code :eval never
+❯ brew install sdm-lang/sdml/sdml
+#+END_SRC
+
 * Packages
 ** errors
 
