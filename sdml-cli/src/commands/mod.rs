@@ -80,8 +80,6 @@ pub(crate) enum Commands {
     View(view::Command),
 }
 
-// TODO: Consider using crate https://docs.rs/clio instead
-
 #[derive(Args, Debug)]
 pub(crate) struct FileArgs {
     /// File name to write to, or '-' to write to stdout

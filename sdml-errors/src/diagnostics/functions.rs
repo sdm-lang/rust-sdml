@@ -831,7 +831,9 @@ impl IdentifierCaseConvention {
             Self::Module => id == Self::to_snake_case(&id),
             Self::Member => id == Self::to_snake_case(&id) || id == Self::to_lower_camel_case(&id),
             Self::ImportedMember => {
-                id == Self::to_snake_case(&id)|| id == Self::to_lower_camel_case(&id) || id == Self::to_upper_camel_case(&id)
+                id == Self::to_snake_case(&id)
+                    || id == Self::to_lower_camel_case(&id)
+                    || id == Self::to_upper_camel_case(&id)
             }
             Self::DatatypeDefinition => {
                 id == Self::to_snake_case(&id)

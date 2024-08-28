@@ -470,7 +470,7 @@ impl UmlDiagramGenerator {
             TypeReference::Type(type_ref) => {
                 if *card == DEFAULT_CARDINALITY {
                     (
-                        format!("    +{name}: {}\n", make_type_reference(&target_type)),
+                        format!("    +{name}: {}\n", make_type_reference(target_type)),
                         true,
                     )
                 } else {
@@ -489,7 +489,7 @@ impl UmlDiagramGenerator {
                 format!(
                     "    +{name}: {} {}\n",
                     to_uml_string(card, false),
-                    make_type_reference(&target_type)
+                    make_type_reference(target_type)
                 ),
                 true,
             ),

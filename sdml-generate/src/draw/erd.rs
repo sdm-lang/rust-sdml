@@ -353,16 +353,8 @@ fn edge(
 ) -> String {
     format!(
         r#"  {from_node} -> {to_node} [tooltip="{tooltip}";dir="both"{}{}];\n"#,
-        if let Some(arrow_from) = arrow_from {
-            arrow_from
-        } else {
-            ""
-        },
-        if let Some(arrow_to) = arrow_to {
-            arrow_to
-        } else {
-            ""
-        }
+        arrow_from.unwrap_or_default(),
+        arrow_to.unwrap_or_default(),
     )
 }
 

@@ -4,7 +4,7 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_errors::diagnostics::UseColor;
 use sdml_generate::color::set_colorize;
-use sdml_generate::convert::source::{SourceGeneratorOptions, SourceGenerator};
+use sdml_generate::convert::source::{SourceGenerator, SourceGeneratorOptions};
 use sdml_generate::Generator;
 use url::Url;
 

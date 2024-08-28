@@ -1509,7 +1509,7 @@ impl SExpressionGenerator {
             NODE_KIND_TYPE_REFERENCE,
             [match me {
                 TypeReference::Unknown => SValue::quoted("unknown"),
-                TypeReference::Type(type_ref) => self.identifier_reference_to_svalue(&type_ref),
+                TypeReference::Type(type_ref) => self.identifier_reference_to_svalue(type_ref),
                 TypeReference::MappingType(map_type_ref) => {
                     self.mapping_type_to_svalue(map_type_ref)
                 }
