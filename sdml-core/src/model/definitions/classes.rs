@@ -9,7 +9,7 @@ YYYYY
 
 */
 
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::annotations::Annotation;
 use crate::model::check::Validate;
@@ -128,7 +128,7 @@ impl Validate for TypeClassDef {
     fn validate(
         &self,
         top: &crate::model::modules::Module,
-        _cache: &ModuleCache,
+        _cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {

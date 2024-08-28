@@ -1,4 +1,4 @@
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{
@@ -27,9 +27,9 @@ pub trait HasAnnotations {
 
     fn annotations_len(&self) -> usize;
 
-    fn annotations(&self) -> Box<dyn Iterator<Item = &Annotation> + '_>;
+    fn annotations(&self) -> impl Iterator<Item = &Annotation>;
 
-    fn annotations_mut(&mut self) -> Box<dyn Iterator<Item = &mut Annotation> + '_>;
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation>;
 
     fn add_to_annotations<I>(&mut self, value: I)
     where
@@ -43,63 +43,51 @@ pub trait HasAnnotations {
         self.annotations().any(|a| a.is_annotation_property())
     }
 
-    fn annotation_properties(&self) -> Box<dyn Iterator<Item = &AnnotationProperty> + '_> {
-        Box::new(
-            self.annotations()
-                .filter_map(|a| a.as_annotation_property()),
-        )
+    fn annotation_properties(&self) -> impl Iterator<Item = &AnnotationProperty> {
+        self.annotations()
+            .filter_map(|a| a.as_annotation_property())
     }
 
     fn has_rdf_type(&self, type_id: &IdentifierReference) -> bool {
         self.rdf_types().any(|id| id == type_id)
     }
 
-    fn rdf_types(&self) -> Box<dyn Iterator<Item = &IdentifierReference> + '_> {
-        Box::new(
-            self.annotation_properties()
-                .filter(|ann| ann.name_reference() == "rdf:type")
-                .filter_map(|ann| ann.value().as_reference()),
-        )
+    fn rdf_types(&self) -> impl Iterator<Item = &IdentifierReference> {
+        self.annotation_properties()
+            .filter(|ann| ann.name_reference() == "rdf:type")
+            .filter_map(|ann| ann.value().as_reference())
     }
 
-    fn preferred_label(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
-        Box::new(
-            self.annotation_properties()
-                .filter(|ann| ann.name_reference() == "skos:prefLabel")
-                .filter_map(|ann| ann.value().as_string()),
-        )
+    fn preferred_label(&self) -> impl Iterator<Item = &LanguageString> {
+        self.annotation_properties()
+            .filter(|ann| ann.name_reference() == "skos:prefLabel")
+            .filter_map(|ann| ann.value().as_string())
     }
 
-    fn alternate_labels(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
-        Box::new(
-            self.annotation_properties()
-                .filter(|ann| ann.name_reference() == "skos:altLabel")
-                .filter_map(|ann| ann.value().as_string()),
-        )
+    fn alternate_labels(&self) -> impl Iterator<Item = &LanguageString> {
+        self.annotation_properties()
+            .filter(|ann| ann.name_reference() == "skos:altLabel")
+            .filter_map(|ann| ann.value().as_string())
     }
 
-    fn descriptions(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
-        Box::new(
-            self.annotation_properties()
-                .filter(|ann| ann.name_reference() == "dc:description")
-                .filter_map(|ann| ann.value().as_string()),
-        )
+    fn descriptions(&self) -> impl Iterator<Item = &LanguageString> {
+        self.annotation_properties()
+            .filter(|ann| ann.name_reference() == "dc:description")
+            .filter_map(|ann| ann.value().as_string())
     }
 
-    fn definitions(&self) -> Box<dyn Iterator<Item = &LanguageString> + '_> {
-        Box::new(
-            self.annotation_properties()
-                .filter(|ann| ann.name_reference() == "skos:definition")
-                .filter_map(|ann| ann.value().as_string()),
-        )
+    fn definitions(&self) -> impl Iterator<Item = &LanguageString> {
+        self.annotation_properties()
+            .filter(|ann| ann.name_reference() == "skos:definition")
+            .filter_map(|ann| ann.value().as_string())
     }
 
     fn has_constraints(&self) -> bool {
         self.annotations().any(|a| a.is_constraint())
     }
 
-    fn annotation_constraints(&self) -> Box<dyn Iterator<Item = &Constraint> + '_> {
-        Box::new(self.annotations().filter_map(|a| a.as_constraint()))
+    fn annotation_constraints(&self) -> impl Iterator<Item = &Constraint> {
+        self.annotations().filter_map(|a| a.as_constraint())
     }
 }
 
@@ -316,6 +304,10 @@ impl<A: HasAnnotations> AnnotationBuilder for A {
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Public Types ❱ Concrete
+// ------------------------------------------------------------------------------------------------
+
 /// Corresponds to the grammar rule `annotation`.
 #[derive(Clone, Debug)]
 #[allow(clippy::large_enum_variant)] // TODO: why is this reported as an issue?
@@ -387,7 +379,7 @@ impl Validate for Annotation {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -419,7 +411,7 @@ impl_has_source_span_for!(AnnotationProperty);
 impl_has_name_reference_for!(AnnotationProperty);
 
 impl Validate for AnnotationProperty {
-    fn validate(&self, _top: &Module, _cache: &ModuleCache, _: &impl ModuleLoader, _: bool) {
+    fn validate(&self, _top: &Module, _cache: &impl ModuleStore, _: &impl ModuleLoader, _: bool) {
         trace!("AnnotationProperty::is_valid -- missing type/value conformance");
         // TODO: check value/type conformance
         // 1. Lookup property
@@ -502,7 +494,7 @@ impl Validate for AnnotationOnlyBody {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {

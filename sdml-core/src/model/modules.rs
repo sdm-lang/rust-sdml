@@ -12,11 +12,11 @@ use crate::model::{
     HasBody, HasName, HasSourceSpan, Span,
 };
 use sdml_errors::diagnostics::functions::{
-    definition_not_found, imported_module_not_found, module_is_incomplete,
-    module_version_info_empty, module_version_mismatch, module_version_not_found,
-    IdentifierCaseConvention,
+    definition_not_found, imported_module_not_found, library_definition_not_allowed,
+    module_is_incomplete, module_version_info_empty, module_version_mismatch,
+    module_version_not_found, IdentifierCaseConvention,
 };
-use sdml_errors::FileId;
+use sdml_errors::{Error, FileId};
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::hash::Hash;
@@ -69,6 +69,8 @@ pub struct HeaderValue<T> {
 pub struct ModuleBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    file_id: Option<FileId>, // <- to report errors
+    is_library: bool,        // <- to catch errors
     imports: Vec<ImportStatement>,
     annotations: Vec<Annotation>,
     definitions: Vec<Definition>,
@@ -122,7 +124,24 @@ impl_has_source_span_for!(Module);
 
 impl_has_name_for!(Module);
 
-impl_has_body_for!(Module, ModuleBody);
+impl HasBody for Module {
+    type Body = ModuleBody;
+
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
+
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        let mut body_mut = body;
+        body_mut.file_id = self.file_id;
+        body_mut.set_library_status(self.name());
+        self.body = body_mut;
+    }
+}
 
 impl References for Module {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -139,20 +158,13 @@ impl Module {
     // Module :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub const fn empty(name: Identifier) -> Self {
-        Self {
-            source_file: None,
-            file_id: None,
-            span: None,
-            name,
-            base_uri: None,
-            version_info: None,
-            version_uri: None,
-            body: ModuleBody::new(),
-        }
+    pub fn empty(name: Identifier) -> Self {
+        Self::new(name, ModuleBody::default())
     }
 
-    pub const fn new(name: Identifier, body: ModuleBody) -> Self {
+    pub fn new(name: Identifier, body: ModuleBody) -> Self {
+        let mut body = body;
+        body.set_library_status(&name);
         Self {
             source_file: None,
             file_id: None,
@@ -199,6 +211,7 @@ impl Module {
             ..self
         }
     }
+
     get_and_set!(pub source_file, set_source_file, unset_source_file => optional has_source_file, PathBuf);
 
     get_and_set!(pub base_uri, set_base_uri, unset_base_uri => optional has_base_uri, HeaderValue<Url>);
@@ -390,7 +403,7 @@ impl Validate for ModuleBody {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -404,14 +417,10 @@ impl Validate for ModuleBody {
 }
 
 impl ModuleBody {
-    const fn new() -> Self {
-        Self {
-            span: None,
-            imports: Vec::new(),
-            annotations: Vec::new(),
-            definitions: Vec::new(),
-        }
+    pub fn set_library_status(&mut self, module_name: &Identifier) {
+        self.is_library = Identifier::is_library_module_name(module_name);
     }
+
     // --------------------------------------------------------------------------------------------
     // ModuleBody :: Fields
     // --------------------------------------------------------------------------------------------
@@ -427,16 +436,50 @@ impl ModuleBody {
             => imports, ImportStatement
     );
 
-    get_and_set_vec!(
-        pub
-        has has_definitions,
-        definitions_len,
-        definitions,
-        definitions_mut,
-        add_to_definitions,
-        extend_definitions
-            => definitions, Definition
-    );
+    pub fn has_definitions(&self) -> bool {
+        !self.definitions.is_empty()
+    }
+
+    pub fn definitions_len(&self) -> usize {
+        self.definitions.len()
+    }
+
+    pub fn definitions(&self) -> impl Iterator<Item = &Definition> {
+        self.definitions.iter()
+    }
+
+    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
+        self.definitions.iter_mut()
+    }
+
+    pub fn add_to_definitions<I>(&mut self, value: I) -> Result<(), Error>
+    where
+        I: Into<Definition>,
+    {
+        let definition = value.into();
+        if !self.is_library && matches!(definition, Definition::Rdf(_) | Definition::TypeClass(_)) {
+            Err(library_definition_not_allowed(
+                self.file_id.unwrap_or_default(),
+                definition.source_span().map(|s| s.into()),
+                definition.name(),
+            )
+            .into())
+        } else {
+            self.definitions.push(definition);
+            Ok(())
+        }
+    }
+
+    pub fn extend_definitions<I>(&mut self, extension: I) -> Result<(), Error>
+    where
+        I: IntoIterator<Item = Definition>,
+    {
+        // we do this manually to ensure the library rules in ModuleBody::push
+        for definition in extension.into_iter() {
+            self.add_to_definitions(definition)?;
+        }
+        Ok(())
+    }
 
     // --------------------------------------------------------------------------------------------
     // ModuleBody :: Helpers
@@ -554,9 +597,21 @@ impl From<Import> for ImportStatement {
     }
 }
 
+impl From<Vec<Import>> for ImportStatement {
+    fn from(value: Vec<Import>) -> Self {
+        Self::new(value)
+    }
+}
+
 impl FromIterator<Import> for ImportStatement {
     fn from_iter<T: IntoIterator<Item = Import>>(iter: T) -> Self {
         Self::new(Vec::from_iter(iter))
+    }
+}
+
+impl From<ImportStatement> for Vec<Import> {
+    fn from(value: ImportStatement) -> Self {
+        value.imports
     }
 }
 
@@ -576,7 +631,13 @@ impl Validate for ImportStatement {
     ///
     ///
     ///
-    fn validate(&self, top: &Module, cache: &ModuleCache, loader: &impl ModuleLoader, _: bool) {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        _: bool,
+    ) {
         for import in self.imports() {
             match import {
                 Import::Module(module_ref) => {
@@ -702,7 +763,7 @@ impl ImportStatement {
 
     // --------------------------------------------------------------------------------------------
 
-    pub(crate) fn as_slice(&self) -> &[Import] {
+    pub fn as_slice(&self) -> &[Import] {
         self.imports.as_slice()
     }
 
@@ -760,6 +821,21 @@ impl From<QualifiedIdentifier> for Import {
 enum_display_impl!(Import => Module, Member);
 
 impl_has_source_span_for!(Import => variants Module, Member);
+
+impl Import {
+    pub fn module(&self) -> &Identifier {
+        match self {
+            Import::Module(v) => v.name(),
+            Import::Member(v) => v.module(),
+        }
+    }
+    pub fn member(&self) -> Option<&Identifier> {
+        match self {
+            Import::Module(_) => None,
+            Import::Member(v) => Some(v.member()),
+        }
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 

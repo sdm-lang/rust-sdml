@@ -1,11 +1,11 @@
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::annotations::AnnotationOnlyBody;
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
-use crate::model::{HasName, HasSourceSpan, References, Span};
+use crate::model::{HasSourceSpan, References, Span};
 use sdml_errors::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
     IdentifierCaseConvention,
@@ -27,14 +27,13 @@ use serde::{Deserialize, Serialize};
 pub struct Member {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    name: Identifier,
     kind: MemberKind,
 }
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum MemberKind {
-    PropertyReference(IdentifierReference),
+    Reference(IdentifierReference),
     Definition(MemberDef),
 }
 
@@ -44,8 +43,7 @@ pub enum MemberKind {
 pub struct MemberDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    inverse_name: Option<Identifier>,
+    name: Identifier,
     target_cardinality: Cardinality,
     target_type: TypeReference,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
@@ -56,14 +54,24 @@ pub struct MemberDef {
 // Implementations ❱ Members ❱ Member
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(Member);
+impl<T> From<T> for Member
+where
+    T: Into<MemberKind>,
+{
+    fn from(kind: T) -> Self {
+        Self {
+            span: Default::default(),
+            kind: kind.into(),
+        }
+    }
+}
 
 impl_has_source_span_for!(Member);
 
 impl MaybeIncomplete for Member {
-    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
         match &self.kind {
-            MemberKind::PropertyReference(name) => {
+            MemberKind::Reference(name) => {
                 if let Some(defn) = find_definition(name, top, cache) {
                     if matches!(defn, Definition::Property(_)) {
                         defn.is_incomplete(top, cache)
@@ -85,14 +93,12 @@ impl Validate for Member {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
-        self.name()
-            .validate(top, loader, Some(IdentifierCaseConvention::Member));
         match &self.kind {
-            MemberKind::PropertyReference(name) => {
+            MemberKind::Reference(name) => {
                 if let Some(defn) = find_definition(name, top, cache) {
                     if !matches!(defn, Definition::Property(_)) {
                         error!("Member property reference not a property");
@@ -122,7 +128,7 @@ impl Validate for Member {
                         .report(&member_is_incomplete(
                             top.file_id().copied().unwrap_or_default(),
                             self.source_span().map(|span| span.byte_range()),
-                            self.name(),
+                            v.name(),
                         ))
                         .unwrap()
                 }
@@ -134,7 +140,7 @@ impl Validate for Member {
 impl References for Member {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         match &self.kind {
-            MemberKind::PropertyReference(v) => {
+            MemberKind::Reference(v) => {
                 names.insert(v);
             }
             MemberKind::Definition(v) => v.referenced_annotations(names),
@@ -143,7 +149,7 @@ impl References for Member {
 
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         match &self.kind {
-            MemberKind::PropertyReference(v) => {
+            MemberKind::Reference(v) => {
                 names.insert(v);
             }
             MemberKind::Definition(v) => v.referenced_types(names),
@@ -156,21 +162,16 @@ impl Member {
     // Member :: Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub const fn new_property_reference(
-        role: Identifier,
-        in_property: IdentifierReference,
-    ) -> Self {
+    pub const fn new_reference(in_property: IdentifierReference) -> Self {
         Self {
             span: None,
-            name: role,
-            kind: MemberKind::PropertyReference(in_property),
+            kind: MemberKind::Reference(in_property),
         }
     }
 
-    pub const fn new_definition(name: Identifier, definition: MemberDef) -> Self {
+    pub const fn new_definition(definition: MemberDef) -> Self {
         Self {
             span: None,
-            name,
             kind: MemberKind::Definition(definition),
         }
     }
@@ -183,29 +184,79 @@ impl Member {
         &self.kind
     }
 
-    pub const fn is_property_reference(&self) -> bool {
-        matches!(self.kind, MemberKind::PropertyReference(_))
-    }
+    delegate!(pub const is_definition, bool, kind);
+    delegate!(pub const as_definition, Option<&MemberDef>, kind);
 
-    pub const fn as_property_reference(&self) -> Option<&IdentifierReference> {
-        if let MemberKind::PropertyReference(v) = &self.kind {
-            Some(v)
-        } else {
-            None
+    delegate!(pub const is_property_reference, bool, kind);
+    delegate!(pub const as_property_reference, Option<&IdentifierReference>, kind);
+
+    // --------------------------------------------------------------------------------------------
+    // Member :: Delegated
+    // --------------------------------------------------------------------------------------------
+
+    pub fn name(&self) -> &Identifier {
+        match self.kind() {
+            MemberKind::Reference(v) => v.member(),
+            MemberKind::Definition(defn) => defn.name(),
         }
     }
 
-    pub const fn is_definition(&self) -> bool {
-        matches!(self.kind, MemberKind::Definition(_))
-    }
-
-    pub const fn as_definition(&self) -> Option<&MemberDef> {
-        if let MemberKind::Definition(v) = &self.kind {
-            Some(v)
-        } else {
-            None
+    pub fn resolve_target_type(
+        &self,
+        module: &Module,
+        cache: &impl ModuleStore,
+    ) -> Option<TypeReference> {
+        match self.kind() {
+            MemberKind::Reference(v) => {
+                if let Some(Definition::Property(property)) = cache.resolve_or_in(v, module.name())
+                {
+                    Some(property.member_def().target_type().clone())
+                } else {
+                    None
+                }
+            }
+            MemberKind::Definition(defn) => Some(defn.target_type().clone()),
         }
     }
+
+    pub fn resolve_target_cardinality(
+        &self,
+        module: &Module,
+        cache: &impl ModuleStore,
+    ) -> Option<Cardinality> {
+        match self.kind() {
+            MemberKind::Reference(v) => {
+                if let Some(Definition::Property(property)) = cache.resolve_or_in(v, module.name())
+                {
+                    Some(property.member_def().target_cardinality().clone())
+                } else {
+                    None
+                }
+            }
+            MemberKind::Definition(defn) => Some(defn.target_cardinality().clone()),
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ MemberKind
+// ------------------------------------------------------------------------------------------------
+
+impl From<MemberDef> for MemberKind {
+    fn from(value: MemberDef) -> Self {
+        Self::Definition(value)
+    }
+}
+
+impl From<IdentifierReference> for MemberKind {
+    fn from(value: IdentifierReference) -> Self {
+        Self::Reference(value)
+    }
+}
+
+impl MemberKind {
+    is_as_variant!(Definition (MemberDef) => is_definition, as_definition);
+    is_as_variant!(Reference (IdentifierReference) => is_property_reference, as_property_reference);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -236,7 +287,7 @@ impl References for MemberDef {
 }
 
 impl MaybeIncomplete for MemberDef {
-    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
         self.target_type.is_incomplete(top, cache)
     }
 }
@@ -245,12 +296,12 @@ impl Validate for MemberDef {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
-        // TODO: check inverse name exists
-        // TODO: check target type exists
+        self.name()
+            .validate(top, loader, Some(IdentifierCaseConvention::Member));
         self.target_type()
             .validate(top, cache, loader, check_constraints);
         self.target_cardinality()
@@ -263,34 +314,40 @@ impl MemberDef {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new<T>(target_type: T) -> Self
+    pub fn new<T>(name: Identifier, target_type: T) -> Self
     where
         T: Into<TypeReference>,
     {
         Self {
             span: None,
+            name,
             target_type: target_type.into(),
             target_cardinality: Cardinality::one(),
-            inverse_name: None,
             body: None,
         }
     }
 
-    pub const fn new_unknown() -> Self {
+    pub const fn new_unknown(name: Identifier) -> Self {
         Self {
             span: None,
+            name,
             target_type: TypeReference::Unknown,
             target_cardinality: Cardinality::one(),
-            inverse_name: None,
             body: None,
         }
     }
+
+    builder_fn!(pub with_target_type, target_type => TypeReference);
+    builder_fn!(pub with_target_cardinality, target_cardinality => Cardinality);
+    builder_fn!(pub with_body, body => optional AnnotationOnlyBody);
 
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub inverse_name, set_inverse_name, unset_inverse_name => optional has_inverse_name, Identifier);
+    get_and_set!(pub name, set_name  => Identifier);
+    get_and_set!(pub target_type, set_target_type  => TypeReference);
+    get_and_set!(pub target_cardinality, set_target_cardinality  => Cardinality);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -306,3 +363,5 @@ pub use cardinality::{
 
 mod types;
 pub use types::{HasType, MappingType, TypeReference};
+
+use super::HasName;

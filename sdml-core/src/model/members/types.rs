@@ -1,4 +1,4 @@
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
@@ -8,8 +8,8 @@ use crate::model::{HasSourceSpan, References, Span};
 use crate::stdlib::is_builtin_type_name;
 use crate::syntax::KW_TYPE_UNKNOWN;
 use sdml_errors::diagnostics::functions::{
-    feature_set_not_a_union, property_incompatible_usage, rdf_definition_incompatible_usage,
-    type_class_incompatible_usage, type_definition_not_found,
+    property_incompatible_usage, rdf_definition_incompatible_usage, type_class_incompatible_usage,
+    type_definition_not_found,
 };
 use std::collections::HashSet;
 use std::fmt::{Debug, Display};
@@ -44,9 +44,8 @@ pub trait HasType {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum TypeReference {
     Unknown,
-    // `builtin_simple_type` is converted into a `IdentifierReference`
+    /// `builtin_simple_type` is converted into a `IdentifierReference`
     Type(IdentifierReference),
-    FeatureSet(IdentifierReference),
     MappingType(MappingType),
 }
 
@@ -76,7 +75,6 @@ impl Display for TypeReference {
             match self {
                 TypeReference::Unknown => KW_TYPE_UNKNOWN.to_string(),
                 TypeReference::Type(v) => v.to_string(),
-                TypeReference::FeatureSet(v) => v.to_string(),
                 TypeReference::MappingType(v) => v.to_string(),
             }
         )
@@ -87,10 +85,6 @@ impl IdentifierReference {
     pub fn into_type_reference(self) -> TypeReference {
         TypeReference::Type(self)
     }
-
-    pub fn into_featureset_reference(self) -> TypeReference {
-        TypeReference::FeatureSet(self)
-    }
 }
 
 impl References for TypeReference {
@@ -98,9 +92,6 @@ impl References for TypeReference {
         match self {
             TypeReference::Unknown => {}
             TypeReference::Type(v) => {
-                names.insert(v);
-            }
-            TypeReference::FeatureSet(v) => {
                 names.insert(v);
             }
             TypeReference::MappingType(v) => {
@@ -111,7 +102,7 @@ impl References for TypeReference {
 }
 
 impl MaybeIncomplete for TypeReference {
-    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
         match self {
             TypeReference::Unknown => true,
             TypeReference::MappingType(v) => v.is_incomplete(top, cache),
@@ -124,7 +115,7 @@ impl Validate for TypeReference {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -173,23 +164,6 @@ impl Validate for TypeReference {
                 }
                 _ => {}
             },
-            TypeReference::FeatureSet(name) => match find_definition(name, top, cache) {
-                Some(Definition::Union(_)) => {}
-                None => loader
-                    .report(&type_definition_not_found(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap(),
-                _ => loader
-                    .report(&feature_set_not_a_union(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap(),
-            },
             TypeReference::MappingType(v) => v.validate(top, cache, loader, check_constraints),
         };
     }
@@ -201,8 +175,6 @@ impl TypeReference {
     // --------------------------------------------------------------------------------------------
 
     is_as_variant!(Type (IdentifierReference) => is_reference, as_reference);
-
-    is_as_variant!(FeatureSet (IdentifierReference) => is_featureset, as_featureset);
 
     is_as_variant!(MappingType (MappingType) => is_mapping_type, as_mapping_type);
 
@@ -235,7 +207,7 @@ impl References for MappingType {
 }
 
 impl MaybeIncomplete for MappingType {
-    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
         self.domain.is_incomplete(top, cache) || self.range.is_incomplete(top, cache)
     }
 }
@@ -244,7 +216,7 @@ impl Validate for MappingType {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -271,11 +243,13 @@ impl MappingType {
         }
     }
 
+    builder_fn!(pub with_domain, boxed domain => into TypeReference);
+    builder_fn!(pub with_range, boxed range => into TypeReference);
+
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
     get_and_set!(pub domain, set_domain => boxed into TypeReference);
-
     get_and_set!(pub range, set_range => boxed into TypeReference);
 }

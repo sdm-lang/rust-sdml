@@ -9,7 +9,8 @@ YYYYY
 
 */
 
-use crate::model::identifiers::Identifier;
+use crate::model::definitions::Definition;
+use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use crate::model::modules::Module;
 use crate::model::HasName;
 use crate::stdlib;
@@ -45,9 +46,35 @@ pub trait ModuleStore {
     fn get_by_uri(&self, uri: &Url) -> Option<&Module>;
     fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module>;
 
+    fn iter(&self) -> impl Iterator<Item = &Module>;
+
     fn insert(&mut self, module: Module);
     fn remove(&mut self, name: &Identifier) -> bool;
     fn remove_by_uri(&mut self, uri: &Url) -> bool;
+
+    fn identifier_for_url(&self, url: &Url) -> Option<&Identifier>;
+    fn url_for_identifier(&self, id: &Identifier) -> Option<&Url>;
+    fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)>;
+    fn identifier_to_url_map(&self) -> impl Iterator<Item = (&Identifier, &Url)>;
+
+    fn resolve(&self, definition: &QualifiedIdentifier) -> Option<&Definition> {
+        if let Some(module) = self.get(definition.module()) {
+            module.resolve_local(definition.member())
+        } else {
+            None
+        }
+    }
+
+    fn resolve_or_in(
+        &self,
+        definition: &IdentifierReference,
+        in_module: &Identifier,
+    ) -> Option<&Definition> {
+        match definition {
+            IdentifierReference::Identifier(v) => self.resolve(&v.with_module(in_module.clone())),
+            IdentifierReference::QualifiedIdentifier(v) => self.resolve(v),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -133,6 +160,29 @@ impl ModuleStore for ModuleCache {
             false
         }
     }
+
+    fn iter(&self) -> impl Iterator<Item = &Module> {
+        self.modules.values()
+    }
+
+    fn identifier_for_url(&self, url: &Url) -> Option<&Identifier> {
+        self.uri_map.get(url)
+    }
+
+    fn url_for_identifier(&self, id: &Identifier) -> Option<&Url> {
+        self.modules
+            .get(id)
+            .map(|module| module.base_uri().map(|hv| hv.value()))
+            .unwrap_or_default()
+    }
+
+    fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)> {
+        self.uri_map.iter()
+    }
+
+    fn identifier_to_url_map(&self) -> impl Iterator<Item = (&Identifier, &Url)> {
+        self.uri_map.iter().map(|(url, id)| (id, url))
+    }
 }
 
 impl ModuleCache {
@@ -161,29 +211,6 @@ impl ModuleCache {
         let mut self_mut = self;
         self_mut.insert(module);
         self_mut
-    }
-
-    pub fn iter(&self) -> impl Iterator<Item = &Module> {
-        self.modules.values()
-    }
-
-    pub fn identifier_for_url(&self, url: &Url) -> Option<&Identifier> {
-        self.uri_map.get(url)
-    }
-
-    pub fn url_for_identifier(&self, id: &Identifier) -> Option<&Url> {
-        self.modules
-            .get(id)
-            .map(|module| module.base_uri().map(|hv| hv.value()))
-            .unwrap_or_default()
-    }
-
-    pub fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)> {
-        self.uri_map.iter()
-    }
-
-    pub fn identifier_to_url_map(&self) -> impl Iterator<Item = (&Identifier, &Url)> {
-        self.uri_map.iter().map(|(url, id)| (id, url))
     }
 }
 

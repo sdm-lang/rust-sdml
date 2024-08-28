@@ -1,11 +1,15 @@
+use std::process::ExitCode;
+
 use clap::{Args, ValueEnum};
 use sdml_core::{
     cache::{ModuleCache, ModuleStore},
     load::ModuleLoader,
 };
 use sdml_errors::Error;
-use sdml_generate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
-use sdml_generate::GenerateToWriter;
+use sdml_generate::{
+    actions::deps::{DependencyViewGenerator, DependencyViewOptions, DependencyViewRepresentation},
+    Generator,
+};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -103,14 +107,17 @@ pub(crate) enum OutputFormat {
 
 impl super::Command for Command {
     #[allow(clippy::redundant_closure_call)]
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(self, |module, cache: &ModuleCache, _| {
-            let mut generator = DependencyViewGenerator::new(self.depth)
-                .with_format_options(self.output_format.into());
+            let options: DependencyViewOptions = DependencyViewOptions::default()
+                .with_depth(self.depth)
+                .with_representation(self.output_format.into());
+            let mut generator = DependencyViewGenerator::default();
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
-            generator.write(module, cache, &mut writer)
+            generator.generate_with_options(module, cache, options, None, &mut writer)?;
+            Ok(ExitCode::SUCCESS)
         });
     }
 }

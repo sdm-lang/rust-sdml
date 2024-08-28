@@ -22,13 +22,14 @@ use serde::{Deserialize, Serialize};
 ///
 /// This trait is implemented by types that have a distinct /body/ type.
 ///
-pub trait HasBody<T> {
+pub trait HasBody {
+    type Body;
     /// Get the body of the enclosing type.
-    fn body(&self) -> &T;
+    fn body(&self) -> &Self::Body;
     /// Get a mutable reference to the body of the enclosing type.
-    fn body_mut(&mut self) -> &mut T;
+    fn body_mut(&mut self) -> &mut Self::Body;
     /// Set the body of the enclosing type.
-    fn set_body(&mut self, body: T);
+    fn set_body(&mut self, body: Self::Body);
 }
 
 ///
@@ -41,6 +42,9 @@ pub trait HasName {
     fn set_name(&mut self, name: Identifier);
 }
 
+///
+/// This trait is implemented by types whose name is derived from a reference.
+///
 pub trait HasNameReference {
     /// Get the name reference for the enclosing type.
     fn name_reference(&self) -> &IdentifierReference;
@@ -48,10 +52,9 @@ pub trait HasNameReference {
     fn set_name_reference(&mut self, name: IdentifierReference);
 }
 
-pub trait Namespace<T>
-where
-    T: HasName,
-{
+pub trait Namespace {
+    type Member: HasName;
+
     /// Returns `true` of the namespace contains any members, else `false`.
     fn has_members(&self) -> bool;
 
@@ -62,38 +65,39 @@ where
     fn contains_member(&self, name: &Identifier) -> bool;
 
     /// Return the member with the name `name`, if present.
-    fn member(&self, name: &Identifier) -> Option<&T>;
+    fn member(&self, name: &Identifier) -> Option<&Self::Member>;
 
     /// Returns an iterator over all members in the namespace.
-    fn members(&self) -> Box<dyn Iterator<Item = &T> + '_>;
+    fn members(&self) -> impl Iterator<Item = &Self::Member>;
 
     /// Returns an iterator over mutable members in the namespace.
-    fn members_mut(&mut self) -> Box<dyn Iterator<Item = &mut T> + '_>;
+    fn members_mut(&mut self) -> impl Iterator<Item = &mut Self::Member>;
 
     /// Returns an iterator over the names of namespace members.
-    fn member_names(&self) -> Box<dyn Iterator<Item = &Identifier> + '_>;
+    fn member_names(&self) -> impl Iterator<Item = &Identifier>;
 
     /// Add a member to the namespace. If a member already existed with the same name it
     /// will be returned.
-    fn add_to_members(&mut self, value: T) -> Option<T>;
+    fn add_to_members(&mut self, value: Self::Member) -> Option<Self::Member>;
 
     /// Add the members of the extension to the namespace. Any existing members with
     /// the same names will be replaced.
     fn extend_members<I>(&mut self, extension: I)
     where
-        I: IntoIterator<Item = T>;
+        I: IntoIterator<Item = Self::Member>;
 }
 
 ///
 /// This trait is implemented by types that have a distinct, but optional, *body* type.
 ///
-pub trait HasOptionalBody<T> {
+pub trait HasOptionalBody {
+    type Body;
     fn has_body(&self) -> bool {
         self.body().is_some()
     }
-    fn body(&self) -> Option<&T>;
-    fn body_mut(&mut self) -> Option<&mut T>;
-    fn set_body(&mut self, body: T);
+    fn body(&self) -> Option<&Self::Body>;
+    fn body_mut(&mut self) -> Option<&mut Self::Body>;
+    fn set_body(&mut self, body: Self::Body);
     fn unset_body(&mut self);
 }
 

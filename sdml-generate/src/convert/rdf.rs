@@ -12,10 +12,10 @@ use crate::{
         property_subject, start_bnode, start_collection, thing_qname, thing_subject,
         type_ref_qname, type_subject, Separator, INDENT_PREDICATE,
     },
-    GenerateToWriter,
+    Generator,
 };
 use sdml_core::{
-    cache::ModuleCache,
+    cache::ModuleStore,
     error::Error,
     model::{
         annotations::{Annotation, AnnotationProperty, HasAnnotations},
@@ -25,8 +25,8 @@ use sdml_core::{
             PropertyDef, RdfDef, StructureDef, TypeClassDef, TypeVariant, UnionDef, ValueVariant,
         },
         identifiers::{Identifier, IdentifierReference},
-        members::{HasCardinality, Member, Ordering, Uniqueness, DEFAULT_CARDINALITY},
-        members::{HasType, TypeReference},
+        members::TypeReference,
+        members::{Member, Ordering, Uniqueness, DEFAULT_CARDINALITY},
         modules::Module,
         values::{
             MappingValue, SequenceMember, SequenceOfValues, SimpleValue, Value, ValueConstructor,
@@ -35,7 +35,7 @@ use sdml_core::{
     },
     stdlib,
 };
-use std::{fmt::Display, io::Write};
+use std::{fmt::Display, io::Write, path::PathBuf};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -88,16 +88,22 @@ macro_rules! write_annotations {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
-    fn write<W>(
+impl Generator for RdfModelGenerator {
+    type Options = RdfRepresentation;
+
+    fn generate_with_options<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
+        options: Self::Options,
+        _: Option<PathBuf>,
         writer: &mut W,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
     {
+        self.format_options = options;
+
         let module_name = module.name();
 
         if let Some(base) = module.base_uri() {
@@ -226,15 +232,6 @@ impl GenerateToWriter<RdfRepresentation> for RdfModelGenerator {
         }
 
         Ok(())
-    }
-
-    fn with_format_options(mut self, format_options: RdfRepresentation) -> Self {
-        self.format_options = format_options;
-        self
-    }
-
-    fn format_options(&self) -> &RdfRepresentation {
-        &self.format_options
     }
 }
 
@@ -455,7 +452,7 @@ impl RdfModelGenerator {
         module_name: &Identifier,
         writer: &mut dyn Write,
     ) -> Result<String, Error> {
-        let mut more = String::new();
+        let more = String::new();
 
         if let Some(def) = me.as_definition() {
             match def.target_type() {
@@ -552,30 +549,6 @@ impl RdfModelGenerator {
                             )?;
                         }
                     }
-                }
-                TypeReference::FeatureSet(name) => {
-                    let (fs_module, fs_name) = self.qualified_idref(module_name, name);
-                    writer.write_all(
-                        predicate_with_value(
-                            stdlib::rdfs::MODULE_NAME,
-                            stdlib::rdfs::RANGE,
-                            type_ref_qname(fs_module, fs_name),
-                            Separator::Predicate,
-                        )
-                        .as_bytes(),
-                    )?;
-                    // TODO cardinality
-                    more = format!(
-                        "{}{}{}",
-                        thing_subject(fs_module, fs_name),
-                        predicate_with_value(
-                            stdlib::rdf::MODULE_NAME,
-                            stdlib::rdf::TYPE,
-                            type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::FEATURE_SET),
-                            Separator::Statement
-                        ),
-                        Separator::None
-                    )
                 }
                 TypeReference::MappingType(_map) => {
                     // 1. throw hands in the air, this is a mess.
@@ -939,11 +912,7 @@ impl RdfModelGenerator {
             .as_bytes(),
         )?;
 
-        if let Some(body) = me.body() {
-            write_annotations!(self, body.annotations(), module_name, writer);
-
-            // TODO: roles
-        }
+        // TODO: MemberDef
 
         self.write_defn_end(module_name, name, writer)?;
 

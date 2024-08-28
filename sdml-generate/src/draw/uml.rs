@@ -3,24 +3,30 @@ Provide a generator for UML class diagrams via PlantUML.
 
 */
 
-use crate::draw::{OutputFormat, UML_PROGRAM};
+use crate::draw::{filter::DiagramContentFilter, OutputFormat, UML_PROGRAM};
 use crate::exec::{exec_with_temp_input, CommandArg};
-use crate::GenerateToFile;
-use sdml_core::cache::ModuleCache;
+use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
-use sdml_core::model::constraints::ControlledLanguageTag;
+use sdml_core::model::annotations::AnnotationProperty;
+use sdml_core::model::definitions::{
+    DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef, StructureDef, TypeVariant,
+    UnionDef, ValueVariant,
+};
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{
-    Cardinality, Ordering, TypeReference, Uniqueness, DEFAULT_CARDINALITY,
+    Cardinality, Member, MemberDef, MemberKind, Ordering, TypeReference, Uniqueness,
+    DEFAULT_CARDINALITY,
 };
 use sdml_core::model::modules::Module;
-use sdml_core::model::values::Value;
-use sdml_core::model::walk::{walk_module_simple, SimpleModuleWalker};
-use sdml_core::model::{HasName, References, Span};
+use sdml_core::model::walk::{walk_module_simple, SimpleModuleVisitor};
+use sdml_core::model::{HasName, HasNameReference, HasOptionalBody, References};
 use sdml_core::syntax::{KW_ORDERING_ORDERED, KW_UNIQUENESS_UNIQUE};
 use std::collections::HashSet;
-use std::path::Path;
+use std::io::Write;
+use std::path::{Path, PathBuf};
 use tracing::{debug, trace};
+
+use super::filter::DefinitionKind;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -30,30 +36,28 @@ use tracing::{debug, trace};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct UmlDiagramGenerator {
     buffer: String,
     imports: (String, String),
     output: Option<DiagramOutput>,
     assoc_src: Option<String>,
     refs: Option<String>,
-    emit_annotations: bool,
-    output_format: OutputFormat,
+    options: UmlDiagramOptions,
 }
 
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
+#[derive(Clone, Debug, Default)]
+pub struct UmlDiagramOptions {
+    emit_annotations: bool,
+    content_filter: DiagramContentFilter,
+    output_format: OutputFormat,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 struct DiagramOutput {
     file_name: String,
     output_dir: String,
@@ -63,36 +67,68 @@ struct DiagramOutput {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
-    fn write_to_file(
+impl UmlDiagramOptions {
+    pub fn with_content_filter(self, content_filter: DiagramContentFilter) -> Self {
+        Self {
+            content_filter,
+            ..self
+        }
+    }
+
+    pub fn with_output_format(self, output_format: OutputFormat) -> Self {
+        Self {
+            output_format,
+            ..self
+        }
+    }
+
+    pub fn emit_annotations(self, emit_annotations: bool) -> Self {
+        Self {
+            emit_annotations,
+            ..self
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl crate::Generator for UmlDiagramGenerator {
+    type Options = UmlDiagramOptions;
+
+    fn generate_with_options<W>(
         &mut self,
         module: &Module,
-        _cache: &ModuleCache,
-        path: &Path,
-    ) -> Result<(), Error> {
+        _: &impl ModuleStore,
+        options: Self::Options,
+        _: Option<PathBuf>,
+        writer: &mut W,
+    ) -> Result<(), Error>
+    where
+        W: Write + Sized,
+    {
         trace_entry!(
             "UmlDiagramGenerator",
             "write_to_file_in_format" =>
-            "{}, _, {:?}",
-            module.name(),
-            path);
+            "{}, _",
+            module.name());
+
+        self.options = options;
         self.imports = make_imports(module);
-        self.output = Some(path_to_output(path, module.name())?);
 
-        walk_module_simple(module, self)?;
+        walk_module_simple(module, self, true, true)?;
 
-        let format = *self.format_options();
-        if format == OutputFormat::Source {
-            std::fs::write(path, &self.buffer)?;
+        if self.options.output_format == OutputFormat::Source {
+            writer.write_all(self.buffer.as_bytes())?;
         } else {
             match exec_with_temp_input(
                 UML_PROGRAM,
+                // TODO: use path parameter instead!
                 vec![
                     CommandArg::new(format!(
                         "-o{}",
                         self.output.as_ref().map(|o| &o.output_dir).unwrap()
                     )),
-                    format_to_arg(format),
+                    format_to_arg(self.options.output_format),
                 ],
                 &self.buffer,
             ) {
@@ -107,20 +143,13 @@ impl GenerateToFile<OutputFormat> for UmlDiagramGenerator {
 
         Ok(())
     }
-
-    fn with_format_options(mut self, format_options: OutputFormat) -> Self {
-        self.output_format = format_options;
-        self
-    }
-
-    fn format_options(&self) -> &OutputFormat {
-        &self.output_format
-    }
 }
 
-impl SimpleModuleWalker for UmlDiagramGenerator {
-    fn start_module(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+impl SimpleModuleVisitor for UmlDiagramGenerator {
+    fn module_start(&mut self, module: &Module) -> Result<bool, Error> {
         trace!("start_module");
+
+        let name = module.name();
         self.buffer.push_str(&format!(
             r#"@startuml {}
 skinparam backgroundColor transparent
@@ -148,244 +177,260 @@ package "{name}" as {} <<module>> {{
             make_id(name),
         ));
 
+        Self::INCLUDE_NESTED
+    }
+
+    fn module_end(&mut self, _: &Module) -> Result<(), Error> {
+        if let Some(refs) = &self.refs {
+            self.buffer.push_str(refs);
+        }
+        self.buffer.push_str(&format!(
+            r#"}}
+
+{}
+
+@enduml
+"#,
+            &self.imports.1
+        ));
+
         Ok(())
     }
 
-    fn annotation_property(
-        &mut self,
-        name: &IdentifierReference,
-        value: &Value,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        if self.emit_annotations {
+    fn annotation_property(&mut self, property: &AnnotationProperty) -> Result<(), Error> {
+        if self.options.emit_annotations {
+            let name = property.name_reference();
+            let value = property.value();
             self.buffer.push_str(&format!("{{{name} = {value}}}\n"));
         }
         Ok(())
     }
 
-    fn informal_constraint(
-        &mut self,
-        _name: &Identifier,
-        _value: &str,
-        _language: Option<&ControlledLanguageTag>,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
+    fn datatype_start(&mut self, datatype: &DatatypeDef) -> Result<bool, Error> {
+        let name = datatype.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Datatype, name)
+        {
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", name, "datatype"));
+
+            // TODO: add opaque as stereotype on restriction
+
+            let base_type = datatype.base_type();
+            let restriction = format!("  {} --|> {}\n", make_id(name), make_id(base_type));
+            self.refs = Some(
+                self.refs
+                    .clone()
+                    .map(|r| format!("{r}{restriction}"))
+                    .unwrap_or(restriction),
+            );
+            self.options.emit_annotations = true;
+        }
+        Self::INCLUDE_NESTED
     }
 
-    fn start_datatype(
-        &mut self,
-        name: &Identifier,
-        _is_opaque: bool,
-        base_type: &IdentifierReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "datatype"));
-
-        // TODO: add opaque as stereotype on restriction
-        let restriction = format!("  {} --|> {}\n", make_id(name), make_id(base_type));
-        self.refs = Some(
-            self.refs
-                .clone()
-                .map(|r| format!("{r}{restriction}"))
-                .unwrap_or(restriction),
-        );
-        self.emit_annotations = true;
-        Ok(())
-    }
-
-    fn end_datatype(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
+    fn datatype_end(&mut self, datatype: &DatatypeDef) -> Result<(), Error> {
+        let name = datatype.name();
         self.buffer.push_str("  }\n");
         self.buffer.push_str(&format!(
             "  hide {} {}\n",
             make_id(name),
-            if had_body { "methods" } else { "members" }
+            if datatype.has_body() {
+                "methods"
+            } else {
+                "members"
+            }
         ));
 
         self.assoc_src = None;
-        self.emit_annotations = false;
+        self.options.emit_annotations = false;
 
         Ok(())
     }
 
-    fn start_entity(
-        &mut self,
-        name: &Identifier,
-        has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&start_type_with_sterotype(
-            if has_body { "class" } else { "abstract" },
-            name,
-            "entity",
-        ));
-        self.assoc_src = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_entity_identity(
-        &mut self,
-        name: &Identifier,
-        target_type: &TypeReference,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        if let TypeReference::Type(target_type) = target_type {
-            self.buffer
-                .push_str(&format!("    +{name}: {target_type}\n"));
-        } else {
-            self.buffer.push_str("    +{role_name}: ?\n");
+    fn entity_start(&mut self, entity: &EntityDef) -> Result<bool, Error> {
+        let name = entity.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Entity, name)
+        {
+            self.buffer.push_str(&start_type_with_sterotype(
+                if entity.has_body() {
+                    "class"
+                } else {
+                    "abstract"
+                },
+                name,
+                "entity",
+            ));
+            self.assoc_src = Some(name.to_string());
         }
-        self.buffer.push_str("    --\n");
+        Self::INCLUDE_NESTED
+    }
+
+    fn entity_end(&mut self, entity: &EntityDef) -> Result<(), Error> {
+        self.buffer
+            .push_str(&end_type(entity.name(), entity.has_body()));
+        self.assoc_src = None;
         Ok(())
     }
 
-    fn start_entity_identity_role_ref(
-        &mut self,
-        role_name: &Identifier,
-        in_property: &IdentifierReference,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&format!(
-            "    +{role_name} <<identity>> {{property = {in_property}}}\n"
-        ));
-        self.buffer.push_str("    --\n");
+    fn enum_start(&mut self, an_enum: &EnumDef) -> Result<bool, Error> {
+        let name = an_enum.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, name)
+        {
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", an_enum.name(), "enum"));
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn enum_end(&mut self, an_enum: &EnumDef) -> Result<(), Error> {
+        self.buffer
+            .push_str(&end_type(an_enum.name(), an_enum.has_body()));
+        self.assoc_src = None;
         Ok(())
     }
 
-    fn start_member(
-        &mut self,
-        name: &Identifier,
-        _inverse_name: Option<&Identifier>,
-        target_cardinality: &Cardinality,
-        target_type: &TypeReference,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        match make_member(
-            self.assoc_src.as_ref().unwrap(),
-            name,
-            target_type,
-            target_cardinality,
-            false,
-        ) {
+    fn event_start(&mut self, event: &EventDef) -> Result<bool, Error> {
+        let name = event.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, name)
+        {
+            let source = event.event_source();
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", name, "event"));
+            self.assoc_src = Some(name.to_string());
+            let reference = format!("  {} ..> {}: <<source>>\n", make_id(name), make_id(source));
+            self.refs = Some(
+                self.refs
+                    .clone()
+                    .map(|r| format!("{r}{reference}"))
+                    .unwrap_or(reference),
+            );
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn event_end(&mut self, event: &EventDef) -> Result<(), Error> {
+        self.buffer
+            .push_str(&end_type(event.name(), event.has_body()));
+        self.assoc_src = None;
+        Ok(())
+    }
+
+    fn property_start(&mut self, property: &PropertyDef) -> Result<bool, Error> {
+        let defn = property.member_def();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, defn.name())
+        {
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", defn.name(), "property"));
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn property_end(&mut self, property: &PropertyDef) -> Result<(), Error> {
+        let defn = property.member_def();
+        self.buffer
+            .push_str(&end_type(defn.name(), defn.has_body()));
+        Ok(())
+    }
+
+    fn structure_start(&mut self, structure: &StructureDef) -> Result<bool, Error> {
+        let name = structure.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, name)
+        {
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", name, "structure"));
+            self.assoc_src = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn structure_end(&mut self, structure: &StructureDef) -> Result<(), Error> {
+        self.buffer
+            .push_str(&end_type(structure.name(), structure.has_body()));
+        self.assoc_src = None;
+        Ok(())
+    }
+
+    fn rdf_start(&mut self, rdf: &RdfDef) -> Result<bool, Error> {
+        let name = rdf.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, name)
+        {
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", name, "rdf"));
+            self.assoc_src = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn rdf_end(&mut self, rdf: &RdfDef) -> Result<(), Error> {
+        self.buffer.push_str(&end_type(rdf.name(), false));
+        self.assoc_src = None;
+        Ok(())
+    }
+
+    fn union_start(&mut self, union: &UnionDef) -> Result<bool, Error> {
+        let name = union.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, name)
+        {
+            self.buffer
+                .push_str(&start_type_with_sterotype("class", name, "union"));
+            self.assoc_src = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn union_end(&mut self, union: &UnionDef) -> Result<(), Error> {
+        self.buffer
+            .push_str(&end_type(union.name(), union.has_body()));
+        self.assoc_src = None;
+        Ok(())
+    }
+
+    fn member_start(&mut self, member: &Member) -> Result<bool, Error> {
+        match self.make_member(self.assoc_src.as_ref().unwrap(), member) {
             (v, false) => {
                 self.refs = Some(self.refs.clone().map(|r| format!("{r}{v}")).unwrap_or(v))
             }
             (v, true) => self.buffer.push_str(v.as_str()),
         }
-        Ok(())
+        Self::INCLUDE_NESTED
     }
 
-    fn start_member_role_ref(
-        &mut self,
-        role_name: &Identifier,
-        in_property: &IdentifierReference,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&format!("    +{role_name} {{property = {in_property}}}\n"));
-        Ok(())
+    fn identity_member_start(&mut self, _thing: &Member) -> Result<bool, Error> {
+        Self::INCLUDE_NESTED
     }
 
-    fn end_entity(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
-        self.assoc_src = None;
-        Ok(())
+    fn value_variant_start(&mut self, variant: &ValueVariant) -> Result<bool, Error> {
+        self.buffer.push_str(&format!("    +{}\n", variant.name()));
+        Self::INCLUDE_NESTED
     }
 
-    fn start_enum(
-        &mut self,
-        name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "enum"));
-        Ok(())
-    }
-
-    fn start_value_variant(
-        &mut self,
-        name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    +{name}\n"));
-        Ok(())
-    }
-
-    fn end_enum(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
-        self.assoc_src = None;
-        Ok(())
-    }
-
-    fn start_event(
-        &mut self,
-        name: &Identifier,
-        source: &IdentifierReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "event"));
-        self.assoc_src = Some(name.to_string());
-        let reference = format!("  {} ..> {}: <<source>>\n", make_id(name), make_id(source));
-        self.refs = Some(
-            self.refs
-                .clone()
-                .map(|r| format!("{r}{reference}"))
-                .unwrap_or(reference),
-        );
-        Ok(())
-    }
-
-    fn end_event(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
-        self.assoc_src = None;
-        Ok(())
-    }
-
-    fn start_structure(
-        &mut self,
-        name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "structure"));
-        self.assoc_src = Some(name.to_string());
-        Ok(())
-    }
-
-    fn end_structure(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
-        self.assoc_src = None;
-        Ok(())
-    }
-
-    fn start_union(
-        &mut self,
-        name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "union"));
-        self.assoc_src = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_type_variant(
-        &mut self,
-        name: &IdentifierReference,
-        rename: Option<&Identifier>,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    fn type_variant_start(&mut self, variant: &TypeVariant) -> Result<bool, Error> {
+        let name = variant.name();
+        let rename = variant.rename();
         let reference = if let Some(rename) = rename {
             format!(
                 "  {} *--> \"{rename}\" {}\n",
@@ -405,99 +450,55 @@ package "{name}" as {} <<module>> {{
                 .map(|r| format!("{r}{reference}"))
                 .unwrap_or(reference),
         );
-
-        Ok(())
+        Self::INCLUDE_NESTED
     }
+}
 
-    fn end_union(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
-        self.assoc_src = None;
-        Ok(())
-    }
-
-    fn start_property(
-        &mut self,
-        name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "property"));
-        Ok(())
-    }
-
-    fn start_identity_role(
-        &mut self,
-        name: &Identifier,
-        target_type: &TypeReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer
-            .push_str(&format!("    <<role, identity>> {name}"));
-        if let TypeReference::Type(target_type) = target_type {
-            self.buffer.push_str(&format!(": {target_type}\n"));
-            // TODO: Cardinality
-            // TODO: Mapping Types
-        } else {
-            self.buffer.push('\n');
+impl UmlDiagramGenerator {
+    fn make_member(&self, source: &str, member: &Member) -> (String, bool) {
+        match &member.kind() {
+            MemberKind::Reference(v) => self.make_property_ref(v),
+            MemberKind::Definition(v) => self.make_member_def(source, v),
         }
-        Ok(())
     }
 
-    fn start_member_role(
-        &mut self,
-        name: &Identifier,
-        _inverse_name: Option<&Identifier>,
-        _target_cardinality: &Cardinality,
-        target_type: &TypeReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&format!("    <<role, ref>> {name}"));
-        if let TypeReference::Type(target_type) = target_type {
-            self.buffer.push_str(&format!(": {target_type}\n"));
-            // TODO: Cardinality
-            // TODO: Mapping Types
-        } else {
-            self.buffer.push('\n');
+    fn make_member_def(&self, source: &str, member_def: &MemberDef) -> (String, bool) {
+        let name = member_def.name();
+        let card = member_def.target_cardinality();
+        let target_type = member_def.target_type();
+        match &target_type {
+            TypeReference::Type(type_ref) => {
+                if *card == DEFAULT_CARDINALITY {
+                    (
+                        format!("    +{name}: {}\n", make_type_reference(&target_type)),
+                        true,
+                    )
+                } else {
+                    (
+                        // TODO: make references to entities "o" not "*"
+                        format!(
+                            "  s_{source} *--> \"+{name}\\n{}\" {}\n",
+                            to_uml_string(card, true),
+                            make_id(type_ref),
+                        ),
+                        false,
+                    )
+                }
+            }
+            TypeReference::MappingType(_) => (
+                format!(
+                    "    +{name}: {} {}\n",
+                    to_uml_string(card, false),
+                    make_type_reference(&target_type)
+                ),
+                true,
+            ),
+            TypeReference::Unknown => (format!("    +{name}: unknown\n"), true),
         }
-        Ok(())
     }
 
-    fn end_property(&mut self, name: &Identifier, had_body: bool) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, had_body));
-        Ok(())
-    }
-
-    fn start_rdf(&mut self, name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
-        self.buffer
-            .push_str(&start_type_with_sterotype("class", name, "rdf"));
-        self.assoc_src = Some(name.to_string());
-        Ok(())
-    }
-
-    fn end_rdf(&mut self, name: &Identifier) -> Result<(), Error> {
-        self.buffer.push_str(&end_type(name, false));
-        self.assoc_src = None;
-        Ok(())
-    }
-
-    fn end_module(&mut self, _name: &Identifier) -> Result<(), Error> {
-        if let Some(refs) = &self.refs {
-            self.buffer.push_str(refs);
-        }
-        self.buffer.push_str(&format!(
-            r#"}}
-
-{}
-
-@enduml
-"#,
-            &self.imports.1
-        ));
-
-        Ok(())
+    fn make_property_ref(&self, property_ref: &IdentifierReference) -> (String, bool) {
+        (format!("    +<<ref>> {property_ref}\n"), true)
     }
 }
 
@@ -536,70 +537,10 @@ fn end_type(type_name: &Identifier, has_body: bool) -> String {
     }
 }
 
-fn make_member(
-    source: &String,
-    name: &Identifier,
-    type_ref: &TypeReference,
-    card: &Cardinality,
-    by_ref: bool,
-) -> (String, bool) {
-    match type_ref {
-        TypeReference::Type(target_type) => {
-            if *card == DEFAULT_CARDINALITY {
-                (
-                    format!("    +{name}: {}\n", make_type_reference(type_ref)),
-                    true,
-                )
-            } else {
-                (
-                    format!(
-                        "  s_{source} {}--> \"+{name}\\n{}\" {}\n",
-                        if by_ref { "o" } else { "*" },
-                        to_uml_string(card, true),
-                        make_id(target_type),
-                    ),
-                    false,
-                )
-            }
-        }
-        TypeReference::FeatureSet(target_type) => {
-            if *card == DEFAULT_CARDINALITY {
-                (
-                    format!(
-                        "    <<features>> +{name}: {}\n",
-                        make_type_reference(type_ref)
-                    ),
-                    true,
-                )
-            } else {
-                (
-                    format!(
-                        "  s_{source} {}--> \"+{name}\\n{}\" {}: <<features>>\n",
-                        if by_ref { "o" } else { "*" },
-                        to_uml_string(card, true),
-                        make_id(target_type),
-                    ),
-                    false,
-                )
-            }
-        }
-        TypeReference::MappingType(_) => (
-            format!(
-                "    +{name}: {} {}\n",
-                to_uml_string(card, false),
-                make_type_reference(type_ref)
-            ),
-            true,
-        ),
-        TypeReference::Unknown => (format!("    +{name}: unknown\n"), true),
-    }
-}
-
 fn make_type_reference(type_ref: &TypeReference) -> String {
     match type_ref {
         TypeReference::Unknown => "unknown".to_string(),
         TypeReference::Type(v) => v.to_string(),
-        TypeReference::FeatureSet(v) => v.to_string(),
         TypeReference::MappingType(v) => format!(
             "Mapping<{}, {}>",
             make_type_reference(v.domain()),
@@ -666,6 +607,7 @@ fn format_to_arg(value: OutputFormat) -> CommandArg {
 ///  PlantUML does not take output file names, it derives the names from the input file names.
 ///  However, it will take the path of the directory to put output files in, which needs to be
 ///  specified else it is derived from the input path (a temp file name).
+#[allow(dead_code)]
 #[inline(always)]
 fn path_to_output<P>(path: P, module_name: &Identifier) -> Result<DiagramOutput, Error>
 where

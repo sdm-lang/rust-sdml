@@ -69,7 +69,9 @@ pub fn module() -> Module {
         ).into(),
     ]);
 
-    module.body_mut().extend_definitions(vec![
+    module
+        .body_mut()
+        .extend_definitions(vec![
         datatype!(COUNTRY_CODE_ALPHA_2 => xsd::MODULE_NAME, xsd::STRING)
             .with_body(
                 vec![
@@ -143,7 +145,8 @@ pub fn module() -> Module {
             .into(),
         union!(COUNTRY_CODE => COUNTRY_CODE_ALPHA_2, COUNTRY_CODE_ALPHA_3, COUNTRY_CODE_NUMERIC_3)
             .into(),
-    ]);
+    ])
+        .unwrap();
 
     module
 }

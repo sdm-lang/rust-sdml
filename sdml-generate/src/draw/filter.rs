@@ -116,6 +116,7 @@ use regex::Regex;
 use sdml_core::model::{
     definitions::Definition,
     identifiers::{Identifier, QualifiedIdentifier},
+    modules::Import,
     HasName,
 };
 use sdml_core::stdlib;
@@ -145,6 +146,8 @@ pub struct DiagramContentFilter {
     module_import_filter: Option<NameFilter>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     member_import_filter: Option<QualifiedNameFilter>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    annotation_filter: Option<QualifiedNameFilter>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     definition_filter: Vec<DefinitionFilter>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
@@ -351,6 +354,19 @@ impl DiagramContentFilter {
     }
 
     ///
+    /// Builder function to set the *annotation filter*.
+    ///
+    pub fn with_annotation_filter<F>(self, filter: F) -> Self
+    where
+        F: Into<QualifiedNameFilter>,
+    {
+        Self {
+            annotation_filter: Some(filter.into()),
+            ..self
+        }
+    }
+
+    ///
     /// Builder function to set the *definition filter*.
     ///
     pub fn with_definition_filter<F>(self, filter: F) -> Self
@@ -406,6 +422,13 @@ impl DiagramContentFilter {
             && self.association_filter.is_empty()
     }
 
+    pub fn draw_import(&self, id: &Import) -> bool {
+        match id {
+            Import::Module(v) => self.draw_module_import(v.name()),
+            Import::Member(v) => self.draw_member_import(v),
+        }
+    }
+
     ///
     /// Returns `true` if the diagram should draw an import relationship to the module named
     /// `id`, else `false`.
@@ -414,7 +437,7 @@ impl DiagramContentFilter {
         !self
             .module_import_filter
             .as_ref()
-            .map(|names| names.is_excluded(id))
+            .map(|filter| filter.is_excluded(id))
             .unwrap_or_default()
     }
 
@@ -426,7 +449,7 @@ impl DiagramContentFilter {
         !self
             .member_import_filter
             .as_ref()
-            .map(|names| names.is_excluded(id))
+            .map(|filter| filter.is_excluded(id))
             .unwrap_or_default()
     }
 
@@ -438,7 +461,7 @@ impl DiagramContentFilter {
         !self
             .member_import_filter
             .as_ref()
-            .map(|names| names.is_excluded_pair(nsid, id))
+            .map(|filter| filter.is_excluded_pair(nsid, id))
             .unwrap_or_default()
     }
 
@@ -449,7 +472,18 @@ impl DiagramContentFilter {
         !self
             .definition_filter
             .iter()
-            .any(|names| names.is_excluded(defn))
+            .any(|filter| filter.is_excluded(defn))
+    }
+
+    pub fn draw_definition_named(
+        &self,
+        subject_kind: DefinitionKind,
+        subject_id: &Identifier,
+    ) -> bool {
+        !self
+            .definition_filter
+            .iter()
+            .any(|filter| filter.is_excluded_pair(subject_kind, subject_id))
     }
 
     ///

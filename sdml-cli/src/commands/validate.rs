@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::{Args, ValueEnum};
 use sdml_core::model::check::terms::{default_term_set, validate_module_terms};
 use sdml_core::model::{modules::Module, HasName};
@@ -100,7 +102,7 @@ pub(crate) enum DiagnosticLevel {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         let reporter: Box<dyn Reporter> = if self.short_form {
             Box::<CompactStreamReporter>::default()
         } else {
@@ -116,9 +118,14 @@ impl super::Command for Command {
                 let term_set = default_term_set()?;
                 validate_module_terms(module, &term_set, loader);
 
-                loader.reporter_done(Some(module.name().to_string()))?;
+                let reports = loader.reporter_done(Some(module.name().to_string()))?;
 
-                Ok(())
+                if reports.total() > 0 {
+                    Ok(ExitCode::FAILURE)
+                } else {
+                    println!("No issues found.");
+                    Ok(ExitCode::SUCCESS)
+                }
             }
         );
     }

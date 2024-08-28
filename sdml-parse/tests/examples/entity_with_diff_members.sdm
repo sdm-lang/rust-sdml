@@ -8,7 +8,7 @@ module campaign is
 
     b -> xsd:string
 
-    ref c -> Target
+    ref c
 
   end
 

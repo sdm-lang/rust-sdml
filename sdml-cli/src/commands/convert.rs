@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
 use sdml_core::{
@@ -6,7 +8,7 @@ use sdml_core::{
 };
 use sdml_errors::Error;
 use sdml_generate::convert::{json, rdf, sexpr};
-use sdml_generate::GenerateToWriter;
+use sdml_generate::Generator;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -56,32 +58,30 @@ pub(crate) enum ConvertFormat {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(self, |module: &Module, cache: &ModuleCache, _| {
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
             match self.output_format {
                 ConvertFormat::Rdf => {
-                    let mut generator =
-                        rdf::RdfModelGenerator::default().with_format_options(Default::default());
-                    generator.write(module, cache, &mut writer)?;
+                    let mut generator = rdf::RdfModelGenerator::default();
+                    generator.generate(module, cache, None, &mut writer)?;
                 }
                 ConvertFormat::Json | ConvertFormat::JsonPretty => {
-                    let options = if self.output_format == ConvertFormat::JsonPretty {
-                        json::GeneratorOptions::pretty_printer()
-                    } else {
-                        json::GeneratorOptions::default()
-                    };
-                    let mut generator = json::Generator::default().with_format_options(options);
-                    generator.write(module, cache, &mut writer)?;
+                    let options = json::JsonGeneratorOptions::default()
+                        .pretty_print(self.output_format == ConvertFormat::JsonPretty);
+                    let mut generator = json::JsonGenerator::default();
+                    generator.generate_with_options(module, cache, options, None, &mut writer)?;
                 }
                 ConvertFormat::SExpr => {
-                    sexpr::write_as_sexpr(module, &mut writer)?;
+                    let options = sexpr::SExpressionOptions::default();
+                    let mut generator = sexpr::SExpressionGenerator::default();
+                    generator.generate_with_options(module, cache, options, None, &mut writer)?;
                 }
             }
 
-            Ok(())
+            Ok(ExitCode::SUCCESS)
         });
     }
 }

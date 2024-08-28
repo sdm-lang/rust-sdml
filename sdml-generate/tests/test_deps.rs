@@ -6,7 +6,11 @@ use sdml_core::{
     model::{modules::Module, HasName},
 };
 use sdml_errors::diagnostics::UseColor;
-use sdml_generate::{color::set_colorize, GenerateToWriter};
+use sdml_generate::{
+    actions::deps::{DependencyViewGenerator, DependencyViewOptions},
+    color::set_colorize,
+    Generator,
+};
 use sdml_parse::load::FsModuleLoader;
 
 const MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
@@ -82,10 +86,16 @@ fn generate_dependency_tree(module: &Module, cache: &ModuleCache, _: &FsModuleLo
     // turn this off to avoid control characters in the output.
     set_colorize(UseColor::Never);
     let mut buffer = Cursor::new(Vec::new());
-    let view = sdml_generate::actions::deps::DependencyViewRepresentation::TextTree;
-    let mut generator =
-        sdml_generate::actions::deps::DependencyViewGenerator::default().with_format_options(view);
-    generator.write(module, cache, &mut buffer).unwrap();
+    let mut generator = DependencyViewGenerator::default();
+    generator
+        .generate_with_options(
+            module,
+            cache,
+            DependencyViewOptions::default().as_text_tree(),
+            None,
+            &mut buffer,
+        )
+        .unwrap();
     String::from_utf8(buffer.into_inner()).unwrap()
 }
 

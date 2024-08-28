@@ -3,7 +3,7 @@ This module provides a generator for Emacs org-mode documentation from a module.
 */
 
 use super::{ContentItem, ContentSection};
-use crate::actions::deps::{DependencyViewGenerator, DependencyViewRepresentation};
+use crate::actions::deps::{DependencyViewGenerator, DependencyViewOptions};
 use crate::color::set_colorize;
 use crate::convert::doc::common::{
     make_figure_label, make_label, make_listing_label, make_section_label, make_table_label,
@@ -12,10 +12,10 @@ use crate::convert::doc::common::{
 use crate::convert::doc::{AnnotationCategories, BookConfig, DocumentationWriter, Heading};
 use crate::convert::rdf::RdfModelGenerator;
 use crate::draw::OutputFormat;
-use crate::GenerateToWriter;
+use crate::Generator;
 use console::Term;
 use indicatif::{ProgressBar, ProgressStyle};
-use sdml_core::cache::{ModuleCache, ModuleStore};
+use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::annotations::HasAnnotations;
@@ -26,9 +26,7 @@ use sdml_core::model::definitions::{
     StructureDef, TypeClassDef, UnionDef,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
-use sdml_core::model::members::{
-    HasCardinality, HasType, Member, MemberKind, PseudoSequenceType, DEFAULT_CARDINALITY,
-};
+use sdml_core::model::members::{Member, MemberKind, PseudoSequenceType, DEFAULT_CARDINALITY};
 use sdml_core::model::modules::Module;
 use sdml_core::model::values::{LanguageString, SimpleValue, Value};
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
@@ -199,16 +197,21 @@ type Appendix = String;
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl GenerateToWriter<AnnotationCategories> for DocumentationGenerator {
-    fn write<W>(
+impl Generator for DocumentationGenerator {
+    type Options = AnnotationCategories;
+
+    fn generate_with_options<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
+        options: Self::Options,
+        _: Option<PathBuf>,
         writer: &mut W,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
     {
+        self.annotation_categories = options;
         set_colorize(UseColor::Never);
 
         self.write_preamble(
@@ -250,16 +253,6 @@ impl GenerateToWriter<AnnotationCategories> for DocumentationGenerator {
 
         Ok(())
     }
-
-    fn with_format_options(self, annotation_categories: AnnotationCategories) -> Self {
-        let mut self_mut = self;
-        self_mut.annotation_categories = annotation_categories;
-        self_mut
-    }
-
-    fn format_options(&self) -> &AnnotationCategories {
-        &self.annotation_categories
-    }
 }
 
 impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatter>
@@ -272,7 +265,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
     fn write_book<T>(
         &mut self,
         loader: &mut T,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         config: BookConfig,
     ) -> Result<(), Error>
     where
@@ -313,14 +306,14 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
                 .as_ref()
                 .unwrap_or(&default_language)
                 .as_str(),
-            config.include_toc,
+            config.options.include_toc,
             &mut index_file,
         )?;
         index_progress.inc(1);
 
         if let Some(file_name) = &config.introduction {
             trace!("Including introduction");
-            include_file(file_name, config.multi_part, &mut index_file)?;
+            include_file(file_name, config.options.multi_part, &mut index_file)?;
             index_progress.inc(1);
         }
 
@@ -338,7 +331,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
 
         write_heading(Heading::new_section("Appendices"), &mut index_file)?;
 
-        let mut appendices_file = if config.multi_part {
+        let mut appendices_file = if config.options.multi_part {
             let directory = config.output_file.parent().unwrap_or(Path::new("./"));
             let appendices_path = directory.join("_appendices.org");
             index_file.write_all(
@@ -413,7 +406,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
         &mut self,
         heading: super::Heading,
         module: &Module,
-        _: &ModuleCache,
+        _: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -432,7 +425,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
         &mut self,
         heading_level: u8,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -452,7 +445,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
     fn write_module_uml_overview<W>(
         &mut self,
         module: &Module,
-        _: &ModuleCache,
+        _: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -543,7 +536,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
         &mut self,
         heading: super::Heading,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -552,7 +545,8 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
         write_heading(heading, writer)?;
 
         let mut generator = RdfModelGenerator::default();
-        let rdf = generator.write_to_string(module, cache)?;
+        let rdf =
+            generator.generate_to_string(module, cache, Default::default(), Default::default())?;
 
         let name = module.name();
         let link_label = format!("module-{name}-src-rdf");
@@ -575,7 +569,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
     fn write_module_dependency_table<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -623,7 +617,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
         &mut self,
         heading: super::Heading,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -632,9 +626,9 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
         write_heading(heading, writer)?;
         writer.write_all(b"\n")?;
 
-        let mut generator = DependencyViewGenerator::default()
-            .with_format_options(DependencyViewRepresentation::DotGraph(OutputFormat::Source));
-        let dot_graph = generator.write_to_string(module, cache)?;
+        let options = DependencyViewOptions::default().as_dot_graph(OutputFormat::Source);
+        let mut generator = DependencyViewGenerator::default();
+        let dot_graph = generator.generate_to_string(module, cache, options, Default::default())?;
 
         let name = module.name();
         let link_label = format!("module-{name}-dep-graph");
@@ -698,7 +692,7 @@ impl DocumentationGenerator {
     fn write_section(
         &mut self,
         loader: &mut impl ModuleLoader,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         config: &BookConfig,
         level: u8,
         section: &ContentSection,
@@ -735,7 +729,7 @@ impl DocumentationGenerator {
     fn write_item(
         &mut self,
         loader: &mut impl ModuleLoader,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         config: &BookConfig,
         level: u8,
         item: &ContentItem,
@@ -772,7 +766,7 @@ impl DocumentationGenerator {
                 index_progress.inc(1);
             }
             ContentItem::Include { include_file_path } => {
-                include_file(include_file_path, config.multi_part, index_file)?;
+                include_file(include_file_path, config.options.multi_part, index_file)?;
                 index_progress.inc(1);
             }
             ContentItem::Section { sub_section } => result.extend(self.write_section(
@@ -793,7 +787,7 @@ impl DocumentationGenerator {
     fn write_module(
         &mut self,
         loader: &mut impl ModuleLoader,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         config: &BookConfig,
         level: u8,
         module_name: &Identifier,
@@ -804,7 +798,7 @@ impl DocumentationGenerator {
             module = ?module_name,
             "DocumentationGenerator::write_module"
         );
-        if config.multi_part {
+        if config.options.multi_part {
             let directory = config.output_file.parent().unwrap_or(Path::new("./"));
             let module_path = directory.join(format!("{module_name}.org"));
             index_file.write_all(
@@ -826,7 +820,7 @@ impl DocumentationGenerator {
     fn write_module_file(
         &mut self,
         loader: &mut impl ModuleLoader,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         level: u8,
         module_name: &Identifier,
         file: &mut File,
@@ -838,7 +832,7 @@ impl DocumentationGenerator {
 
     fn write_module_actual(
         &mut self,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         level: u8,
         module: &Module,
         index_file: &mut File,
@@ -2075,7 +2069,7 @@ fn write_string_property_block(
 fn write_definitions(
     parent_level: u8,
     module: &Module,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2113,7 +2107,7 @@ fn write_datatype(
     parent_level: u8,
     module: &Module,
     datatype: &DatatypeDef,
-    _: &ModuleCache,
+    _: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2163,7 +2157,7 @@ fn write_entity(
     parent_level: u8,
     module: &Module,
     entity: &EntityDef,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2205,7 +2199,7 @@ fn write_enum(
     parent_level: u8,
     module: &Module,
     an_enum: &EnumDef,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2257,7 +2251,7 @@ fn write_event(
     parent_level: u8,
     module: &Module,
     event: &EventDef,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2301,8 +2295,8 @@ fn write_property(
     parent_level: u8,
     module: &Module,
     property: &PropertyDef,
-    cache: &ModuleCache,
-    categories: &AnnotationCategories,
+    _: &impl ModuleStore,
+    _: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
     let name = property.name();
@@ -2319,15 +2313,7 @@ fn write_property(
         writer,
     )?;
 
-    if !property.is_incomplete(module, cache) {
-        if let Some(body) = property.body() {
-            if body.has_annotations() {
-                write_annotations(body, categories, writer)?;
-            }
-        }
-    } else {
-        writer.write_all(type_is_incomplete().as_bytes())?;
-    }
+    // TODO: property
 
     Ok(())
 }
@@ -2336,7 +2322,7 @@ fn write_structure(
     parent_level: u8,
     module: &Module,
     structure: &StructureDef,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2383,13 +2369,13 @@ fn write_member(
     module: &Module,
     parent_def: &Identifier,
     member: &Member,
-    _: &ModuleCache,
+    _: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
     let name = member.name();
     match member.kind() {
-        MemberKind::PropertyReference(_property) => {
+        MemberKind::Reference(_property) => {
             write_heading(
                 Heading::new(
                     parent_level + 1,
@@ -2469,7 +2455,7 @@ fn write_typeclass(
     parent_level: u8,
     module: &Module,
     typeclass: &TypeClassDef,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {
@@ -2504,7 +2490,7 @@ fn write_union(
     parent_level: u8,
     module: &Module,
     union: &UnionDef,
-    cache: &ModuleCache,
+    cache: &impl ModuleStore,
     categories: &AnnotationCategories,
     writer: &mut dyn Write,
 ) -> Result<(), Error> {

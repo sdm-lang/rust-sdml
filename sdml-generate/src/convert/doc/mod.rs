@@ -12,7 +12,7 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 use crate::convert::doc::common::ArgumentType;
 use crate::convert::doc::common::Formatter;
 use crate::errors::into_generator_error;
-use sdml_core::cache::ModuleCache;
+use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
@@ -71,7 +71,7 @@ where
     fn write_book<T>(
         &mut self,
         loader: &mut T,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         book_config: BookConfig,
     ) -> Result<(), Error>
     where
@@ -90,7 +90,7 @@ where
     fn write_module_uml_overview<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -100,7 +100,7 @@ where
         &mut self,
         heading: Heading,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -110,7 +110,7 @@ where
         &mut self,
         heading_level: u8,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -129,7 +129,7 @@ where
         &mut self,
         heading: Heading,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -138,7 +138,7 @@ where
     fn write_module_dependency_table<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -148,7 +148,7 @@ where
         &mut self,
         heading: Heading,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -390,8 +390,8 @@ impl Heading {
         self.level == Self::LEVEL_SUBSUBSECTION
     }
 
-    pub const fn title(&self) -> &str {
-        &self.title
+    pub fn title(&self) -> &str {
+        self.title.as_ref()
     }
 
     pub const fn label(&self) -> Option<&String> {
@@ -437,7 +437,7 @@ impl BookOptions {
 
     pub const fn with_copy_includes(self, copy_includes: bool) -> Self {
         let mut self_mut = self;
-        self_mut.copy_includes = copy_includes;
+        self_mut.copy_includes = !copy_includes;
         self_mut
     }
 
@@ -447,7 +447,7 @@ impl BookOptions {
 
     pub const fn with_dependency_graphs(self, dependency_graphs: bool) -> Self {
         let mut self_mut = self;
-        self_mut.skip_dependency_graphs = dependency_graphs;
+        self_mut.skip_dependency_graphs = !dependency_graphs;
         self_mut
     }
 
@@ -457,7 +457,7 @@ impl BookOptions {
 
     pub const fn with_sdml_listings(self, sdml_listings: bool) -> Self {
         let mut self_mut = self;
-        self_mut.skip_sdml_listings = sdml_listings;
+        self_mut.skip_sdml_listings = !sdml_listings;
         self_mut
     }
 
@@ -467,7 +467,7 @@ impl BookOptions {
 
     pub const fn with_rdf_listings(self, rdf_listings: bool) -> Self {
         let mut self_mut = self;
-        self_mut.skip_rdf_listings = rdf_listings_graphs;
+        self_mut.skip_rdf_listings = !rdf_listings;
         self_mut
     }
 
@@ -760,7 +760,7 @@ mod tests {
     fn test_config_json_writer() {
         let config = BookConfig::default()
             .with_title("My Project")
-            .with_toc(false)
+            .with_options(BookOptions::default().with_toc(false))
             .with_introduction(PathBuf::from("./introduction.org"))
             .with_content(
                 ContentSection::default()

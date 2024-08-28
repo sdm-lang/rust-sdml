@@ -2,13 +2,14 @@ module campaign <https://advertising.amazon.com/api-model> is
 
   import [
     dc
-    owl <http://www.w3.org/2002/07/owl#>
+    owl
     rdf
     skos
     xsd
   ]
 
-  @skos:version = xsd:decimal(2)
+
+  @skos:version = xsd:decimal(2) ;; this is a badly spelled comment.
 
   datatype Name <- xsd:string is
     @xsd:minLength = 5
@@ -30,7 +31,7 @@ module campaign <https://advertising.amazon.com/api-model> is
     Paused is
       @rdf:value = 2
     end
-    Error is
+    error is
       @rdf:value = 3
     end
   end
@@ -44,6 +45,8 @@ module campaign <https://advertising.amazon.com/api-model> is
 
   entity AdGroup
 
+; entity UnusedAdGroup
+
   entity Campaign is
     identity campaignId -> CampaignId
 
@@ -51,7 +54,7 @@ module campaign <https://advertising.amazon.com/api-model> is
 
     tag -> {0..} Tag
 
-    target -> {1..} features TargetCriteria
+    target -> {1..} TargetCriteria
   end
 
   entity AudienceTarget

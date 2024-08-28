@@ -1,5 +1,5 @@
 module ddict is
   structure Account is
-    default in accountId
+    ref accountId
   end
 end

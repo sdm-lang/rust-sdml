@@ -5,7 +5,7 @@ use sdml_generate::convert::doc::{
     org_mode::DocumentationGenerator, BookConfig, DocumentationWriter,
 };
 use sdml_parse::load::FsModuleLoader;
-use std::path::PathBuf;
+use std::{path::PathBuf, process::ExitCode};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -17,7 +17,7 @@ use std::path::PathBuf;
 pub(crate) struct Command {
     /// Path to the doc-book configuration file.
     #[arg(short = 'c', long)]
-    #[arg(default_value = "doc-book.conf")]
+    #[arg(default_value = "doc-book.json")]
     config_file: PathBuf,
 }
 
@@ -26,7 +26,7 @@ pub(crate) struct Command {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         let config = BookConfig::from_file(&self.config_file)?;
         let mut generator = DocumentationGenerator::default();
 
@@ -36,6 +36,6 @@ impl super::Command for Command {
 
         generator.write_book(&mut loader, &mut cache, config)?;
 
-        Ok(())
+        Ok(ExitCode::SUCCESS)
     }
 }

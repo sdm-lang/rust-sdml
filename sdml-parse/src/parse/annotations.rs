@@ -8,7 +8,7 @@ use sdml_core::model::annotations::{Annotation, AnnotationProperty};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     FIELD_NAME_NAME, FIELD_NAME_VALUE, NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_CONSTRAINT,
-    NODE_KIND_LINE_COMMENT,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE,
 };
 use tree_sitter::TreeCursor;
 
@@ -50,12 +50,16 @@ fn parse_annotation_property<'a>(
     let node = cursor.node();
     rule_fn!("annotation_property", node);
 
-    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_NAME,
+        NODE_KIND_IDENTIFIER_REFERENCE
+    );
     let name = parse_identifier_reference(context, &mut child.walk())?;
 
-    let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_VALUE, NODE_KIND_VALUE);
     let value = parse_value(context, &mut child.walk())?;
 
     Ok(AnnotationProperty::new(name, value).with_source_span(node.into()))

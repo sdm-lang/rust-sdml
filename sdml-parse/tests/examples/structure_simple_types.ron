@@ -30,6 +30,8 @@ Module {
                 end: 165,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [
@@ -61,21 +63,7 @@ Module {
                             annotations: [],
                             members: [
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 47,
-                                            end: 59,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 47,
-                                                end: 48,
-                                            },
-                                        ),
-                                        value: "a",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -84,7 +72,15 @@ Module {
                                                     end: 59,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 47,
+                                                        end: 48,
+                                                    },
+                                                ),
+                                                value: "a",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,
@@ -127,21 +123,7 @@ Module {
                                     ),
                                 },
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 64,
-                                            end: 75,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 64,
-                                                end: 65,
-                                            },
-                                        ),
-                                        value: "b",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -150,7 +132,15 @@ Module {
                                                     end: 75,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 64,
+                                                        end: 65,
+                                                    },
+                                                ),
+                                                value: "b",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,
@@ -193,21 +183,7 @@ Module {
                                     ),
                                 },
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 80,
-                                            end: 92,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 80,
-                                                end: 81,
-                                            },
-                                        ),
-                                        value: "c",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -216,7 +192,15 @@ Module {
                                                     end: 92,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 80,
+                                                        end: 81,
+                                                    },
+                                                ),
+                                                value: "c",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,
@@ -259,21 +243,7 @@ Module {
                                     ),
                                 },
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 97,
-                                            end: 109,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 97,
-                                                end: 98,
-                                            },
-                                        ),
-                                        value: "d",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -282,7 +252,15 @@ Module {
                                                     end: 109,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 97,
+                                                        end: 98,
+                                                    },
+                                                ),
+                                                value: "d",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,
@@ -325,21 +303,7 @@ Module {
                                     ),
                                 },
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 114,
-                                            end: 125,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 114,
-                                                end: 115,
-                                            },
-                                        ),
-                                        value: "e",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -348,7 +312,15 @@ Module {
                                                     end: 125,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 114,
+                                                        end: 115,
+                                                    },
+                                                ),
+                                                value: "e",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,
@@ -391,21 +363,7 @@ Module {
                                     ),
                                 },
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 130,
-                                            end: 141,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 130,
-                                                end: 131,
-                                            },
-                                        ),
-                                        value: "f",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -414,7 +372,15 @@ Module {
                                                     end: 141,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 130,
+                                                        end: 131,
+                                                    },
+                                                ),
+                                                value: "f",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,
@@ -457,21 +423,7 @@ Module {
                                     ),
                                 },
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 146,
-                                            end: 154,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 146,
-                                                end: 147,
-                                            },
-                                        ),
-                                        value: "g",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -480,7 +432,15 @@ Module {
                                                     end: 154,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 146,
+                                                        end: 147,
+                                                    },
+                                                ),
+                                                value: "g",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,

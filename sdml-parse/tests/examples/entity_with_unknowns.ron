@@ -30,6 +30,8 @@ Module {
                 end: 137,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [
@@ -58,30 +60,37 @@ Module {
                                     end: 132,
                                 },
                             ),
-                            identity: EntityIdentity {
-                                span: Some(
-                                    Span {
-                                        start: 85,
-                                        end: 107,
-                                    },
-                                ),
-                                name: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 94,
-                                            end: 96,
-                                        },
-                                    ),
-                                    value: "id",
-                                },
+                            identity: Member {
+                                span: None,
                                 kind: Definition(
-                                    EntityIdentityDef {
+                                    MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 85,
+                                                start: 94,
                                                 end: 107,
                                             },
                                         ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 94,
+                                                    end: 96,
+                                                },
+                                            ),
+                                            value: "id",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
+                                            },
+                                        },
                                         target_type: Unknown,
                                         body: None,
                                     },
@@ -90,21 +99,7 @@ Module {
                             annotations: [],
                             members: [
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 113,
-                                            end: 125,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 113,
-                                                end: 114,
-                                            },
-                                        ),
-                                        value: "a",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -113,7 +108,15 @@ Module {
                                                     end: 125,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 113,
+                                                        end: 114,
+                                                    },
+                                                ),
+                                                value: "a",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: None,
                                                 ordering: None,

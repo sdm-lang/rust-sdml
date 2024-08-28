@@ -5,12 +5,13 @@ file-system based modules.
 
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
-use sdml_core::cache::{ModuleCache, ModuleStore};
+use sdml_core::cache::ModuleStore;
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
+use sdml_errors::diagnostics::reporter::ReportCounters;
 use sdml_errors::diagnostics::SeverityFilter;
 use sdml_errors::diagnostics::{functions::imported_module_not_found, StandardStreamReporter};
 use sdml_errors::{Diagnostic, Reporter, Source, SourceFiles};
@@ -238,7 +239,7 @@ impl ModuleLoader for FsModuleLoader {
         &mut self,
         name: &Identifier,
         from: Option<FileId>,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         recursive: bool,
     ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load" => "{}", name);
@@ -279,7 +280,7 @@ impl ModuleLoader for FsModuleLoader {
         self.reporter.emit(diagnostic, self.files())
     }
 
-    fn reporter_done(&self, top_module_name: Option<String>) -> Result<(), Error> {
+    fn reporter_done(&self, top_module_name: Option<String>) -> Result<ReportCounters, Error> {
         self.reporter.done(top_module_name)
     }
 
@@ -301,7 +302,7 @@ impl FsModuleLoader {
     pub fn load_from_file(
         &mut self,
         file: PathBuf,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         recursive: bool,
     ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load_from_file" => "{:?}", file);
@@ -331,7 +332,7 @@ impl FsModuleLoader {
     pub fn load_from_reader(
         &mut self,
         reader: &mut dyn Read,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         recursive: bool,
     ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load_from_reader");
@@ -342,7 +343,7 @@ impl FsModuleLoader {
         &mut self,
         reader: &mut dyn Read,
         file: Option<PathBuf>,
-        cache: &mut ModuleCache,
+        cache: &mut impl ModuleStore,
         recursive: bool,
     ) -> Result<Identifier, Error> {
         trace!("ModuleLoader::load_inner(..., {file:?}, ..., {recursive})");

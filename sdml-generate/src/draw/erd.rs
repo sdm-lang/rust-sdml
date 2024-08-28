@@ -3,22 +3,22 @@ Provide a generator for Entity-Relationship diagrams via GraphViz.
 
 */
 
-use crate::draw::{OutputFormat, DOT_PROGRAM};
+use crate::draw::{
+    filter::{DefinitionKind, DiagramContentFilter},
+    OutputFormat, DOT_PROGRAM,
+};
 use crate::exec::exec_with_temp_input;
-use crate::GenerateToWriter;
-use sdml_core::cache::ModuleCache;
+use crate::Generator;
 use sdml_core::error::Error;
-use sdml_core::model::identifiers::{Identifier, IdentifierReference};
-use sdml_core::model::members::{Cardinality, TypeReference, DEFAULT_CARDINALITY};
-use sdml_core::model::modules::{Import, Module};
-use sdml_core::model::walk::{walk_module_simple, SimpleModuleWalker};
-use sdml_core::model::{HasName, Span};
+use sdml_core::model::definitions::{DatatypeDef, EntityDef, EnumDef, EventDef, StructureDef};
+use sdml_core::model::members::{Cardinality, Member, TypeReference, DEFAULT_CARDINALITY};
+use sdml_core::model::modules::{ImportStatement, Module};
+use sdml_core::model::walk::{walk_module_simple, SimpleModuleVisitor};
+use sdml_core::model::HasName;
+use sdml_core::{cache::ModuleStore, model::members::MemberKind};
 use std::io::Write;
+use std::path::PathBuf;
 use tracing::trace;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -29,30 +29,46 @@ pub struct ErdDiagramGenerator {
     buffer: String,
     entity: Option<String>,
     seen: Vec<String>,
-    format_options: OutputFormat,
+    options: ErdDiagramOptions,
 }
 
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
+#[derive(Debug, Default)]
+pub struct ErdDiagramOptions {
+    content_filter: DiagramContentFilter,
+    output_format: OutputFormat,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
-    fn write<W>(
+impl ErdDiagramOptions {
+    pub fn with_content_filter(self, content_filter: DiagramContentFilter) -> Self {
+        Self {
+            content_filter,
+            ..self
+        }
+    }
+
+    pub fn with_output_format(self, output_format: OutputFormat) -> Self {
+        Self {
+            output_format,
+            ..self
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Generator for ErdDiagramGenerator {
+    type Options = ErdDiagramOptions;
+
+    fn generate_with_options<W>(
         &mut self,
         module: &Module,
-        _cache: &ModuleCache,
+        _: &impl ModuleStore,
+        options: Self::Options,
+        _: Option<PathBuf>,
         writer: &mut W,
     ) -> Result<(), Error>
     where
@@ -60,16 +76,22 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
     {
         trace_entry!(
             "ErdDiagramGenerator",
-            "write_in_format" =>
+            "generate_with_options" =>
                 "{}, _, _",
             module.name());
-        walk_module_simple(module, self)?;
 
-        let format = *self.format_options();
-        if format == OutputFormat::Source {
+        self.options = options;
+
+        walk_module_simple(module, self, false, false)?;
+
+        if self.options.output_format == OutputFormat::Source {
             writer.write_all(self.buffer.as_bytes())?;
         } else {
-            match exec_with_temp_input(DOT_PROGRAM, vec![format.into()], &self.buffer) {
+            match exec_with_temp_input(
+                DOT_PROGRAM,
+                vec![self.options.output_format.into()],
+                &self.buffer,
+            ) {
                 Ok(result) => {
                     writer.write_all(result.as_bytes())?;
                 }
@@ -81,19 +103,10 @@ impl GenerateToWriter<OutputFormat> for ErdDiagramGenerator {
 
         Ok(())
     }
-
-    fn with_format_options(mut self, format_options: OutputFormat) -> Self {
-        self.format_options = format_options;
-        self
-    }
-
-    fn format_options(&self) -> &OutputFormat {
-        &self.format_options
-    }
 }
 
-impl SimpleModuleWalker for ErdDiagramGenerator {
-    fn start_module(&mut self, _name: &Identifier, _: Option<&Span>) -> Result<(), Error> {
+impl SimpleModuleVisitor for ErdDiagramGenerator {
+    fn module_start(&mut self, _: &Module) -> Result<bool, Error> {
         self.buffer.push_str(
             r#"digraph G {
   bgcolor="transparent";
@@ -107,189 +120,174 @@ impl SimpleModuleWalker for ErdDiagramGenerator {
 
 "#,
         );
-        Ok(())
+        Ok(true)
     }
 
-    fn import(&mut self, imported: &[Import], _: Option<&Span>) -> Result<(), Error> {
-        trace!("import: {:?}", imported);
-        for name in imported {
+    fn import_statement_start(&mut self, stmt: &ImportStatement) -> Result<bool, Error> {
+        trace!("import: {:?}", stmt);
+        for import in stmt.imports() {
+            if self.options.content_filter.draw_import(import) {
+                self.buffer
+                    .push_str(&node(import.module().as_ref(), import.module().as_ref()));
+            }
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn entity_start(&mut self, defn: &EntityDef) -> Result<bool, Error> {
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Entity, defn.name())
+        {
+            let name = defn.name();
+            trace!("entity: {}", name);
             self.buffer.push_str(&format!(
-                "  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-                name_to_ref(&name.to_string()),
+                "  {} [label=\"{}\"; penwidth=1.5];\n",
+                name_to_ref(name.as_ref()),
                 name
             ));
+            self.entity = Some(name.to_string());
         }
-        // ?        *self.entity.borrow_mut() = Some(name.to_string());
-        Ok(())
+        Self::INCLUDE_NESTED
     }
 
-    fn start_entity(&mut self, name: &Identifier, _: bool, _: Option<&Span>) -> Result<(), Error> {
-        trace!("entity: {}", name);
-        self.buffer.push_str(&format!(
-            "  {} [label=\"{}\"; penwidth=1.5];\n",
-            name_to_ref(name.as_ref()),
-            name
-        ));
-        self.entity = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_datatype(
-        &mut self,
-        name: &Identifier,
-        _is_opaque: bool,
-        _base_type: &IdentifierReference,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        trace!("datatype: {}", name);
-        self.buffer.push_str(&format!(
-            "  {} [label=\"■ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name.as_ref()),
-            name
-        ));
-        self.entity = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_enum(&mut self, name: &Identifier, _: bool, _: Option<&Span>) -> Result<(), Error> {
-        trace!("enum: {}", name);
-        self.buffer.push_str(&format!(
-            "  {} [label=\"≣ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name.as_ref()),
-            name
-        ));
-        self.entity = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_event(
-        &mut self,
-        name: &Identifier,
-        _source: &IdentifierReference,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        trace!("event: {}", name);
-        self.buffer.push_str(&format!(
-            "  {} [label=\"☇ {}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name.as_ref()),
-            name
-        ));
-        self.entity = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_structure(
-        &mut self,
-        name: &Identifier,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        trace!("structure: {}", name);
-        self.buffer.push_str(&format!(
-            "  {} [label=\"{}\"; style=\"dashed\"; color=\"dimgrey\"; fontcolor=\"dimgrey\"];\n",
-            name_to_ref(name.as_ref()),
-            name
-        ));
-        self.entity = Some(name.to_string());
-        Ok(())
-    }
-
-    fn start_entity_identity(
-        &mut self,
-        name: &Identifier,
-        target_type: &TypeReference,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        if matches!(target_type, TypeReference::Unknown)
-            && !self.seen.contains(&"unknown".to_string())
+    fn datatype_start(&mut self, defn: &DatatypeDef) -> Result<bool, Error> {
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Datatype, defn.name())
         {
-            self.buffer.push_str(
-                "  unknown [shape=rect; label=\"Unknown\"; color=\"grey\"; fontcolor=\"grey\"];\n",
-            );
-            self.seen.push("unknown".to_string());
+            let name = defn.name();
+            trace!("datatype: {}", name);
+            self.buffer.push_str(&node_with_icon(
+                &name_to_ref(name.as_ref()),
+                name.as_ref(),
+                '■',
+            ));
+            self.entity = Some(name.to_string());
         }
-        let target_type = if let TypeReference::Type(target_type) = target_type {
-            name_to_ref(&target_type.to_string())
-        } else {
-            "unknown".to_string()
-            // TODO: mapping types
-        };
-        self.buffer.push_str(&format!(
-            "  {} -> {} [tooltip=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-            self.entity.as_deref().unwrap_or_default().to_lowercase(),
-            target_type,
-            name
-        ));
-        Ok(())
+        Self::INCLUDE_NESTED
     }
 
-    fn start_entity_identity_role_ref(
-        &mut self,
-        role_name: &Identifier,
-        in_property: &IdentifierReference,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&format!(
-            "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-            self.entity.as_deref().unwrap_or_default().to_lowercase(),
-            in_property,
-            role_name
-        ));
-        Ok(())
+    fn enum_start(&mut self, defn: &EnumDef) -> Result<bool, Error> {
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Enum, defn.name())
+        {
+            let name = defn.name();
+            trace!("enum: {}", name);
+            self.buffer.push_str(&node_with_icon(
+                &name_to_ref(name.as_ref()),
+                name.as_ref(),
+                '≣',
+            ));
+            self.entity = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
     }
 
-    fn start_member(
-        &mut self,
-        name: &Identifier,
-        inverse_name: Option<&Identifier>,
-        target_cardinality: &Cardinality,
-        target_type: &TypeReference,
-        _: bool,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        let target_type = if let TypeReference::Type(target_type) = target_type {
-            name_to_ref(&target_type.to_string())
-            // TODO: mapping types
-        } else {
-            "unknown".to_string()
-        };
-        let target_cardinality = if *target_cardinality == DEFAULT_CARDINALITY {
-            arrow_end("head", target_cardinality)
-        } else {
-            String::new()
-        };
-        self.buffer.push_str(&format!(
-            "  {} -> {} [tooltip=\"{}\";dir=\"both\"{}{}];\n",
-            self.entity.as_deref().unwrap_or_default().to_lowercase(),
-            target_type,
-            name,
-            inverse_name.map(|id| id.to_string()).unwrap_or_default(),
-            target_cardinality
-        ));
-        Ok(())
+    fn event_start(&mut self, defn: &EventDef) -> Result<bool, Error> {
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Event, defn.name())
+        {
+            let name = defn.name();
+            trace!("event: {}", name);
+            self.buffer.push_str(&node_with_icon(
+                &name_to_ref(name.as_ref()),
+                name.as_ref(),
+                '☇',
+            ));
+            self.entity = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
     }
 
-    fn start_member_role_ref(
-        &mut self,
-        role_name: &Identifier,
-        in_property: &IdentifierReference,
-        _: Option<&Span>,
-    ) -> Result<(), Error> {
-        self.buffer.push_str(&format!(
-            "  {} -> {} [label=\"{}\";dir=\"both\";arrowtail=\"teetee\";arrowhead=\"teetee\"];\n",
-            self.entity.as_deref().unwrap_or_default().to_lowercase(),
-            in_property,
-            role_name
-        ));
-        Ok(())
+    fn structure_start(&mut self, defn: &StructureDef) -> Result<bool, Error> {
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Structure, defn.name())
+        {
+            let name = defn.name();
+            trace!("structure: {}", name);
+            self.buffer
+                .push_str(&node(&name_to_ref(name.as_ref()), name.as_ref()));
+            self.entity = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
     }
 
-    fn end_module(&mut self, _: &Identifier) -> Result<(), Error> {
+    fn identity_member_start(&mut self, member: &Member) -> Result<bool, Error> {
+        self.member_common(member, false)?;
+        Self::INCLUDE_NESTED
+    }
+
+    fn member_start(&mut self, member: &Member) -> Result<bool, Error> {
+        self.member_common(member, false)?;
+        Self::INCLUDE_NESTED
+    }
+
+    fn module_end(&mut self, _: &Module) -> Result<(), Error> {
         self.buffer.push_str("}\n");
         self.entity = None;
+        Ok(())
+    }
+}
+
+impl ErdDiagramGenerator {
+    fn member_common(&mut self, member: &Member, is_identity: bool) -> Result<(), Error> {
+        match member.kind() {
+            MemberKind::Reference(v) => {
+                let name = v.to_string();
+                self.buffer.push_str(&edge(
+                    &self.entity.as_deref().unwrap_or_default().to_lowercase(),
+                    None,
+                    &name_to_ref(&name),
+                    None,
+                    name.as_ref(),
+                ));
+            }
+            MemberKind::Definition(v) => {
+                let name = v.name();
+
+                let target_type = match v.target_type() {
+                    TypeReference::Unknown => {
+                        if !self.seen.contains(&NAME_UNKNOWN.to_string()) {
+                            self.seen.push(NAME_UNKNOWN.to_string());
+                            self.buffer.push_str(NODE_UNKNOWN);
+                        }
+                        NAME_UNKNOWN.to_string()
+                    }
+                    TypeReference::Type(target_type) => name_to_ref(&target_type.to_string()),
+                    TypeReference::MappingType(_) => todo!(),
+                };
+
+                let target_cardinality = v.target_cardinality();
+                let arrow_to = if *target_cardinality != DEFAULT_CARDINALITY {
+                    Some(arrow_end("head", target_cardinality))
+                } else {
+                    None
+                };
+
+                let arrow_from = if is_identity {
+                    Some(CARD_ONLY_ONE)
+                } else {
+                    None
+                };
+
+                self.buffer.push_str(&edge(
+                    &self.entity.as_deref().unwrap_or_default().to_lowercase(),
+                    arrow_from,
+                    &target_type,
+                    arrow_to.as_deref(),
+                    name.as_ref(),
+                ));
+            }
+        }
         Ok(())
     }
 }
@@ -323,6 +321,49 @@ fn arrow_end(end: &str, cardinality: &Cardinality) -> String {
 #[inline(always)]
 fn name_to_ref(name: &str) -> String {
     name.replace(':', "__").to_lowercase()
+}
+
+#[inline(always)]
+fn node(name: &str, label: &str) -> String {
+    format!(
+        r#"  {} [label="{}"; style="dashed"; color="dimgrey"; fontcolor="dimgrey"];\n"#,
+        name, label
+    )
+}
+
+const NAME_UNKNOWN: &str = "unknown";
+
+const NODE_UNKNOWN: &str =
+    r#"  unknown [shape=rect; label="Unknown"; color="grey"; fontcolor="grey"];\n"#;
+
+#[inline(always)]
+fn node_with_icon(name: &str, label: &str, icon: char) -> String {
+    format!(
+        r#"  {} [label="{} {}"; style="dashed"; color="dimgrey"; fontcolor="dimgrey"];\n"#,
+        name, icon, label
+    )
+}
+
+fn edge(
+    from_node: &str,
+    arrow_from: Option<&str>,
+    to_node: &str,
+    arrow_to: Option<&str>,
+    tooltip: &str,
+) -> String {
+    format!(
+        r#"  {from_node} -> {to_node} [tooltip="{tooltip}";dir="both"{}{}];\n"#,
+        if let Some(arrow_from) = arrow_from {
+            arrow_from
+        } else {
+            ""
+        },
+        if let Some(arrow_to) = arrow_to {
+            arrow_to
+        } else {
+            ""
+        }
+    )
 }
 
 // ------------------------------------------------------------------------------------------------

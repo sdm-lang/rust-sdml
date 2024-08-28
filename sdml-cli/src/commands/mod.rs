@@ -1,7 +1,7 @@
 use clap::{Args, Subcommand};
 use sdml_core::model::identifiers::Identifier;
 use sdml_errors::Error;
-use std::str::FromStr;
+use std::{process::ExitCode, str::FromStr};
 use tracing::trace;
 
 // ------------------------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ macro_rules! call_with_module {
                 match loader.load_from_file(file_name.to_path_buf(), &mut cache, true) {
                     Err(::sdml_errors::Error::LanguageValidationError { source: _ }) => {
                         loader.reporter_done(None)?;
-                        return Ok(());
+                        return Ok(ExitCode::FAILURE);
                     }
                     Err(err @ ::sdml_errors::Error::IoError { source: _ }) => {
                         println!(
@@ -63,7 +63,7 @@ macro_rules! call_with_module {
 // ------------------------------------------------------------------------------------------------
 
 pub(crate) trait Command {
-    fn execute(&self) -> Result<(), Error>;
+    fn execute(&self) -> Result<ExitCode, Error>;
 }
 
 #[derive(Subcommand, Debug)]
@@ -119,7 +119,7 @@ pub(crate) struct FileArgs {
 // ------------------------------------------------------------------------------------------------
 
 impl Command for Commands {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         trace!("Commands::execute self: {self:?}");
         match self {
             Commands::Highlight(cmd) => cmd.execute(),

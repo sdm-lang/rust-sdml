@@ -16,11 +16,12 @@ use crate::exec::CommandArg;
 ///
 /// The format for image output.
 ///
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum OutputFormat {
     Source,
     ImageJpeg,
     ImagePng,
+    #[default]
     ImageSvg,
 }
 
@@ -33,12 +34,6 @@ pub const UML_PROGRAM: &str = "plantuml";
 // ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        Self::ImageSvg
-    }
-}
 
 impl From<OutputFormat> for CommandArg {
     fn from(value: OutputFormat) -> Self {

@@ -4,12 +4,13 @@ use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{AnnotationOnlyBody, HasAnnotations};
 use sdml_core::model::definitions::Definition;
-use sdml_core::model::HasSourceSpan;
+use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::syntax::{
     NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_DEF,
     NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF, NODE_KIND_RDF_DEF,
     NODE_KIND_STRUCTURE_DEF, NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
 };
+use sdml_errors::diagnostics::functions::library_definition_not_allowed;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------
@@ -21,61 +22,76 @@ pub(crate) fn parse_definition<'a>(
     cursor: &mut TreeCursor<'a>,
 ) -> Result<Definition, Error> {
     rule_fn!("definition", cursor.node());
-    let mut has_next = cursor.goto_first_child();
-    if has_next {
-        while has_next {
-            let node = cursor.node();
-            context.check_if_error(&node, RULE_NAME)?;
-            if node.is_named() {
-                match node.kind() {
-                    NODE_KIND_DATA_TYPE_DEF => {
-                        return Ok(parse_data_type_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_ENTITY_DEF => {
-                        return Ok(parse_entity_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_ENUM_DEF => {
-                        return Ok(parse_enum_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_EVENT_DEF => {
-                        return Ok(parse_event_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_PROPERTY_DEF => {
-                        return Ok(parse_property_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_RDF_DEF => {
-                        return Ok(parse_rdf_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_STRUCTURE_DEF => {
-                        return Ok(parse_structure_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_TYPE_CLASS_DEF => {
-                        return Ok(parse_type_class_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_UNION_DEF => {
-                        return Ok(parse_union_def(context, &mut node.walk())?.into());
-                    }
-                    NODE_KIND_LINE_COMMENT => {}
-                    _ => {
-                        unexpected_node!(
-                            context,
-                            RULE_NAME,
-                            node,
-                            [
-                                NODE_KIND_DATA_TYPE_DEF,
-                                NODE_KIND_ENTITY_DEF,
-                                NODE_KIND_ENUM_DEF,
-                                NODE_KIND_EVENT_DEF,
-                                NODE_KIND_STRUCTURE_DEF,
-                                NODE_KIND_UNION_DEF,
-                            ]
-                        );
-                    }
+
+    for node in cursor.node().named_children(cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
+        if node.is_named() {
+            match node.kind() {
+                NODE_KIND_DATA_TYPE_DEF => {
+                    return Ok(parse_data_type_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_ENTITY_DEF => {
+                    return Ok(parse_entity_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_ENUM_DEF => {
+                    return Ok(parse_enum_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_EVENT_DEF => {
+                    return Ok(parse_event_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_PROPERTY_DEF => {
+                    return Ok(parse_property_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_STRUCTURE_DEF => {
+                    return Ok(parse_structure_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_UNION_DEF => {
+                    return Ok(parse_union_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_RDF_DEF => {
+                    let rdf_def = parse_rdf_def(context, &mut node.walk())?;
+                    return if context.is_library {
+                        Ok(rdf_def.into())
+                    } else {
+                        Err(library_definition_not_allowed(
+                            context.file_id,
+                            rdf_def.source_span().map(|s| s.into()),
+                            rdf_def.name(),
+                        )
+                        .into())
+                    };
+                }
+                NODE_KIND_TYPE_CLASS_DEF => {
+                    let type_class = parse_type_class_def(context, &mut node.walk())?;
+                    return if context.is_library {
+                        Ok(type_class.into())
+                    } else {
+                        Err(library_definition_not_allowed(
+                            context.file_id,
+                            type_class.source_span().map(|s| s.into()),
+                            type_class.name(),
+                        )
+                        .into())
+                    };
+                }
+                NODE_KIND_LINE_COMMENT => {}
+                _ => {
+                    unexpected_node!(
+                        context,
+                        RULE_NAME,
+                        node,
+                        [
+                            NODE_KIND_DATA_TYPE_DEF,
+                            NODE_KIND_ENTITY_DEF,
+                            NODE_KIND_ENUM_DEF,
+                            NODE_KIND_EVENT_DEF,
+                            NODE_KIND_STRUCTURE_DEF,
+                            NODE_KIND_UNION_DEF,
+                        ]
+                    );
                 }
             }
-            has_next = cursor.goto_next_sibling();
         }
-        assert!(cursor.goto_parent());
     }
     rule_unreachable!(RULE_NAME, cursor);
 }

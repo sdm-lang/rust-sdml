@@ -4,19 +4,13 @@ module properties is
 
   datatype AccountId <- integer
 
-  property accountId is
-
-    identifier -> {1} AccountId is
-      @skos:definition = "a"@en
-    end
-
-    reference -> {1} AccountId
-
+  property accountId -> AccountId is
+    @skos:definition = "a"@en
   end
 
   structure Account is
 
-    identifier in accountId
+    ref accountId
 
     name -> string
 

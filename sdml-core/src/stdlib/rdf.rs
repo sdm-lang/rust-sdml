@@ -156,7 +156,7 @@ pub fn module() -> Module {
             .with_comment("The base direction component of a CompoundLiteral.")
             .with_see_also_str("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")
             .into(),
-     ]);
+     ]).unwrap();
 
     module
 }

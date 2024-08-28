@@ -73,13 +73,18 @@ fn main() -> ExitCode {
     init_color(cli.no_color);
 
     if let Err(e) = init_logging(cli.log_filter) {
+        eprintln!("Could not initialize tracing; error: {e}");
         error!("init_logging failed, exiting. error: {e:?}");
         ExitCode::FAILURE
-    } else if let Err(e) = cli.command.execute() {
-        error!("command.execute failed, exiting. error: {e:?}");
-        ExitCode::FAILURE
     } else {
-        ExitCode::SUCCESS
+        match cli.command.execute() {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!("Command failed to execute; error: {e}");
+                error!("command.execute failed, exiting. error: {e:?}");
+                ExitCode::FAILURE
+            }
+        }
     }
 }
 

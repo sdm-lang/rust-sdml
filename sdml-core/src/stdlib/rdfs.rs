@@ -45,35 +45,38 @@ pub fn module() -> Module {
         .body_mut()
         .add_to_imports(import!(id!(rdf::MODULE_NAME)));
 
-    module.body_mut().extend_definitions(vec![
-        // Classes
-        rdf!(class CLASS, MODULE_IRI).into(),
-        rdf!(class CONTAINER, MODULE_IRI).into(),
-        rdf!(class DATATYPE, MODULE_IRI; CLASS).into(),
-        rdf!(class LITERAL, MODULE_IRI; RESOURCE).into(),
-        rdf!(class RESOURCE, MODULE_IRI).into(),
-        // Individuals
-        rdf!(thing CONTAINER_MEMBERSHIP_PROPERTY, MODULE_IRI;
+    module
+        .body_mut()
+        .extend_definitions(vec![
+            // Classes
+            rdf!(class CLASS, MODULE_IRI).into(),
+            rdf!(class CONTAINER, MODULE_IRI).into(),
+            rdf!(class DATATYPE, MODULE_IRI; CLASS).into(),
+            rdf!(class LITERAL, MODULE_IRI; RESOURCE).into(),
+            rdf!(class RESOURCE, MODULE_IRI).into(),
+            // Individuals
+            rdf!(thing CONTAINER_MEMBERSHIP_PROPERTY, MODULE_IRI;
              (rdf::MODULE_NAME, rdf::PROPERTY))
-        .into(),
-        // Properties
-        rdf!(property COMMENT, MODULE_IRI; RESOURCE => LITERAL).into(),
-        rdf!(property DOMAIN, MODULE_IRI;
+            .into(),
+            // Properties
+            rdf!(property COMMENT, MODULE_IRI; RESOURCE => LITERAL).into(),
+            rdf!(property DOMAIN, MODULE_IRI;
              (rdf::MODULE_NAME, rdf::PROPERTY) => CLASS)
-        .into(),
-        rdf!(property IS_DEFINED_BY, MODULE_IRI; RESOURCE => RESOURCE).into(),
-        rdf!(property LABEL, MODULE_IRI; RESOURCE => LITERAL).into(),
-        rdf!(property MEMBER, MODULE_IRI; RESOURCE => RESOURCE).into(),
-        rdf!(property RANGE, MODULE_IRI;
+            .into(),
+            rdf!(property IS_DEFINED_BY, MODULE_IRI; RESOURCE => RESOURCE).into(),
+            rdf!(property LABEL, MODULE_IRI; RESOURCE => LITERAL).into(),
+            rdf!(property MEMBER, MODULE_IRI; RESOURCE => RESOURCE).into(),
+            rdf!(property RANGE, MODULE_IRI;
              (rdf::MODULE_NAME, rdf::PROPERTY) => CLASS)
-        .into(),
-        rdf!(property SEE_ALSO, MODULE_IRI; RESOURCE => RESOURCE).into(),
-        rdf!(property SUB_CLASS_OF, MODULE_IRI; CLASS => CLASS).into(),
-        rdf!(property SUB_PROPERTY_OF, MODULE_IRI;
+            .into(),
+            rdf!(property SEE_ALSO, MODULE_IRI; RESOURCE => RESOURCE).into(),
+            rdf!(property SUB_CLASS_OF, MODULE_IRI; CLASS => CLASS).into(),
+            rdf!(property SUB_PROPERTY_OF, MODULE_IRI;
              (rdf::MODULE_NAME, rdf::PROPERTY) =>
              (rdf::MODULE_NAME, rdf::PROPERTY))
-        .into(),
-    ]);
+            .into(),
+        ])
+        .unwrap();
 
     module
 }

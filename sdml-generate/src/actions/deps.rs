@@ -9,19 +9,17 @@ use crate::color::rdf::Separator;
 use crate::draw::OutputFormat;
 use crate::draw::DOT_PROGRAM;
 use crate::exec::exec_with_temp_input;
-use crate::GenerateToWriter;
+use crate::Generator;
 use nu_ansi_term::Style;
 use sdml_core::error::Error;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
-use sdml_core::{
-    cache::{ModuleCache, ModuleStore},
-    stdlib::is_library_module,
-};
+use sdml_core::{cache::ModuleStore, stdlib::is_library_module};
 use std::collections::HashSet;
 use std::io::Write;
+use std::path::PathBuf;
 use text_trees::{FormatCharacters, TreeFormatting, TreeNode};
 use url::Url;
 
@@ -36,16 +34,19 @@ use url::Url;
 ///
 /// Generator for a module's transitive dependency graph.
 ///
-#[derive(Debug, Default)]
-pub struct DependencyViewGenerator {
+#[derive(Clone, Copy, Debug, Default)]
+pub struct DependencyViewGenerator {}
+
+#[derive(Clone, Copy, Debug, Default)]
+pub struct DependencyViewOptions {
     depth: usize,
-    format_options: DependencyViewRepresentation,
+    representation: DependencyViewRepresentation,
 }
 
 ///
 /// The supported variations of dependency view.
 ///
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum DependencyViewRepresentation {
     ///
     /// This representation is most intended for command-line tools, it displays the output in a
@@ -134,14 +135,6 @@ pub enum DependencyViewRepresentation {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
 
@@ -163,31 +156,59 @@ impl Default for DependencyViewRepresentation {
     }
 }
 
+impl DependencyViewOptions {
+    pub fn with_depth(self, depth: usize) -> Self {
+        Self { depth, ..self }
+    }
+
+    pub fn with_representation(self, representation: DependencyViewRepresentation) -> Self {
+        Self {
+            representation,
+            ..self
+        }
+    }
+
+    pub fn as_text_tree(self) -> Self {
+        Self::with_representation(self, DependencyViewRepresentation::TextTree)
+    }
+
+    pub fn as_dot_graph(self, output_format: OutputFormat) -> Self {
+        Self::with_representation(self, DependencyViewRepresentation::DotGraph(output_format))
+    }
+
+    pub fn as_rdf_imports(self) -> Self {
+        Self::with_representation(self, DependencyViewRepresentation::RdfImports)
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
-impl GenerateToWriter<DependencyViewRepresentation> for DependencyViewGenerator {
-    fn write<W>(
+impl Generator for DependencyViewGenerator {
+    type Options = DependencyViewOptions;
+
+    fn generate_with_options<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
+        options: Self::Options,
+        _: Option<PathBuf>,
         writer: &mut W,
     ) -> Result<(), Error>
     where
         W: Write + Sized,
     {
-        let format = self.format_options();
-        match format {
+        match options.representation {
             DependencyViewRepresentation::TextTree => {
-                self.write_text_tree(module, cache, self.depth, writer)
+                self.write_text_tree(module, cache, options.depth, writer)
             }
             DependencyViewRepresentation::DotGraph(inner_format) => {
                 let mut buffer = Vec::new();
-                self.write_dot_graph(module, cache, self.depth, &mut buffer)?;
-                if *inner_format == OutputFormat::Source {
+                self.write_dot_graph(module, cache, options.depth, &mut buffer)?;
+                if inner_format == OutputFormat::Source {
                     writer.write_all(&buffer)?;
                 } else {
                     let source = String::from_utf8(buffer).unwrap();
-                    match exec_with_temp_input(DOT_PROGRAM, vec![(*inner_format).into()], source) {
+                    match exec_with_temp_input(DOT_PROGRAM, vec![inner_format.into()], source) {
                         Ok(result) => {
                             writer.write_all(result.as_bytes())?;
                         }
@@ -199,29 +220,13 @@ impl GenerateToWriter<DependencyViewRepresentation> for DependencyViewGenerator 
                 Ok(())
             }
             DependencyViewRepresentation::RdfImports => {
-                self.write_rdf_imports(module, cache, self.depth, writer)
+                self.write_rdf_imports(module, cache, options.depth, writer)
             }
         }
-    }
-
-    fn with_format_options(mut self, format: DependencyViewRepresentation) -> Self {
-        self.format_options = format;
-        self
-    }
-
-    fn format_options(&self) -> &DependencyViewRepresentation {
-        &self.format_options
     }
 }
 
 impl DependencyViewGenerator {
-    pub fn new(depth: usize) -> Self {
-        Self {
-            depth,
-            format_options: Default::default(),
-        }
-    }
-
     // --------------------------------------------------------------------------------------------
     // Generate ❱ Text Trees
     // --------------------------------------------------------------------------------------------
@@ -229,7 +234,7 @@ impl DependencyViewGenerator {
     fn write_text_tree<W>(
         &self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         depth: usize,
         writer: &mut W,
     ) -> Result<(), Error>
@@ -260,7 +265,7 @@ impl DependencyViewGenerator {
     fn write_dot_graph<W>(
         &self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         depth: usize,
         writer: &mut W,
     ) -> Result<(), Error>
@@ -369,7 +374,7 @@ impl DependencyViewGenerator {
     fn write_rdf_imports<W>(
         &self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         depth: usize,
         writer: &mut W,
     ) -> Result<(), Error>
@@ -435,7 +440,7 @@ impl<'a> Node<'a> {
         module: &'a Module,
         version_uri: Option<&'a HeaderValue<Url>>,
         seen: &mut HashSet<&'a Identifier>,
-        cache: &'a ModuleCache,
+        cache: &'a impl ModuleStore,
         depth: usize,
     ) -> Self {
         let mut children: Vec<Node<'a>> = Default::default();

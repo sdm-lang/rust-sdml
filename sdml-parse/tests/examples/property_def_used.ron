@@ -8,7 +8,7 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 74,
+            end: 67,
         },
     ),
     name: Identifier {
@@ -27,9 +27,11 @@ Module {
         span: Some(
             Span {
                 start: 13,
-                end: 73,
+                end: 66,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [
@@ -38,7 +40,7 @@ Module {
                     span: Some(
                         Span {
                             start: 18,
-                            end: 69,
+                            end: 62,
                         },
                     ),
                     name: Identifier {
@@ -55,34 +57,20 @@ Module {
                             span: Some(
                                 Span {
                                     start: 36,
-                                    end: 69,
+                                    end: 62,
                                 },
                             ),
                             annotations: [],
                             members: [
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 43,
-                                            end: 63,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 43,
-                                                end: 50,
-                                            },
-                                        ),
-                                        value: "default",
-                                    },
-                                    kind: PropertyReference(
+                                    span: None,
+                                    kind: Reference(
                                         Identifier(
                                             Identifier {
                                                 span: Some(
                                                     Span {
-                                                        start: 54,
-                                                        end: 63,
+                                                        start: 43,
+                                                        end: 56,
                                                     },
                                                 ),
                                                 value: "accountId",

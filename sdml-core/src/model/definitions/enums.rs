@@ -1,5 +1,5 @@
 use crate::{
-    cache::ModuleCache,
+    cache::ModuleStore,
     load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
@@ -75,7 +75,7 @@ impl Validate for EnumDef {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -141,7 +141,7 @@ impl Validate for ValueVariant {
     fn validate(
         &self,
         top: &Module,
-        _cache: &ModuleCache,
+        _cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {

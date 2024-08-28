@@ -7,8 +7,8 @@ in-memory representation.
 ```rust
 use sdml_core::cache::ModuleCache;
 use sdml_core::model::modules::Module;
-use sdml_generate::GenerateToWriter;
-use sdml_generate::convert::source::SourceGenerator;
+use sdml_generate::Generator;
+use sdml_generate::convert::source::{SourceGenerator, SourceGeneratorOptions};
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
 # fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
@@ -17,8 +17,9 @@ use std::io::stdout;
 let (module, cache) = load_module();
 
 let mut generator: SourceGenerator = Default::default();
+let options = SourceGeneratorOptions::default();
 let source = generator
-    .write_to_string(&module, &cache)
+    .generate_to_string(&module, &cache, options, None)
     .expect("write to stdout failed");
 assert_eq!(source.as_str(), "module example is end\n");
 
@@ -30,8 +31,8 @@ use crate::color::sdml::{
     paren_end, paren_start, property_name, sequence_end, sequence_start, type_name_def,
     type_name_ref, type_variant_name_def, type_variant_ref_def, value_variant_name_def,
 };
-use crate::GenerateToWriter;
-use sdml_core::cache::ModuleCache;
+use crate::Generator;
+use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use sdml_core::model::constraints::{Constraint, ConstraintBody};
@@ -39,11 +40,13 @@ use sdml_core::model::definitions::{
     DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, HasVariants, PropertyDef,
     RdfDef, StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
+use sdml_core::model::identifiers::IdentifierReference;
 use sdml_core::model::members::{
-    Cardinality, HasCardinality, HasType, Member, TypeReference, DEFAULT_CARDINALITY,
+    Cardinality, Member, MemberDef, MemberKind, TypeReference, DEFAULT_CARDINALITY,
 };
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
+use std::path::PathBuf;
 use std::{fmt::Debug, io::Write};
 
 // ------------------------------------------------------------------------------------------------
@@ -57,7 +60,14 @@ use std::{fmt::Debug, io::Write};
 /// The type that implements the generator.
 #[derive(Debug, Default)]
 pub struct SourceGenerator {
-    format_options: SourceGenerationLevel,
+    options: SourceGeneratorOptions,
+}
+
+/// The type that implements the generator.
+#[derive(Debug)]
+pub struct SourceGeneratorOptions {
+    indentation: usize,
+    level: SourceGenerationLevel,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -67,14 +77,6 @@ pub enum SourceGenerationLevel {
     Members,
     Definitions,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Private Types
@@ -95,12 +97,34 @@ const ELIPPSIS: &str = " ;; ...\n";
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl SourceGenerationLevel {
-    fn indentation(&self, level: usize) -> String {
-        let n = level * DEFAULT_INDENTATION;
+impl Default for SourceGeneratorOptions {
+    fn default() -> Self {
+        Self {
+            indentation: DEFAULT_INDENTATION,
+            level: Default::default(),
+        }
+    }
+}
+
+impl SourceGeneratorOptions {
+    pub fn with_level(self, level: SourceGenerationLevel) -> Self {
+        Self { level, ..self }
+    }
+    pub fn with_indentation(self, indentation: usize) -> Self {
+        Self {
+            indentation,
+            ..self
+        }
+    }
+    fn indentation_str(&self, level: usize) -> String {
+        let n = level * self.indentation;
         format!("{:n$}", "")
     }
+}
 
+// ------------------------------------------------------------------------------------------------
+
+impl SourceGenerationLevel {
     #[inline(always)]
     const fn generate_definition_bodies(&self) -> bool {
         matches!(self, Self::Full | Self::Members)
@@ -121,11 +145,22 @@ impl SourceGenerationLevel {
 
 const EOL: &[u8] = b"\n";
 
-impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
-    fn write<W>(&mut self, module: &Module, _: &ModuleCache, writer: &mut W) -> Result<(), Error>
+impl Generator for SourceGenerator {
+    type Options = SourceGeneratorOptions;
+
+    fn generate_with_options<W>(
+        &mut self,
+        module: &Module,
+        _: &impl ModuleStore,
+        options: Self::Options,
+        _: Option<PathBuf>,
+        writer: &mut W,
+    ) -> Result<(), Error>
     where
         W: Write + Sized,
     {
+        self.options = options;
+
         writer.write_all(
             format!("{} {} ", keyword("module"), module_name_def(module.name())).as_bytes(),
         )?;
@@ -157,15 +192,6 @@ impl GenerateToWriter<SourceGenerationLevel> for SourceGenerator {
         }
         Ok(())
     }
-
-    fn with_format_options(mut self, format_options: SourceGenerationLevel) -> Self {
-        self.format_options = format_options;
-        self
-    }
-
-    fn format_options(&self) -> &SourceGenerationLevel {
-        &self.format_options
-    }
 }
 
 impl SourceGenerator {
@@ -174,7 +200,7 @@ impl SourceGenerator {
         module_body: &ModuleBody,
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_IMPORT_INDENT);
+        let indentation = self.options.indentation_str(MODULE_IMPORT_INDENT);
         if module_body.has_imports() {
             for import_statement in module_body.imports() {
                 let imported = if import_statement.imports_len() == 1 {
@@ -228,7 +254,7 @@ impl SourceGenerator {
         writer: &mut dyn Write,
         indent_level: usize,
     ) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(indent_level);
+        let indentation = self.options.indentation_str(indent_level);
         // TODO: ensure wrapping
         writer.write_all(
             format!(
@@ -248,7 +274,7 @@ impl SourceGenerator {
         writer: &mut dyn Write,
         indent_level: usize,
     ) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(indent_level);
+        let indentation = self.options.indentation_str(indent_level);
         writer.write_all(format!("{indentation}{} ", keyword("assert")).as_bytes())?;
         writer.write_all(format!("{} ", constraint.name()).as_bytes())?;
         match constraint.body() {
@@ -269,7 +295,7 @@ impl SourceGenerator {
         module_body: &ModuleBody,
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
-        let _indentation = self.format_options().indentation(1);
+        let _indentation = self.options.indentation_str(1);
         if module_body.has_definitions() {
             for definition in module_body.definitions() {
                 writer.write_all(EOL)?;
@@ -290,7 +316,7 @@ impl SourceGenerator {
     }
 
     fn write_datatype(&mut self, defn: &DatatypeDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {} {} {}",
@@ -303,7 +329,7 @@ impl SourceGenerator {
         )?;
 
         if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
+            if self.options.level.generate_definition_bodies() {
                 writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(
@@ -324,7 +350,7 @@ impl SourceGenerator {
     }
 
     fn write_entity(&mut self, defn: &EntityDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {}",
@@ -335,7 +361,7 @@ impl SourceGenerator {
         )?;
 
         if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
+            if self.options.level.generate_definition_bodies() {
                 writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(
@@ -362,7 +388,7 @@ impl SourceGenerator {
     }
 
     fn write_enum(&mut self, defn: &EnumDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {}",
@@ -373,7 +399,7 @@ impl SourceGenerator {
         )?;
 
         if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
+            if self.options.level.generate_definition_bodies() {
                 writer.write_all(format!(" {}\n", keyword("of")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(
@@ -406,13 +432,13 @@ impl SourceGenerator {
         variant: &ValueVariant,
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(DEFINITION_MEMBER_INDENT);
+        let indentation = self.options.indentation_str(DEFINITION_MEMBER_INDENT);
         writer.write_all(
             format!("{indentation}{}", value_variant_name_def(variant.name())).as_bytes(),
         )?;
 
         if let Some(body) = variant.body() {
-            if self.format_options().generate_member_bodies() {
+            if self.options.level.generate_member_bodies() {
                 writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(body.annotations(), writer, MEMBER_ANNOTATION_INDENT)?;
@@ -429,7 +455,7 @@ impl SourceGenerator {
     }
 
     fn write_event(&mut self, defn: &EventDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {} {} {}",
@@ -442,7 +468,7 @@ impl SourceGenerator {
         )?;
 
         if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
+            if self.options.level.generate_definition_bodies() {
                 writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(
@@ -469,41 +495,67 @@ impl SourceGenerator {
     }
 
     fn write_member(&mut self, defn: &Member, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(DEFINITION_MEMBER_INDENT);
-        writer.write_all(format!("{indentation}{} ", member_name(defn.name())).as_bytes())?;
-        if let Some(role_ref) = defn.as_property_reference() {
-            writer.write_all(
-                format!("{} {}\n", keyword("as"), member_name(role_ref.member())).as_bytes(),
-            )?;
-        } else if let Some(defn) = defn.as_definition() {
-            if let Some(inverse_name) = defn.inverse_name() {
-                writer.write_all(
-                    format!(
-                        "{}{}{} ",
-                        paren_start(),
-                        member_name(inverse_name),
-                        paren_end()
-                    )
-                    .as_bytes(),
-                )?;
-            }
-            writer.write_all(format!("{} ", operator("->")).as_bytes())?;
-            if *defn.target_cardinality() != DEFAULT_CARDINALITY {
-                self.write_cardinality(defn.target_cardinality(), writer)?;
-            }
-            self.write_type_reference(defn.target_type(), writer)?;
-            if let Some(body) = defn.body() {
-                if body.has_annotations() && self.format_options.generate_member_bodies() {
-                    writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
-                    self.write_annotations(body.annotations(), writer, MEMBER_ANNOTATION_INDENT)?;
-                    writer.write_all(format!("{indentation}{}\n", keyword("end")).as_bytes())?;
-                }
-            } else {
-                writer.write_all(EOL)?;
+        let indentation = self.options.indentation_str(DEFINITION_MEMBER_INDENT);
+        match defn.kind() {
+            MemberKind::Reference(v) => self.write_member_reference(v, &indentation, writer),
+            MemberKind::Definition(v) => self.write_member_definition(v, &indentation, writer),
+        }
+    }
+
+    fn write_member_definition(
+        &mut self,
+        defn: &MemberDef,
+        indentation: &str,
+        writer: &mut dyn Write,
+    ) -> Result<(), Error> {
+        self.write_member_definition_inner(
+            defn,
+            indentation,
+            MEMBER_ANNOTATION_INDENT,
+            indentation,
+            writer,
+        )
+    }
+
+    fn write_member_definition_inner(
+        &mut self,
+        defn: &MemberDef,
+        initial_indentation: &str,
+        annotation_indentation: usize,
+        end_indentation: &str,
+        writer: &mut dyn Write,
+    ) -> Result<(), Error> {
+        writer.write_all(
+            format!(
+                "{initial_indentation}{} {} ",
+                member_name(defn.name()),
+                operator("->")
+            )
+            .as_bytes(),
+        )?;
+        if *defn.target_cardinality() != DEFAULT_CARDINALITY {
+            self.write_cardinality(defn.target_cardinality(), writer)?;
+        }
+        self.write_type_reference(defn.target_type(), writer)?;
+        if let Some(body) = defn.body() {
+            if body.has_annotations() && self.options.level.generate_member_bodies() {
+                writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
+                self.write_annotations(body.annotations(), writer, annotation_indentation)?;
+                writer.write_all(format!("{end_indentation}{}\n", keyword("end")).as_bytes())?;
             }
         } else {
-            unreachable!()
+            writer.write_all(EOL)?;
         }
+        Ok(())
+    }
+
+    fn write_member_reference(
+        &mut self,
+        defn: &IdentifierReference,
+        indentation: &str,
+        writer: &mut dyn Write,
+    ) -> Result<(), Error> {
+        writer.write_all(format!("{indentation}ref {}\n", defn).as_bytes())?;
         Ok(())
     }
 
@@ -556,11 +608,6 @@ impl SourceGenerator {
             TypeReference::Type(name_ref) => {
                 writer.write_all(type_name_ref(name_ref).as_bytes())?;
             }
-            TypeReference::FeatureSet(name_ref) => {
-                writer.write_all(
-                    format!("{} {}", keyword("features"), type_name_ref(name_ref)).as_bytes(),
-                )?;
-            }
             TypeReference::MappingType(map_ref) => {
                 writer.write_all(paren_start().as_bytes())?;
                 self.write_type_reference(map_ref.domain(), writer)?;
@@ -573,43 +620,20 @@ impl SourceGenerator {
     }
 
     fn write_property(&mut self, defn: &PropertyDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
-        writer.write_all(
-            format!(
-                "{indentation}{} {}",
-                keyword("property"),
-                type_name_def(defn.name())
-            )
-            .as_bytes(),
-        )?;
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
+        writer.write_all(format!("{indentation}{} ", keyword("property"),).as_bytes())?;
 
-        if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
-                writer.write_all(b" is\n")?;
-                if body.has_annotations() {
-                    self.write_annotations(
-                        body.annotations(),
-                        writer,
-                        DEFINITION_ANNOTATION_INDENT,
-                    )?;
-                    if body.has_roles() {
-                        writer.write_all(EOL)?;
-                    }
-                }
-                // TODO: roles
-                writer.write_all(format!("\n{indentation}{}\n", keyword("end")).as_bytes())?;
-            } else {
-                writer.write_all(ELIPPSIS.as_bytes())?;
-            }
-        } else {
-            writer.write_all(EOL)?;
-        }
-
-        Ok(())
+        self.write_member_definition_inner(
+            defn.member_def(),
+            "",
+            DEFINITION_ANNOTATION_INDENT,
+            &indentation,
+            writer,
+        )
     }
 
     fn write_rdf(&mut self, defn: &RdfDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {}",
@@ -619,7 +643,7 @@ impl SourceGenerator {
             .as_bytes(),
         )?;
 
-        if self.format_options.generate_definition_bodies() {
+        if self.options.level.generate_definition_bodies() {
             let body = defn.body();
             writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
             if body.has_annotations() {
@@ -646,7 +670,7 @@ impl SourceGenerator {
         defn: &StructureDef,
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {}",
@@ -657,7 +681,7 @@ impl SourceGenerator {
         )?;
 
         if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
+            if self.options.level.generate_definition_bodies() {
                 writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(
@@ -684,7 +708,7 @@ impl SourceGenerator {
     }
 
     fn write_union(&mut self, defn: &UnionDef, writer: &mut dyn Write) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(MODULE_DEFINITION_INDENT);
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
                 "{indentation}{} {}",
@@ -695,7 +719,7 @@ impl SourceGenerator {
         )?;
 
         if let Some(body) = defn.body() {
-            if self.format_options().generate_definition_bodies() {
+            if self.options.level.generate_definition_bodies() {
                 writer.write_all(format!(" {}\n", keyword("of")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(
@@ -728,7 +752,7 @@ impl SourceGenerator {
         variant: &TypeVariant,
         writer: &mut dyn Write,
     ) -> Result<(), Error> {
-        let indentation = self.format_options().indentation(DEFINITION_MEMBER_INDENT);
+        let indentation = self.options.indentation_str(DEFINITION_MEMBER_INDENT);
 
         if let Some(rename) = variant.rename() {
             writer.write_all(
@@ -748,7 +772,7 @@ impl SourceGenerator {
         }
 
         if let Some(body) = variant.body() {
-            if self.format_options().generate_variant_bodies() {
+            if self.options.level.generate_variant_bodies() {
                 writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
                 if body.has_annotations() {
                     self.write_annotations(body.annotations(), writer, MEMBER_ANNOTATION_INDENT)?;

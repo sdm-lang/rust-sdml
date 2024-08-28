@@ -16,27 +16,24 @@ impl ModuleWalker for MyModuleWalker {
     // implement some methods...
 }
 
-walk_module_simple(&some_module, &mut MyModuleWalker::default());
+walk_module_simple(&some_module, &mut MyModuleWalker::default(), false, true);
 ```
 
 */
 
 use crate::error::Error;
-use crate::model::annotations::{Annotation, HasAnnotations};
-use crate::model::constraints::{ConstraintBody, ControlledLanguageTag};
-use crate::model::constraints::{ConstraintSentence, EnvironmentDef};
+use crate::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
+use crate::model::constraints::{ConstraintBody, ControlledLanguageString, FormalConstraint};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EntityIdentity, EnumDef, EventDef, HasMembers, HasVariants,
-    PropertyDef, PropertyRole, PropertyRoleDef, StructureDef, TypeVariant, UnionDef,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, HasVariants, PropertyDef,
+    RdfDef, StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
-use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::members::HasType;
-use crate::model::members::{Cardinality, HasCardinality, Member, TypeReference};
-use crate::model::modules::{Import, Module};
-use crate::model::values::Value;
-use crate::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
-
-use super::definitions::RdfDef;
+use crate::model::identifiers::{IdentifierReference, QualifiedIdentifier};
+use crate::model::members::{Member, MemberDef, MemberKind};
+use crate::model::modules::{Import, ModuleImport};
+use crate::model::modules::{ImportStatement, Module};
+use crate::model::{HasBody, HasOptionalBody};
+use tracing::info;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -49,248 +46,473 @@ use super::definitions::RdfDef;
 ///
 /// The trait that captures the callbacks that [`walk_module_simple`] uses as it traverses the module.
 ///
-pub trait SimpleModuleWalker {
-    fn start_module(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
+/// Some functions return a boolean, this indicates whether the walker should continue into any
+/// nested structure for that model element. For example if `structure_start` returns `false` then
+/// no annotations or members within that structure instance will be walked. Note that this also
+/// removes the corresponding `structure_start` as well.
+///
+pub trait SimpleModuleVisitor {
+    const INCLUDE_NESTED: Result<bool, Error> = Ok(true);
+    const NO_NESTED: Result<bool, Error> = Ok(false);
+
+    // --------------------------------------------------------------------------------------------
+    // Module-level
+    // --------------------------------------------------------------------------------------------
+
+    ///
+    /// # Nested
+    ///
+    /// - `import`
+    /// - `annotation_start`
+    /// - `module_end`
+    ///
+    fn module_start(&mut self, _thing: &Module) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::module_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn module_end(&mut self, _thing: &Module) -> Result<(), Error> {
+        info!("SimpleModuleWalker::module_end(..) -- skipped");
         Ok(())
     }
 
-    fn import(&mut self, _imported: &[Import], _span: Option<&Span>) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `module_import`
+    /// - `member_import`
+    ///
+    fn import_statement_start(&mut self, _thing: &ImportStatement) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::import_statement_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn import_statement_end(&mut self, _thing: &ImportStatement) -> Result<(), Error> {
+        info!("SimpleModuleWalker::import_statement_end(..) -- skipped");
         Ok(())
     }
 
-    fn annotation_property(
-        &mut self,
-        _name: &IdentifierReference,
-        _value: &Value,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn module_import(&mut self, _thing: &ModuleImport) -> Result<(), Error> {
+        info!("SimpleModuleWalker::module_import(..) -- skipped");
         Ok(())
     }
 
-    fn informal_constraint(
-        &mut self,
-        _name: &Identifier,
-        _value: &str,
-        _language: Option<&ControlledLanguageTag>,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn member_import(&mut self, _thing: &QualifiedIdentifier) -> Result<(), Error> {
+        info!("SimpleModuleWalker::member_import(..) -- skipped");
         Ok(())
     }
 
-    fn formal_constraint<'a>(
-        &'a mut self,
-        _name: &Identifier,
-        _environment: &impl Iterator<Item = &'a EnvironmentDef>,
-        _body: &ConstraintSentence,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    // --------------------------------------------------------------------------------------------
+    // Annotations
+    // --------------------------------------------------------------------------------------------
+
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_property`
+    /// - `informal_constraint`
+    /// - `formal_constraint`
+    /// - `annotation_end`
+    ///
+    fn annotation_start(&mut self, _thing: &Annotation) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::annotation_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn annotation_end(&mut self, _thing: &Annotation) -> Result<(), Error> {
+        info!("SimpleModuleWalker::annotation_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_datatype(
-        &mut self,
-        _name: &Identifier,
-        _is_opaque: bool,
-        _base_type: &IdentifierReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn annotation_property(&mut self, _thing: &AnnotationProperty) -> Result<(), Error> {
+        info!("SimpleModuleWalker::annotation_property(..) -- skipped");
         Ok(())
     }
 
-    fn end_datatype(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn informal_constraint(&mut self, _thing: &ControlledLanguageString) -> Result<(), Error> {
+        info!("SimpleModuleWalker::informal_constraint(..) -- skipped");
         Ok(())
     }
 
-    fn start_entity(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn formal_constraint(&mut self, _thing: &FormalConstraint) -> Result<(), Error> {
+        info!("SimpleModuleWalker::formal_constraint(..) -- skipped");
         Ok(())
     }
 
-    fn start_entity_identity(
-        &mut self,
-        _name: &Identifier,
-        _target_type: &TypeReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    // --------------------------------------------------------------------------------------------
+    // Definitions
+    // --------------------------------------------------------------------------------------------
+
+    ///
+    /// # Nested
+    ///
+    /// - `datatype_start`
+    /// - `entity_start`
+    /// - `enum_start`
+    /// - `event_start`
+    /// - `property_start`
+    /// - `rdf_start`
+    /// - `structure_start`
+    /// - `union_start`
+    /// - `definition_end`
+    ///
+    fn definition_start(&mut self, _thing: &Definition) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::definition_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None
+    ///
+    fn definition_end(&mut self, _thing: &Definition) -> Result<(), Error> {
+        info!("SimpleModuleWalker::definition_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_entity_identity_role_ref(
-        &mut self,
-        _role_name: &Identifier,
-        _in_property: &IdentifierReference,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `datatype_end`
+    ///
+    fn datatype_start(&mut self, _thing: &DatatypeDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::datatype_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn datatype_end(&mut self, _thing: &DatatypeDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::datatype_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_member(
-        &mut self,
-        _name: &Identifier,
-        _inverse_name: Option<&Identifier>,
-        _target_cardinality: &Cardinality,
-        _target_type: &TypeReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `identity_member_start`
+    /// - `member_start`
+    /// - `entity_end`
+    ///
+    fn entity_start(&mut self, _thing: &EntityDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::import(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn entity_end(&mut self, _thing: &EntityDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::import(..) -- skipped");
         Ok(())
     }
 
-    fn start_member_role_ref(
-        &mut self,
-        _role_name: &Identifier,
-        _in_property: &IdentifierReference,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `value_variant_start`
+    /// - `enum_end`
+    ///
+    fn enum_start(&mut self, _thing: &EnumDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::enum_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn enum_end(&mut self, _thing: &EnumDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::enum_end(..) -- skipped");
         Ok(())
     }
 
-    fn end_member(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `member_start`
+    /// - `event_end`
+    ///
+    fn event_start(&mut self, _thing: &EventDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::event_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn event_end(&mut self, _thing: &EventDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::event_end(..) -- skipped");
         Ok(())
     }
 
-    fn end_entity(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `member_definition_start`
+    /// - `property_end`
+    ///
+    fn property_start(&mut self, _thing: &PropertyDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::property_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn property_end(&mut self, _thing: &PropertyDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::property_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_enum(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `rdf_end`
+    ///
+    fn rdf_start(&mut self, _thing: &RdfDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::rdf_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn rdf_end(&mut self, _thing: &RdfDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::rdf_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_value_variant(
-        &mut self,
-        _identifier: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `member_start`
+    /// - `structure_end`
+    ///
+    fn structure_start(&mut self, _thing: &StructureDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::structure_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn structure_end(&mut self, _thing: &StructureDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::structure_end(..) -- skipped");
         Ok(())
     }
 
-    fn end_value_variant(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `type_variant_start`
+    /// - `union_end`
+    ///
+    fn union_start(&mut self, _thing: &UnionDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::union_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn union_end(&mut self, _thing: &UnionDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::union_end(..) -- skipped");
         Ok(())
     }
 
-    fn end_enum(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    // --------------------------------------------------------------------------------------------
+    // Members and Variants
+    // --------------------------------------------------------------------------------------------
+
+    ///
+    /// # Nested
+    ///
+    /// - `property_reference_start`
+    /// - `member_definition_start`
+    /// - `member_end`
+    ///
+    fn member_start(&mut self, _thing: &Member) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::member_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn member_end(&mut self, _thing: &Member) -> Result<(), Error> {
+        info!("SimpleModuleWalker::member_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_event(
-        &mut self,
-        _name: &Identifier,
-        _source: &IdentifierReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `property_reference_start`
+    /// - `member_definition_start`
+    /// - `identity_member_end`
+    ///
+    fn identity_member_start(&mut self, _thing: &Member) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::identity_member_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn identity_member_end(&mut self, _thing: &Member) -> Result<(), Error> {
+        info!("SimpleModuleWalker::identity_member_end(..) -- skipped");
         Ok(())
     }
 
-    fn end_event(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `member_definition_end`
+    ///
+    fn member_definition_start(&mut self, _thing: &MemberDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::member_definition_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn member_definition_end(&mut self, _thing: &MemberDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::member_definition_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_property(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `property_reference_end`
+    ///
+    fn property_reference_start(&mut self, _thing: &IdentifierReference) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::property_reference_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn property_reference_end(&mut self, _thing: &IdentifierReference) -> Result<(), Error> {
+        info!("SimpleModuleWalker::property_reference_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_identity_role(
-        &mut self,
-        _name: &Identifier,
-        _target_type: &TypeReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `value_variant_end`
+    ///
+    fn value_variant_start(&mut self, _thing: &ValueVariant) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::value_variant_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn value_variant_end(&mut self, _thing: &ValueVariant) -> Result<(), Error> {
+        info!("SimpleModuleWalker::value_variant_end(..) -- skipped");
         Ok(())
     }
 
-    fn start_member_role(
-        &mut self,
-        _name: &Identifier,
-        _inverse_name: Option<&Identifier>,
-        _target_cardinality: &Cardinality,
-        _target_type: &TypeReference,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `type_variant_end`
+    ///
+    fn type_variant_start(&mut self, _thing: &TypeVariant) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::type_variant_start(..) -- skipped");
+        Self::INCLUDE_NESTED
     }
 
-    fn end_property_role(&mut self, _name: &Identifier, _has_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_property(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_structure(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_structure(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_rdf(&mut self, _name: &Identifier, _span: Option<&Span>) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_rdf(&mut self, _name: &Identifier) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_union(
-        &mut self,
-        _name: &Identifier,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn start_type_variant(
-        &mut self,
-        _identifier: &IdentifierReference,
-        _rename: Option<&Identifier>,
-        _has_body: bool,
-        _span: Option<&Span>,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_type_variant(
-        &mut self,
-        _name: &IdentifierReference,
-        _had_body: bool,
-    ) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_union(&mut self, _name: &Identifier, _had_body: bool) -> Result<(), Error> {
-        Ok(())
-    }
-
-    fn end_module(&mut self, _name: &Identifier) -> Result<(), Error> {
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn type_variant_end(&mut self, _thing: &TypeVariant) -> Result<(), Error> {
+        info!("SimpleModuleWalker::type_variant_end(..) -- skipped");
         Ok(())
     }
 }
@@ -300,34 +522,25 @@ pub trait SimpleModuleWalker {
 // ------------------------------------------------------------------------------------------------
 
 macro_rules! walk_annotations {
-    ($walker: expr, $iterator: expr) => {
-        for annotation in $iterator {
-            match annotation {
-                Annotation::Property(prop) => {
-                    $walker.annotation_property(
-                        prop.name_reference(),
-                        prop.value(),
-                        annotation.source_span(),
-                    )?;
+    ($walker: expr, $iterator: expr, $visit_annotations: expr) => {
+        if $visit_annotations {
+            for annotation in $iterator {
+                if $walker.annotation_start(annotation)? {
+                    match annotation {
+                        Annotation::Property(property) => {
+                            $walker.annotation_property(&property)?;
+                        }
+                        Annotation::Constraint(cons) => match cons.body() {
+                            ConstraintBody::Informal(constraint) => {
+                                $walker.informal_constraint(&constraint)?;
+                            }
+                            ConstraintBody::Formal(constraint) => {
+                                $walker.formal_constraint(&constraint)?;
+                            }
+                        },
+                    }
+                    $walker.annotation_end(annotation)?;
                 }
-                Annotation::Constraint(cons) => match cons.body() {
-                    ConstraintBody::Informal(body) => {
-                        $walker.informal_constraint(
-                            cons.name(),
-                            body.value(),
-                            body.language(),
-                            body.source_span(),
-                        )?;
-                    }
-                    ConstraintBody::Formal(body) => {
-                        $walker.formal_constraint(
-                            cons.name(),
-                            &body.definitions(),
-                            body.body(),
-                            body.source_span(),
-                        )?;
-                    }
-                },
             }
         }
     };
@@ -341,33 +554,60 @@ macro_rules! walk_annotations {
 ///
 pub fn walk_module_simple(
     module: &Module,
-    walker: &mut impl SimpleModuleWalker,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
 ) -> Result<(), Error> {
-    walker.start_module(module.name(), module.source_span())?;
+    if walker.module_start(module)? {
+        let body = module.body();
 
-    let body = module.body();
-
-    for import in body.imports() {
-        walker.import(import.as_slice(), import.source_span())?;
-    }
-
-    walk_annotations!(walker, body.annotations());
-
-    for type_def in body.definitions() {
-        match &type_def {
-            Definition::Datatype(def) => walk_datatype_def(def, walker)?,
-            Definition::Entity(def) => walk_entity_def(def, walker)?,
-            Definition::Enum(def) => walk_enum_def(def, walker)?,
-            Definition::Event(def) => walk_event_def(def, walker)?,
-            Definition::Property(def) => walk_property_def(def, walker)?,
-            Definition::Rdf(def) => walk_rdf_def(def, walker)?,
-            Definition::Structure(def) => walk_structure_def(def, walker)?,
-            Definition::TypeClass(_) => todo!(),
-            Definition::Union(def) => walk_union_def(def, walker)?,
+        for import in body.imports() {
+            if walker.import_statement_start(import)? {
+                for import in import.imports() {
+                    match import {
+                        Import::Module(v) => walker.module_import(v)?,
+                        Import::Member(v) => walker.member_import(v)?,
+                    }
+                }
+                walker.import_statement_end(import)?;
+            }
         }
-    }
 
-    walker.end_module(module.name())
+        walk_annotations!(walker, body.annotations(), visit_annotations);
+
+        for type_def in body.definitions() {
+            if walker.definition_start(type_def)? {
+                match &type_def {
+                    Definition::Datatype(def) => walk_datatype_def(def, walker, visit_annotations)?,
+                    Definition::Entity(def) => {
+                        walk_entity_def(def, walker, visit_annotations, visit_members_and_variants)?
+                    }
+                    Definition::Enum(def) => {
+                        walk_enum_def(def, walker, visit_annotations, visit_members_and_variants)?
+                    }
+                    Definition::Event(def) => {
+                        walk_event_def(def, walker, visit_annotations, visit_members_and_variants)?
+                    }
+                    Definition::Property(def) => walk_property_def(def, walker)?,
+                    Definition::Rdf(def) => walk_rdf_def(def, walker, visit_annotations)?,
+                    Definition::Structure(def) => walk_structure_def(
+                        def,
+                        walker,
+                        visit_annotations,
+                        visit_members_and_variants,
+                    )?,
+                    Definition::TypeClass(_) => todo!(),
+                    Definition::Union(def) => {
+                        walk_union_def(def, walker, visit_annotations, visit_members_and_variants)?
+                    }
+                }
+                walker.definition_end(type_def)?;
+            }
+        }
+
+        walker.module_end(module)?;
+    }
+    Ok(())
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -386,225 +626,231 @@ pub fn walk_module_simple(
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
-fn walk_datatype_def(def: &DatatypeDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_datatype(
-        def.name(),
-        def.is_opaque(),
-        def.base_type(),
-        def.has_body(),
-        def.source_span(),
-    )?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-    }
-
-    walker.end_datatype(def.name(), def.has_body())
-}
-
-fn walk_entity_def(def: &EntityDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_entity(def.name(), def.has_body(), def.source_span())?;
-
-    if let Some(body) = def.body() {
-        walk_entity_identity(body.identity(), walker)?;
-
-        walk_annotations!(walker, body.annotations());
-
-        for member in body.members() {
-            walk_member(member, walker)?;
-        }
-    }
-
-    walker.end_entity(def.name(), def.has_body())
-}
-
-fn walk_enum_def(def: &EnumDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_enum(def.name(), def.has_body(), def.source_span())?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-        for variant in body.variants() {
-            walker.start_value_variant(
-                variant.name(),
-                variant.has_body(),
-                variant.source_span(),
-            )?;
-            if let Some(body) = variant.body() {
-                walk_annotations!(walker, body.annotations());
-            }
-            walker.end_value_variant(variant.name(), def.has_body())?;
-        }
-    }
-
-    walker.end_enum(def.name(), def.has_body())
-}
-
-fn walk_event_def(def: &EventDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_event(
-        def.name(),
-        def.event_source(),
-        def.has_body(),
-        def.source_span(),
-    )?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-
-        for member in body.members() {
-            walk_member(member, walker)?;
-        }
-    }
-
-    walker.end_event(def.name(), def.has_body())
-}
-
-fn walk_property_def(def: &PropertyDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_property(def.name(), def.has_body(), def.source_span())?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-
-        for role in body.roles() {
-            walk_property_role(role, walker)?;
-        }
-    }
-
-    walker.end_union(def.name(), def.has_body())
-}
-
-fn walk_property_role(
-    role: &PropertyRole,
-    walker: &mut impl SimpleModuleWalker,
+fn walk_datatype_def(
+    thing: &DatatypeDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
 ) -> Result<(), Error> {
-    match role.definition() {
-        PropertyRoleDef::Identity(inner) => walker.start_identity_role(
-            role.name(),
-            inner.target_type(),
-            inner.has_body(),
-            role.source_span(),
-        )?,
-        PropertyRoleDef::Member(inner) => walker.start_member_role(
-            role.name(),
-            inner.inverse_name(),
-            inner.target_cardinality(),
-            inner.target_type(),
-            inner.has_body(),
-            role.source_span(),
-        )?,
-    };
+    if walker.datatype_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+        }
 
-    let had_body = if let Some(body) = role.body() {
-        walk_annotations!(walker, body.annotations());
-        true
-    } else {
-        false
-    };
-    walker.end_property_role(role.name(), had_body)
+        walker.datatype_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_entity_def(
+    thing: &EntityDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
+) -> Result<(), Error> {
+    if walker.entity_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_identity_member(body.identity(), walker, visit_annotations)?;
+
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+
+            if visit_members_and_variants {
+                for member in body.members() {
+                    walk_member(member, walker, visit_annotations)?;
+                }
+            }
+        }
+
+        walker.entity_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_enum_def(
+    thing: &EnumDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
+) -> Result<(), Error> {
+    if walker.enum_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+            if visit_members_and_variants {
+                for variant in body.variants() {
+                    walk_value_variant(variant, walker, visit_annotations)?;
+                }
+            }
+        }
+
+        walker.enum_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_event_def(
+    thing: &EventDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
+) -> Result<(), Error> {
+    if walker.event_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+
+            if visit_members_and_variants {
+                for member in body.members() {
+                    walk_member(member, walker, visit_annotations)?;
+                }
+            }
+        }
+
+        walker.event_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_property_def(
+    thing: &PropertyDef,
+    walker: &mut impl SimpleModuleVisitor,
+) -> Result<(), Error> {
+    if walker.property_start(thing)? {
+        let defn = thing.member_def();
+        if walker.member_definition_start(defn)? {
+            walker.member_definition_end(defn)?;
+        }
+        walker.property_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_rdf_def(
+    thing: &RdfDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+) -> Result<(), Error> {
+    if walker.rdf_start(thing)? {
+        walk_annotations!(walker, thing.body().annotations(), visit_annotations);
+        walker.rdf_end(thing)?;
+    }
+    Ok(())
 }
 
 fn walk_structure_def(
-    def: &StructureDef,
-    walker: &mut impl SimpleModuleWalker,
+    thing: &StructureDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
 ) -> Result<(), Error> {
-    walker.start_structure(def.name(), def.has_body(), def.source_span())?;
+    if walker.structure_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
 
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
+            if visit_members_and_variants {
+                for member in body.members() {
+                    walk_member(member, walker, visit_annotations)?;
+                }
+            }
+        }
 
-        for member in body.members() {
-            walk_member(member, walker)?;
+        walker.structure_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_union_def(
+    thing: &UnionDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
+) -> Result<(), Error> {
+    if walker.union_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+            if visit_members_and_variants {
+                for variant in body.variants() {
+                    walk_type_variant(variant, walker, visit_annotations)?;
+                }
+            }
+        }
+
+        walker.union_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_member(
+    thing: &Member,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+) -> Result<(), Error> {
+    if walker.member_start(thing)? {
+        walk_member_common(thing, walker, visit_annotations)?;
+        walker.member_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_identity_member(
+    thing: &Member,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+) -> Result<(), Error> {
+    if walker.identity_member_start(thing)? {
+        walk_member_common(thing, walker, visit_annotations)?;
+        walker.identity_member_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_member_common(
+    thing: &Member,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+) -> Result<(), Error> {
+    match thing.kind() {
+        MemberKind::Reference(v) => {
+            if walker.property_reference_start(v)? {
+                walker.property_reference_end(v)?;
+            }
+        }
+        MemberKind::Definition(v) => {
+            if walker.member_definition_start(v)? {
+                if let Some(body) = v.body() {
+                    walk_annotations!(walker, body.annotations(), visit_annotations);
+                }
+                walker.member_definition_end(v)?;
+            }
         }
     }
 
-    walker.end_structure(def.name(), def.has_body())
+    Ok(())
 }
 
-fn walk_rdf_def(def: &RdfDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_rdf(def.name(), def.source_span())?;
-    walk_annotations!(walker, def.body().annotations());
-    walker.end_rdf(def.name())
-}
+fn walk_value_variant(
+    thing: &ValueVariant,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+) -> Result<(), Error> {
+    walker.value_variant_start(thing)?;
 
-fn walk_union_def(def: &UnionDef, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    walker.start_union(def.name(), def.has_body(), def.source_span())?;
-
-    if let Some(body) = def.body() {
-        walk_annotations!(walker, body.annotations());
-        for variant in body.variants() {
-            walk_type_variant(variant, walker)?;
-        }
+    if let Some(body) = thing.body() {
+        walk_annotations!(walker, body.annotations(), visit_annotations);
     }
 
-    walker.end_union(def.name(), def.has_body())
+    walker.value_variant_end(thing)
 }
 
 fn walk_type_variant(
-    variant: &TypeVariant,
-    walker: &mut impl SimpleModuleWalker,
+    thing: &TypeVariant,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
 ) -> Result<(), Error> {
-    walker.start_type_variant(
-        variant.name_reference(),
-        variant.rename(),
-        variant.has_body(),
-        variant.source_span(),
-    )?;
-    if let Some(body) = variant.body() {
-        walk_annotations!(walker, body.annotations());
+    walker.type_variant_start(thing)?;
+
+    if let Some(body) = thing.body() {
+        walk_annotations!(walker, body.annotations(), visit_annotations);
     }
-    walker.end_type_variant(variant.name_reference(), variant.has_body())
-}
 
-fn walk_entity_identity(
-    member: &EntityIdentity,
-    walker: &mut impl SimpleModuleWalker,
-) -> Result<(), Error> {
-    let had_body = if let Some(name) = member.as_property_reference() {
-        walker.start_entity_identity_role_ref(member.name(), name, member.source_span())?;
-        false
-    } else if let Some(defn) = member.as_definition() {
-        walker.start_entity_identity(
-            member.name(),
-            defn.target_type(),
-            defn.has_body(),
-            member.source_span(),
-        )?;
-        if let Some(body) = defn.body() {
-            walk_annotations!(walker, body.annotations());
-            true
-        } else {
-            false
-        }
-    } else {
-        unreachable!()
-    };
-
-    walker.end_member(member.name(), had_body)
-}
-
-fn walk_member(member: &Member, walker: &mut impl SimpleModuleWalker) -> Result<(), Error> {
-    let had_body = if let Some(name) = member.as_property_reference() {
-        walker.start_member_role_ref(member.name(), name, member.source_span())?;
-        false
-    } else if let Some(defn) = member.as_definition() {
-        walker.start_member(
-            member.name(),
-            defn.inverse_name(),
-            defn.target_cardinality(),
-            defn.target_type(),
-            defn.has_body(),
-            member.source_span(),
-        )?;
-        if let Some(body) = defn.body() {
-            walk_annotations!(walker, body.annotations());
-            true
-        } else {
-            false
-        }
-    } else {
-        unreachable!()
-    };
-
-    walker.end_member(member.name(), had_body)
+    walker.type_variant_end(thing)
 }
 
 // ------------------------------------------------------------------------------------------------

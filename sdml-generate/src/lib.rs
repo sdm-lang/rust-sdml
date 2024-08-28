@@ -13,9 +13,9 @@ modules transitive dependencies.
 ```rust
 use sdml_core::cache::ModuleCache;
 use sdml_core::model::modules::Module;
-use sdml_generate::GenerateToWriter;
+use sdml_generate::Generator;
 use sdml_generate::actions::deps::{
-    DependencyViewRepresentation, DependencyViewGenerator,
+    DependencyViewGenerator, DependencyViewOptions,
 };
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
@@ -23,10 +23,9 @@ use std::io::stdout;
 
 let (module, cache) = load_module();
 
-let view = DependencyViewRepresentation::TextTree;
-let mut generator = DependencyViewGenerator::default()
-    .with_format_options(view);
-generator.write(&module, &cache, &mut stdout())
+let mut generator = DependencyViewGenerator::default();
+let options = DependencyViewOptions::default().as_text_tree();
+generator.generate_with_options(&module, &cache, options, None, &mut stdout())
          .expect("write to stdout failed");
 ```
 
@@ -71,136 +70,98 @@ generator.write(&module, &cache, &mut stdout())
     dyn_drop,
 )]
 
-use sdml_core::{cache::ModuleCache, error::Error, model::modules::Module, model::HasName};
-use std::{fmt::Debug, fs::File, io::Cursor, io::Write, path::Path};
+use sdml_core::{cache::ModuleStore, error::Error, model::modules::Module};
+use std::{fmt::Debug, fs::OpenOptions, io::Cursor, io::Write, path::PathBuf};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
 // ------------------------------------------------------------------------------------------------
-
-macro_rules! trace_entry {
-    ($type_name: literal, $fn_name: literal => $format: literal, $( $value: expr ),+ ) => {
-        const FULL_NAME: &str = concat!($type_name, "::", $fn_name);
-        let tracing_span = ::tracing::trace_span!(FULL_NAME);
-        let _enter_span = tracing_span.enter();
-        let arguments = format!($format, $( $value ),+);
-        ::tracing::trace!("{FULL_NAME}({arguments})");
-    };
-}
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
 ///
-/// This trait denotes a generator that writes to a file path.
+/// This trait denotes a type that generates content from a module.
 ///
-/// This trait is a subset of the trait [`GenerateToWriter`], it is not however a sub-, or super-,
-/// type as the need for this trait is for generators that are not able to process intermediate
-/// results.
+/// The type `Options` denotes some type that contains any settings that affect the behavior of
+/// the generator. If no settings are required `Options` may be set to `()`. Given that options
+/// are provided at the method level it is recommended that generators are constructed using
+/// `Default::default()`.
 ///
-/// The type parameter `F` is used to describe any format information required by the generator.
-///
-pub trait GenerateToFile<F: Default + Debug>: Debug {
-    /// Add options to the implementation.
-    fn with_format_options(self, format_options: F) -> Self;
-
-    /// Return current options
-    fn format_options(&self) -> &F;
-
-    ///
-    /// Generate from the given module into the provided file path. This method uses the
-    /// default value of the format type `F`.
-    ///
-    fn write_to_file(
-        &mut self,
-        module: &Module,
-        cache: &ModuleCache,
-        path: &Path,
-    ) -> Result<(), Error>;
-}
-
-///
-/// This trait denotes a generator that writes to an implementation of [Write].
-///
-/// This trait is a superset of the trait [`GenerateToFile`],  see that trait's documentation for
-/// more information.
-///
-/// The type parameter `F` is used to describe any format information required by the generator.
-///
-pub trait GenerateToWriter<F: Default + Debug>: Debug {
-    fn with_format_options(self, format_options: F) -> Self;
-
-    fn format_options(&self) -> &F;
+pub trait Generator: Default {
+    type Options: Default + Debug;
 
     // --------------------------------------------------------------------------------------------
     // Write to ❱ implementation of `Write`
     // --------------------------------------------------------------------------------------------
 
     ///
-    /// Generate from the given module into the provided writer.
+    /// Generate from the given module into the provided writer. Note that this calls
+    /// `generate_with_options` using `Self::Options::default()`.
     ///
-    fn write<W>(
+    fn generate<W>(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
+        path: Option<PathBuf>,
         writer: &mut W,
     ) -> Result<(), Error>
     where
-        W: Write + Sized;
-
-    // --------------------------------------------------------------------------------------------
-    // Write to ❱ String
-    // --------------------------------------------------------------------------------------------
+        W: Write + Sized,
+    {
+        self.generate_with_options(module, cache, Default::default(), path, writer)
+    }
 
     ///
     /// Generate from the given module into a string.
     ///
-    fn write_to_string(&mut self, module: &Module, cache: &ModuleCache) -> Result<String, Error> {
-        trace_entry!(
-            "GenerateToWriter",
-            "write_to_string" =>
-                "module: {}, cache: {}",
-            module.name(),
-            cache_to_string(cache)
-        );
+    fn generate_to_string(
+        &mut self,
+        module: &Module,
+        cache: &impl ModuleStore,
+        options: Self::Options,
+        path: Option<PathBuf>,
+    ) -> Result<String, Error> {
         let mut buffer = Cursor::new(Vec::new());
-        self.write(module, cache, &mut buffer)?;
+        self.generate_with_options(module, cache, options, path, &mut buffer)?;
         Ok(String::from_utf8(buffer.into_inner())?)
     }
 
-    // --------------------------------------------------------------------------------------------
-    // Write to ❱ File
-    // --------------------------------------------------------------------------------------------
-
     ///
-    /// Generate from the given module into the provided file path.
+    /// Generate from the given module into a file.
     ///
-    fn write_to_file(
+    /// Note: The referenced file will be created if it does not exist, and replaced if it does.
+    ///
+    fn generate_to_file(
         &mut self,
         module: &Module,
-        cache: &ModuleCache,
-        path: &Path,
+        cache: &impl ModuleStore,
+        options: Self::Options,
+        path: &PathBuf,
     ) -> Result<(), Error> {
-        trace_entry!(
-            "GenerateToWriter",
-            "write_to_file" =>
-                "module: {}, cache: {}, path: {:?}",
-            module.name(),
-            cache_to_string(cache),
-            path
-        );
-        let mut file = File::create(path)?;
-        self.write(module, cache, &mut file)?;
-        Ok(())
+        let mut file = OpenOptions::new()
+            .create(true)
+            .truncate(true)
+            .write(true)
+            .open(path)?;
+        self.generate_with_options(module, cache, options, Some(path.clone()), &mut file)
     }
-}
 
-///
-/// A type that may be used when no format options are required by a generator implementation.
-///
-#[derive(Clone, Copy, Debug, Default)]
-pub struct NoFormatOptions {}
+    ///
+    /// Generate from the given module into the provided writer.
+    ///
+    fn generate_with_options<W>(
+        &mut self,
+        module: &Module,
+        cache: &impl ModuleStore,
+        options: Self::Options,
+        path: Option<PathBuf>,
+        writer: &mut W,
+    ) -> Result<(), Error>
+    where
+        W: Write + Sized;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -221,17 +182,6 @@ pub struct NoFormatOptions {}
 // ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------
-
-fn cache_to_string(cache: &ModuleCache) -> String {
-    format!(
-        "[{}]",
-        cache
-            .iter()
-            .map(|module| module.name().to_string())
-            .collect::<Vec<_>>()
-            .join(", ")
-    )
-}
 
 // ------------------------------------------------------------------------------------------------
 // Modules

@@ -37,7 +37,9 @@ pub trait Reporter: Debug {
         self.emit(diagnostic, &SourceFiles::new())
     }
 
-    fn done(&self, module_name: Option<String>) -> Result<(), Error>;
+    fn counters(&self) -> ReportCounters;
+
+    fn done(&self, module_name: Option<String>) -> Result<ReportCounters, Error>;
 
     fn log(&self, diagnostic: &Diagnostic) {
         match diagnostic.severity {
@@ -75,36 +77,38 @@ pub trait Reporter: Debug {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default)]
+pub struct ReportCounters {
+    bugs: u32,
+    errors: u32,
+    warnings: u32,
+    info: u32,
+}
+
 #[derive(Debug)]
 pub struct StandardStreamReporter {
     stream: StandardStream,
     filter: SeverityFilter,
+    counters: RefCell<ReportCounters>,
     config: Config,
-    counters: RefCell<ErrorCounters>,
 }
 
 #[derive(Debug)]
 pub struct CompactStreamReporter {
     stream: StandardStream,
     filter: SeverityFilter,
+    counters: RefCell<ReportCounters>,
 }
 
 #[derive(Debug, Default)]
 pub struct BailoutReporter {
     filter: SeverityFilter,
+    counters: RefCell<ReportCounters>,
 }
 
 // ------------------------------------------------------------------------------------------------
 // Private Types
 // ------------------------------------------------------------------------------------------------
-
-#[derive(Clone, Debug, Default)]
-struct ErrorCounters {
-    bugs: u32,
-    errors: u32,
-    warnings: u32,
-    info: u32,
-}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -135,8 +139,8 @@ impl From<ErrorCode> for Diagnostic {
 
 // ------------------------------------------------------------------------------------------------
 
-impl Add for ErrorCounters {
-    type Output = ErrorCounters;
+impl Add for ReportCounters {
+    type Output = ReportCounters;
 
     fn add(self, rhs: Self) -> Self::Output {
         Self {
@@ -148,7 +152,7 @@ impl Add for ErrorCounters {
     }
 }
 
-impl AddAssign for ErrorCounters {
+impl AddAssign for ReportCounters {
     fn add_assign(&mut self, rhs: Self) {
         self.bugs += rhs.bugs;
         self.errors += rhs.errors;
@@ -157,7 +161,7 @@ impl AddAssign for ErrorCounters {
     }
 }
 
-impl ErrorCounters {
+impl ReportCounters {
     #[inline(always)]
     fn report(&mut self, severity: Severity) {
         match severity {
@@ -170,7 +174,32 @@ impl ErrorCounters {
     }
 
     #[inline(always)]
-    fn total(&self) -> u64 {
+    pub fn bugs(&self) -> u32 {
+        self.bugs
+    }
+
+    #[inline(always)]
+    pub fn errors(&self) -> u32 {
+        self.errors
+    }
+
+    #[inline(always)]
+    pub fn warnings(&self) -> u32 {
+        self.warnings
+    }
+
+    #[inline(always)]
+    pub fn info(&self) -> u32 {
+        self.info
+    }
+
+    #[inline(always)]
+    pub fn total_without_info(&self) -> u64 {
+        (self.bugs + self.errors + self.warnings) as u64
+    }
+
+    #[inline(always)]
+    pub fn total(&self) -> u64 {
         (self.bugs + self.errors + self.warnings + self.info) as u64
     }
 }
@@ -200,10 +229,14 @@ impl Reporter for StandardStreamReporter {
         }
     }
 
-    fn done(&self, module_name: Option<String>) -> Result<(), Error> {
+    fn counters(&self) -> ReportCounters {
+        *self.counters.borrow()
+    }
+
+    fn done(&self, module_name: Option<String>) -> Result<ReportCounters, Error> {
         self.done_stats(module_name)?;
-        let _ = self.counters.replace(ErrorCounters::default());
-        Ok(())
+        let old_counters = self.counters.replace(ReportCounters::default());
+        Ok(old_counters)
     }
 
     fn severity_filter(&self) -> SeverityFilter {
@@ -319,6 +352,7 @@ impl Default for CompactStreamReporter {
         Self {
             stream: StandardStream::stdout(UseColor::from_env().into()),
             filter: Default::default(),
+            counters: Default::default(),
         }
     }
 }
@@ -328,6 +362,8 @@ impl Reporter for CompactStreamReporter {
         use codespan_reporting::files::Files;
         if self.is_enabled(diagnostic.severity) {
             self.log(diagnostic);
+            let mut counters = self.counters.borrow_mut();
+            counters.report(diagnostic.severity);
             let mut stream = self.stream.lock();
             let (file_name, start, end) = if let Some(label) = diagnostic.labels.first() {
                 let file_id = label.file_id;
@@ -365,8 +401,13 @@ impl Reporter for CompactStreamReporter {
         Ok(())
     }
 
-    fn done(&self, _: Option<String>) -> Result<(), Error> {
-        Ok(())
+    fn counters(&self) -> ReportCounters {
+        *self.counters.borrow()
+    }
+
+    fn done(&self, _: Option<String>) -> Result<ReportCounters, Error> {
+        let old_counters = self.counters.replace(ReportCounters::default());
+        Ok(old_counters)
     }
 
     fn severity_filter(&self) -> SeverityFilter {
@@ -390,14 +431,21 @@ impl Reporter for BailoutReporter {
     fn emit(&self, diagnostic: &Diagnostic, _: &SourceFiles) -> Result<(), Error> {
         if self.is_enabled(diagnostic.severity) {
             self.log(diagnostic);
+            let mut counters = self.counters.borrow_mut();
+            counters.report(diagnostic.severity);
             Err(diagnostic.clone().into())
         } else {
             Ok(())
         }
     }
 
-    fn done(&self, _: Option<String>) -> Result<(), Error> {
-        Ok(())
+    fn counters(&self) -> ReportCounters {
+        *self.counters.borrow()
+    }
+
+    fn done(&self, _: Option<String>) -> Result<ReportCounters, Error> {
+        let old_counters = self.counters.replace(ReportCounters::default());
+        Ok(old_counters)
     }
 
     fn severity_filter(&self) -> SeverityFilter {

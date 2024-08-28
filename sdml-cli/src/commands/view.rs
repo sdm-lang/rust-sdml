@@ -1,9 +1,11 @@
+use std::process::ExitCode;
+
 use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
 use sdml_core::{cache::ModuleStore, load::ModuleLoader};
 use sdml_errors::Error;
-use sdml_generate::convert::source::SourceGenerator;
-use sdml_generate::GenerateToWriter;
+use sdml_generate::convert::source::{SourceGenerator, SourceGeneratorOptions};
+use sdml_generate::Generator;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -107,15 +109,16 @@ pub(crate) enum SourceGenerationLevel {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(self, |module: &Module, cache, _| {
-            let mut generator = SourceGenerator::default().with_format_options(self.level.into());
+            let options = SourceGeneratorOptions::default().with_level(self.level.into());
+            let mut generator = SourceGenerator::default();
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
-            generator.write(module, cache, &mut writer)?;
+            generator.generate_with_options(module, cache, options, None, &mut writer)?;
 
-            Ok(())
+            Ok(ExitCode::SUCCESS)
         });
     }
 }

@@ -30,6 +30,8 @@ Module {
                 end: 83,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [
             Constraint(

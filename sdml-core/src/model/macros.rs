@@ -11,8 +11,8 @@ macro_rules! impl_has_source_span_for {
     ($type: ty) => {
         impl_has_source_span_for!($type, span);
     };
-   ($type: ty, $inner: ident) => {
-        impl $crate::model::HasSourceSpan for $type {
+    ($type: ty, $inner: ident) => {
+       impl $crate::model::HasSourceSpan for $type {
             fn with_source_span(self, span: $crate::model::Span) -> Self {
                 let mut self_mut = self;
                 self_mut.span = Some(span);
@@ -156,27 +156,6 @@ macro_rules! impl_has_type_for {
             }
         }
     };
-    ($type: ty => variants $($varname: ident),+) => {
-        impl $crate::model::members::HasType for $type {
-            #[inline]
-            fn target_type(&self) -> &$crate::model::members::TypeReference {
-                match self {
-                    $(
-                        Self::$varname(v) => v.target_type(),
-                    )+
-                }
-            }
-
-            #[inline]
-            fn set_target_type(&mut self, target_type: $crate::model::members::TypeReference) {
-                match self {
-                    $(
-                        Self::$varname(v) => v.set_target_type(target_type),
-                    )+
-                }
-            }
-        }
-    };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -197,27 +176,7 @@ macro_rules! impl_has_cardinality_for {
                 self.$inner = target_cardinality;
             }
         }
-    }; //    ($type: ty => variants $($varname: ident),+) => {
-       //        impl $crate::model::members::HasCardinality for $type {
-       //            #[inline]
-       //            fn target_cardinality(&self) -> &Cardinality {
-       //                match self {
-       //                    $(
-       //                        Self::$varname(v) => v.target_cardinality(),
-       //                    )+
-       //                }
-       //            }
-       //
-       //            #[inline]
-       //            fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
-       //                match self {
-       //                    $(
-       //                        Self::$varname(v) => v.set_target_cardinality(target_cardinality),
-       //                    )+
-       //                }
-       //            }
-       //        }
-       //    };
+    };
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -233,16 +192,18 @@ macro_rules! impl_has_body_for {
         impl_has_body_for!($type, $bodytype, body);
     };
     ($type: ty, $bodytype: ty, $inner: ident) => {
-        impl $crate::model::HasBody<$bodytype> for $type {
-            fn body(&self) -> &$bodytype {
+        impl $crate::model::HasBody for $type {
+            type Body = $bodytype;
+
+            fn body(&self) -> &Self::Body {
                 &self.$inner
             }
 
-            fn body_mut(&mut self) -> &mut $bodytype {
+            fn body_mut(&mut self) -> &mut Self::Body {
                 &mut self.$inner
             }
 
-            fn set_body(&mut self, body: $bodytype) {
+            fn set_body(&mut self, body: Self::Body) {
                 self.$inner = body;
             }
         }
@@ -251,16 +212,18 @@ macro_rules! impl_has_body_for {
         impl_has_body_for!($type, boxed $bodytype, body);
     };
     ($type: ty, boxed $bodytype: ty, $inner: ident) => {
-        impl $crate::model::HasBody<$bodytype> for $type {
-            fn body(&self) -> &$bodytype {
+        impl $crate::model::HasBody for $type {
+            type Body = $bodytype;
+
+            fn body(&self) -> &Self::Body {
                 &self.$inner
             }
 
-            fn body_mut(&mut self) -> &mut $bodytype {
+            fn body_mut(&mut self) -> &mut Self::Body {
                 &mut self.$inner
             }
 
-            fn set_body(&mut self, body: $bodytype) {
+            fn set_body(&mut self, body: Self::Body) {
                 self.$inner = Box::new(body);
             }
         }
@@ -279,63 +242,23 @@ macro_rules! impl_has_optional_body_for {
         impl_has_optional_body_for!($type, $bodytype, body);
     };
     ($type: ty, $bodytype: ty, $inner: ident) => {
-        impl $crate::model::HasOptionalBody<$bodytype> for $type {
-            fn body(&self) -> Option<&$bodytype> {
+        impl $crate::model::HasOptionalBody for $type {
+            type Body = $bodytype;
+
+            fn body(&self) -> Option<&Self::Body> {
                 self.$inner.as_ref()
             }
 
-            fn body_mut(&mut self) -> Option<&mut $bodytype> {
+            fn body_mut(&mut self) -> Option<&mut Self::Body> {
                 self.$inner.as_mut()
             }
 
-            fn set_body(&mut self, body: $bodytype) {
+            fn set_body(&mut self, body: Self::Body) {
                 self.$inner = Some(body);
             }
 
             fn unset_body(&mut self) {
                 self.$inner = None;
-            }
-        }
-    };
-    ($type: ty => variants $($varname: ident),+) => {
-        impl_has_optional_body_for!(
-            $type,
-            $crate::model::annotations::AnnotationOnlyBody
-                => variants $( $varname ),+
-        );
-    };
-    ($type: ty, $bodytype: ty => variants $($varname: ident),+) => {
-        impl $crate::model::HasOptionalBody<$bodytype> for $type {
-            fn body(&self) -> Option<&$bodytype> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.body(),
-                    )+
-                }
-            }
-
-            fn body_mut(&mut self) -> Option<&mut $bodytype> {
-                match self {
-                    $(
-                        Self::$varname(v) => v.body_mut(),
-                    )+
-                }
-            }
-
-            fn set_body(&mut self, body: $bodytype) {
-                match self {
-                    $(
-                        Self::$varname(v) => v.set_body(body),
-                    )+
-                }
-            }
-
-            fn unset_body(&mut self) {
-                match self {
-                    $(
-                        Self::$varname(v) => v.unset_body(),
-                    )+
-                }
             }
         }
     };
@@ -406,7 +329,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 _: &$crate::model::modules::Module,
-                _: &$crate::cache::ModuleCache) -> bool
+                _: &impl $crate::cache::ModuleStore) -> bool
             {
                 $default
             }
@@ -417,9 +340,20 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 _: &$crate::model::modules::Module,
-                _: &$crate::cache::ModuleCache) -> bool
+                _: &impl $crate::cache::ModuleStore) -> bool
             {
                 self.$field.is_none()
+            }
+        }
+    };
+    ($type: ty; delegate $field: ident) => {
+        impl $crate::model::check::MaybeIncomplete for $type {
+            fn is_incomplete(
+                &self,
+                top: &$crate::model::modules::Module,
+                cache: &impl $crate::cache::ModuleStore) -> bool
+            {
+                self.$field.is_incomplete(top, cache)
             }
         }
     };
@@ -428,7 +362,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache) -> bool
+                cache: &impl $crate::cache::ModuleStore) -> bool
             {
                 if let Some($field) = &self.$field {
                     $field.is_incomplete(top, cache)
@@ -443,7 +377,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache) -> bool
+                cache: &impl $crate::cache::ModuleStore) -> bool
             {
                 self.$collection().any(|elem| elem.is_incomplete(top, cache))
             }
@@ -454,7 +388,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache) -> bool
+                cache: &impl $crate::cache::ModuleStore) -> bool
             {
                 match self {
                     $(
@@ -476,7 +410,7 @@ macro_rules! impl_validate_for {
             fn validate(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache,
+                cache: &impl $crate::cache::ModuleStore,
                 loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
             ) {
@@ -496,7 +430,7 @@ macro_rules! impl_validate_for_annotations_and_members {
             fn validate(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &$crate::cache::ModuleCache,
+                cache: &impl $crate::cache::ModuleStore,
                 loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
             ) {
@@ -515,7 +449,7 @@ macro_rules! impl_validate_for_annotations_and_variants {
             fn validate(
                 &self,
                 top: &Module,
-                cache: &$crate::cache::ModuleCache,
+                cache: &impl $crate::cache::ModuleStore,
                 loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
             ) {
@@ -546,16 +480,14 @@ macro_rules! impl_has_annotations_for {
                 self.$inner.len()
             }
 
-            fn annotations(
-                &self,
-            ) -> Box<dyn Iterator<Item = &$crate::model::annotations::Annotation> + '_> {
-                Box::new(self.$inner.iter())
+            fn annotations(&self) -> impl Iterator<Item = &$crate::model::annotations::Annotation> {
+                self.$inner.iter()
             }
 
             fn annotations_mut(
                 &mut self,
-            ) -> Box<dyn Iterator<Item = &mut $crate::model::annotations::Annotation> + '_> {
-                Box::new(self.$inner.iter_mut())
+            ) -> impl Iterator<Item = &mut $crate::model::annotations::Annotation> {
+                self.$inner.iter_mut()
             }
 
             fn add_to_annotations<I>(&mut self, value: I)
@@ -642,14 +574,12 @@ macro_rules! impl_has_members_for {
                 self.$inner.len()
             }
 
-            fn members(&self) -> Box<dyn Iterator<Item = &$crate::model::members::Member> + '_> {
-                Box::new(self.$inner.iter())
+            fn members(&self) -> impl Iterator<Item = &$crate::model::members::Member> {
+                self.$inner.iter()
             }
 
-            fn members_mut(
-                &mut self,
-            ) -> Box<dyn Iterator<Item = &mut $crate::model::members::Member> + '_> {
-                Box::new(self.$inner.iter_mut())
+            fn members_mut(&mut self) -> impl Iterator<Item = &mut $crate::model::members::Member> {
+                self.$inner.iter_mut()
             }
 
             fn add_to_members(&mut self, value: $crate::model::members::Member) {
@@ -675,7 +605,9 @@ macro_rules! impl_has_variants_for {
         impl_has_variants_for!($type, $varianttype, variants);
     };
     ($type: ty, $varianttype: ty, $inner: ident) => {
-        impl $crate::model::definitions::HasVariants<$varianttype> for $type {
+        impl $crate::model::definitions::HasVariants for $type {
+            type Variant = $varianttype;
+
             fn has_variants(&self) -> bool {
                 !self.$inner.is_empty()
             }
@@ -684,21 +616,21 @@ macro_rules! impl_has_variants_for {
                 self.$inner.len()
             }
 
-            fn variants(&self) -> Box<dyn Iterator<Item = &$varianttype> + '_> {
-                Box::new(self.$inner.iter())
+            fn variants(&self) -> impl Iterator<Item = &Self::Variant> {
+                self.$inner.iter()
             }
 
-            fn variants_mut(&mut self) -> Box<dyn Iterator<Item = &mut $varianttype> + '_> {
-                Box::new(self.$inner.iter_mut())
+            fn variants_mut(&mut self) -> impl Iterator<Item = &mut Self::Variant> {
+                self.$inner.iter_mut()
             }
 
-            fn add_to_variants(&mut self, value: $varianttype) {
+            fn add_to_variants(&mut self, value: Self::Variant) {
                 self.$inner.push(value.into())
             }
 
             fn extend_variants<I>(&mut self, extension: I)
             where
-                I: IntoIterator<Item = $varianttype>,
+                I: IntoIterator<Item = Self::Variant>,
             {
                 self.$inner.extend(extension.into_iter())
             }
@@ -709,6 +641,43 @@ macro_rules! impl_has_variants_for {
 // ------------------------------------------------------------------------------------------------
 // Public Macros ❱ Fields
 // ------------------------------------------------------------------------------------------------
+
+macro_rules! builder_fn {
+    ($vis: vis $name: ident, $field: ident => $type: ty) => {
+        $vis fn $name(self, $field: $type) -> Self {
+            let mut self_mut = self;
+            self_mut.$field = $field;
+            self_mut
+        }
+    };
+    //($vis: vis $name: ident, $field: ident => into $type: ty) => {
+    //    $vis fn $name<T>(self, $field: T) -> Self
+    //    where
+    //        T: Into<$type>,
+    //    {
+    //        let mut self_mut = self;
+    //        self_mut.$field = $field.into();
+    //        self_mut
+    //    }
+    //};
+    ($vis: vis $name: ident, boxed $field: ident => into $type: ty) => {
+        $vis fn $name<T>(self, $field: T) -> Self
+        where
+            T: Into<$type>,
+        {
+            let mut self_mut = self;
+            self_mut.$field = Box::new($field.into());
+            self_mut
+        }
+    };
+    ($vis: vis $name: ident, $field: ident => optional $type: ty) => {
+        $vis fn $name(self, $field: $type) -> Self {
+            let mut self_mut = self;
+            self_mut.$field = Some($field);
+            self_mut
+        }
+    };
+}
 
 macro_rules! getter {
     ($vis: vis $fieldname: ident => $fieldtype: ty) => {
@@ -817,14 +786,6 @@ macro_rules! get_and_set {
         setter!($vis $set_fnname => $fieldname, into $fieldtype);
     };
     // --------------------------------------------------------------------------------------------
-    // ($vis: vis $fieldname: ident, $set_fnname: ident => copy $fieldtype: ty) => {
-    //     get_and_set!($vis $fieldname, $fieldname, $set_fnname => copy $fieldtype);
-    // };
-    // ($vis: vis $fieldname: ident, $get_fnname: ident, $set_fnname: ident => copy $fieldtype: ty) => {
-    //     getter!($vis $fieldname => copy $get_fnname, $fieldtype);
-    //     setter!($vis $set_fnname => $fieldname, $fieldtype);
-    // };
-    // --------------------------------------------------------------------------------------------
     ($vis: vis $fieldname: ident, $set_fnname: ident => boxed $fieldtype: ty) => {
         get_and_set!($vis $fieldname, $fieldname, $set_fnname => boxed $fieldtype);
     };
@@ -857,6 +818,15 @@ macro_rules! get_and_set {
         getter!($vis $fieldname => optional copy $has_fnname, $get_fnname, $fieldtype);
         setter!($vis $set_fnname => optional $fieldname, $fieldtype);
         unsetter!($vis $unset_fnname => $fieldname);
+    };
+}
+
+macro_rules! get_and_set_bool {
+    ($vis: vis $fieldname: ident, $is_fname: ident, $set_fnname: ident) => {
+        $vis fn $is_fname(&self) -> bool {
+            self.$fieldname
+        }
+        setter!($vis $set_fnname => $fieldname, bool);
     };
 }
 
@@ -966,6 +936,12 @@ macro_rules! delegate {
     ($vis: vis $fnname: ident, $fntype: ty, $fieldname: ident $(, $paramname: ident => $paramtype: ty)* ) => {
         #[inline(always)]
         $vis fn $fnname(&self $(, $paramname: $paramtype)*) -> $fntype {
+            self.$fieldname.$fnname($($paramname,)*)
+        }
+    };
+    ($vis: vis const $fnname: ident, $fntype: ty, $fieldname: ident $(, $paramname: ident => $paramtype: ty)* ) => {
+        #[inline(always)]
+        $vis const fn $fnname(&self $(, $paramname: $paramtype)*) -> $fntype {
             self.$fieldname.$fnname($($paramname,)*)
         }
     };

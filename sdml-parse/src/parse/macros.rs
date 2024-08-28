@@ -9,13 +9,14 @@ macro_rules! emit_diagnostic {
 }
 
 macro_rules! unexpected_node {
-    ($context: expr, $parse_fn: expr, $node: expr, [ $($expected: expr, )+ ]) => {
+    ($context: expr, $rule_name: expr, $node: expr, [ $($expected: expr, )+ ]) => {
         let expected = [$(
             $expected,
         )+].join(" | ");
         let diagnostic = ::sdml_errors::diagnostics::functions::unexpected_node_kind(
             $context.file_id,
-            $node.start_byte()..$node.end_byte(),
+            $node.byte_range(),
+            $rule_name,
             expected,
             $node.kind()
         );
@@ -23,10 +24,11 @@ macro_rules! unexpected_node {
 
         return Err(diagnostic.into())
     };
-    ($context: expr, $parse_fn: expr, $node: expr, $expected: expr) => {
+    ($context: expr, $rule_name: expr, $node: expr, $expected: expr) => {
         let diagnostic = ::sdml_errors::diagnostics::functions::unexpected_node_kind(
             $context.file_id,
-            $node.start_byte()..$node.end_byte(),
+            $node.byte_range(),
+            $rule_name,
             $expected,
             $node.kind()
         );
@@ -37,10 +39,10 @@ macro_rules! unexpected_node {
 }
 
 macro_rules! invalid_value_for_node_type {
-    ($context: expr, $parse_fn: expr, $node: expr, $value: expr, $error: expr) => {
+    ($context: expr, $rule_name: expr, $node: expr, $value: expr, $error: expr) => {
         let diagnostic = ::sdml_errors::diagnostics::functions::invalid_value_for_type_named(
             $context.file_id,
-            Some($node.start_byte()..$node.end_byte()),
+            Some($node.byte_range()),
             $value,
             $node.kind(),
             $error,
@@ -50,13 +52,15 @@ macro_rules! invalid_value_for_node_type {
         return Err(diagnostic.into())
     };
 }
+
 macro_rules! missing_node {
-    ($context: expr, $parse_fn: expr, $parent_node: expr, $variable_name: expr, $node_kind: expr) => {
+    ($context: expr, $rule_name: expr, $parent_node: expr, $expecting: expr, $field_name: expr) => {
         let diagnostic = ::sdml_errors::diagnostics::functions::missing_node(
             $context.file_id,
-            $parent_node.start_byte()..$parent_node.end_byte(),
-            $node_kind,
-            Some($variable_name),
+            $parent_node.byte_range(),
+            $rule_name,
+            $expecting,
+            Some($field_name),
         );
         emit_diagnostic!($context.loader, &diagnostic);
 
@@ -107,6 +111,23 @@ macro_rules! node_child_named {
             }
             None => {
                 missing_node!($context, $rule_name, $node, $name, $kind);
+            }
+        }
+    };
+}
+
+macro_rules! node_field_named {
+    ($context:expr, $rule_name:expr, $node:expr, $field:expr, $node_type:expr) => {
+        match $node.child_by_field_name($field) {
+            Some(child) => {
+                $context.check_if_error(&child, $rule_name)?;
+                if child.kind() != $node_type {
+                    unexpected_node!($context, $rule_name, $node, [$node_type,]);
+                }
+                child
+            }
+            None => {
+                missing_node!($context, $rule_name, $node, $node_type, $field);
             }
         }
     };

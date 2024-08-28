@@ -1,4 +1,4 @@
-module sdml_core is
+module sdml is
 
   class Any (T) is
     def is_structure(v -> T) -> boolean

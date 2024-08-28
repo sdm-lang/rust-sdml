@@ -45,7 +45,7 @@ way also installs dependencies such as GraphViz and PlantUML used for diagram ge
 You can check that you have the tool installed and on the path with the following check.
 
 #+BEGIN_EXAMPLE bash
-❯ sdml versions               
+ ❯ sdml versions               
 SDML CLI:        0.2.7
 SDML grammar:    0.2.16
 Tree-Sitter ABI: 14

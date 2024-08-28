@@ -18,7 +18,6 @@ pub enum ErrorCode {
     TreeSitterErrorNode = 1,
     TreeSitterUnexpectedNode = 2,
     TreeSitterMissingNode = 3,
-    TreeSitterMissingVariable = 4,
 
     // --------------------------------------------------------------------------------------------
     // Errors
@@ -41,8 +40,9 @@ pub enum ErrorCode {
     TypeClassIncompatible = 116,
     PropertyIncompatible = 117,
     RdfDefinitionIncompatible = 118,
-    FeatureSetNotUnion = 119,
+    FeatureSetNotUnion = 119, // <<< deprecated
     PropertyReferenceNotProperty = 120,
+    LibraryDefinitionNotAllowed = 121,
 
     // --------------------------------------------------------------------------------------------
     // Warnings
@@ -99,8 +99,7 @@ impl ErrorCode {
         match self {
             Self::TreeSitterErrorNode
             | Self::TreeSitterUnexpectedNode
-            | Self::TreeSitterMissingNode
-            | Self::TreeSitterMissingVariable => Severity::Bug,
+            | Self::TreeSitterMissingNode => Severity::Bug,
             Self::ModuleNotFound
             | Self::ImportedModuleNotFound
             | Self::ModuleVersionNotFound
@@ -120,7 +119,8 @@ impl ErrorCode {
             | Self::PropertyIncompatible
             | Self::RdfDefinitionIncompatible
             | Self::FeatureSetNotUnion
-            | Self::PropertyReferenceNotProperty => Severity::Error,
+            | Self::PropertyReferenceNotProperty
+            | Self::LibraryDefinitionNotAllowed => Severity::Error,
             Self::DuplicateModuleImport
             | Self::DuplicateDefinitionImport
             | Self::ValidationIncomplete
@@ -142,7 +142,6 @@ impl ErrorCode {
             Self::TreeSitterErrorNode => i18n!("msg_treesitter_error_node"),
             Self::TreeSitterUnexpectedNode => i18n!("msg_treesitter_unexpected_node"),
             Self::TreeSitterMissingNode => i18n!("msg_treesitter_missing_node"),
-            Self::TreeSitterMissingVariable => i18n!("msg_treesitter_missing_variable"),
             Self::ModuleNotFound => i18n!("msg_module_not_found"),
             Self::ImportedModuleNotFound => i18n!("msg_imported_module_not_found"),
             Self::ModuleVersionNotFound => i18n!("msg_module_version_not_found"),
@@ -177,6 +176,7 @@ impl ErrorCode {
             }
             Self::FeatureSetNotUnion => i18n!("msg_featureset_not_union"),
             Self::PropertyReferenceNotProperty => i18n!("msg_property_reference_not_property"),
+            Self::LibraryDefinitionNotAllowed => i18n!("msg_library_definition_not_allowed"),
             Self::DeprecatedTermUsed => i18n!("msg_deprecated_term_used"),
             Self::DuplicateModuleImport => i18n!("msg_duplicate_module_import"),
             Self::DuplicateDefinitionImport => i18n!("msg_duplicate_definition_import"),

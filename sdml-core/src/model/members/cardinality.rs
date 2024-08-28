@@ -1,4 +1,4 @@
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::error::Error;
 use crate::load::ModuleLoader;
 use crate::model::check::Validate;
@@ -127,7 +127,7 @@ impl Validate for Cardinality {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -364,7 +364,7 @@ impl Validate for CardinalityRange {
     fn validate(
         &self,
         _: &Module,
-        _: &ModuleCache,
+        _: &impl ModuleStore,
         _loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {

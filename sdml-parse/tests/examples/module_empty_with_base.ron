@@ -56,6 +56,8 @@ Module {
                 end: 56,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [],

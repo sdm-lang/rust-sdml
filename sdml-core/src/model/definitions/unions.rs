@@ -1,5 +1,5 @@
 use crate::{
-    cache::ModuleCache,
+    cache::ModuleStore,
     load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
@@ -75,9 +75,9 @@ impl_maybe_incomplete_for!(UnionDef; exists body);
 impl Validate for UnionDef {
     fn validate(
         &self,
-        top: &crate::model::modules::Module,
-        cache: &crate::cache::ModuleCache,
-        loader: &impl crate::load::ModuleLoader,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
         self.name
@@ -158,7 +158,7 @@ impl Validate for TypeVariant {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {

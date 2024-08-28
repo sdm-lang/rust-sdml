@@ -5,7 +5,13 @@ use sdml_core::{
     load::ModuleLoader,
 };
 use sdml_errors::Error;
-use sdml_generate::{GenerateToFile, GenerateToWriter};
+use sdml_generate::draw::concepts::ConceptDiagramOptions;
+use sdml_generate::draw::erd::ErdDiagramOptions;
+use sdml_generate::draw::filter::DiagramContentFilter;
+use sdml_generate::draw::uml::UmlDiagramOptions;
+use sdml_generate::Generator;
+use std::path::PathBuf;
+use std::process::ExitCode;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -30,6 +36,10 @@ pub(crate) struct Command {
     #[arg(short, long)]
     #[arg(value_enum)]
     diagram: DrawDiagram,
+
+    /// File name for a content-filter specification (JSON)
+    #[arg(short = 'c', long)]
+    content_filter: Option<PathBuf>,
 
     /// Format for diagram result
     #[arg(short = 'f', long)]
@@ -63,36 +73,54 @@ pub(crate) enum OutputFormat {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(self, |module: &Module, cache: &ModuleCache, _| {
-            let format = self.output_format.unwrap_or_default().into();
+            let format = self.output_format.unwrap_or_default();
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
+            let content_filter = if let Some(content_filter_file) = &self.content_filter {
+                if content_filter_file.exists() {
+                    DiagramContentFilter::read_from_file(content_filter_file)?
+                } else {
+                    eprintln!("Filter file does not exist, path: {content_filter_file:?}");
+                    return Ok(ExitCode::FAILURE);
+                }
+            } else {
+                DiagramContentFilter::default()
+            };
+
             match self.diagram {
                 DrawDiagram::Concepts => {
+                    let options = ConceptDiagramOptions::default()
+                        .with_content_filter(content_filter)
+                        .with_output_format(format.into());
                     let mut generator =
-                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default()
-                            .with_format_options(format);
-                    generator.write(module, cache, &mut writer)?;
+                        sdml_generate::draw::concepts::ConceptDiagramGenerator::default();
+                    generator.generate_with_options(module, cache, options, None, &mut writer)?;
                 }
                 DrawDiagram::EntityRelationship => {
-                    let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default()
-                        .with_format_options(format);
-                    generator.write(module, cache, &mut writer)?;
+                    let options = ErdDiagramOptions::default()
+                        .with_content_filter(content_filter)
+                        .with_output_format(format.into());
+                    let mut generator = sdml_generate::draw::erd::ErdDiagramGenerator::default();
+                    generator.generate_with_options(module, cache, options, None, &mut writer)?;
                 }
                 DrawDiagram::UmlClass => {
-                    let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default()
-                        .with_format_options(format);
+                    let options = UmlDiagramOptions::default()
+                        .with_content_filter(content_filter)
+                        .with_output_format(format.into());
+                    let mut generator = sdml_generate::draw::uml::UmlDiagramGenerator::default();
                     if self.files.output.is_local() {
-                        generator.write_to_file(module, cache, self.files.output.path())?;
+                        let path = self.files.output.path().to_path_buf();
+                        generator.generate_to_file(module, cache, options, &path)?;
                     } else {
                         println!("Sorry, writing UML diagrams requires an explicit output file");
                     }
                 }
             }
 
-            Ok(())
+            Ok(ExitCode::SUCCESS)
         });
     }
 }

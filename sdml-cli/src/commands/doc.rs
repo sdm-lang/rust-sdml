@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::{Args, ValueEnum};
 use sdml_core::{
     cache::{ModuleCache, ModuleStore},
@@ -6,7 +8,7 @@ use sdml_core::{
     model::HasName,
 };
 use sdml_errors::Error;
-use sdml_generate::GenerateToWriter;
+use sdml_generate::Generator;
 use sdml_parse::load::FsModuleLoader;
 
 // ------------------------------------------------------------------------------------------------
@@ -51,7 +53,7 @@ pub(crate) enum OutputFormat {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(
             self,
             |module: &Module, cache: &ModuleCache, loader: &FsModuleLoader| {
@@ -68,7 +70,7 @@ impl super::Command for Command {
                     OutputFormat::Markdown => {}
                 }
 
-                Ok(())
+                Ok(ExitCode::SUCCESS)
             }
         );
     }
@@ -84,6 +86,6 @@ impl Command {
         let mut output = self.files.output.clone();
         let mut writer = output.lock();
 
-        generator.write(model, cache, &mut writer)
+        generator.generate(model, cache, None, &mut writer)
     }
 }

@@ -3,26 +3,26 @@ Provides types for model checking.
 
 */
 
-use super::definitions::Definition;
-use super::identifiers::IdentifierReference;
-use crate::cache::{ModuleCache, ModuleStore};
+use super::HasName;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
+use crate::model::definitions::Definition;
+use crate::model::identifiers::IdentifierReference;
 use crate::model::modules::Module;
-use crate::model::HasBody;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
 pub trait MaybeIncomplete {
-    fn is_incomplete(&self, top: &Module, cache: &ModuleCache) -> bool;
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool;
 }
 
 pub trait Validate {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     );
@@ -35,18 +35,9 @@ pub trait Validate {
 pub fn find_definition<'a>(
     name: &IdentifierReference,
     current: &'a Module,
-    cache: &'a ModuleCache,
+    cache: &'a impl ModuleStore,
 ) -> Option<&'a Definition> {
-    match name {
-        IdentifierReference::Identifier(ref name) => current.body().get_definition(name),
-        IdentifierReference::QualifiedIdentifier(ref name) => {
-            if let Some(module) = cache.get(name.module()) {
-                module.body().get_definition(name.member())
-            } else {
-                None
-            }
-        }
-    }
+    cache.resolve_or_in(name, current.name())
 }
 
 // TODO: need a new version of this --v
@@ -535,27 +526,7 @@ pub mod terms {
             top: &Module,
             loader: &impl ModuleLoader,
         ) {
-            self.name().validate_terms(validator, top, loader);
-            if let Some(body) = self.body() {
-                for annotation in body.annotations() {
-                    annotation.validate_terms(validator, top, loader);
-                }
-                for role in body.roles() {
-                    role.validate_terms(validator, top, loader);
-                }
-            }
-        }
-    }
-
-    impl ValidateTerms for PropertyRole {
-        fn validate_terms(
-            &self,
-            validator: &mut Validator<'_>,
-            top: &Module,
-            loader: &impl ModuleLoader,
-        ) {
-            self.name().validate_terms(validator, top, loader);
-            todo!()
+            self.member_def().validate_terms(validator, top, loader);
         }
     }
 
@@ -654,9 +625,8 @@ pub mod terms {
             top: &Module,
             loader: &impl ModuleLoader,
         ) {
-            self.name().validate_terms(validator, top, loader);
             match self.kind() {
-                MemberKind::PropertyReference(v) => v.validate_terms(validator, top, loader),
+                MemberKind::Reference(v) => v.validate_terms(validator, top, loader),
                 MemberKind::Definition(v) => v.validate_terms(validator, top, loader),
             }
         }
@@ -669,9 +639,7 @@ pub mod terms {
             top: &Module,
             loader: &impl ModuleLoader,
         ) {
-            if let Some(inverse_name) = self.inverse_name() {
-                inverse_name.validate_terms(validator, top, loader);
-            }
+            self.name().validate_terms(validator, top, loader);
             self.target_type().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
                 body.validate_terms(validator, top, loader);
@@ -689,7 +657,6 @@ pub mod terms {
             match self {
                 Self::Unknown => {}
                 Self::Type(v) => v.validate_terms(validator, top, loader),
-                Self::FeatureSet(v) => v.validate_terms(validator, top, loader),
                 Self::MappingType(v) => {
                     v.domain().validate_terms(validator, top, loader);
                     v.range().validate_terms(validator, top, loader);

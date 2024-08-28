@@ -4,8 +4,8 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_errors::diagnostics::UseColor;
 use sdml_generate::color::set_colorize;
-use sdml_generate::convert::source::SourceGenerator;
-use sdml_generate::GenerateToWriter;
+use sdml_generate::convert::source::{SourceGeneratorOptions, SourceGenerator};
+use sdml_generate::Generator;
 use url::Url;
 
 #[test]
@@ -15,7 +15,12 @@ fn test_generate_module_empty() {
     let module = Module::empty(Identifier::new_unchecked("example"));
     let mut generator: SourceGenerator = Default::default();
     let source = generator
-        .write_to_string(&module, &ModuleCache::default())
+        .generate_to_string(
+            &module,
+            &ModuleCache::default(),
+            SourceGeneratorOptions::default(),
+            None,
+        )
         .unwrap();
     println!(">>{source:?}<<");
     assert_eq!(source.as_str(), "module example is end\n");
@@ -29,7 +34,12 @@ fn test_generate_module_empty_with_base() {
         .with_base_uri(Url::parse("http://example.com").unwrap());
     let mut generator: SourceGenerator = Default::default();
     let source = generator
-        .write_to_string(&module, &ModuleCache::default())
+        .generate_to_string(
+            &module,
+            &ModuleCache::default(),
+            SourceGeneratorOptions::default(),
+            None,
+        )
         .unwrap();
     println!(">>{source:?}<<");
     assert_eq!(

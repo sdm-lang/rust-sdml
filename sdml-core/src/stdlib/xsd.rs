@@ -109,87 +109,90 @@ pub fn module() -> Module {
         .body_mut()
         .add_to_imports(import!(id!(rdf::MODULE_NAME), id!(rdfs::MODULE_NAME)));
 
-    module.body_mut().extend_definitions(vec![
-        // Purple
-        rdf!(datatype ANY_TYPE, MODULE_IRI).into(),
-        rdf!(datatype ANY_SIMPLE_TYPE, MODULE_IRI; ANY_TYPE).into(),
-        // Blue
-        rdf!(datatype ANY_URI, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype BASE64_BINARY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype BOOLEAN, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype DATE, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype DATETIME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype DECIMAL, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype DOUBLE, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype DURATION, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype FLOAT, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype GDAY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype GMONTH, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype GMONTH_DAY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype GYEAR, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype GYEAR_MONTH, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype HEX_BINARY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype QNAME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype QNOTATION, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype STRING, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        rdf!(datatype TIME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
-        // Green
-        rdf!(datatype NORMALIZED_STRING, MODULE_IRI; STRING).into(),
-        rdf!(datatype TOKEN, MODULE_IRI; NORMALIZED_STRING).into(),
-        rdf!(datatype LANGUAGE, MODULE_IRI; TOKEN).into(),
-        rdf!(datatype NAME, MODULE_IRI; TOKEN).into(),
-        rdf!(datatype NMTOKEN, MODULE_IRI; TOKEN).into(),
-        rdf!(datatype NCNAME, MODULE_IRI; NAME).into(),
-        rdf!(datatype NONPOSITIVE_INTEGER, MODULE_IRI; INTEGER).into(),
-        rdf!(datatype NEGATIVE_INTEGER, MODULE_IRI; NONPOSITIVE_INTEGER).into(),
-        rdf!(datatype LONG, MODULE_IRI; INTEGER).into(),
-        rdf!(datatype INT, MODULE_IRI; LONG).into(),
-        rdf!(datatype SHORT, MODULE_IRI; INT).into(),
-        rdf!(datatype BYTE, MODULE_IRI; SHORT).into(),
-        rdf!(datatype NONNEGATIVE_INTEGER, MODULE_IRI; INTEGER).into(),
-        rdf!(datatype UNSIGNED_LONG, MODULE_IRI; NONNEGATIVE_INTEGER).into(),
-        rdf!(datatype UNSIGNED_INT, MODULE_IRI; UNSIGNED_LONG).into(),
-        rdf!(datatype UNSIGNED_SHORT, MODULE_IRI; UNSIGNED_INT).into(),
-        rdf!(datatype UNSIGNED_BYTE, MODULE_IRI; UNSIGNED_SHORT).into(),
-        rdf!(datatype POSITIVE_INTEGER, MODULE_IRI; NONNEGATIVE_INTEGER).into(),
-        // Facets
-        rdf!(property ENUMERATION, MODULE_IRI;
+    module
+        .body_mut()
+        .extend_definitions(vec![
+            // Purple
+            rdf!(datatype ANY_TYPE, MODULE_IRI).into(),
+            rdf!(datatype ANY_SIMPLE_TYPE, MODULE_IRI; ANY_TYPE).into(),
+            // Blue
+            rdf!(datatype ANY_URI, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype BASE64_BINARY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype BOOLEAN, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype DATE, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype DATETIME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype DECIMAL, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype DOUBLE, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype DURATION, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype FLOAT, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype GDAY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype GMONTH, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype GMONTH_DAY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype GYEAR, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype GYEAR_MONTH, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype HEX_BINARY, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype QNAME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype QNOTATION, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype STRING, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            rdf!(datatype TIME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
+            // Green
+            rdf!(datatype NORMALIZED_STRING, MODULE_IRI; STRING).into(),
+            rdf!(datatype TOKEN, MODULE_IRI; NORMALIZED_STRING).into(),
+            rdf!(datatype LANGUAGE, MODULE_IRI; TOKEN).into(),
+            rdf!(datatype NAME, MODULE_IRI; TOKEN).into(),
+            rdf!(datatype NMTOKEN, MODULE_IRI; TOKEN).into(),
+            rdf!(datatype NCNAME, MODULE_IRI; NAME).into(),
+            rdf!(datatype NONPOSITIVE_INTEGER, MODULE_IRI; INTEGER).into(),
+            rdf!(datatype NEGATIVE_INTEGER, MODULE_IRI; NONPOSITIVE_INTEGER).into(),
+            rdf!(datatype LONG, MODULE_IRI; INTEGER).into(),
+            rdf!(datatype INT, MODULE_IRI; LONG).into(),
+            rdf!(datatype SHORT, MODULE_IRI; INT).into(),
+            rdf!(datatype BYTE, MODULE_IRI; SHORT).into(),
+            rdf!(datatype NONNEGATIVE_INTEGER, MODULE_IRI; INTEGER).into(),
+            rdf!(datatype UNSIGNED_LONG, MODULE_IRI; NONNEGATIVE_INTEGER).into(),
+            rdf!(datatype UNSIGNED_INT, MODULE_IRI; UNSIGNED_LONG).into(),
+            rdf!(datatype UNSIGNED_SHORT, MODULE_IRI; UNSIGNED_INT).into(),
+            rdf!(datatype UNSIGNED_BYTE, MODULE_IRI; UNSIGNED_SHORT).into(),
+            rdf!(datatype POSITIVE_INTEGER, MODULE_IRI; NONNEGATIVE_INTEGER).into(),
+            // Facets
+            rdf!(property ENUMERATION, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property FRACTION_DIGITS, MODULE_IRI;
+            .into(),
+            rdf!(property FRACTION_DIGITS, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property LENGTH, MODULE_IRI;
+            .into(),
+            rdf!(property LENGTH, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property MAX_EXCLUSIVE, MODULE_IRI;
+            .into(),
+            rdf!(property MAX_EXCLUSIVE, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property MAX_INCLUSIVE, MODULE_IRI;
+            .into(),
+            rdf!(property MAX_INCLUSIVE, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property MAX_LENGTH, MODULE_IRI;
+            .into(),
+            rdf!(property MAX_LENGTH, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property MIN_EXCLUSIVE, MODULE_IRI;
+            .into(),
+            rdf!(property MIN_EXCLUSIVE, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property MIN_INCLUSIVE, MODULE_IRI;
+            .into(),
+            rdf!(property MIN_INCLUSIVE, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property MIN_LENGTH, MODULE_IRI;
+            .into(),
+            rdf!(property MIN_LENGTH, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property ENUMERATION, MODULE_IRI;
+            .into(),
+            rdf!(property ENUMERATION, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property TOTAL_DIGITS, MODULE_IRI;
+            .into(),
+            rdf!(property TOTAL_DIGITS, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-        rdf!(property WHITE_SPACE, MODULE_IRI;
+            .into(),
+            rdf!(property WHITE_SPACE, MODULE_IRI;
              (rdfs::MODULE_NAME, rdfs::DATATYPE))
-        .into(),
-    ]);
+            .into(),
+        ])
+        .unwrap();
 
     module
 }
@@ -215,23 +218,3 @@ pub fn is_constraining_facet_str(name: &str) -> bool {
     ]
     .contains(&name)
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

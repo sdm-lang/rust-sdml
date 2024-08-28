@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 42,
+            end: 37,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 16,
+                end: 11,
             },
         ),
-        value: "sdml_core",
+        value: "sdml",
     },
     base_uri: None,
     version_info: None,
@@ -26,10 +26,12 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 17,
-                end: 41,
+                start: 12,
+                end: 36,
             },
         ),
+        file_id: None,
+        is_library: true,
         imports: [],
         annotations: [],
         definitions: [
@@ -37,15 +39,15 @@ Module {
                 TypeClassDef {
                     span: Some(
                         Span {
-                            start: 23,
-                            end: 36,
+                            start: 18,
+                            end: 31,
                         },
                     ),
                     name: Identifier {
                         span: Some(
                             Span {
-                                start: 29,
-                                end: 32,
+                                start: 24,
+                                end: 27,
                             },
                         ),
                         value: "Any",
@@ -54,15 +56,15 @@ Module {
                         TypeVariable {
                             span: Some(
                                 Span {
-                                    start: 34,
-                                    end: 35,
+                                    start: 29,
+                                    end: 30,
                                 },
                             ),
                             name: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 34,
-                                        end: 35,
+                                        start: 29,
+                                        end: 30,
                                     },
                                 ),
                                 value: "T",

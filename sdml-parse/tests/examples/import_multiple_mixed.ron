@@ -30,6 +30,8 @@ Module {
                 end: 94,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [
             ImportStatement {
                 span: Some(

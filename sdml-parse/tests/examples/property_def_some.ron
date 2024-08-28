@@ -8,7 +8,7 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 186,
+            end: 106,
         },
     ),
     name: Identifier {
@@ -27,277 +27,155 @@ Module {
         span: Some(
             Span {
                 start: 13,
-                end: 185,
+                end: 105,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [
             Property(
                 PropertyDef {
-                    span: Some(
-                        Span {
-                            start: 18,
-                            end: 181,
-                        },
-                    ),
-                    name: Identifier {
+                    span: None,
+                    member: MemberDef {
                         span: Some(
                             Span {
                                 start: 27,
-                                end: 36,
+                                end: 101,
                             },
                         ),
-                        value: "accountId",
-                    },
-                    body: Some(
-                        PropertyBody {
+                        name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 37,
-                                    end: 181,
+                                    start: 27,
+                                    end: 37,
                                 },
                             ),
-                            annotations: [],
-                            roles: [
-                                PropertyRole {
+                            value: "identifier",
+                        },
+                        target_cardinality: Cardinality {
+                            span: Some(
+                                Span {
+                                    start: 41,
+                                    end: 44,
+                                },
+                            ),
+                            ordering: None,
+                            uniqueness: None,
+                            range: CardinalityRange {
+                                span: None,
+                                min: 2,
+                                max: Some(
+                                    2,
+                                ),
+                            },
+                        },
+                        target_type: Type(
+                            QualifiedIdentifier(
+                                QualifiedIdentifier {
                                     span: Some(
                                         Span {
-                                            start: 44,
-                                            end: 122,
+                                            start: 45,
+                                            end: 62,
                                         },
                                     ),
-                                    name: Identifier {
+                                    module: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 44,
-                                                end: 54,
+                                                start: 45,
+                                                end: 52,
                                             },
                                         ),
-                                        value: "identifier",
+                                        value: "account",
                                     },
-                                    definition: Member(
-                                        MemberDef {
+                                    member: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 53,
+                                                end: 62,
+                                            },
+                                        ),
+                                        value: "AccountId",
+                                    },
+                                },
+                            ),
+                        ),
+                        body: Some(
+                            AnnotationOnlyBody {
+                                span: Some(
+                                    Span {
+                                        start: 63,
+                                        end: 101,
+                                    },
+                                ),
+                                annotations: [
+                                    Property(
+                                        AnnotationProperty {
                                             span: Some(
                                                 Span {
-                                                    start: 44,
-                                                    end: 122,
+                                                    start: 70,
+                                                    end: 95,
                                                 },
                                             ),
-                                            inverse_name: None,
-                                            target_cardinality: Cardinality {
-                                                span: Some(
-                                                    Span {
-                                                        start: 58,
-                                                        end: 61,
-                                                    },
-                                                ),
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
-                                            },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 62,
-                                                                end: 79,
-                                                            },
-                                                        ),
-                                                        module: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 62,
-                                                                    end: 69,
-                                                                },
-                                                            ),
-                                                            value: "account",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 70,
-                                                                    end: 79,
-                                                                },
-                                                            ),
-                                                            value: "AccountId",
-                                                        },
-                                                    },
-                                                ),
-                                            ),
-                                            body: Some(
-                                                AnnotationOnlyBody {
+                                            name_reference: QualifiedIdentifier(
+                                                QualifiedIdentifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 80,
-                                                            end: 122,
+                                                            start: 71,
+                                                            end: 86,
                                                         },
                                                     ),
-                                                    annotations: [
-                                                        Property(
-                                                            AnnotationProperty {
+                                                    module: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 71,
+                                                                end: 75,
+                                                            },
+                                                        ),
+                                                        value: "skos",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 76,
+                                                                end: 86,
+                                                            },
+                                                        ),
+                                                        value: "definition",
+                                                    },
+                                                },
+                                            ),
+                                            value: Simple(
+                                                String(
+                                                    LanguageString {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 89,
+                                                                end: 95,
+                                                            },
+                                                        ),
+                                                        value: "a",
+                                                        language: Some(
+                                                            LanguageTag {
                                                                 span: Some(
                                                                     Span {
-                                                                        start: 89,
-                                                                        end: 114,
+                                                                        start: 92,
+                                                                        end: 95,
                                                                     },
                                                                 ),
-                                                                name_reference: QualifiedIdentifier(
-                                                                    QualifiedIdentifier {
-                                                                        span: Some(
-                                                                            Span {
-                                                                                start: 90,
-                                                                                end: 105,
-                                                                            },
-                                                                        ),
-                                                                        module: Identifier {
-                                                                            span: Some(
-                                                                                Span {
-                                                                                    start: 90,
-                                                                                    end: 94,
-                                                                                },
-                                                                            ),
-                                                                            value: "skos",
-                                                                        },
-                                                                        member: Identifier {
-                                                                            span: Some(
-                                                                                Span {
-                                                                                    start: 95,
-                                                                                    end: 105,
-                                                                                },
-                                                                            ),
-                                                                            value: "definition",
-                                                                        },
-                                                                    },
-                                                                ),
-                                                                value: Simple(
-                                                                    String(
-                                                                        LanguageString {
-                                                                            span: Some(
-                                                                                Span {
-                                                                                    start: 108,
-                                                                                    end: 114,
-                                                                                },
-                                                                            ),
-                                                                            value: "a",
-                                                                            language: Some(
-                                                                                LanguageTag {
-                                                                                    span: Some(
-                                                                                        Span {
-                                                                                            start: 111,
-                                                                                            end: 114,
-                                                                                        },
-                                                                                    ),
-                                                                                    value: "en",
-                                                                                },
-                                                                            ),
-                                                                        },
-                                                                    ),
-                                                                ),
+                                                                value: "en",
                                                             },
                                                         ),
-                                                    ],
-                                                },
-                                            ),
-                                        },
-                                    ),
-                                },
-                                PropertyRole {
-                                    span: Some(
-                                        Span {
-                                            start: 127,
-                                            end: 175,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 127,
-                                                end: 136,
-                                            },
-                                        ),
-                                        value: "reference",
-                                    },
-                                    definition: Member(
-                                        MemberDef {
-                                            span: Some(
-                                                Span {
-                                                    start: 127,
-                                                    end: 175,
-                                                },
-                                            ),
-                                            inverse_name: Some(
-                                                Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 137,
-                                                            end: 150,
-                                                        },
-                                                    ),
-                                                    value: "(inverse_ref)",
-                                                },
-                                            ),
-                                            target_cardinality: Cardinality {
-                                                span: Some(
-                                                    Span {
-                                                        start: 154,
-                                                        end: 157,
-                                                    },
-                                                ),
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
-                                            },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 158,
-                                                                end: 175,
-                                                            },
-                                                        ),
-                                                        module: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 158,
-                                                                    end: 165,
-                                                                },
-                                                            ),
-                                                            value: "account",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 166,
-                                                                    end: 175,
-                                                                },
-                                                            ),
-                                                            value: "AccountId",
-                                                        },
                                                     },
                                                 ),
                                             ),
-                                            body: None,
                                         },
                                     ),
-                                },
-                            ],
-                        },
-                    ),
+                                ],
+                            },
+                        ),
+                    },
                 },
             ),
         ],

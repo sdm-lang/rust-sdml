@@ -29,7 +29,7 @@ module rentals base <https://example.org/v/rentals> is
     identity vin -> VehicleIdentificationNumber
 
     information -> VehicleInformation
-    rentalClass -> {1} RentalClass
+    rentalClass -> RentalClass
   end
 
   structure VehicleInformation is

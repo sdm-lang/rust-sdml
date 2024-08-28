@@ -1,4 +1,4 @@
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::check::{find_definition, Validate};
 use crate::model::definitions::Definition;
@@ -54,7 +54,7 @@ impl Validate for DatatypeDef {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {
@@ -153,13 +153,7 @@ impl DatatypeDef {
     // DatatypeDef :: Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_opaque(&self) -> bool {
-        self.opaque
-    }
-
-    pub fn set_opaque(&mut self, opaque: bool) {
-        self.opaque = opaque;
-    }
+    get_and_set_bool!(pub opaque, is_opaque, set_opaque);
 
     get_and_set!(pub base_type, set_base_type => IdentifierReference);
 }

@@ -92,6 +92,8 @@ Module {
                 end: 105,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [],

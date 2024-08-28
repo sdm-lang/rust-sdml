@@ -401,7 +401,7 @@ pub fn module() -> Module {
              (rdf::MODULE_NAME, rdf::LIST))
             .with_comment("The property that determines the collection of facet-value pairs that define a datatype restriction.")
              .into(),
-    ]);
+    ]).unwrap();
 
     module
 }

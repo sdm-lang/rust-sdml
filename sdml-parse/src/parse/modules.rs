@@ -7,13 +7,15 @@ use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
+use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::{HeaderValue, Import, ImportStatement, ModuleImport};
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_VERSION_INFO,
-    FIELD_NAME_VERSION_URI, NODE_KIND_ANNOTATION, NODE_KIND_DEFINITION, NODE_KIND_IMPORT_STATEMENT,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER_IMPORT, NODE_KIND_MODULE_IMPORT,
+    FIELD_NAME_VERSION_URI, NODE_KIND_ANNOTATION, NODE_KIND_DEFINITION, NODE_KIND_IDENTIFIER,
+    NODE_KIND_IMPORT_STATEMENT, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER_IMPORT,
+    NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT,
 };
 use tree_sitter::{Node, TreeCursor};
 use url::Url;
@@ -30,12 +32,24 @@ pub(crate) fn parse_module<'a>(
     rule_fn!("module", node);
     context.check_if_error(&node, RULE_NAME)?;
 
-    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_NAME,
+        NODE_KIND_IDENTIFIER
+    );
     let name = parse_identifier(context, &child)?;
+    context.module = Some(name.clone());
+    context.is_library = Identifier::is_library_module_name(&name);
 
-    let child = node.child_by_field_name(FIELD_NAME_BODY).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_BODY,
+        NODE_KIND_MODULE_BODY
+    );
     let body = parse_module_body(context, &mut child.walk())?;
 
     let mut module = Module::new(name, body).with_source_span(node.into());
@@ -64,6 +78,7 @@ pub(crate) fn parse_module<'a>(
 #[inline(always)]
 fn parse_uri<'a>(context: &mut ParseContext<'a>, node: &Node<'a>) -> Result<Url, Error> {
     let value = context.node_source(node)?;
+    // TODO: turn into real error!
     Ok(Url::from_str(&value[1..(value.len() - 1)]).expect("Invalid value for IriReference"))
 }
 
@@ -83,18 +98,19 @@ fn parse_module_body<'a>(
     rule_fn!("module_body", cursor.node());
 
     let mut body = ModuleBody::default().with_source_span(cursor.node().into());
+    body.set_library_status(&context.module.clone().unwrap());
 
     for node in cursor.node().named_children(cursor) {
         context.check_if_error(&node, RULE_NAME)?;
         match node.kind() {
             NODE_KIND_IMPORT_STATEMENT => {
-                body.add_to_imports(parse_import_statement(context, &mut node.walk())?)
+                body.add_to_imports(parse_import_statement(context, &mut node.walk())?);
             }
             NODE_KIND_ANNOTATION => {
-                body.add_to_annotations(parse_annotation(context, &mut node.walk())?)
+                body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
             }
             NODE_KIND_DEFINITION => {
-                body.add_to_definitions(parse_definition(context, &mut node.walk())?)
+                body.add_to_definitions(parse_definition(context, &mut node.walk())?)?;
             }
             NODE_KIND_LINE_COMMENT => {}
             _ => {
@@ -163,7 +179,3 @@ fn parse_import_statement<'a>(
     }
     Ok(import)
 }
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

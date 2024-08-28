@@ -102,105 +102,88 @@ pub fn module() -> Module {
         id!(xsd::MODULE_NAME)
     ));
 
-    module.body_mut().extend_definitions(vec![
-        // Classes
-        rdf!(class ANNOTATION, MODULE_IRI).into(),
-        rdf!(class ANNOTATION_PROPERTY, MODULE_IRI).into(),
-        rdf!(class CARDINALITY, MODULE_IRI).into(),
-        rdf!(class CONSTRAINT, MODULE_IRI).into(),
-        rdf!(class DEFINITION, MODULE_IRI).into(),
-        rdf!(class ENTITY, MODULE_IRI).into(),
-        rdf!(class ENUMERATION, MODULE_IRI).into(),
-        rdf!(class EVENT, MODULE_IRI).into(),
-        rdf!(class FEATURE_SET, MODULE_IRI).into(), // subClassOf :Union
-        rdf!(class FORMAL_CONSTRAINT, MODULE_IRI).into(),
-        rdf!(class IDENTIFIER_REFERENCE, MODULE_IRI).into(),
-        rdf!(class IMPORT, MODULE_IRI).into(),
-        rdf!(class IMPORT_STATEMENT, MODULE_IRI).into(),
-        rdf!(class INFORMAL_CONSTRAINT, MODULE_IRI).into(),
-        rdf!(class ORDERING_CONSTRAINT, MODULE_IRI).into(),
-        rdf!(class PROPERTY, MODULE_IRI).into(),
-        rdf!(class ROLE, MODULE_IRI).into(),
-        rdf!(class ROLE_REFERENCE, MODULE_IRI).into(),
-        rdf!(class QUALIFIED_IDENTIFIER, MODULE_IRI).into(),
-        rdf!(class STRUCTURE, MODULE_IRI).into(),
-        rdf!(class TYPE_CLASS, MODULE_IRI).into(),
-        rdf!(class TYPE_VARIANT, MODULE_IRI).into(),
-        rdf!(class UNION, MODULE_IRI).into(),
-        rdf!(class UNKNOWN, MODULE_IRI).into(), // subClassOf owl:Nothing
-        rdf!(class UNIQUENESS_CONSTRAINT, MODULE_IRI).into(),
-        rdf!(class VALUE_VARIANT, MODULE_IRI).into(),
-        // Data types
-        rdf!(datatype IDENTIFIER, MODULE_IRI).into(),
-        rdf!(datatype BINARY, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::HEX_BINARY))
-            .into(),
-        rdf!(datatype BOOLEAN, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::BOOLEAN))
-            .into(),
-        rdf!(datatype DECIMAL, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::DECIMAL))
-            .into(),
-        rdf!(datatype DOUBLE, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::DOUBLE))
-            .into(),
-        rdf!(datatype INTEGER, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::INTEGER))
-            .into(),
-        rdf!(datatype UNSIGNED, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER))
-            .into(),
-        rdf!(datatype IRI, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::ANY_URI))
-            .into(),
-        rdf!(datatype STRING, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::STRING))
-            .into(),
-        rdf!(datatype LANGUAGE, MODULE_IRI)
-            .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::LANGUAGE))
-            .into(),
-        // Properties
-        rdf!(property HAS_ANNOTATION, MODULE_IRI).into(),
-        rdf!(property HAS_CARDINALITY, MODULE_IRI).into(),
-        rdf!(property HAS_DEFINITION, MODULE_IRI).into(),
-        rdf!(property HAS_DOMAIN_VALUE, MODULE_IRI).into(),
-        rdf!(property HAS_IMPORT_STATEMENT, MODULE_IRI).into(),
-        rdf!(property HAS_MEMBER, MODULE_IRI).into(),
-        rdf!(property HAS_NAME, MODULE_IRI).into(),
-        rdf!(property HAS_RANGE_VALUE, MODULE_IRI).into(),
-        rdf!(property HAS_TYPE_VARIANT, MODULE_IRI).into(),
-        rdf!(property HAS_VALUE_VARIANT, MODULE_IRI).into(),
-        rdf!(property MAX_OCCURS, MODULE_IRI).into(),
-        rdf!(property MIN_OCCURS, MODULE_IRI).into(),
-        rdf!(property ORDERING, MODULE_IRI).into(),
-        rdf!(property SRC_LABEL, MODULE_IRI).into(),
-        rdf!(property UNIQUENESS, MODULE_IRI).into(),
-        // Individuals
-        rdf!(thing ORDERED, MODULE_IRI, ORDERING_CONSTRAINT).into(),
-        rdf!(thing NONUNIQUE, MODULE_IRI, UNIQUENESS_CONSTRAINT).into(),
-        rdf!(thing UNIQUE, MODULE_IRI, UNIQUENESS_CONSTRAINT).into(),
-        rdf!(thing UNORDERED, MODULE_IRI, ORDERING_CONSTRAINT).into(),
-    ]);
+    module
+        .body_mut()
+        .extend_definitions(vec![
+            // Classes
+            rdf!(class ANNOTATION, MODULE_IRI).into(),
+            rdf!(class ANNOTATION_PROPERTY, MODULE_IRI).into(),
+            rdf!(class CARDINALITY, MODULE_IRI).into(),
+            rdf!(class CONSTRAINT, MODULE_IRI).into(),
+            rdf!(class DEFINITION, MODULE_IRI).into(),
+            rdf!(class ENTITY, MODULE_IRI).into(),
+            rdf!(class ENUMERATION, MODULE_IRI).into(),
+            rdf!(class EVENT, MODULE_IRI).into(),
+            rdf!(class FEATURE_SET, MODULE_IRI).into(), // subClassOf :Union
+            rdf!(class FORMAL_CONSTRAINT, MODULE_IRI).into(),
+            rdf!(class IDENTIFIER_REFERENCE, MODULE_IRI).into(),
+            rdf!(class IMPORT, MODULE_IRI).into(),
+            rdf!(class IMPORT_STATEMENT, MODULE_IRI).into(),
+            rdf!(class INFORMAL_CONSTRAINT, MODULE_IRI).into(),
+            rdf!(class ORDERING_CONSTRAINT, MODULE_IRI).into(),
+            rdf!(class PROPERTY, MODULE_IRI).into(),
+            rdf!(class ROLE, MODULE_IRI).into(),
+            rdf!(class ROLE_REFERENCE, MODULE_IRI).into(),
+            rdf!(class QUALIFIED_IDENTIFIER, MODULE_IRI).into(),
+            rdf!(class STRUCTURE, MODULE_IRI).into(),
+            rdf!(class TYPE_CLASS, MODULE_IRI).into(),
+            rdf!(class TYPE_VARIANT, MODULE_IRI).into(),
+            rdf!(class UNION, MODULE_IRI).into(),
+            rdf!(class UNKNOWN, MODULE_IRI).into(), // subClassOf owl:Nothing
+            rdf!(class UNIQUENESS_CONSTRAINT, MODULE_IRI).into(),
+            rdf!(class VALUE_VARIANT, MODULE_IRI).into(),
+            // Data types
+            rdf!(datatype IDENTIFIER, MODULE_IRI).into(),
+            rdf!(datatype BINARY, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::HEX_BINARY))
+                .into(),
+            rdf!(datatype BOOLEAN, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::BOOLEAN))
+                .into(),
+            rdf!(datatype DECIMAL, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::DECIMAL))
+                .into(),
+            rdf!(datatype DOUBLE, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::DOUBLE))
+                .into(),
+            rdf!(datatype INTEGER, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::INTEGER))
+                .into(),
+            rdf!(datatype UNSIGNED, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER))
+                .into(),
+            rdf!(datatype IRI, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::ANY_URI))
+                .into(),
+            rdf!(datatype STRING, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::STRING))
+                .into(),
+            rdf!(datatype LANGUAGE, MODULE_IRI)
+                .with_equivalent_class(qualid!(xsd::MODULE_NAME, xsd::LANGUAGE))
+                .into(),
+            // Properties
+            rdf!(property HAS_ANNOTATION, MODULE_IRI).into(),
+            rdf!(property HAS_CARDINALITY, MODULE_IRI).into(),
+            rdf!(property HAS_DEFINITION, MODULE_IRI).into(),
+            rdf!(property HAS_DOMAIN_VALUE, MODULE_IRI).into(),
+            rdf!(property HAS_IMPORT_STATEMENT, MODULE_IRI).into(),
+            rdf!(property HAS_MEMBER, MODULE_IRI).into(),
+            rdf!(property HAS_NAME, MODULE_IRI).into(),
+            rdf!(property HAS_RANGE_VALUE, MODULE_IRI).into(),
+            rdf!(property HAS_TYPE_VARIANT, MODULE_IRI).into(),
+            rdf!(property HAS_VALUE_VARIANT, MODULE_IRI).into(),
+            rdf!(property MAX_OCCURS, MODULE_IRI).into(),
+            rdf!(property MIN_OCCURS, MODULE_IRI).into(),
+            rdf!(property ORDERING, MODULE_IRI).into(),
+            rdf!(property SRC_LABEL, MODULE_IRI).into(),
+            rdf!(property UNIQUENESS, MODULE_IRI).into(),
+            // Individuals
+            rdf!(thing ORDERED, MODULE_IRI, ORDERING_CONSTRAINT).into(),
+            rdf!(thing NONUNIQUE, MODULE_IRI, UNIQUENESS_CONSTRAINT).into(),
+            rdf!(thing UNIQUE, MODULE_IRI, UNIQUENESS_CONSTRAINT).into(),
+            rdf!(thing UNORDERED, MODULE_IRI, ORDERING_CONSTRAINT).into(),
+        ])
+        .unwrap();
 
     module
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

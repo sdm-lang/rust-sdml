@@ -80,9 +80,10 @@ pub const NODE_KIND_MAPPING_TYPE: &str = "mapping_type";
 pub const NODE_KIND_MAPPING_VALUE: &str = "mapping_value";
 pub const NODE_KIND_MAPPING_VARIABLE: &str = "mapping_variable";
 pub const NODE_KIND_MEMBER: &str = "member";
+pub const NODE_KIND_MEMBER_DEF: &str = "member_def";
 pub const NODE_KIND_MEMBER_IMPORT: &str = "member_import";
-pub const NODE_KIND_MEMBER_INVERSE_NAME: &str = "member_inverse_name";
-pub const NODE_KIND_MEMBER_ROLE: &str = "member_role";
+//pub const NODE_KIND_MEMBER_INVERSE_NAME: &str = "member_inverse_name";
+//pub const NODE_KIND_MEMBER_ROLE: &str = "member_role";
 pub const NODE_KIND_METHOD_DEF: &str = "method_def";
 pub const NODE_KIND_MODULE: &str = "module";
 pub const NODE_KIND_MODULE_BODY: &str = "module_body";
@@ -96,9 +97,10 @@ pub const NODE_KIND_OPAQUE: &str = "opaque";
 pub const NODE_KIND_OPTIONAL: &str = "optional";
 
 pub const NODE_KIND_PREDICATE_VALUE: &str = "predicate_value";
-pub const NODE_KIND_PROPERTY_BODY: &str = "property_body";
+//pub const NODE_KIND_PROPERTY_BODY: &str = "property_body";
 pub const NODE_KIND_PROPERTY_DEF: &str = "property_def";
-pub const NODE_KIND_PROPERTY_MEMBER: &str = "property_member";
+//pub const NODE_KIND_PROPERTY_MEMBER: &str = "property_member";
+pub const NODE_KIND_PROPERTY_REF: &str = "property_ref";
 
 pub const NODE_KIND_QUALIFIED_IDENTIFIER: &str = "qualified_identifier";
 pub const NODE_KIND_QUANTIFIED_SENTENCE: &str = "quantified_sentence";
@@ -119,6 +121,7 @@ pub const NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES: &str = "sequence_of_predicate_
 pub const NODE_KIND_SEQUENCE_OF_VALUES: &str = "sequence_of_values";
 pub const NODE_KIND_SIMPLE_SENTENCE: &str = "simple_sentence";
 pub const NODE_KIND_SIMPLE_VALUE: &str = "simple_value";
+pub const NODE_KIND_SPAN: &str = "span";
 pub const NODE_KIND_STRING: &str = "string";
 pub const NODE_KIND_STRUCTURE_BODY: &str = "structure_body";
 pub const NODE_KIND_STRUCTURE_DEF: &str = "structure_def";
@@ -128,19 +131,21 @@ pub const NODE_KIND_TERM: &str = "term";
 pub const NODE_KIND_TYPE_CLASS_ARGUMENTS: &str = "type_class_arguments";
 pub const NODE_KIND_TYPE_CLASS_DEF: &str = "type_class_def";
 pub const NODE_KIND_TYPE_CLASS_REFERENCE: &str = "type_class_reference";
-pub const NODE_KIND_TYPE_VARIABLE: &str = "type_variable";
 pub const NODE_KIND_TYPE_ITERATOR: &str = "type_iterator";
+pub const NODE_KIND_TYPE_REFERENCE: &str = "type_reference";
+pub const NODE_KIND_TYPE_VARIABLE: &str = "type_variable";
 pub const NODE_KIND_TYPE_VARIANT: &str = "type_variant";
 
 pub const NODE_KIND_UNARY_BOOLEAN_SENTENCE: &str = "unary_boolean_sentence";
 pub const NODE_KIND_UNION_BODY: &str = "union_body";
 pub const NODE_KIND_UNION_DEF: &str = "union_def";
-pub const NODE_KIND_UNKNOWN_TYPE: &str = "unknown_type";
 pub const NODE_KIND_UNIVERSAL: &str = "universal";
+pub const NODE_KIND_UNKNOWN_TYPE: &str = "unknown_type";
 pub const NODE_KIND_UNSIGNED: &str = "unsigned";
 
 pub const NODE_KIND_VALUE_CONSTRUCTOR: &str = "value_constructor";
 pub const NODE_KIND_VALUE_VARIANT: &str = "value_variant";
+pub const NODE_KIND_VALUE: &str = "value";
 
 pub const NODE_KIND_WILDCARD: &str = "wildcard";
 
@@ -163,11 +168,11 @@ pub const FIELD_NAME_DOMAIN: &str = "domain";
 
 pub const FIELD_NAME_ELEMENT: &str = "element";
 
-pub const FIELD_NAME_FEATURE: &str = "feature";
+//pub const FIELD_NAME_FEATURE: &str = "feature";
 pub const FIELD_NAME_FUNCTION: &str = "function";
 
 pub const FIELD_NAME_IDENTITY: &str = "identity";
-pub const FIELD_NAME_INVERSE_NAME: &str = "inverse_name";
+//pub const FIELD_NAME_INVERSE_NAME: &str = "inverse_name";
 
 pub const FIELD_NAME_LANGUAGE: &str = "language";
 pub const FIELD_NAME_LHS: &str = "lhs";
@@ -272,6 +277,8 @@ pub const KW_RELATION_LESS_THAN_OR_EQUAL: &str = "<=";
 pub const KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL: &str = "≤";
 pub const KW_RELATION_GREATER_THAN_OR_EQUAL: &str = ">=";
 pub const KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL: &str = "≥";
+
+pub const KW_REF: &str = "ref";
 
 pub const KW_SIMPLE_TYPE_BINARY: &str = NODE_KIND_BINARY;
 pub const KW_SIMPLE_TYPE_BOOLEAN: &str = NODE_KIND_BOOLEAN;

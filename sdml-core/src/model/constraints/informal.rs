@@ -1,5 +1,5 @@
 use crate::{
-    cache::ModuleCache,
+    cache::ModuleStore,
     load::ModuleLoader,
     model::{check::Validate, modules::Module, References, Span},
 };
@@ -95,7 +95,7 @@ impl Validate for ControlledLanguageString {
     fn validate(
         &self,
         _top: &Module,
-        _cache: &ModuleCache,
+        _cache: &impl ModuleStore,
         _loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {
@@ -187,7 +187,7 @@ impl Validate for ControlledLanguageTag {
     fn validate(
         &self,
         _top: &Module,
-        _cache: &ModuleCache,
+        _cache: &impl ModuleStore,
         _loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {

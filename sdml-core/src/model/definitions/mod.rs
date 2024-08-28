@@ -1,9 +1,7 @@
 use crate::{
-    cache::ModuleCache,
+    cache::ModuleStore,
     load::ModuleLoader,
-    model::check::MaybeIncomplete,
-    model::members::Member,
-    model::{HasName, HasSourceSpan},
+    model::{check::MaybeIncomplete, members::Member, HasName, HasSourceSpan},
 };
 use sdml_errors::diagnostics::functions::definition_is_incomplete;
 use std::fmt::Debug;
@@ -12,7 +10,7 @@ use std::fmt::Debug;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Traits
 // ------------------------------------------------------------------------------------------------
 
 pub trait HasMembers {
@@ -20,9 +18,9 @@ pub trait HasMembers {
 
     fn members_len(&self) -> usize;
 
-    fn members(&self) -> Box<dyn Iterator<Item = &Member> + '_>;
+    fn members(&self) -> impl Iterator<Item = &Member>;
 
-    fn members_mut(&mut self) -> Box<dyn Iterator<Item = &mut Member> + '_>;
+    fn members_mut(&mut self) -> impl Iterator<Item = &mut Member>;
 
     fn add_to_members(&mut self, value: Member);
 
@@ -31,20 +29,22 @@ pub trait HasMembers {
         I: IntoIterator<Item = Member>;
 }
 
-pub trait HasVariants<T> {
+pub trait HasVariants {
+    type Variant;
+
     fn has_variants(&self) -> bool;
 
     fn variants_len(&self) -> usize;
 
-    fn variants(&self) -> Box<dyn Iterator<Item = &T> + '_>;
+    fn variants(&self) -> impl Iterator<Item = &Self::Variant>;
 
-    fn variants_mut(&mut self) -> Box<dyn Iterator<Item = &mut T> + '_>;
+    fn variants_mut(&mut self) -> impl Iterator<Item = &mut Self::Variant>;
 
-    fn add_to_variants(&mut self, value: T);
+    fn add_to_variants(&mut self, value: Self::Variant);
 
     fn extend_variants<I>(&mut self, extension: I)
     where
-        I: IntoIterator<Item = T>;
+        I: IntoIterator<Item = Self::Variant>;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ impl Validate for Definition {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
@@ -173,7 +173,7 @@ mod datatypes;
 pub use datatypes::DatatypeDef;
 
 mod entities;
-pub use entities::{EntityBody, EntityDef, EntityIdentity, EntityIdentityDef};
+pub use entities::{EntityBody, EntityDef};
 
 mod enums;
 pub use enums::{EnumBody, EnumDef, ValueVariant};
@@ -182,7 +182,7 @@ mod events;
 pub use events::EventDef;
 
 mod properties;
-pub use properties::{PropertyBody, PropertyDef, PropertyRole, PropertyRoleDef};
+pub use properties::PropertyDef;
 
 mod structures;
 pub use structures::{StructureBody, StructureDef};

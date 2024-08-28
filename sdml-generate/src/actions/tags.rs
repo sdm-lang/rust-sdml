@@ -38,12 +38,11 @@ pub fn write_ctags<W: Write>(
     for defn in module.body().definitions() {
         tags.push(ctag_line(defn, &file_name));
         match defn {
-            Definition::Datatype(_) => {}
             Definition::Entity(v) => {
                 if let Some(body) = v.body() {
-                    tags.push(ctag_line(body.identity(), &file_name));
+                    tags.push(ctag_line_from(body.identity().name(), &file_name));
                     for member in body.members() {
-                        tags.push(ctag_line(member, &file_name));
+                        tags.push(ctag_line_from(member.name(), &file_name));
                     }
                 }
             }
@@ -57,22 +56,14 @@ pub fn write_ctags<W: Write>(
             Definition::Event(v) => {
                 if let Some(body) = v.body() {
                     for member in body.members() {
-                        tags.push(ctag_line(member, &file_name));
+                        tags.push(ctag_line_from(member.name(), &file_name));
                     }
                 }
             }
-            Definition::Property(v) => {
-                if let Some(body) = v.body() {
-                    for role in body.roles() {
-                        tags.push(ctag_line(role, &file_name));
-                    }
-                }
-            }
-            Definition::Rdf(_) => {}
             Definition::Structure(v) => {
                 if let Some(body) = v.body() {
                     for member in body.members() {
-                        tags.push(ctag_line(member, &file_name));
+                        tags.push(ctag_line_from(member.name(), &file_name));
                     }
                 }
             }
@@ -91,6 +82,9 @@ pub fn write_ctags<W: Write>(
                         }
                     }
                 }
+            }
+            _ => {
+                // no additional tags
             }
         }
     }

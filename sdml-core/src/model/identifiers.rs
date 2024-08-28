@@ -97,7 +97,10 @@ const RESERVED_KEYWORDS: [&str; 19] = [
     "unknown",
 ];
 const RESERVED_TYPES: [&str; 6] = ["string", "double", "decimal", "integer", "boolean", "iri"];
-const RESERVED_MODULES: [&str; 8] = ["dc", "owl", "rdf", "rdfs", "sdml", "skos", "xml", "xsd"];
+const RESERVED_MODULES: [&str; 12] = [
+    "dc", "dc_am", "dc_terms", "dc_types", "iso_3166", "iso_4217", "owl", "rdf", "rdfs", "sdml",
+    "skos", "xsd",
+];
 
 // ------------------------------------------------------------------------------------------------
 
@@ -232,23 +235,36 @@ impl Identifier {
     }
 
     #[inline(always)]
-    pub fn is_valid(s: &str) -> bool {
+    pub fn is_valid<S>(s: S) -> bool
+    where
+        S: AsRef<str>,
+    {
+        let s = s.as_ref();
         IDENTIFIER.is_match(s) && !Self::is_keyword(s)
     }
 
     #[inline(always)]
-    pub fn is_keyword(s: &str) -> bool {
-        RESERVED_KEYWORDS.contains(&s)
+    pub fn is_keyword<S>(s: S) -> bool
+    where
+        S: AsRef<str>,
+    {
+        RESERVED_KEYWORDS.contains(&s.as_ref())
     }
 
     #[inline(always)]
-    pub fn is_type_name(s: &str) -> bool {
-        RESERVED_TYPES.contains(&s)
+    pub fn is_type_name<S>(s: S) -> bool
+    where
+        S: AsRef<str>,
+    {
+        RESERVED_TYPES.contains(&s.as_ref())
     }
 
     #[inline(always)]
-    pub fn is_library_module_name(s: &str) -> bool {
-        RESERVED_MODULES.contains(&s)
+    pub fn is_library_module_name<S>(s: S) -> bool
+    where
+        S: AsRef<str>,
+    {
+        RESERVED_MODULES.contains(&s.as_ref())
     }
 
     #[inline(always)]

@@ -1,5 +1,5 @@
 use crate::{
-    cache::ModuleCache,
+    cache::ModuleStore,
     load::ModuleLoader,
     model::{
         annotations::{AnnotationBuilder, AnnotationOnlyBody, HasAnnotations},
@@ -65,7 +65,7 @@ impl Validate for RdfDef {
     fn validate(
         &self,
         top: &Module,
-        cache: &ModuleCache,
+        cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {

@@ -208,7 +208,6 @@ test_examples! {
 
 test_examples! {
     property => (
-        property_def_empty,
         property_def_some,
         property_def_used
     )
@@ -222,8 +221,7 @@ test_examples! {
     structure => (
         structure_empty,
         structure_mapping_type,
-        structure_simple_types,
-        structure_with_features
+        structure_simple_types
     )
 }
 

@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::Args;
 
 // ------------------------------------------------------------------------------------------------
@@ -26,13 +28,13 @@ pub(crate) struct Command;
 const CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), sdml_errors::Error> {
+    fn execute(&self) -> Result<ExitCode, sdml_errors::Error> {
         println!("SDML CLI:        {}", CLI_VERSION);
         println!("SDML grammar:    {}", tree_sitter_sdml::GRAMMAR_VERSION);
         println!(
             "Tree-Sitter ABI: {}",
             tree_sitter_sdml::language().version()
         );
-        Ok(())
+        Ok(ExitCode::SUCCESS)
     }
 }

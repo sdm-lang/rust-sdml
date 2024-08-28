@@ -1,4 +1,4 @@
-use crate::cache::ModuleCache;
+use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::check::Validate;
 use crate::model::constraints::ConstraintSentence;
@@ -251,7 +251,7 @@ impl Validate for FunctionCardinality {
     fn validate(
         &self,
         _top: &Module,
-        _cache: &ModuleCache,
+        _cache: &impl ModuleStore,
         _loader: &impl ModuleLoader,
         _check_constraints: bool,
     ) {

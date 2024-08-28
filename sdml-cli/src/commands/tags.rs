@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
 use sdml_core::{cache::ModuleStore, load::ModuleLoader};
@@ -37,7 +39,7 @@ pub(crate) enum OutputFormat {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(self, |module: &Module, _, _| {
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
@@ -46,7 +48,7 @@ impl super::Command for Command {
                 OutputFormat::CTags => write_ctags(module, module.source_file(), &mut writer)?,
             }
 
-            Ok(())
+            Ok(ExitCode::SUCCESS)
         });
     }
 }

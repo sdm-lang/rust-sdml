@@ -30,6 +30,8 @@ Module {
                 end: 82,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [

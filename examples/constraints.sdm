@@ -16,6 +16,7 @@ module constraints is
       end
     end
 
+    has_no_constraints -> integer
   end
 
 end

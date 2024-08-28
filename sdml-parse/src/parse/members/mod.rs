@@ -82,7 +82,6 @@ pub(crate) fn parse_cardinality_expression<'a>(
 pub(crate) fn parse_type_reference<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
-    feature_set: bool,
 ) -> Result<TypeReference, Error> {
     rule_fn!("type_reference", cursor.node());
     let mut has_next = cursor.goto_first_child();
@@ -95,12 +94,10 @@ pub(crate) fn parse_type_reference<'a>(
                     return Ok(TypeReference::Unknown);
                 }
                 NODE_KIND_IDENTIFIER_REFERENCE => {
-                    let reference = parse_identifier_reference(context, &mut node.walk())?;
-                    if feature_set {
-                        return Ok(TypeReference::FeatureSet(reference));
-                    } else {
-                        return Ok(TypeReference::Type(reference));
-                    }
+                    return Ok(TypeReference::Type(parse_identifier_reference(
+                        context,
+                        &mut node.walk(),
+                    )?));
                 }
                 NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                     let module = Identifier::new_unchecked(NAME_SDML);
@@ -143,11 +140,11 @@ pub(crate) fn parse_mapping_type<'a>(
 
     let child = node.child_by_field_name(FIELD_NAME_DOMAIN).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let domain = parse_type_reference(context, &mut child.walk(), false)?;
+    let domain = parse_type_reference(context, &mut child.walk())?;
 
     let child = node.child_by_field_name(FIELD_NAME_RANGE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let range = parse_type_reference(context, &mut child.walk(), false)?;
+    let range = parse_type_reference(context, &mut child.walk())?;
 
     Ok(MappingType::new(domain, range).with_source_span(node.into()))
 }
@@ -157,4 +154,4 @@ pub(crate) fn parse_mapping_type<'a>(
 // ------------------------------------------------------------------------------------------------
 
 mod member;
-pub(crate) use member::parse_member;
+pub(crate) use member::{parse_member, parse_member_def};

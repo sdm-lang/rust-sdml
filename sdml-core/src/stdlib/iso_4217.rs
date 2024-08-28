@@ -68,58 +68,61 @@ pub fn module() -> Module {
         .into(),
     ]);
 
-    module.body_mut().extend_definitions(vec![
-        datatype!(CURRENCY_CODE_ALPHA => xsd::MODULE_NAME, xsd::STRING)
-            .with_body(
-                vec![
-                    prop!(
-                        xsd::MODULE_NAME, xsd::PATTERN;
-                        simple!(lstr!("[A-Z]{3}"))
-                    )
+    module
+        .body_mut()
+        .extend_definitions(vec![
+            datatype!(CURRENCY_CODE_ALPHA => xsd::MODULE_NAME, xsd::STRING)
+                .with_body(
+                    vec![
+                        prop!(
+                            xsd::MODULE_NAME, xsd::PATTERN;
+                            simple!(lstr!("[A-Z]{3}"))
+                        )
+                        .into(),
+                        prop!(
+                            skos::MODULE_NAME, skos::PREF_LABEL;
+                            simple!(lstr!("alpha code"@"en"))
+                        )
+                        .into(),
+                        prop!(
+                            skos::MODULE_NAME, skos::PREF_LABEL;
+                            simple!(lstr!("code alpha"@"fr"))
+                        )
+                        .into(),
+                    ]
                     .into(),
-                    prop!(
-                        skos::MODULE_NAME, skos::PREF_LABEL;
-                        simple!(lstr!("alpha code"@"en"))
-                    )
-                    .into(),
-                    prop!(
-                        skos::MODULE_NAME, skos::PREF_LABEL;
-                        simple!(lstr!("code alpha"@"fr"))
-                    )
-                    .into(),
-                ]
+                )
                 .into(),
-            )
-            .into(),
-        datatype!(CURRENCY_CODE_NUMERIC => xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER)
-            .with_body(
-                vec![
-                    prop!(
-                        xsd::MODULE_NAME, xsd::MIN_INCLUSIVE;
-                        tc!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER => 0_u64)
-                    )
+            datatype!(CURRENCY_CODE_NUMERIC => xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER)
+                .with_body(
+                    vec![
+                        prop!(
+                            xsd::MODULE_NAME, xsd::MIN_INCLUSIVE;
+                            tc!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER => 0_u64)
+                        )
+                        .into(),
+                        prop!(
+                            xsd::MODULE_NAME, xsd::MAX_INCLUSIVE;
+                            tc!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER => 899_u64)
+                        )
+                        .into(),
+                        prop!(
+                            skos::MODULE_NAME, skos::PREF_LABEL;
+                            simple!(lstr!("numeric code"@"en"))
+                        )
+                        .into(),
+                        prop!(
+                            skos::MODULE_NAME, skos::PREF_LABEL;
+                            simple!(lstr!("code numérique"@"fr"))
+                        )
+                        .into(),
+                    ]
                     .into(),
-                    prop!(
-                        xsd::MODULE_NAME, xsd::MAX_INCLUSIVE;
-                        tc!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER => 899_u64)
-                    )
-                    .into(),
-                    prop!(
-                        skos::MODULE_NAME, skos::PREF_LABEL;
-                        simple!(lstr!("numeric code"@"en"))
-                    )
-                    .into(),
-                    prop!(
-                        skos::MODULE_NAME, skos::PREF_LABEL;
-                        simple!(lstr!("code numérique"@"fr"))
-                    )
-                    .into(),
-                ]
+                )
                 .into(),
-            )
-            .into(),
-        union!(CURRENCY_CODE => CURRENCY_CODE_ALPHA, CURRENCY_CODE_NUMERIC).into(),
-    ]);
+            union!(CURRENCY_CODE => CURRENCY_CODE_ALPHA, CURRENCY_CODE_NUMERIC).into(),
+        ])
+        .unwrap();
 
     module
 }

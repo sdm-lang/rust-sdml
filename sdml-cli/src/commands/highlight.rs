@@ -4,6 +4,7 @@ use sdml_core::stdlib;
 use sdml_errors::Error;
 use sdml_parse::load::FsModuleLoader;
 use std::io::Read;
+use std::process::ExitCode;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -44,14 +45,14 @@ pub(crate) enum OutputFormat {
 // ------------------------------------------------------------------------------------------------
 
 impl super::Command for Command {
-    fn execute(&self) -> Result<(), Error> {
+    fn execute(&self) -> Result<ExitCode, Error> {
         let loader = FsModuleLoader::default();
         let resolver = loader.resolver();
 
         let source = if let Some(module_name) = &self.files.module {
             if stdlib::is_library_module(module_name) {
                 println!("Sorry, can't currently highlight stdlib modules");
-                return Ok(());
+                return Ok(ExitCode::FAILURE);
             } else {
                 let resource =
                     resolver.name_to_resource(module_name, loader.get_file_id(module_name))?;
@@ -92,7 +93,7 @@ impl super::Command for Command {
             }
         }
 
-        Ok(())
+        Ok(ExitCode::SUCCESS)
     }
 }
 

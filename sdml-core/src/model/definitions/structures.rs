@@ -59,7 +59,7 @@ impl Validate for StructureDef {
     fn validate(
         &self,
         top: &crate::model::modules::Module,
-        cache: &crate::cache::ModuleCache,
+        cache: &impl crate::cache::ModuleStore,
         loader: &impl crate::load::ModuleLoader,
         check_constraints: bool,
     ) {

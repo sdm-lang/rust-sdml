@@ -30,6 +30,8 @@ Module {
                 end: 102,
             },
         ),
+        file_id: None,
+        is_library: false,
         imports: [],
         annotations: [],
         definitions: [
@@ -61,21 +63,7 @@ Module {
                             annotations: [],
                             members: [
                                 Member {
-                                    span: Some(
-                                        Span {
-                                            start: 45,
-                                            end: 91,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 45,
-                                                end: 55,
-                                            },
-                                        ),
-                                        value: "properties",
-                                    },
+                                    span: None,
                                     kind: Definition(
                                         MemberDef {
                                             span: Some(
@@ -84,7 +72,15 @@ Module {
                                                     end: 91,
                                                 },
                                             ),
-                                            inverse_name: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 45,
+                                                        end: 55,
+                                                    },
+                                                ),
+                                                value: "properties",
+                                            },
                                             target_cardinality: Cardinality {
                                                 span: Some(
                                                     Span {

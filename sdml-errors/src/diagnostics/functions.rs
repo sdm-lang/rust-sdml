@@ -12,7 +12,7 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 use crate::diagnostics::{Diagnostic, ErrorCode};
 use crate::{FileId, Span};
 use codespan_reporting::diagnostic::Label;
-use heck::{ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
+use heck::{ToLowerCamelCase, ToShoutySnakeCase, ToSnakeCase, ToUpperCamelCase};
 use std::error::Error;
 
 // ------------------------------------------------------------------------------------------------
@@ -25,6 +25,7 @@ pub enum IdentifierCaseConvention {
     Member,
     ImportedMember,
     DatatypeDefinition,
+    PropertyDefinition,
     RdfDefinition,
     TypeDefinition,
     ValueVariant,
@@ -71,15 +72,17 @@ where
 ///
 #[inline]
 #[allow(clippy::redundant_closure_call)]
-pub fn unexpected_node_kind<S1, S2>(
+pub fn unexpected_node_kind<S1, S2, S3>(
     file_id: FileId,
     location: Span,
-    expecting: S1,
-    got: S2,
+    in_rule: S1,
+    expecting: S2,
+    got: S3,
 ) -> Diagnostic
 where
     S1: Into<String>,
     S2: Into<String>,
+    S3: Into<String>,
 {
     let expecting = expecting.into();
     let expecting = if expecting.contains('|') {
@@ -94,6 +97,7 @@ where
             Label::secondary(file_id, location).with_message(expecting),
         ])
     })
+    .with_notes(vec![i18n!("lbl_in_grammar_rule", name = in_rule.into())])
 }
 
 ///
@@ -101,21 +105,23 @@ where
 ///
 #[inline]
 #[allow(clippy::redundant_closure_call)]
-pub fn missing_node<S1, S2>(
+pub fn missing_node<S1, S2, S3>(
     file_id: FileId,
     location: Span,
-    expecting: S1,
-    in_variable: Option<S2>,
+    in_rule: S1,
+    expecting: S2,
+    field_name: Option<S3>,
 ) -> Diagnostic
 where
     S1: Into<String>,
     S2: Into<String>,
+    S3: Into<String>,
 {
-    let message = if let Some(in_variable) = in_variable {
+    let message = if let Some(field_name) = field_name {
         i18n!(
             "lbl_missing_node_kind_in_variable",
             kind = expecting.into(),
-            variable = in_variable.into()
+            field_name = field_name.into()
         )
     } else {
         i18n!("lbl_missing_node_kind", kind = expecting.into())
@@ -124,35 +130,7 @@ where
         .with_labels(vec![
             Label::primary(file_id, location).with_message(message)
         ]))
-}
-
-///
-/// Note: tree-sitter originated errors will *always* have a location.
-///
-#[inline]
-#[allow(clippy::redundant_closure_call)]
-pub fn missing_variable_in_node<S1, S2>(
-    file_id: FileId,
-    location: Span,
-    expecting: S1,
-    in_node: Option<S2>,
-) -> Diagnostic
-where
-    S1: Into<String>,
-    S2: Into<String>,
-{
-    let message = if let Some(in_node) = in_node {
-        format!(
-            "missing a variable named `{}` in grammar node kind `{}`",
-            expecting.into(),
-            in_node.into()
-        )
-    } else {
-        format!("missing a variable named `{}`", expecting.into())
-    };
-    new_diagnostic!(TreeSitterMissingVariable, |diagnostic: Diagnostic| {
-        diagnostic.with_labels(vec![Label::primary(file_id, location).with_message(message)])
-    })
+    .with_notes(vec![i18n!("lbl_in_grammar_rule", name = in_rule.into())])
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -563,6 +541,26 @@ where
     })
 }
 
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn library_definition_not_allowed<S>(
+    file_id: FileId,
+    reference_location: Option<Span>,
+    name: S,
+) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(LibraryDefinitionNotAllowed, |diagnostic: Diagnostic| {
+        if let Some(reference_location) = reference_location {
+            diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
+                .with_message(i18n!("lbl_this_reference"))])
+        } else {
+            diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
+        }
+    })
+}
+
 // ------------------------------------------------------------------------------------------------
 // Public Functions  Warnings
 // ------------------------------------------------------------------------------------------------
@@ -810,6 +808,7 @@ where
                 IdentifierCaseConvention::Member => i18n!("lbl_case_member"),
                 IdentifierCaseConvention::ImportedMember => i18n!("lbl_case_imported_member"),
                 IdentifierCaseConvention::DatatypeDefinition => i18n!("lbl_case_datatype"),
+                IdentifierCaseConvention::PropertyDefinition => i18n!("lbl_case_property"),
                 IdentifierCaseConvention::RdfDefinition => i18n!("lbl_case_rdf"),
                 IdentifierCaseConvention::TypeDefinition => i18n!("lbl_case_type_defn"),
                 IdentifierCaseConvention::ValueVariant => i18n!("lbl_case_value_variant"),
@@ -830,15 +829,22 @@ impl IdentifierCaseConvention {
         let id = id.into();
         match self {
             Self::Module => id == Self::to_snake_case(&id),
-            Self::Member => id == Self::to_snake_case(&id),
+            Self::Member => id == Self::to_snake_case(&id) || id == Self::to_lower_camel_case(&id),
             Self::ImportedMember => {
-                id == Self::to_snake_case(&id) || id == Self::to_upper_camel_case(&id)
+                id == Self::to_snake_case(&id)|| id == Self::to_lower_camel_case(&id) || id == Self::to_upper_camel_case(&id)
             }
             Self::DatatypeDefinition => {
-                id == Self::to_snake_case(&id) || id == Self::to_upper_camel_case(&id)
+                id == Self::to_snake_case(&id)
+                    || id == Self::to_lower_camel_case(&id)
+                    || id == Self::to_upper_camel_case(&id)
+            }
+            Self::PropertyDefinition => {
+                id == Self::to_snake_case(&id) || id == Self::to_lower_camel_case(&id)
             }
             Self::RdfDefinition => {
-                id == Self::to_snake_case(&id) || id == Self::to_upper_camel_case(&id)
+                id == Self::to_snake_case(&id)
+                    || id == Self::to_lower_camel_case(&id)
+                    || id == Self::to_upper_camel_case(&id)
             }
             Self::TypeDefinition => id == Self::to_upper_camel_case(&id),
             Self::ValueVariant => {
@@ -853,6 +859,10 @@ impl IdentifierCaseConvention {
 
     fn to_upper_camel_case(id: &str) -> String {
         id.to_upper_camel_case()
+    }
+
+    fn to_lower_camel_case(id: &str) -> String {
+        id.to_lower_camel_case()
     }
 
     fn to_shouty_snake_case(id: &str) -> String {
