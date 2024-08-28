@@ -3,6 +3,10 @@ This module provides the generators for *module-to-file* conversion which includ
 s-expressions.
 */
 
+// ------------------------------------------------------------------------------------------------
+// Modules
+// ------------------------------------------------------------------------------------------------
+
 pub mod doc;
 
 #[cfg(feature = "json")]
