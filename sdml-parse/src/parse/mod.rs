@@ -50,7 +50,7 @@ pub(crate) fn parse_str(file_id: FileId, loader: &FsModuleLoader) -> Result<Modu
     let source = file_cache.get(file_id).unwrap().source();
     let mut parser = Parser::new();
     parser
-        .set_language(language())
+        .set_language(&language())
         .expect("Error loading SDML grammar");
 
     let tree = parser.parse(source, None).unwrap();

@@ -243,6 +243,7 @@ fn highlighter_init() -> (Highlighter, HighlightConfiguration) {
     let highlighter = Highlighter::new();
     let mut config = HighlightConfiguration::new(
         tree_sitter_sdml::language(),
+        "sdml",
         tree_sitter_sdml::HIGHLIGHTS_QUERY,
         tree_sitter_sdml::INJECTIONS_QUERY,
         tree_sitter_sdml::LOCALS_QUERY,
