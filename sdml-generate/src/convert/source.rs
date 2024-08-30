@@ -5,13 +5,13 @@ in-memory representation.
 # Example
 
 ```rust
-use sdml_core::cache::ModuleCache;
+use sdml_core::store::InMemoryModuleCache;
 use sdml_core::model::modules::Module;
 use sdml_generate::Generator;
 use sdml_generate::convert::source::{SourceGenerator, SourceGeneratorOptions};
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
-# fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
+# fn load_module() -> (Module, InMemoryModuleCache) { (Module::empty(Identifier::new_unchecked("example")), InMemoryModuleCache::default()) }
 # sdml_generate::color::set_colorize(sdml_errors::diagnostics::color::UseColor::Never);
 
 let (module, cache) = load_module();
@@ -32,7 +32,6 @@ use crate::color::sdml::{
     type_name_ref, type_variant_name_def, type_variant_ref_def, value_variant_name_def,
 };
 use crate::Generator;
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use sdml_core::model::constraints::{Constraint, ConstraintBody};
@@ -46,6 +45,7 @@ use sdml_core::model::members::{
 };
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
+use sdml_core::store::ModuleStore;
 use std::path::PathBuf;
 use std::{fmt::Debug, io::Write};
 

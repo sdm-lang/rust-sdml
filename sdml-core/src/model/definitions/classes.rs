@@ -9,13 +9,13 @@ YYYYY
 
 */
 
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::annotations::Annotation;
 use crate::model::check::Validate;
 use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::{HasName, References, Span};
+use crate::store::ModuleStore;
 
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]

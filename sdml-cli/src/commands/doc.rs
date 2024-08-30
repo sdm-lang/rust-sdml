@@ -2,10 +2,10 @@ use std::process::ExitCode;
 
 use clap::{Args, ValueEnum};
 use sdml_core::{
-    cache::{ModuleCache, ModuleStore},
     load::ModuleLoader,
     model::modules::Module,
     model::HasName,
+    store::{InMemoryModuleCache, ModuleStore},
 };
 use sdml_errors::Error;
 use sdml_generate::Generator;
@@ -56,7 +56,7 @@ impl super::Command for Command {
     fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(
             self,
-            |module: &Module, cache: &ModuleCache, loader: &FsModuleLoader| {
+            |module: &Module, cache: &InMemoryModuleCache, loader: &FsModuleLoader| {
                 match self.output_format {
                     OutputFormat::OrgMode => {
                         let source = loader.get_source_by_name(module.name());
@@ -80,7 +80,7 @@ impl Command {
     fn write_org(
         &self,
         model: &Module,
-        cache: &ModuleCache,
+        cache: &InMemoryModuleCache,
         generator: &mut sdml_generate::convert::doc::org_mode::DocumentationGenerator,
     ) -> Result<(), Error> {
         let mut output = self.files.output.clone();

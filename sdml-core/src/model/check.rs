@@ -4,11 +4,11 @@ Provides types for model checking.
 */
 
 use super::HasName;
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::definitions::Definition;
 use crate::model::identifiers::IdentifierReference;
 use crate::model::modules::Module;
+use crate::store::ModuleStore;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types

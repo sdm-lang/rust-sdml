@@ -1,7 +1,7 @@
 use crate::{
-    cache::ModuleStore,
     load::ModuleLoader,
     model::{check::MaybeIncomplete, members::Member, HasName, HasSourceSpan},
+    store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::definition_is_incomplete;
 use std::fmt::Debug;

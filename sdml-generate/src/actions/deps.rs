@@ -16,7 +16,7 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::modules::Module;
 use sdml_core::model::HasName;
-use sdml_core::{cache::ModuleStore, stdlib::is_library_module};
+use sdml_core::{stdlib::is_library_module, store::ModuleStore};
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::PathBuf;

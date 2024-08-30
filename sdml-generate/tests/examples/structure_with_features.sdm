@@ -1,7 +1,7 @@
 module example is
 
   structure Car is
-    engine -> features Engine
+    engine -> Engine
   end
 
   union Engine of

@@ -15,7 +15,6 @@ use crate::{
     Generator,
 };
 use sdml_core::{
-    cache::ModuleStore,
     error::Error,
     model::{
         annotations::{Annotation, AnnotationProperty, HasAnnotations},
@@ -34,12 +33,10 @@ use sdml_core::{
         HasBody, HasName, HasNameReference, HasOptionalBody,
     },
     stdlib,
+    store::ModuleStore,
 };
 use std::{fmt::Display, io::Write, path::PathBuf};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
+use tracing::info;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -50,18 +47,18 @@ use std::{fmt::Display, io::Write, path::PathBuf};
 ///
 #[derive(Debug, Default)]
 pub struct RdfModelGenerator {
-    format_options: RdfRepresentation,
+    options: RdfModelOptions,
+}
+#[derive(Debug, Copy, Clone, Default)]
+pub struct RdfModelOptions {
+    repr: RdfRepresentation,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum RdfRepresentation {
     NTriples,
     Turtle,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros
@@ -81,15 +78,11 @@ macro_rules! write_annotations {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
 impl Generator for RdfModelGenerator {
-    type Options = RdfRepresentation;
+    type Options = RdfModelOptions;
 
     fn generate_with_options<W>(
         &mut self,
@@ -102,7 +95,8 @@ impl Generator for RdfModelGenerator {
     where
         W: Write + Sized,
     {
-        self.format_options = options;
+        self.options = options;
+        info!("Generating RDF {}", self.options.repr);
 
         let module_name = module.name();
 
@@ -142,7 +136,7 @@ impl Generator for RdfModelGenerator {
         }
 
         for import in &imported_modules {
-            if let Some(uri) = cache.url_for_identifier(import) {
+            if let Some(uri) = cache.module_name_to_uri(import) {
                 writer
                     .write_all(color::prefix_directive(import.as_ref(), uri.as_str()).as_bytes())?;
             }
@@ -191,7 +185,7 @@ impl Generator for RdfModelGenerator {
         imported_modules.remove(&Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME));
         imported_modules.remove(&Identifier::new_unchecked(stdlib::xsd::MODULE_NAME));
         for import in &imported_modules {
-            if let Some(url) = cache.url_for_identifier(import) {
+            if let Some(url) = cache.module_name_to_uri(import) {
                 writer.write_all(
                     color::predicate_with_value(
                         stdlib::owl::MODULE_NAME,
@@ -1160,6 +1154,22 @@ impl RdfModelGenerator {
 
 // ------------------------------------------------------------------------------------------------
 
+impl RdfModelOptions {
+    pub fn as_representation(self, repr: RdfRepresentation) -> Self {
+        Self { repr }
+    }
+
+    pub fn as_ntriples(self) -> Self {
+        self.as_representation(RdfRepresentation::NTriples)
+    }
+
+    pub fn as_turtle(self) -> Self {
+        self.as_representation(RdfRepresentation::Turtle)
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
 impl Default for RdfRepresentation {
     fn default() -> Self {
         Self::Turtle
@@ -1180,7 +1190,3 @@ impl Display for RdfRepresentation {
         )
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------

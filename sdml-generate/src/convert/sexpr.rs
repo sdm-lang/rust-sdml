@@ -5,7 +5,6 @@ in-memory representation.
 */
 
 use crate::Generator;
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::{
     Annotation, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
@@ -26,6 +25,7 @@ use sdml_core::model::values::{
     ValueConstructor,
 };
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan, Span};
+use sdml_core::store::ModuleStore;
 use sdml_core::syntax::{
     FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_DOMAIN,
     FIELD_NAME_IDENTITY, FIELD_NAME_LANGUAGE, FIELD_NAME_MEMBER, FIELD_NAME_MODULE,

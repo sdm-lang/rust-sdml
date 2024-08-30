@@ -3,7 +3,7 @@ use std::process::ExitCode;
 use clap::{Args, ValueEnum};
 use sdml_core::model::check::terms::{default_term_set, validate_module_terms};
 use sdml_core::model::{modules::Module, HasName};
-use sdml_core::{cache::ModuleStore, load::ModuleLoader};
+use sdml_core::{load::ModuleLoader, store::ModuleStore};
 use sdml_errors::diagnostics::{
     reporter::{CompactStreamReporter, Reporter, StandardStreamReporter},
     SeverityFilter,

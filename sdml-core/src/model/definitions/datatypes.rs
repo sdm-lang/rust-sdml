@@ -1,4 +1,3 @@
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::check::{find_definition, Validate};
 use crate::model::definitions::Definition;
@@ -10,6 +9,7 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference},
     HasName, Span,
 };
+use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
 };

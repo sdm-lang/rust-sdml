@@ -12,11 +12,11 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 use crate::convert::doc::common::ArgumentType;
 use crate::convert::doc::common::Formatter;
 use crate::errors::into_generator_error;
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::modules::Module;
+use sdml_core::store::ModuleStore;
 use serde::de::Visitor;
 use serde::Deserializer;
 use serde::Serializer;

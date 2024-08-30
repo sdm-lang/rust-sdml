@@ -5,9 +5,9 @@ in-memory representation.
  */
 
 use crate::Generator;
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::model::modules::Module;
+use sdml_core::store::ModuleStore;
 use std::io::Write;
 use std::path::PathBuf;
 

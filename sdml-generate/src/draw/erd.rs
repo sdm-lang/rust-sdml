@@ -15,7 +15,7 @@ use sdml_core::model::members::{Cardinality, Member, TypeReference, DEFAULT_CARD
 use sdml_core::model::modules::{ImportStatement, Module};
 use sdml_core::model::walk::{walk_module_simple, SimpleModuleVisitor};
 use sdml_core::model::HasName;
-use sdml_core::{cache::ModuleStore, model::members::MemberKind};
+use sdml_core::{model::members::MemberKind, store::ModuleStore};
 use std::io::Write;
 use std::path::PathBuf;
 use tracing::trace;

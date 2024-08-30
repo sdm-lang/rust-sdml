@@ -1,5 +1,5 @@
 /*!
-One-line description.
+This
 
 More detailed description, with
 
@@ -18,10 +18,6 @@ use std::collections::HashMap;
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
@@ -31,6 +27,7 @@ use url::Url;
 pub trait ModuleStore {
     /// Return the number of modules in the store.
     fn len(&self) -> usize;
+
     /// Return `true` if there are no modules in this store, else `false`.
     fn is_empty(&self) -> bool {
         self.len() == 0
@@ -38,24 +35,44 @@ pub trait ModuleStore {
 
     /// Returns `true` if the loader's cache contains a module with the name `name`, else `false`.
     fn contains(&self, name: &Identifier) -> bool;
+
     /// Returns `true` if the loader's cache contains a module with the base URI `uri`, else `false`.
-    fn contains_by_uri(&self, uri: &Url) -> bool;
+    fn contains_by_uri(&self, uri: &Url) -> bool {
+        let name = self.uri_to_module_name(uri).cloned();
+        if let Some(name) = name {
+            self.contains(&name)
+        } else {
+            false
+        }
+    }
 
     fn get(&self, name: &Identifier) -> Option<&Module>;
     fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module>;
-    fn get_by_uri(&self, uri: &Url) -> Option<&Module>;
-    fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module>;
-
-    fn iter(&self) -> impl Iterator<Item = &Module>;
+    fn get_by_uri(&self, uri: &Url) -> Option<&Module> {
+        self.uri_to_module_name(uri).and_then(|name| self.get(name))
+    }
+    fn get_by_uri_mut(&mut self, uri: &Url) -> Option<&mut Module> {
+        let name = self.uri_to_module_name(uri).cloned();
+        if let Some(name) = name {
+            self.get_mut(&name)
+        } else {
+            None
+        }
+    }
 
     fn insert(&mut self, module: Module);
     fn remove(&mut self, name: &Identifier) -> bool;
-    fn remove_by_uri(&mut self, uri: &Url) -> bool;
+    fn remove_by_uri(&mut self, uri: &Url) -> bool {
+        let name = self.uri_to_module_name(uri).cloned();
+        if let Some(name) = name {
+            self.remove(&name)
+        } else {
+            false
+        }
+    }
 
-    fn identifier_for_url(&self, url: &Url) -> Option<&Identifier>;
-    fn url_for_identifier(&self, id: &Identifier) -> Option<&Url>;
-    fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)>;
-    fn identifier_to_url_map(&self) -> impl Iterator<Item = (&Identifier, &Url)>;
+    fn uri_to_module_name(&self, url: &Url) -> Option<&Identifier>;
+    fn module_name_to_uri(&self, id: &Identifier) -> Option<&Url>;
 
     fn resolve(&self, definition: &QualifiedIdentifier) -> Option<&Definition> {
         if let Some(module) = self.get(definition.module()) {
@@ -78,28 +95,16 @@ pub trait ModuleStore {
 }
 
 #[derive(Clone, Debug, Default)]
-pub struct ModuleCache {
+pub struct InMemoryModuleCache {
     uri_map: HashMap<Url, Identifier>,
     modules: HashMap<Identifier, Module>,
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl ModuleStore for ModuleCache {
+impl ModuleStore for InMemoryModuleCache {
     fn len(&self) -> usize {
         self.modules.len()
     }
@@ -161,31 +166,19 @@ impl ModuleStore for ModuleCache {
         }
     }
 
-    fn iter(&self) -> impl Iterator<Item = &Module> {
-        self.modules.values()
-    }
-
-    fn identifier_for_url(&self, url: &Url) -> Option<&Identifier> {
+    fn uri_to_module_name(&self, url: &Url) -> Option<&Identifier> {
         self.uri_map.get(url)
     }
 
-    fn url_for_identifier(&self, id: &Identifier) -> Option<&Url> {
+    fn module_name_to_uri(&self, id: &Identifier) -> Option<&Url> {
         self.modules
             .get(id)
             .map(|module| module.base_uri().map(|hv| hv.value()))
             .unwrap_or_default()
     }
-
-    fn url_to_identifier_map(&self) -> impl Iterator<Item = (&Url, &Identifier)> {
-        self.uri_map.iter()
-    }
-
-    fn identifier_to_url_map(&self) -> impl Iterator<Item = (&Identifier, &Url)> {
-        self.uri_map.iter().map(|(url, id)| (id, url))
-    }
 }
 
-impl ModuleCache {
+impl InMemoryModuleCache {
     ///
     /// Construct a cache with all of the standard library modules pre-inserted.
     ///
@@ -213,11 +206,3 @@ impl ModuleCache {
         self_mut
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

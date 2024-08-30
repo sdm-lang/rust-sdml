@@ -1,4 +1,3 @@
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::check::Validate;
 use crate::model::constraints::ConstraintSentence;
@@ -6,15 +5,12 @@ use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::members::{CardinalityRange, MappingType, Ordering, Uniqueness};
 use crate::model::modules::Module;
 use crate::model::Span;
+use crate::store::ModuleStore;
 use crate::syntax::KW_WILDCARD;
 use std::fmt::Display;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Formal Constraints ❱ Environments ❱ Functions
@@ -444,11 +440,3 @@ impl FunctionTypeReferenceInner {
 
     is_variant!(Wildcard => is_wildcard);
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

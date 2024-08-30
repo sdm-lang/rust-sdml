@@ -2,8 +2,8 @@ use std::process::ExitCode;
 
 use clap::{Args, ValueEnum};
 use sdml_core::{
-    cache::{ModuleCache, ModuleStore},
     load::ModuleLoader,
+    store::{InMemoryModuleCache, ModuleStore},
 };
 use sdml_errors::Error;
 use sdml_generate::{
@@ -108,7 +108,7 @@ pub(crate) enum OutputFormat {
 impl super::Command for Command {
     #[allow(clippy::redundant_closure_call)]
     fn execute(&self) -> Result<ExitCode, Error> {
-        call_with_module!(self, |module, cache: &ModuleCache, _| {
+        call_with_module!(self, |module, cache: &InMemoryModuleCache, _| {
             let options: DependencyViewOptions = DependencyViewOptions::default()
                 .with_depth(self.depth)
                 .with_representation(self.output_format.into());

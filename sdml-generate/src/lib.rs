@@ -11,7 +11,7 @@ The following shows common usage of the `GenerateToWriter` trait in this case to
 modules transitive dependencies.
 
 ```rust
-use sdml_core::cache::ModuleCache;
+use sdml_core::store::InMemoryModuleCache;
 use sdml_core::model::modules::Module;
 use sdml_generate::Generator;
 use sdml_generate::actions::deps::{
@@ -19,7 +19,7 @@ use sdml_generate::actions::deps::{
 };
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
-# fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
+# fn load_module() -> (Module, InMemoryModuleCache) { (Module::empty(Identifier::new_unchecked("example")), InMemoryModuleCache::default()) }
 
 let (module, cache) = load_module();
 
@@ -70,7 +70,7 @@ generator.generate_with_options(&module, &cache, options, None, &mut stdout())
     dyn_drop,
 )]
 
-use sdml_core::{cache::ModuleStore, error::Error, model::modules::Module};
+use sdml_core::{error::Error, model::modules::Module, store::ModuleStore};
 use std::{fmt::Debug, fs::OpenOptions, io::Cursor, io::Write, path::PathBuf};
 
 // ------------------------------------------------------------------------------------------------

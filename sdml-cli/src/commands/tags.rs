@@ -2,7 +2,7 @@ use std::process::ExitCode;
 
 use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
-use sdml_core::{cache::ModuleStore, load::ModuleLoader};
+use sdml_core::{load::ModuleLoader, store::ModuleStore};
 use sdml_errors::Error;
 use sdml_generate::actions::tags::write_ctags;
 

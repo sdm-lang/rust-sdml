@@ -15,7 +15,7 @@ macro_rules! call_with_module {
     };
     ($cmd: expr, $reporter:expr, $callback_fn: expr) => {
         let (module_name, cache, mut loader) = {
-            let mut cache = ::sdml_core::cache::ModuleCache::default().with_stdlib();
+            let mut cache = ::sdml_core::store::InMemoryModuleCache::default().with_stdlib();
             let mut loader = ::sdml_parse::load::FsModuleLoader::default().with_reporter($reporter);
             let module_name = if let Some(module_name) = &$cmd.files.module {
                 loader.load(

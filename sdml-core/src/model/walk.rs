@@ -4,7 +4,7 @@ Provides the capability to walk the in-memory model of an SDML module.
 To use the model walker:
 
 1. Provide a type, say `MyModuleWalker`.
-2. Provide an implementation of [`SimpleModuleWalker`] for `MyModuleWalker`.
+2. Provide an implementation of [`SimpleModuleVisitor`] for `MyModuleWalker`.
 2. Implement any methods from the trait [`SimpleModuleWalker`] of interest to you.
 3. Use the function [`walk_module_simple`] and provide the module you wish to walk and your walker.
 
@@ -12,11 +12,16 @@ To use the model walker:
 #[derive(Debug, Default)]
 pub struct MyModuleWalker {}
 
-impl ModuleWalker for MyModuleWalker {
+impl SimpleModuleVisitor for MyModuleWalker {
     // implement some methods...
 }
 
-walk_module_simple(&some_module, &mut MyModuleWalker::default(), false, true);
+walk_module_simple(
+    &some_module,  // module to walk
+    &mut MyModuleWalker::default(),
+    false,         // ignore constraints
+    true           // include members/variants
+);
 ```
 
 */
@@ -34,10 +39,6 @@ use crate::model::modules::{Import, ModuleImport};
 use crate::model::modules::{ImportStatement, Module};
 use crate::model::{HasBody, HasOptionalBody};
 use tracing::info;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -611,18 +612,6 @@ pub fn walk_module_simple(
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
@@ -852,7 +841,3 @@ fn walk_type_variant(
 
     walker.type_variant_end(thing)
 }
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

@@ -5,7 +5,6 @@ Provide a generator for UML class diagrams via PlantUML.
 
 use crate::draw::{filter::DiagramContentFilter, OutputFormat, UML_PROGRAM};
 use crate::exec::{exec_with_temp_input, CommandArg};
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::model::annotations::AnnotationProperty;
 use sdml_core::model::definitions::{
@@ -20,6 +19,7 @@ use sdml_core::model::members::{
 use sdml_core::model::modules::Module;
 use sdml_core::model::walk::{walk_module_simple, SimpleModuleVisitor};
 use sdml_core::model::{HasName, HasNameReference, HasOptionalBody, References};
+use sdml_core::store::ModuleStore;
 use sdml_core::syntax::{KW_ORDERING_ORDERED, KW_UNIQUENESS_UNIQUE};
 use std::collections::HashSet;
 use std::io::Write;

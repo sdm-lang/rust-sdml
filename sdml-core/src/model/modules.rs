@@ -1,4 +1,3 @@
-use crate::cache::{ModuleCache, ModuleStore};
 use crate::load::ModuleLoader;
 use crate::model::definitions::{
     DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
@@ -11,6 +10,7 @@ use crate::model::{
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
     HasBody, HasName, HasSourceSpan, Span,
 };
+use crate::store::{InMemoryModuleCache, ModuleStore};
 use sdml_errors::diagnostics::functions::{
     definition_not_found, imported_module_not_found, library_definition_not_allowed,
     module_is_incomplete, module_version_info_empty, module_version_mismatch,
@@ -236,7 +236,7 @@ impl Module {
     // Module :: Pseudo-Validate
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_incomplete(&self, cache: &ModuleCache) -> bool {
+    pub fn is_incomplete(&self, cache: &InMemoryModuleCache) -> bool {
         if !self.is_library_module() {
             self.body.is_incomplete(self, cache)
         } else {
@@ -255,7 +255,7 @@ impl Module {
     ///
     pub fn validate(
         &self,
-        cache: &ModuleCache,
+        cache: &InMemoryModuleCache,
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {

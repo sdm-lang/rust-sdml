@@ -1,4 +1,3 @@
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{
@@ -11,6 +10,7 @@ use crate::model::{
 };
 use crate::model::{HasName, References};
 use crate::stdlib;
+use crate::store::ModuleStore;
 use std::{collections::HashSet, fmt::Debug};
 use tracing::trace;
 use url::Url;

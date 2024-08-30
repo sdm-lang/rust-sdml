@@ -1,8 +1,8 @@
 use clap::{Args, ValueEnum};
 use sdml_core::model::modules::Module;
 use sdml_core::{
-    cache::{ModuleCache, ModuleStore},
     load::ModuleLoader,
+    store::{InMemoryModuleCache, ModuleStore},
 };
 use sdml_errors::Error;
 use sdml_generate::draw::concepts::ConceptDiagramOptions;
@@ -74,7 +74,7 @@ pub(crate) enum OutputFormat {
 
 impl super::Command for Command {
     fn execute(&self) -> Result<ExitCode, Error> {
-        call_with_module!(self, |module: &Module, cache: &ModuleCache, _| {
+        call_with_module!(self, |module: &Module, cache: &InMemoryModuleCache, _| {
             let format = self.output_format.unwrap_or_default();
             let mut output = self.files.output.clone();
             let mut writer = output.lock();

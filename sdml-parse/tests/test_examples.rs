@@ -1,6 +1,6 @@
 use paste::paste;
-use sdml_core::cache::ModuleStore;
 use sdml_core::model::HasName;
+use sdml_core::store::ModuleStore;
 
 // TODO: Make tests for Windows
 
@@ -49,7 +49,7 @@ macro_rules! test_example {
                     ));
 
                 println!("Reading test example from {:?}", input);
-                let mut cache = ::sdml_core::cache::ModuleCache::default();
+                let mut cache = ::sdml_core::store::InMemoryModuleCache::default();
                 let mut loader = ::sdml_parse::load::FsModuleLoader::default();
                 let module = loader.load_from_file(input, &mut cache, false);
                 if let Err(e) = module {

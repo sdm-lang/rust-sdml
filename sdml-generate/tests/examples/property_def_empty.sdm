@@ -1,3 +1,5 @@
 module ddict is
-  property accountIdd
+
+  property accountId -> unknown
+
 end

@@ -2,9 +2,9 @@
 
 module campaign is
 
-  @skos:prefLabel = ""
+  @skos:prefLabel = "preferred"
 
-  @skos:altLabel = ""@en
+  @skos:altLabel = "alternate"@en
 
   @dc:version = 3
 

@@ -1,5 +1,5 @@
 use clap::Args;
-use sdml_core::cache::ModuleCache;
+use sdml_core::store::InMemoryModuleCache;
 use sdml_errors::{diagnostics::StandardStreamReporter, Error};
 use sdml_generate::convert::doc::{
     org_mode::DocumentationGenerator, BookConfig, DocumentationWriter,
@@ -32,7 +32,7 @@ impl super::Command for Command {
 
         let reporter = StandardStreamReporter::default();
         let mut loader = FsModuleLoader::default().with_reporter(Box::new(reporter));
-        let mut cache = ModuleCache::default().with_stdlib();
+        let mut cache = InMemoryModuleCache::default().with_stdlib();
 
         generator.write_book(&mut loader, &mut cache, config)?;
 

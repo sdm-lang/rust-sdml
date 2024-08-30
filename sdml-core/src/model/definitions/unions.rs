@@ -1,5 +1,4 @@
 use crate::{
-    cache::ModuleStore,
     load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
@@ -9,16 +8,13 @@ use crate::{
         modules::Module,
         References, Span,
     },
+    store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Unions
@@ -230,11 +226,3 @@ impl TypeVariant {
         }
     }
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

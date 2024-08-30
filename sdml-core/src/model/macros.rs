@@ -329,7 +329,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 _: &$crate::model::modules::Module,
-                _: &impl $crate::cache::ModuleStore) -> bool
+                _: &impl $crate::store::ModuleStore) -> bool
             {
                 $default
             }
@@ -340,7 +340,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 _: &$crate::model::modules::Module,
-                _: &impl $crate::cache::ModuleStore) -> bool
+                _: &impl $crate::store::ModuleStore) -> bool
             {
                 self.$field.is_none()
             }
@@ -351,7 +351,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &impl $crate::cache::ModuleStore) -> bool
+                cache: &impl $crate::store::ModuleStore) -> bool
             {
                 self.$field.is_incomplete(top, cache)
             }
@@ -362,7 +362,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &impl $crate::cache::ModuleStore) -> bool
+                cache: &impl $crate::store::ModuleStore) -> bool
             {
                 if let Some($field) = &self.$field {
                     $field.is_incomplete(top, cache)
@@ -377,7 +377,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &impl $crate::cache::ModuleStore) -> bool
+                cache: &impl $crate::store::ModuleStore) -> bool
             {
                 self.$collection().any(|elem| elem.is_incomplete(top, cache))
             }
@@ -388,7 +388,7 @@ macro_rules! impl_maybe_incomplete_for {
             fn is_incomplete(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &impl $crate::cache::ModuleStore) -> bool
+                cache: &impl $crate::store::ModuleStore) -> bool
             {
                 match self {
                     $(
@@ -410,7 +410,7 @@ macro_rules! impl_validate_for {
             fn validate(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &impl $crate::cache::ModuleStore,
+                cache: &impl $crate::store::ModuleStore,
                 loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
             ) {
@@ -430,7 +430,7 @@ macro_rules! impl_validate_for_annotations_and_members {
             fn validate(
                 &self,
                 top: &$crate::model::modules::Module,
-                cache: &impl $crate::cache::ModuleStore,
+                cache: &impl $crate::store::ModuleStore,
                 loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
             ) {
@@ -449,7 +449,7 @@ macro_rules! impl_validate_for_annotations_and_variants {
             fn validate(
                 &self,
                 top: &Module,
-                cache: &impl $crate::cache::ModuleStore,
+                cache: &impl $crate::store::ModuleStore,
                 loader: &impl $crate::load::ModuleLoader,
                 check_constraints: bool,
             ) {

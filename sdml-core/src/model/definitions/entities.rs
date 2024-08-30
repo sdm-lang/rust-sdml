@@ -1,4 +1,3 @@
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::References;
 use crate::model::{
@@ -10,6 +9,7 @@ use crate::model::{
     modules::Module,
     Span,
 };
+use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::{collections::HashSet, fmt::Debug};
 

@@ -1,0 +1,39 @@
+@base <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
+
+rdfs:
+    rdf:type
+        owl:Ontology ,
+        sdml:Module ;
+    sdml:srcLabel "rdfs" .
+
+rdfs:Resource
+    rdfs:isDefinedBy rdfs:rdfs ;
+    rdfs:label "Resource"@en ;
+    rdfs:comment "The class resource, everything." ;
+    sdml:srcLabel "Resource" ;
+    rdfs:isDefinedBy rdfs: .
+
+rdfs:subClassOf
+    rdfs:domain rdfs:Class ;
+    rdfs:range rdfs:Class ;
+    rdfs:isDefinedBy rdfs:rdfs ;
+    rdfs:label "subClassOf" ;
+    rdfs:comment "The subject is a subclass of a class." ;
+    rdf:type rdf:Property ;
+    sdml:srcLabel "subClassOf" ;
+    rdfs:isDefinedBy rdfs: .
+
+rdfs:comment
+    rdfs:domain rdfs:Resource ;
+    rdfs:range rdfs:Literal ;
+    rdfs:isDefinedBy rdfs:rdfs ;
+    rdfs:label "comment" ;
+    rdfs:comment "A description of the subject resource." ;
+    rdf:type rdf:Property ;
+    rdf:type owl:AnnotationProperty ;
+    sdml:srcLabel "comment" ;
+    rdfs:isDefinedBy rdfs: .
+

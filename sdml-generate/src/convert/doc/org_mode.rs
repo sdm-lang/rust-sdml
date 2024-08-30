@@ -15,7 +15,6 @@ use crate::draw::OutputFormat;
 use crate::Generator;
 use console::Term;
 use indicatif::{ProgressBar, ProgressStyle};
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::annotations::HasAnnotations;
@@ -30,6 +29,7 @@ use sdml_core::model::members::{Member, MemberKind, PseudoSequenceType, DEFAULT_
 use sdml_core::model::modules::Module;
 use sdml_core::model::values::{LanguageString, SimpleValue, Value};
 use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
+use sdml_core::store::ModuleStore;
 use sdml_errors::diagnostics::UseColor;
 use sdml_errors::Source;
 use std::collections::HashMap;

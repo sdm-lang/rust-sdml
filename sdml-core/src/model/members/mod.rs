@@ -1,4 +1,3 @@
-use crate::cache::ModuleStore;
 use crate::load::ModuleLoader;
 use crate::model::annotations::AnnotationOnlyBody;
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
@@ -6,6 +5,7 @@ use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, References, Span};
+use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
     IdentifierCaseConvention,

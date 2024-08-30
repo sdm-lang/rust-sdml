@@ -5,12 +5,12 @@ file-system based modules.
 
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
-use sdml_core::cache::ModuleStore;
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::HeaderValue;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
+use sdml_core::store::ModuleStore;
 use sdml_errors::diagnostics::reporter::ReportCounters;
 use sdml_errors::diagnostics::SeverityFilter;
 use sdml_errors::diagnostics::{functions::imported_module_not_found, StandardStreamReporter};
@@ -114,10 +114,6 @@ pub struct Item {
     relative_url: String,
     relative_path: PathBuf,
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros

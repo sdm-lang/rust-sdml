@@ -1,0 +1,89 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
+
+example:
+    rdf:type
+        owl:Ontology ,
+        sdml:Module ;
+    sdml:srcLabel "example" .
+
+example:Duration
+    rdf:type
+        owl:Class ,
+        sdml:Structure ;
+    sdml:hasMember
+        example:Duration__a ,
+        example:Duration__b ,
+        example:Duration__c ,
+        example:Duration__d ,
+        example:Duration__e ,
+        example:Duration__f ,
+        example:Duration__g ;
+    sdml:srcLabel "Duration" ;
+    rdfs:isDefinedBy example: .
+
+example:a
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:boolean ;
+    sdml:srcLabel "a" ;
+    rdfs:isDefinedBy example: .
+
+example:b
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:double ;
+    sdml:srcLabel "b" ;
+    rdfs:isDefinedBy example: .
+
+example:c
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:decimal ;
+    sdml:srcLabel "c" ;
+    rdfs:isDefinedBy example: .
+
+example:d
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:integer ;
+    sdml:srcLabel "d" ;
+    rdfs:isDefinedBy example: .
+
+example:e
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:string ;
+    sdml:srcLabel "e" ;
+    rdfs:isDefinedBy example: .
+
+example:f
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:binary ;
+    sdml:srcLabel "f" ;
+    rdfs:isDefinedBy example: .
+
+example:g
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Duration ;
+    rdfs:range sdml:iri ;
+    sdml:srcLabel "g" ;
+    rdfs:isDefinedBy example: .
+

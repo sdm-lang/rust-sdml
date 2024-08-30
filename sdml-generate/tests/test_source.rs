@@ -1,12 +1,14 @@
 use pretty_assertions::assert_eq;
-use sdml_core::cache::ModuleCache;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
+use sdml_core::store::InMemoryModuleCache;
 use sdml_errors::diagnostics::UseColor;
 use sdml_generate::color::set_colorize;
 use sdml_generate::convert::source::{SourceGenerator, SourceGeneratorOptions};
 use sdml_generate::Generator;
 use url::Url;
+
+pub mod common;
 
 #[test]
 fn test_generate_module_empty() {
@@ -17,7 +19,7 @@ fn test_generate_module_empty() {
     let source = generator
         .generate_to_string(
             &module,
-            &ModuleCache::default(),
+            &InMemoryModuleCache::default(),
             SourceGeneratorOptions::default(),
             None,
         )
@@ -36,7 +38,7 @@ fn test_generate_module_empty_with_base() {
     let source = generator
         .generate_to_string(
             &module,
-            &ModuleCache::default(),
+            &InMemoryModuleCache::default(),
             SourceGeneratorOptions::default(),
             None,
         )

@@ -8,10 +8,6 @@ use std::fmt::Debug;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Public Types ❱ Type Definitions ❱ Properties
 // ------------------------------------------------------------------------------------------------
 
@@ -67,7 +63,7 @@ impl Validate for PropertyDef {
     fn validate(
         &self,
         top: &crate::model::modules::Module,
-        cache: &impl crate::cache::ModuleStore,
+        cache: &impl crate::store::ModuleStore,
         loader: &impl crate::load::ModuleLoader,
         check_constraints: bool,
     ) {

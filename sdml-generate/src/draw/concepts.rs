@@ -4,13 +4,13 @@ Provide a generator for "concept" diagrams via GraphViz.
 # Example
 
 ```rust,no_run
-use sdml_core::cache::ModuleCache;
+use sdml_core::store::InMemoryModuleCache;
 use sdml_core::model::modules::Module;
 use sdml_generate::Generator;
 use sdml_generate::draw::concepts::{ConceptDiagramGenerator, ConceptDiagramOptions};
 use std::io::stdout;
 # use sdml_core::model::identifiers::Identifier;
-# fn load_module() -> (Module, ModuleCache) { (Module::empty(Identifier::new_unchecked("example")), ModuleCache::default()) }
+# fn load_module() -> (Module, InMemoryModuleCache) { (Module::empty(Identifier::new_unchecked("example")), InMemoryModuleCache::default()) }
 
 let (module, cache) = load_module();
 
@@ -26,7 +26,6 @@ use crate::draw::{
 };
 use crate::exec::exec_with_temp_input;
 use crate::Generator;
-use sdml_core::cache::ModuleStore;
 use sdml_core::error::Error;
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::definitions::HasMembers;
@@ -35,6 +34,7 @@ use sdml_core::model::members::MemberKind;
 use sdml_core::model::members::{Cardinality, TypeReference, DEFAULT_CARDINALITY};
 use sdml_core::model::modules::Module;
 use sdml_core::model::{HasBody, HasName, HasOptionalBody};
+use sdml_core::store::ModuleStore;
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::PathBuf;
