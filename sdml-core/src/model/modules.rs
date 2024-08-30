@@ -1,3 +1,6 @@
+/*!
+Provide the Rust types that implement *module*-related components of the SDML Grammar.
+*/
 use crate::load::ModuleLoader;
 use crate::model::definitions::{
     DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,

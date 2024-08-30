@@ -1,12 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
-
+This module provides modules corresponding to the SDML standard library.
 */
 
 use crate::model::{identifiers::Identifier, modules::Module};

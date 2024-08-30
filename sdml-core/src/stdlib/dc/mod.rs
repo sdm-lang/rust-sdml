@@ -1,4 +1,4 @@
-/*
+/*!
 This Rust module contains the SDML model of the SDML library module `dc`.
 */
 

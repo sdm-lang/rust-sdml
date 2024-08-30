@@ -1,5 +1,5 @@
-/*
-This Rust module contains the SDML model of the SDML library module `xsd`.
+/**
+This Rust module contains the SDML model of the SDML library module `xsd` for XML Schema.
 */
 
 use crate::model::annotations::AnnotationBuilder;
@@ -136,6 +136,7 @@ pub fn module() -> Module {
             rdf!(datatype STRING, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
             rdf!(datatype TIME, MODULE_IRI; ANY_SIMPLE_TYPE).into(),
             // Green
+            rdf!(datatype INTEGER, MODULE_IRI; DECIMAL).into(),
             rdf!(datatype NORMALIZED_STRING, MODULE_IRI; STRING).into(),
             rdf!(datatype TOKEN, MODULE_IRI; NORMALIZED_STRING).into(),
             rdf!(datatype LANGUAGE, MODULE_IRI; TOKEN).into(),

@@ -1,3 +1,6 @@
+/*!
+Provide the Rust types that implement *constraint*-related components of the SDML Grammar.
+*/
 use crate::{
     load::ModuleLoader,
     model::{Identifier, Span},

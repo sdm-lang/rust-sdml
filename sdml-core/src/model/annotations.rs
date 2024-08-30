@@ -1,3 +1,6 @@
+/*!
+Provide the Rust types that implement *annotation*-related components of the SDML Grammar.
+*/
 use crate::load::ModuleLoader;
 use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{

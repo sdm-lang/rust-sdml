@@ -1,5 +1,5 @@
-/*
-This Rust module contains the SDML model of the SDML library module `iso_3166`.
+/*!
+This Rust module contains the SDML model of the SDML library module `iso_3166` for ISO-3166.
 */
 
 use crate::model::annotations::HasAnnotations;

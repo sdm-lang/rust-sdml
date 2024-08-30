@@ -1,6 +1,5 @@
 /*!
-Standard library module for namespace `rdfs`.
-
+This Rust module contains the SDML model of the SDML library module `rdfs` for RDF Schema.
 */
 
 use crate::model::annotations::AnnotationBuilder;

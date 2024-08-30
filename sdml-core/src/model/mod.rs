@@ -1,6 +1,5 @@
 /*!
-Provide the Rust types that implement an in-memory representation of the the SDML Grammar.
-
+Provide the Rust types that implement an in-memory representation of the SDML Grammar.
 */
 
 use crate::model::identifiers::{Identifier, IdentifierReference};
@@ -20,15 +19,27 @@ use serde::{Deserialize, Serialize};
 // ------------------------------------------------------------------------------------------------
 
 ///
-/// This trait is implemented by types that have a distinct /body/ type.
+/// This trait is implemented by types that have a distinct *body* type.
 ///
 pub trait HasBody {
+    ///
+    /// This type is the particular body for the enclosing type.
+    ///
     type Body;
+
+    ///
     /// Get the body of the enclosing type.
+    ///
     fn body(&self) -> &Self::Body;
+
+    ///
     /// Get a mutable reference to the body of the enclosing type.
+    ///
     fn body_mut(&mut self) -> &mut Self::Body;
+
+    ///
     /// Set the body of the enclosing type.
+    ///
     fn set_body(&mut self, body: Self::Body);
 }
 
@@ -36,9 +47,14 @@ pub trait HasBody {
 /// This trait is implemented by types that have a unique name.
 ///
 pub trait HasName {
+    ///
     /// Get the name of the enclosing type.
+    ///
     fn name(&self) -> &Identifier;
+
+    ///
     /// Set the name of the enclosing type.
+    ///
     fn set_name(&mut self, name: Identifier);
 }
 
@@ -46,42 +62,69 @@ pub trait HasName {
 /// This trait is implemented by types whose name is derived from a reference.
 ///
 pub trait HasNameReference {
+    ///
     /// Get the name reference for the enclosing type.
+    ///
     fn name_reference(&self) -> &IdentifierReference;
+
+    ///
     /// Set the name reference for the enclosing type.
+    ///
     fn set_name_reference(&mut self, name: IdentifierReference);
 }
 
+///
+/// This trait is implemented by types that have uniquely named members such as modules and
+/// structures.
+///
 pub trait Namespace {
     type Member: HasName;
 
+    ///
     /// Returns `true` of the namespace contains any members, else `false`.
+    ///
     fn has_members(&self) -> bool;
 
+    ///
     /// Returns the number of members in the namespace.
+    ///
     fn member_count(&self) -> usize;
 
+    ///
     /// Returns `true` if the namespace contains a member named `name`, else `false`.
+    ///
     fn contains_member(&self, name: &Identifier) -> bool;
 
+    ///
     /// Return the member with the name `name`, if present.
+    ///
     fn member(&self, name: &Identifier) -> Option<&Self::Member>;
 
+    ///
     /// Returns an iterator over all members in the namespace.
+    ///
     fn members(&self) -> impl Iterator<Item = &Self::Member>;
 
+    ///
     /// Returns an iterator over mutable members in the namespace.
+    ///
     fn members_mut(&mut self) -> impl Iterator<Item = &mut Self::Member>;
 
+    ///
     /// Returns an iterator over the names of namespace members.
+    ///
     fn member_names(&self) -> impl Iterator<Item = &Identifier>;
 
+    ///
     /// Add a member to the namespace. If a member already existed with the same name it
     /// will be returned.
+    ///
     fn add_to_members(&mut self, value: Self::Member) -> Option<Self::Member>;
 
+    ///
     /// Add the members of the extension to the namespace. Any existing members with
     /// the same names will be replaced.
+    ///
     fn extend_members<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = Self::Member>;
@@ -91,7 +134,11 @@ pub trait Namespace {
 /// This trait is implemented by types that have a distinct, but optional, *body* type.
 ///
 pub trait HasOptionalBody {
+    ///
+    /// This type is the particular body for the enclosing type.
+    ///
     type Body;
+
     fn has_body(&self) -> bool {
         self.body().is_some()
     }
@@ -101,6 +148,9 @@ pub trait HasOptionalBody {
     fn unset_body(&mut self);
 }
 
+///
+/// This trait is implemented by types that include a source location from which they were parsed.
+///
 pub trait HasSourceSpan {
     fn with_source_span(self, ts_span: Span) -> Self;
     fn has_source_span(&self) -> bool {
@@ -111,6 +161,9 @@ pub trait HasSourceSpan {
     fn unset_source_span(&mut self);
 }
 
+///
+/// This trait is implemented by types to allow for query of references.
+///
 pub trait References {
     #[allow(unused_variables)]
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {}

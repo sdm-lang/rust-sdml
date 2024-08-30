@@ -1,3 +1,6 @@
+/*!
+Provide the Rust types that implement *identifier*-related components of the SDML Grammar.
+*/
 use crate::load::ModuleLoader;
 use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, Span};

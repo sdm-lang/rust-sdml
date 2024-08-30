@@ -1,5 +1,5 @@
-/*
-This Rust module contains the SDML model of the SDML library module `owl`.
+/*!
+This Rust module contains the SDML model of the SDML library module `owl` for OWL.
 */
 
 use crate::model::annotations::AnnotationBuilder;

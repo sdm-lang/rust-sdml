@@ -1,5 +1,5 @@
-/*
-This Rust module contains the SDML model of the SDML library module `skos`.
+/**
+This Rust module contains the SDML model of the SDML library module `skos` for SKOS.
 */
 
 use crate::model::annotations::AnnotationBuilder;

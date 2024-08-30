@@ -4,9 +4,9 @@ Provides the capability to walk the in-memory model of an SDML module.
 To use the model walker:
 
 1. Provide a type, say `MyModuleWalker`.
-2. Provide an implementation of [`SimpleModuleVisitor`] for `MyModuleWalker`.
-2. Implement any methods from the trait [`SimpleModuleWalker`] of interest to you.
-3. Use the function [`walk_module_simple`] and provide the module you wish to walk and your walker.
+2. Provide an implementation of `SimpleModuleVisitor` for `MyModuleWalker`.
+2. Implement any methods from the trait `SimpleModuleVisitor` of interest to you.
+3. Use the function `walk_module_simple` and provide the module you wish to walk and your walker.
 
 ```rust,ignore
 #[derive(Debug, Default)]
@@ -50,7 +50,7 @@ use tracing::info;
 /// Some functions return a boolean, this indicates whether the walker should continue into any
 /// nested structure for that model element. For example if `structure_start` returns `false` then
 /// no annotations or members within that structure instance will be walked. Note that this also
-/// removes the corresponding `structure_start` as well.
+/// removes the corresponding `structure_end` as well.
 ///
 pub trait SimpleModuleVisitor {
     const INCLUDE_NESTED: Result<bool, Error> = Ok(true);
@@ -61,17 +61,22 @@ pub trait SimpleModuleVisitor {
     // --------------------------------------------------------------------------------------------
 
     ///
-    /// # Nested
+    /// Called to denote the start of a `Module` instance.
     ///
-    /// - `import`
-    /// - `annotation_start`
-    /// - `module_end`
+    /// # Nested Calls
+    ///
+    /// - `import` once for each import statement
+    /// - `annotation_start` once for each annotation on the module
+    /// - `definition_start` once for each definition in the module
+    /// - `module_end` once, when imports, annotations, and definitions are complete
     ///
     fn module_start(&mut self, _thing: &Module) -> Result<bool, Error> {
         info!("SimpleModuleWalker::module_start(..) -- skipped");
         Self::INCLUDE_NESTED
     }
 
+    ///
+    /// Called to denote the end of a `Module` instance.
     ///
     /// # Nested
     ///
@@ -82,6 +87,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of an `ImportStatement` instance.
     ///
     /// # Nested
     ///
@@ -94,6 +101,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of an `ImportStatement` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -104,6 +113,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to handle a `ModuleImport` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -113,6 +124,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to handle a `Qualifiedidentifier` instance.
     ///
     /// # Nested
     ///
@@ -128,6 +141,8 @@ pub trait SimpleModuleVisitor {
     // --------------------------------------------------------------------------------------------
 
     ///
+    /// Called to denote the start of an `Annotation` instance.
+    ///
     /// # Nested
     ///
     /// - `annotation_property`
@@ -141,6 +156,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of an `Annotation` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -150,6 +167,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to handle a `AnnotationProperty` instance.
     ///
     /// # Nested
     ///
@@ -161,6 +180,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to handle a `ControlledLanguageString` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -170,6 +191,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to handle a `FormalConstraint` instance.
     ///
     /// # Nested
     ///
@@ -184,6 +207,8 @@ pub trait SimpleModuleVisitor {
     // Definitions
     // --------------------------------------------------------------------------------------------
 
+    ///
+    /// Called to denote the start of a `Definition` instance.
     ///
     /// # Nested
     ///
@@ -203,6 +228,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `Definition` instance.
+    ///
     /// # Nested
     ///
     /// None
@@ -212,6 +239,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `DatatypeDef` instance.
     ///
     /// # Nested
     ///
@@ -224,6 +253,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `DatatypeDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -233,6 +264,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of an `EntityDef` instance.
     ///
     /// # Nested
     ///
@@ -247,6 +280,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of an `EntityDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -256,6 +291,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of an `EnumDef` instance.
     ///
     /// # Nested
     ///
@@ -269,6 +306,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of an `EnumDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -278,6 +317,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of an `EventDef` instance.
     ///
     /// # Nested
     ///
@@ -291,6 +332,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of an `EventDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -300,6 +343,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `PropertyDev` instance.
     ///
     /// # Nested
     ///
@@ -312,6 +357,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `PropertyDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -321,6 +368,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `RdfDef` instance.
     ///
     /// # Nested
     ///
@@ -333,6 +382,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `RdfDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -342,6 +393,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `StructureDef` instance.
     ///
     /// # Nested
     ///
@@ -355,6 +408,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `StructureDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -364,6 +419,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of an `UnionDef` instance.
     ///
     /// # Nested
     ///
@@ -376,6 +433,8 @@ pub trait SimpleModuleVisitor {
         Self::INCLUDE_NESTED
     }
 
+    ///
+    /// Called to denote the end of an `UnionDef` instance.
     ///
     /// # Nested
     ///
@@ -391,6 +450,8 @@ pub trait SimpleModuleVisitor {
     // --------------------------------------------------------------------------------------------
 
     ///
+    /// Called to denote the start of a `Member` instance.
+    ///
     /// # Nested
     ///
     /// - `property_reference_start`
@@ -403,6 +464,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `Member` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -412,6 +475,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of an identity `Member` instance.
     ///
     /// # Nested
     ///
@@ -425,6 +490,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of an identity `Member` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -434,6 +501,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `MemberDef` instance.
     ///
     /// # Nested
     ///
@@ -446,6 +515,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `MemberDef` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -455,6 +526,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a member reference `IdentifierReference` instance.
     ///
     /// # Nested
     ///
@@ -466,6 +539,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a member reference `IdentifierReference` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -475,6 +550,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `ValueVariant` instance.
     ///
     /// # Nested
     ///
@@ -487,6 +564,8 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the end of a `ValueVariant` instance.
+    ///
     /// # Nested
     ///
     /// None.
@@ -496,6 +575,8 @@ pub trait SimpleModuleVisitor {
         Ok(())
     }
 
+    ///
+    /// Called to denote the start of a `TypeVarian` instance.
     ///
     /// # Nested
     ///
@@ -507,6 +588,8 @@ pub trait SimpleModuleVisitor {
         Self::INCLUDE_NESTED
     }
 
+    ///
+    /// Called to denote the end of a `TypeVariant` instance.
     ///
     /// # Nested
     ///

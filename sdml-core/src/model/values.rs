@@ -1,3 +1,6 @@
+/*!
+Provide the Rust types that implement *value*-related components of the SDML Grammar.
+*/
 use crate::model::{
     members::{Ordering, Uniqueness},
     IdentifierReference, Span,

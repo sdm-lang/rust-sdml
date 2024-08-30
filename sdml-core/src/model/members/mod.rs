@@ -1,3 +1,6 @@
+/*!
+Provide the Rust types that implement *member*-related components of the SDML Grammar.
+*/
 use crate::load::ModuleLoader;
 use crate::model::annotations::AnnotationOnlyBody;
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
