@@ -1,7 +1,6 @@
 /**
 This Rust module contains the SDML model of the SDML library module `xsd` for XML Schema.
 */
-
 use crate::model::annotations::AnnotationBuilder;
 use crate::model::identifiers::Identifier;
 use crate::model::modules::Module;
