@@ -1,7 +1,7 @@
 [package]
 name = "sdml-generate"
 description = "Simple Domain Modeling Language (SDML) generated Artifacts"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license-file = "../LICENSE"
@@ -44,4 +44,4 @@ tree-sitter-highlight = { version = "0.23", optional = true }
 [dev-dependencies]
 paste = "1.0.14"
 pretty_assertions = "1.3.0"
-sdml-parse = { version = "0.2.9", path = "../sdml-parse" }
+sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
