@@ -36,6 +36,10 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.3.0*
+
+- Build: align version number with ~sdml-core~ supporting the latest grammar.
+
 *Version 0.1.6*
 
 - Feature: add a new variant in =Error=, =GeneratorError= for use by the =sdml-generator= crate.
@@ -61,13 +65,15 @@ The following figure demonstrates this package in the broader project context.
 
 *Version 0.1.2*
 
-- Feature: add new diagnostic for =DoubleUnderscoredIdentifier= where an identifier include two (or more) consecutive underscore characters.
+- Feature: add new diagnostic for =DoubleUnderscoredIdentifier= where an identifier include two (or more) consecutive
+  underscore characters.
   - Add new code to =ErrorCode=.
   - Add new function =double_underscored_identifier=.
 
 *Version 0.1.1*
 
-- Feature: add new diagnostic for =PropertyReferenceNotProperty= where the property name in a member does not resolve to a property definition.
+- Feature: add new diagnostic for =PropertyReferenceNotProperty= where the property name in a member does not resolve to a
+  property definition.
   - Add new code to =ErrorCode=.
   - Add new function =property_reference_not_property=.
 

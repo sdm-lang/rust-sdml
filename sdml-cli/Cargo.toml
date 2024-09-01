@@ -1,7 +1,7 @@
 [package]
 name = "sdml-cli"
 description = "Rust CLI for Simple Domain Modeling Language (SDML)"
-version = "0.2.10"
+version = "0.3.0"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license-file = "../LICENSE"
@@ -21,10 +21,10 @@ all-features = true
 clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
 clio = { version = "0.3.5", features = ["clap-parse"] }
 human-panic = "2.0.1"
-sdml-core = { version = "0.2.17", features = ["serde", "terms"], path = "../sdml-core" }
-sdml-errors = { version = "0.1.6", path = "../sdml-errors" }
-sdml-generate = { version = "0.2.13", path = "../sdml-generate" }
-sdml-parse = { version = "0.2.14", path = "../sdml-parse" }
+sdml-core = { version = "0.3.0", features = ["serde", "terms"], path = "../sdml-core" }
+sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
+sdml-generate = { version = "0.3.0", path = "../sdml-generate" }
+sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tree-sitter-sdml = "0.3.2"

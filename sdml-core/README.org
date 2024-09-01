@@ -39,6 +39,16 @@ Note that other tools can use the =sdml_core= API to create or manipulate models
 
 * Changes
 
+*Version 0.3.0*
+
+- Feature: update for the latest grammar.
+  - Updated ~Member~ to be a union of ~MemberDef~ and ~IdentifierReference~.
+  - Updated entity ~identity~ to be just a ~Member~.
+  - Updated ~PropertyDef~ to be a wrapper around ~MemberDef~.
+  - Fixed corresponding validation rules.
+- Refactor: simplified the walker/visitor to pass model members rather than de-constructing them.
+- Refactor: renamed and made some changes in the ~cache~ (now ~store~) and ~load~ modules.
+
 *Version 0.2.17*
 
 - Feature: inverted the logic for determining whether a definition is incomplete.

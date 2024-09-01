@@ -36,6 +36,16 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.3.0*
+
+- Feature: updates to support the latest grammar, see ~sdml-core~.
+- Refactor: update generates which use the walker/visitor internally.
+- Refactor: drop the old style /write/-style traits and unify into a single ~Generator~ trait.
+- Feature: more flexible s-expression generator with more Lisp-y output.
+- Test: added a set of macros to test generator output for the set of test examples.
+  - Added expected output for RDF turtle.
+  - Updated existing dependency-tree tests to use these macros.
+    
 *Version 0.2.13*
 
 - Feature: added new command =doc-book= to create a more complex documentation output for a collection of modules.

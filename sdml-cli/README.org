@@ -427,6 +427,11 @@ end
 
 * Changes
 
+*Version 0.3.0*
+
+- Feature: updates to support the latest grammar, see ~sdml-core~.
+- Refactor: use the latest ~Generator~ trait.
+
 *Version 0.2.10*
 
 - Feature: added new command =doc-book= to create a more complex documentation output for a collection of modules.

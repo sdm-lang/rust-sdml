@@ -37,6 +37,10 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.3.0*
+
+- Feature: updates to support the latest grammar, see ~sdml-core~.
+
 *Version 0.2.13-0.2.14*
 
 - Build: update dependency from =sdml_error= to =sdml-errors=.
