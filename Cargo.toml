@@ -6,6 +6,8 @@ members = [
     "sdml-core",
     "sdml-errors",
     "sdml-parse",
+    "sdml-rdf",
     "sdml-generate",
     "sdml-cli",
+    "sdml-tera",
 ]

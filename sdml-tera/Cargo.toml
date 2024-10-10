@@ -1,0 +1,38 @@
+[package]
+name = "sdml-tera"
+version = "0.1.0"
+description = "Simple Domain Modeling Language (SDML) Tera Integration"
+authors = ["Simon Johnston <johnstonskj@gmail.com>"]
+repository = "https://github.com/johnstonskj/rust-sdml.git"
+license-file = "../LICENSE"
+readme = "README.org"
+edition = "2021"
+publish = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+all-features = true
+
+[[bin]]
+name = "sdml-tera"
+path = "src/cli.rs"
+doc = false
+required-features = ["cli"]
+
+[features]
+cli = ["clap", "clio", "human-panic", "sdml-parse"]
+
+[dependencies]
+sdml-core = { version = "0.3.0", features = ["serde"], path = "../sdml-core" }
+sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
+tera = "1.20.0"
+
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"], optional = true }
+clio = { version = "0.3.5", features = ["clap-parse"], optional = true }
+human-panic = { version = "2.0.1", optional = true }
+sdml-parse = { version = "0.3.0", path = "../sdml-parse", optional = true }
+
+[dev-dependencies]
+pretty_assertions = "1.4"
+sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
+serde_json = "1.0.113"
