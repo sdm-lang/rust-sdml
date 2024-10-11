@@ -1,0 +1,10 @@
+{% macro heading(level) %}{% for i in range(level) %}*{% endfor %}{% endmacro heading %}
+
+
+{% macro listing(name, caption, type, source) %}
+#+NAME: src:module-{{ name }}-src-{{type}}
+#+CAPTION: {{ caption }}
+#+BEGIN_SRC {{type}} :exports code :eval never
+{{ source }}
+#+END_SRC
+{% endmacro listing %}

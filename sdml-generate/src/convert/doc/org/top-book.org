@@ -1,0 +1,16 @@
+{% extends "top.org" %}
+
+{% block body %}
+  {% for module in modules %}
+    {% include "module.org" %}
+  {% endfor %}
+{% endblock body %}
+
+{% block appendices %}
+  {% for module in modules %}
+* Module ={{ module.name }}=
+    {% include "appendix.org" %}
+  {% endfor %}
+{% endblock appendices %}
+
+

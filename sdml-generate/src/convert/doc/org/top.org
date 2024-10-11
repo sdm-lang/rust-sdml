@@ -1,0 +1,29 @@
+{% block title %}#+TITLE: {{ doc.title }}{% endblock title %}
+{% block language %}#+LANGUAGE: {{ doc.language }}{% endblock language %}
+{% block style %}
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
+#+HTML_HEAD: <style>table {{ min-width: 50%; }}</style>
+#+HTML_HEAD: <style>img {{ max-width: 800px; height: auto; }}</style>
+#+HTML_HEAD: <style>div.figure {{ text-align: center; }}</style>
+{% endblock style %}
+{% block options %}
+#+OPTIONS: h:5 toc:3 ^:{}
+{% endblock options %}
+
+{% block init %}
+#+BEGIN_SRC emacs-lisp :eval yes :exports none 
+(require 'ob-dot)
+(require 'ob-sdml)
+#+END_SRC
+{% endblock init %}
+
+{% block body %}
+{% endblock body %}
+
+* Appendices
+:PROPERTIES:
+:CUSTOM_ID: sec:appendices
+:END:
+
+{% block appendices %}
+{% endblock appendices %}

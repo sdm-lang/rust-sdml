@@ -1,0 +1,9 @@
+{% extends "top.org" %}
+
+{% block body %}
+  {% include "module.org" }
+{% endblock body %}
+
+{% block appendices %}
+  {% include "appendix.org" %}
+{% endblock appendices %}

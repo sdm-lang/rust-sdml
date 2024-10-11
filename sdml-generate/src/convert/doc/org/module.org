@@ -1,0 +1,43 @@
+* Module ={{ module.name }}=
+
+{% if module.base_uri %}
+  Base URI: <{{ module.base_uri }}>
+{% endif %}
+
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}
+:END:
+
+** Description
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}-description
+:END:
+
+#+NAME: lst:module-{{ module.name }}-uml-class
+#+BEGIN_SRC sdml :eval yes :exports results :results :file ./module-{{ module.name }}-uml-class.svg :cmdline draw --diagram uml-class --output-format svg :noweb yes
+#+END_SRC
+
+#+NAME: fig:module-{{ module.name }}-uml-class
+#+CAPTION: Module ={{ module.name }}= UML Class Diagram
+#+RESULTS: lst:module-{{ module.name }}-uml-class
+[[file:./module-{{ module.name }}-uml-class.svg]]
+
+** Dependencies
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}-dependencies
+:END:
+
+#+NAME: tbl:module-{{ module.name }}-imports
+#+CAPTION: Module ={{ module.name }}= Imports| *Name* | *Base IRI* |
+|------+----------|
+| =owl= | http://www.w3.org/2002/07/owl# |
+| =rdf= | http://www.w3.org/1999/02/22-rdf-syntax-ns# |
+| =rdfs= | http://www.w3.org/2000/01/rdf-schema# |
+| =skos= | http://www.w3.org/2004/02/skos/core# |
+| =xsd= | http://www.w3.org/2001/XMLSchema# |
+
+** Definitions
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}-definitions
+:END:
+

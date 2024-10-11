@@ -1,0 +1,37 @@
+
+** Dependency Graph
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}-dependency-graph
+:END:
+
+#+NAME: lst:module-{{ module.name }}-dep-graph
+#+BEGIN_SRC dot :eval yes :exports results :results  :file ./module-{{ module.name }}-dep-graph.svg
+{{ source.dot }}
+#+END_SRC
+
+#+NAME: fig:module-{{ module.name }}-dep-graph
+#+CAPTION: Module ={{ module.name }}= Dependency Graph
+#+RESULTS: lst:module-{{ module.name }}-dep-graph
+file:[[./module-{{ module.name }}-dep-graph.svg]]
+
+** SDML Source
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}-sdml-source
+:END:
+
+#+NAME: src:module-{{ module.name }}-src-sdml
+#+CAPTION: Module {{ module.name }} SDML Source
+#+BEGIN_SRC sdml :exports code :eval yes :noweb yes
+<<lst:module-{{ module.name }}-uml-class>>
+#+END_SRC
+
+** RDF Source
+:PROPERTIES:
+:CUSTOM_ID: sec:module-{{ module.name }}-rdf-source
+:END:
+
+#+NAME: src:module-{{ module.name }}-src-rdf
+#+CAPTION:
+#+BEGIN_SRC ttl :exports code :eval yes
+{{ source.rdf }}
+#+END_SRC
