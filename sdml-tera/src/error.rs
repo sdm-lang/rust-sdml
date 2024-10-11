@@ -1,7 +1,5 @@
 /*!
-Provides the crate's Error and Result types as well as helper
-functions.
-
+Provides the crate's Error and Result types as well as helper functions.
  */
 
 use std::fmt::{Debug, Display};

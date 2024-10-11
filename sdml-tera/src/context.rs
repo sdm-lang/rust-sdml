@@ -1,122 +1,34 @@
 /*!
-One-line description.
+This module provides SDML to Value functions for constructing template contexts.
 
-# Context Structure
+Note that the created context values *are not* intended as a direct 1:1 representation of either the
+published surface syntax grammar or the Rust model. The form is simplified for use in the template
+language using the following guidelines.
 
-## Module Object
+1. Reduce layers in the model that do not add value; i.e. [`Identifier`] in the Rust model has an
+   inner `value` field.
+2. Where an `Option<T>` field is `None` do not add a key in the generated object.
+3. Where a `Vec<T>` field `is_empty` do not add a key in the generated object.
+4. Use the key `"__type"` as a discriminator where the content of an object is ambiguous, especially
+   in arrays.
+5. Only add `source_span` values for major objects such as definitions, not for individual names
+   etc.
 
-* `name: String`
-* `library_module: bool`
-* `source_file: String` (optional)
-* `source_span` (optional) a span object
-* `base_uri: String` (optional)
-* `version_info: String` (optional)
-* `version_uri: String` (optional)
-* `imports` (optional) an array of import objects
-* `annotations` (optional) an array of annotation objects
-* `definitions` (optional) an array of definition objects
+The upshot of this is that an `if` statement in a template is used to check for presence of a value
+before you use it. The following demonstrates this pattern for optional fields and  possibly empty
+collections.
 
-## Span Object
+```md
+{% if module.base_uri -%}
+ *Base URI*: {{ module.base_uri }}
+{%- endif %}
 
-* `start: Number::PosInt`
-* `end: Number::PosInt`
-
-## Import Object
-
-* `module: String`
-
-One of:
-
-* `version_uri: String`
-* `member: String`
-
-## Annotation Object
-
-* `name: String`
-* `type: String = property`
-  * `value` a value object
-* `type: String = informal`
-  * `value: String`
-  * `language: String` (optional)
-* `type: String = formal`
-  * `environment` (optional) an array of environment objects
-  * `sentence` a sentence object
-
-Sentences
-
-## Definition Object
-
-* `name: String`
-* `type: String = datatype`
-  * `is_opaque: bool`
-  * `base_type: String`
-* `type: String = entity`
-  * `identity` (optional) member object
-  * `members` (optional) an array of member objects
-* `type: String = enum`
-  * `variants` (optional) an array of:
-    * `name: String`
-    * `annotations` (optional) an array of annotation  objects
-* `type: String = event`
-  * `source: String`
-  * `members` (optional) an array member objects
-* `type: String = property`
-  * member definition object
-* `type: String = rdf`
-* `type: String = structure`
-  * `members` (optional) an array member objects
-* `type: String = type_class` TBD
-* `type: String = union`
-  * `variants` (optional) an array of:
-    * `name: String`
-    * `rename: String` (optional)
-    * `annotations` (optional) an array of annotation  objects
-* `annotations` (optional) an array of annotation  objects
-
-## Member Object
-
-* `kind: String = reference`
-  * `property: String`
-* `kind: String = definition`
-  * member definition object
-
-## Member Definition Object
-
-* `name: String`
-* `cardinality`
-  * `ordering: String` (optional)
-  * `uniqueness: String` (optional)
-  * `min_occurs: Number::PosInt`
-  * `max_occurs: Number::PosInt` (optional)
-* `type: String`
-* `annotations` (optional) an array of annotation objects
-
-## Value Object
-
-A Value is either simple, type constructor, mapping, reference, or list.
-
-A Sequence Member Value is either simple, type constructor, mapping, or reference.
-
-Simple Values:
-
-* `type: String = boolean` and `value: Boolean`
-* `type: String = double` and `value: Number::Float`
-* `type: String = decimal` and `value: String`
-* `type: String = integer` and `value: Number::NegInt`
-* `type: String = unsigned` and `value: Number::PosInt`
-* `type: String = string` and `value: String`
-* `type: String = uri` and `value: String`
-* `type: String = binary` and `value: String`
-
-* `type: String = constructor`
-  * `type_name: String`
-  * `value` a simple value
-* `type: String = mapping`
-  * `domain` a simple value
-  * `range` a value
-* `type: String = reference`
-  * `value: String`
-* `type: String = sequence` an array of sequence member values
+{% if module.annotations -%}
+  {% for ann in module.annotations -%}
+    {{ ann.name }}
+  {%- endfor %}
+{%- endif %}
+```
 
  */
 
@@ -144,17 +56,51 @@ use sdml_core::store::ModuleStore;
 use tera::{Map, Value};
 
 // ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Public Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
+///
+/// Convert a SDML `Module` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///   "__type": "module",
+///   "name": "Identifier",
+///   "is_library_module": true,
+///   "source_file": "Path",            // optional
+///   "source_span": {
+///     "start": 0,
+///     "end": 10,
+///   }, // optional
+///   "base_uri": "absolute-uri",       // optional
+///   "version_info": "string",         // optional
+///   "version_uri": "absolute-uri",    // optional
+///   "imports": [],                    // optional
+///   "annotations": [],                // optional
+///   "definitions": []                 // optional
+/// }
+/// ```
+///
+/// # Import Object
+///
+/// Module import:
+///
+/// ```json
+/// {
+///   "module": "Identifier",
+///   "version_uri": "absolute-uri"     // optional
+/// }
+/// ```
+///
+/// Member import:
+///
+/// ```json
+/// {
+///   "module": "Identifier",
+///   "member": "Identifier"
+/// }
+/// ```
+///
 pub fn module_to_value(module: &Module, _cache: &impl ModuleStore) -> (String, Value) {
     let mut value = Map::default();
 
@@ -194,12 +140,560 @@ pub fn module_to_value(module: &Module, _cache: &impl ModuleStore) -> (String, V
     (module.name().to_string(), value.into())
 }
 
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
+///
+/// Convert a SDML `AnnotationProperty` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "property",
+///     "source_span": {},              // optional
+///     "name": "IdentifierReference",  // optional
+///     "value": {}
+/// }
+/// ```
+///
+pub fn annotation_property_to_value(property: &AnnotationProperty) -> Value {
+    let mut property_map = Map::default();
+
+    add_source_span(property, &mut property_map);
+    property_map.insert(KEY_META_TYPE.into(), VAL_MT_PROPERTY.into());
+    property_map.insert(
+        KEY_NAME.into(),
+        property.name_reference().to_string().into(),
+    );
+    property_map.insert(KEY_VALUE.into(), value_to_value(property.value()));
+
+    property_map.into()
+}
+
+///
+/// Convert a SDML `Value` into a context object, in the form shown as JSON below.
+///
+/// # Simple Value
+///
+/// ```json
+/// {
+///     "__type": "boolean|double|decimal|integer|unsigned|string|uri|binary",
+///     "value": ...
+/// }
+/// ```
+///
+/// # Value Constructor
+///
+/// ```json
+/// {
+///     "__type": "constructor",
+///     "type_ref": "IdentifierReference",
+///     "value": {}
+/// }
+/// ```
+///
+/// # Mapping
+///
+/// ```json
+/// {
+///     "__type": "mapping",
+///     "domain": {},
+///     "range": {}
+/// }
+/// ```
+///
+/// # Reference
+///
+/// ```json
+/// {
+///     "__type": "type_ref",
+///     "value": "IdentifierReference",
+/// }
+/// ```
+///
+/// # Sequence
+///
+/// ```json
+/// {
+///     "__type": "sequence",
+///     "members": []
+/// }
+/// ```
+///
+pub fn value_to_value(value: &SdmlValue) -> Value {
+    let mut value_map = Map::default();
+
+    match value {
+        SdmlValue::Simple(v) => add_simple_value(v, &mut value_map),
+        SdmlValue::ValueConstructor(v) => add_value_constructor(v, &mut value_map),
+        SdmlValue::Mapping(v) => add_mapping_value(v, &mut value_map),
+        SdmlValue::Reference(v) => {
+            value_map.insert(KEY_META_TYPE.into(), KEY_TYPE_REF.into());
+            value_map.insert(KEY_VALUE.into(), v.to_string().into());
+        }
+        SdmlValue::List(vs) => add_value_list(vs, &mut value_map),
+    }
+
+    value_map.into()
+}
+
+///
+/// Convert a SDML `Constraint` into a context object, in the form shown as JSON below.
+///
+/// ## Informal Constraint
+///
+/// ```json
+/// {
+///     "__type": "informal",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "value": "string",
+///     "language": ""                  // optional
+/// }
+/// ```
+///
+/// ## Formal Constraint
+///
+/// ```json
+/// {
+///     "__type": "formal",
+///     "source_span": {},             // optional
+///     "name": "Identifier",
+///     "definitions": [],             // optional
+///     "sentence": {}
+/// }
+/// ```
+///
+pub fn annotation_constraint_to_value(constraint: &Constraint) -> Value {
+    let mut constraint_map = Map::default();
+
+    add_source_span(constraint, &mut constraint_map);
+    constraint_map.insert(KEY_NAME.into(), constraint.name().to_string().into());
+
+    match constraint.body() {
+        ConstraintBody::Informal(v) => {
+            constraint_map.insert(KEY_META_TYPE.into(), "informal".into());
+            constraint_map.insert(KEY_VALUE.into(), v.value().to_string().into());
+            if let Some(language) = v.language() {
+                constraint_map.insert("language".into(), language.to_string().into());
+            }
+        }
+        ConstraintBody::Formal(v) => {
+            constraint_map.insert(KEY_META_TYPE.into(), "formal".into());
+            if v.has_definitions() {
+                let mut definitions: Vec<Value> = Vec::default();
+                for definition in v.definitions() {
+                    add_definition(definition, &mut definitions);
+                }
+                constraint_map.insert("definitions".into(), definitions.into());
+            }
+            let mut sentence_map = Map::default();
+            add_constraint_sentence(v.body(), &mut sentence_map);
+            constraint_map.insert("sentence".into(), sentence_map.into());
+        }
+    }
+
+    constraint_map.into()
+}
+
+///
+/// Convert a SDML `DatatypeDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "datatype",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "is_opaque": false,
+///     "base_type": "IdentifierReference",
+///     "annotations": []               // optional
+/// }
+/// ```
+///
+pub fn datatype_to_value(defn: &DatatypeDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "datatype".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+    defn_map.insert("is_opaque".into(), defn.is_opaque().into());
+    defn_map.insert("base_type".into(), defn.base_type().to_string().into());
+
+    if let Some(body) = defn.body() {
+        add_annotations(body, &mut defn_map);
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `EntityDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "entity",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "identity": {},
+///     "annotations": [],              // optional
+///     "members": []                   // optional
+/// }
+/// ```
+///
+/// For `identity`, see MemberDef and for `members` see Member, in [`member_to_value`].
+///
+pub fn entity_to_value(defn: &EntityDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "entity".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    if let Some(body) = defn.body() {
+        defn_map.insert("identity".into(), member_to_value(body.identity()));
+
+        add_annotations(body, &mut defn_map);
+
+        if body.has_members() {
+            let mut members: Vec<Value> = Vec::default();
+
+            for member in body.members() {
+                members.push(member_to_value(member));
+            }
+
+            defn_map.insert("members".into(), members.into());
+        }
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `Member` into a context object, in the form shown as JSON below.
+///
+///
+/// A member is either a reference to a property or a definition of a new member.
+///
+/// # Property Reference
+///
+/// ```json
+/// {
+///     "__type": "reference",
+///     "type_ref": "IdentifierReference",
+/// }
+/// ```
+///
+/// # Member Definition
+///
+/// ```json
+/// {
+///     "__type": "definition",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "cardinality": {
+///         "ordering": "",
+///         "uniqueness": "",
+///         "min_occurs": 1,
+///         "max_occurs": 0             // optional
+///     },
+///     "type_ref": "IdentifierReference"
+/// }
+/// ```
+///
+pub fn member_to_value(defn: &Member) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+
+    match defn.kind() {
+        MemberKind::Reference(v) => {
+            defn_map.insert(KEY_META_TYPE.into(), "reference".into());
+            defn_map.insert("type_ref".into(), v.to_string().into());
+        }
+        MemberKind::Definition(v) => {
+            defn_map.insert(KEY_META_TYPE.into(), "definition".into());
+            add_member_def(v, &mut defn_map)
+        }
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `EnumDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "enum",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "annotations": [],
+///     "variants": [                   // optional
+///         {
+///             "name": "Identifier",
+///             "annotations": []       // optional
+///         }
+///     ]
+/// }
+/// ```
+///
+pub fn enum_to_value(defn: &EnumDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "enum".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    if let Some(body) = defn.body() {
+        add_annotations(body, &mut defn_map);
+
+        if body.has_variants() {
+            let mut variants: Vec<Value> = Vec::default();
+            for variant in body.variants() {
+                let mut variant_map = Map::default();
+                add_source_span(variant, &mut variant_map);
+                variant_map.insert(KEY_NAME.into(), variant.name().to_string().into());
+                if let Some(body) = variant.body() {
+                    add_annotations(body, &mut variant_map);
+                }
+                variants.push(variant_map.into());
+            }
+            defn_map.insert("variants".into(), variants.into());
+        }
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `EventDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "event",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "source_ref": "IdentifierReference",
+///     "annotations": [],              // optional
+///     "members": []                   // optional
+/// }
+/// ```
+///
+/// For `members`, see [`member_to_value`].
+///
+pub fn event_to_value(defn: &EventDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "event".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+    defn_map.insert("source_ref".into(), defn.event_source().to_string().into());
+
+    if let Some(body) = defn.body() {
+        add_annotations(body, &mut defn_map);
+        if body.has_members() {
+            let mut members: Vec<Value> = Vec::default();
+
+            for member in body.members() {
+                members.push(member_to_value(member));
+            }
+
+            defn_map.insert("members".into(), members.into());
+        }
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `PropertyDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "property",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "annotations": [],              // optional
+///     "member": {}
+/// }
+/// ```
+///
+/// For `member` see member definition in [`member_to_value`].
+///
+pub fn property_to_value(defn: &PropertyDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "property".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    let mut member_map = Map::default();
+    add_member_def(defn.member_def(), &mut member_map);
+    defn_map.insert("member".into(), member_map.into());
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `RdfDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "rdf",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "annotations": []               // optional
+/// }
+/// ```
+///
+pub fn rdf_to_value(defn: &RdfDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "rdf".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    add_annotations(defn.body(), &mut defn_map);
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `StructureDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "structure",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "annotations": [],              // optional
+///     "members": []                   // optional
+/// }
+/// ```
+///
+/// For `members`, see [`member_to_value`].
+///
+pub fn structure_to_value(defn: &StructureDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "structure".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    if let Some(body) = defn.body() {
+        add_annotations(body, &mut defn_map);
+        if body.has_members() {
+            let mut members: Vec<Value> = Vec::default();
+
+            for member in body.members() {
+                members.push(member_to_value(member));
+            }
+
+            defn_map.insert("members".into(), members.into());
+        }
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `TypeClassDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "type_class",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "variables": [],                // optional
+///     "annotations": [],              // optional
+///     "methods": []                   // optional
+/// }
+/// ```
+///
+/// ## Variable
+///
+/// TBD
+///
+/// ## Method
+///
+/// TBD
+///
+pub fn type_class_to_value(defn: &TypeClassDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "type_class".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    if defn.has_variables() {
+        let mut variables: Vec<Value> = Vec::default();
+        for variable in defn.variables() {
+            add_type_variable(variable, &mut variables);
+        }
+        defn_map.insert("variables".into(), variables.into());
+    }
+
+    if let Some(body) = defn.body() {
+        add_annotations(body, &mut defn_map);
+        if body.has_methods() {
+            let mut methods: Vec<Value> = Vec::default();
+            for method in body.methods() {
+                add_type_method(method, &mut methods);
+            }
+            defn_map.insert("methods".into(), methods.into());
+        }
+    }
+
+    defn_map.into()
+}
+
+///
+/// Convert a SDML `UnionDef` into a context object, in the form shown as JSON below.
+///
+/// ```json
+/// {
+///     "__type": "union",
+///     "source_span": {},              // optional
+///     "name": "Identifier",
+///     "annotations": [],              // optional
+///     "variants": [                   // optional
+///         {
+///             "name": "IdentifierReference",
+///             "rename": "Identifier",
+///             "annotations": []
+///         }
+///     ]
+/// }
+/// ```
+///
+pub fn union_to_value(defn: &UnionDef) -> Value {
+    let mut defn_map = Map::default();
+
+    add_source_span(defn, &mut defn_map);
+    defn_map.insert(KEY_META_TYPE.into(), "union".into());
+    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
+
+    if let Some(body) = defn.body() {
+        add_annotations(body, &mut defn_map);
+
+        if body.has_variants() {
+            let mut variants: Vec<Value> = Vec::default();
+            for variant in body.variants() {
+                let mut variant_map = Map::default();
+                variant_map.insert(KEY_NAME.into(), variant.name().to_string().into());
+                if let Some(rename) = variant.rename() {
+                    variant_map.insert("rename".into(), rename.to_string().into());
+                }
+                if let Some(body) = variant.body() {
+                    add_annotations(body, &mut variant_map);
+                }
+                variants.push(variant_map.into());
+            }
+            defn_map.insert("variants".into(), variants.into());
+        }
+    }
+
+    defn_map.into()
+}
 
 // ------------------------------------------------------------------------------------------------
-// Private Types
+// Private Values
 // ------------------------------------------------------------------------------------------------
 
 const KEY_META_TYPE: &str = "__type";
@@ -243,10 +737,6 @@ const KEY_RANGE: &str = "range";
 const KEY_TYPE: &str = "type";
 
 // ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
@@ -281,15 +771,15 @@ fn add_module_body(body: &ModuleBody, value: &mut Map<String, Value>) {
 
         for definition in body.definitions() {
             match definition {
-                Definition::Datatype(v) => add_datatype(v, &mut definitions),
-                Definition::Entity(v) => add_entity(v, &mut definitions),
-                Definition::Enum(v) => add_enum(v, &mut definitions),
-                Definition::Event(v) => add_event(v, &mut definitions),
-                Definition::Property(v) => add_property(v, &mut definitions),
-                Definition::Rdf(v) => add_rdf(v, &mut definitions),
-                Definition::Structure(v) => add_structure(v, &mut definitions),
-                Definition::TypeClass(v) => add_type_class(v, &mut definitions),
-                Definition::Union(v) => add_union(v, &mut definitions),
+                Definition::Datatype(v) => definitions.push(datatype_to_value(v)),
+                Definition::Entity(v) => definitions.push(entity_to_value(v)),
+                Definition::Enum(v) => definitions.push(enum_to_value(v)),
+                Definition::Event(v) => definitions.push(event_to_value(v)),
+                Definition::Property(v) => definitions.push(property_to_value(v)),
+                Definition::Rdf(v) => definitions.push(rdf_to_value(v)),
+                Definition::Structure(v) => definitions.push(structure_to_value(v)),
+                Definition::TypeClass(v) => definitions.push(type_class_to_value(v)),
+                Definition::Union(v) => definitions.push(union_to_value(v)),
             }
         }
 
@@ -312,44 +802,13 @@ fn add_annotations(annotated: &impl HasAnnotations, value: &mut Map<String, Valu
 
         for annotation in annotated.annotations() {
             match annotation {
-                Annotation::Property(v) => add_annotation_property(v, &mut annotations),
-                Annotation::Constraint(v) => add_annotation_constraint(v, &mut annotations),
+                Annotation::Property(v) => annotations.push(annotation_property_to_value(v)),
+                Annotation::Constraint(v) => annotations.push(annotation_constraint_to_value(v)),
             }
         }
 
         value.insert(KEY_ANNOTATIONS.into(), annotations.into());
     }
-}
-
-fn add_annotation_property(property: &AnnotationProperty, value: &mut Vec<Value>) {
-    let mut property_map = Map::default();
-
-    add_source_span(property, &mut property_map);
-    property_map.insert(KEY_META_TYPE.into(), VAL_MT_PROPERTY.into());
-    property_map.insert(
-        KEY_NAME.into(),
-        property.name_reference().to_string().into(),
-    );
-    property_map.insert(KEY_VALUE.into(), value_to_value(property.value()));
-
-    value.push(property_map.into());
-}
-
-fn value_to_value(value: &SdmlValue) -> Value {
-    let mut value_map = Map::default();
-
-    match value {
-        SdmlValue::Simple(v) => add_simple_value(v, &mut value_map),
-        SdmlValue::ValueConstructor(v) => add_value_constructor(v, &mut value_map),
-        SdmlValue::Mapping(v) => add_mapping_value(v, &mut value_map),
-        SdmlValue::Reference(v) => {
-            value_map.insert(KEY_META_TYPE.into(), KEY_TYPE_REF.into());
-            value_map.insert(KEY_VALUE.into(), v.to_string().into());
-        }
-        SdmlValue::List(vs) => add_value_list(vs, &mut value_map),
-    }
-
-    value_map.into()
 }
 
 fn add_simple_value(value: &SimpleValue, value_map: &mut Map<String, Value>) {
@@ -452,38 +911,6 @@ fn add_predicate_value_list(value: &SequenceOfPredicateValues, value_map: &mut M
     }
 
     value_map.insert(KEY_MEMBERS.into(), members.into());
-}
-
-fn add_annotation_constraint(constraint: &Constraint, value: &mut Vec<Value>) {
-    let mut constraint_map = Map::default();
-
-    add_source_span(constraint, &mut constraint_map);
-    constraint_map.insert(KEY_NAME.into(), constraint.name().to_string().into());
-
-    match constraint.body() {
-        ConstraintBody::Informal(v) => {
-            constraint_map.insert(KEY_META_TYPE.into(), "informal".into());
-            constraint_map.insert(KEY_VALUE.into(), v.value().to_string().into());
-            if let Some(language) = v.language() {
-                constraint_map.insert("language".into(), language.to_string().into());
-            }
-        }
-        ConstraintBody::Formal(v) => {
-            constraint_map.insert(KEY_META_TYPE.into(), "formal".into());
-            if v.has_definitions() {
-                let mut definitions: Vec<Value> = Vec::default();
-                for definition in v.definitions() {
-                    add_definition(definition, &mut definitions);
-                }
-                constraint_map.insert("definitions".into(), definitions.into());
-            }
-            let mut sentence_map = Map::default();
-            add_constraint_sentence(v.body(), &mut sentence_map);
-            constraint_map.insert("sentence".into(), sentence_map.into());
-        }
-    }
-
-    value.push(constraint_map.into());
 }
 
 fn add_definition(defn: &EnvironmentDef, value: &mut Vec<Value>) {
@@ -721,67 +1148,6 @@ fn term_to_value(defn: &Term) -> Value {
     term_map.into()
 }
 
-fn add_datatype(defn: &DatatypeDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "datatype".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-    defn_map.insert("is_opaque".into(), defn.is_opaque().into());
-    defn_map.insert("base_type".into(), defn.base_type().to_string().into());
-
-    if let Some(body) = defn.body() {
-        add_annotations(body, &mut defn_map);
-    }
-
-    value.push(defn_map.into());
-}
-
-fn add_entity(defn: &EntityDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "entity".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    if let Some(body) = defn.body() {
-        defn_map.insert("identity".into(), member_to_value(body.identity()));
-
-        add_annotations(body, &mut defn_map);
-
-        if body.has_members() {
-            let mut members: Vec<Value> = Vec::default();
-
-            for member in body.members() {
-                members.push(member_to_value(member));
-            }
-
-            defn_map.insert("members".into(), members.into());
-        }
-    }
-
-    value.push(defn_map.into());
-}
-
-fn member_to_value(defn: &Member) -> Value {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-
-    match defn.kind() {
-        MemberKind::Reference(v) => {
-            defn_map.insert("kind".into(), "reference".into());
-            defn_map.insert("property".into(), v.to_string().into());
-        }
-        MemberKind::Definition(v) => {
-            defn_map.insert("kind".into(), "definition".into());
-            add_member_def(v, &mut defn_map)
-        }
-    }
-
-    defn_map.into()
-}
-
 fn add_member_def(defn: &MemberDef, defn_map: &mut Map<String, Value>) {
     defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
     let cardinality = defn.target_cardinality();
@@ -801,136 +1167,6 @@ fn add_member_def(defn: &MemberDef, defn_map: &mut Map<String, Value>) {
     if let Some(body) = defn.body() {
         add_annotations(body, defn_map);
     }
-}
-
-fn add_enum(defn: &EnumDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "enum".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    if let Some(body) = defn.body() {
-        add_annotations(body, &mut defn_map);
-
-        if body.has_variants() {
-            let mut variants: Vec<Value> = Vec::default();
-            for variant in body.variants() {
-                let mut variant_map = Map::default();
-                add_source_span(variant, &mut variant_map);
-                variant_map.insert(KEY_NAME.into(), variant.name().to_string().into());
-                if let Some(body) = variant.body() {
-                    add_annotations(body, &mut variant_map);
-                }
-                variants.push(variant_map.into());
-            }
-            defn_map.insert("variants".into(), variants.into());
-        }
-    }
-
-    value.push(defn_map.into());
-}
-
-fn add_event(defn: &EventDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "event".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-    defn_map.insert("source_ref".into(), defn.event_source().to_string().into());
-
-    if let Some(body) = defn.body() {
-        add_annotations(body, &mut defn_map);
-        if body.has_members() {
-            let mut members: Vec<Value> = Vec::default();
-
-            for member in body.members() {
-                members.push(member_to_value(member));
-            }
-
-            defn_map.insert("members".into(), members.into());
-        }
-    }
-
-    value.push(defn_map.into());
-}
-
-fn add_property(defn: &PropertyDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "property".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    let mut member_map = Map::default();
-    add_member_def(defn.member_def(), &mut member_map);
-    defn_map.insert("member".into(), member_map.into());
-
-    value.push(defn_map.into());
-}
-
-fn add_rdf(defn: &RdfDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "rdf".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    add_annotations(defn.body(), &mut defn_map);
-
-    value.push(defn_map.into());
-}
-
-fn add_structure(defn: &StructureDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "structure".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    if let Some(body) = defn.body() {
-        add_annotations(body, &mut defn_map);
-        if body.has_members() {
-            let mut members: Vec<Value> = Vec::default();
-
-            for member in body.members() {
-                members.push(member_to_value(member));
-            }
-
-            defn_map.insert("members".into(), members.into());
-        }
-    }
-
-    value.push(defn_map.into());
-}
-
-fn add_type_class(defn: &TypeClassDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "type_class".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    if defn.has_variables() {
-        let mut variables: Vec<Value> = Vec::default();
-        for variable in defn.variables() {
-            add_type_variable(variable, &mut variables);
-        }
-        defn_map.insert("variables".into(), variables.into());
-    }
-
-    if let Some(body) = defn.body() {
-        add_annotations(body, &mut defn_map);
-        if body.has_methods() {
-            let mut methods: Vec<Value> = Vec::default();
-            for method in body.methods() {
-                add_type_method(method, &mut methods);
-            }
-            defn_map.insert("methods".into(), methods.into());
-        }
-    }
-
-    value.push(defn_map.into());
 }
 
 fn add_type_variable(defn: &TypeVariable, value: &mut Vec<Value>) {
@@ -953,37 +1189,3 @@ fn add_type_method(defn: &MethodDef, value: &mut Vec<Value>) {
 
     value.push(var_map.into());
 }
-
-fn add_union(defn: &UnionDef, value: &mut Vec<Value>) {
-    let mut defn_map = Map::default();
-
-    add_source_span(defn, &mut defn_map);
-    defn_map.insert(KEY_META_TYPE.into(), "union".into());
-    defn_map.insert(KEY_NAME.into(), defn.name().to_string().into());
-
-    if let Some(body) = defn.body() {
-        add_annotations(body, &mut defn_map);
-
-        if body.has_variants() {
-            let mut variants: Vec<Value> = Vec::default();
-            for variant in body.variants() {
-                let mut variant_map = Map::default();
-                variant_map.insert(KEY_NAME.into(), variant.name().to_string().into());
-                if let Some(rename) = variant.rename() {
-                    variant_map.insert("rename".into(), rename.to_string().into());
-                }
-                if let Some(body) = variant.body() {
-                    add_annotations(body, &mut variant_map);
-                }
-                variants.push(variant_map.into());
-            }
-            defn_map.insert("variants".into(), variants.into());
-        }
-    }
-
-    value.push(defn_map.into());
-}
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------
