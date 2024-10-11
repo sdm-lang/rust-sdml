@@ -10,6 +10,9 @@ template-based generation from one or more SDML modules. The project's intent is
 to provide an idiomatic implementation of the in-memory model, parser,
 generators, and the CLI tool.
 
+It is planned for a more complete version of the CLI functionality to be
+integrated into the overall SDML CLI at some point.
+
 The following figure demonstrates this package in the broader project context.
 
 ```
