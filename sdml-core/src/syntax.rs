@@ -241,6 +241,8 @@ pub const KW_FEATURES: &str = "features";
 pub const KW_HAS_TYPE: &str = "->";
 pub const KW_HAS_TYPE_SYMBOL: &str = "→";
 
+pub const KW_OPERATION_NEGATION: &str = "not";
+pub const KW_OPERATION_NEGATION_SYMBOL: &str = "¬";
 pub const KW_OPERATION_CONJUNCTION: &str = "and";
 pub const KW_OPERATION_CONJUNCTION_SYMBOL: &str = "∧";
 pub const KW_OPERATION_DISJUNCTION: &str = "or";

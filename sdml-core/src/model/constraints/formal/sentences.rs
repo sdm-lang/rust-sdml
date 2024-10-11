@@ -3,11 +3,15 @@ use crate::model::constraints::Term;
 use crate::model::identifiers::Identifier;
 use crate::model::Span;
 use crate::syntax::{
-    KW_QUANTIFIER_EXISTS, KW_QUANTIFIER_EXISTS_SYMBOL, KW_QUANTIFIER_FORALL,
-    KW_QUANTIFIER_FORALL_SYMBOL, KW_RELATION_GREATER_THAN, KW_RELATION_GREATER_THAN_OR_EQUAL,
-    KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL, KW_RELATION_LESS_THAN,
-    KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL, KW_RELATION_NOT_EQUAL,
-    KW_RELATION_NOT_EQUAL_SYMBOL,
+    KW_OPERATION_BICONDITIONAL, KW_OPERATION_BICONDITIONAL_SYMBOL, KW_OPERATION_CONJUNCTION,
+    KW_OPERATION_CONJUNCTION_SYMBOL, KW_OPERATION_DISJUNCTION, KW_OPERATION_DISJUNCTION_SYMBOL,
+    KW_OPERATION_EXCLUSIVE_DISJUNCTION, KW_OPERATION_EXCLUSIVE_DISJUNCTION_SYMBOL,
+    KW_OPERATION_IMPLICATION, KW_OPERATION_IMPLICATION_SYMBOL, KW_OPERATION_NEGATION,
+    KW_OPERATION_NEGATION_SYMBOL, KW_QUANTIFIER_EXISTS, KW_QUANTIFIER_EXISTS_SYMBOL,
+    KW_QUANTIFIER_FORALL, KW_QUANTIFIER_FORALL_SYMBOL, KW_RELATION_GREATER_THAN,
+    KW_RELATION_GREATER_THAN_OR_EQUAL, KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
+    KW_RELATION_LESS_THAN, KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
+    KW_RELATION_NOT_EQUAL, KW_RELATION_NOT_EQUAL_SYMBOL,
 };
 use std::fmt::Display;
 use std::str::FromStr;
@@ -653,6 +657,33 @@ impl BinaryBooleanSentence {
     get_and_set!(pub operator, set_operator => ConnectiveOperator);
 
     get_and_set!(pub right_operand, set_right_operand => boxed ConstraintSentence);
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Display for ConnectiveOperator {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match (self, f.alternate()) {
+                (ConnectiveOperator::Negation, true) => KW_OPERATION_NEGATION,
+                (ConnectiveOperator::Negation, false) => KW_OPERATION_NEGATION_SYMBOL,
+                (ConnectiveOperator::Conjunction, true) => KW_OPERATION_CONJUNCTION,
+                (ConnectiveOperator::Conjunction, false) => KW_OPERATION_CONJUNCTION_SYMBOL,
+                (ConnectiveOperator::Disjunction, true) => KW_OPERATION_DISJUNCTION,
+                (ConnectiveOperator::Disjunction, false) => KW_OPERATION_DISJUNCTION_SYMBOL,
+                (ConnectiveOperator::ExclusiveDisjunction, true) =>
+                    KW_OPERATION_EXCLUSIVE_DISJUNCTION,
+                (ConnectiveOperator::ExclusiveDisjunction, false) =>
+                    KW_OPERATION_EXCLUSIVE_DISJUNCTION_SYMBOL,
+                (ConnectiveOperator::Implication, true) => KW_OPERATION_IMPLICATION,
+                (ConnectiveOperator::Implication, false) => KW_OPERATION_IMPLICATION_SYMBOL,
+                (ConnectiveOperator::Biconditional, true) => KW_OPERATION_BICONDITIONAL,
+                (ConnectiveOperator::Biconditional, false) => KW_OPERATION_BICONDITIONAL_SYMBOL,
+            }
+        )
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

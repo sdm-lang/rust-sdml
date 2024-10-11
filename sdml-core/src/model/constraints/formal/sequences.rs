@@ -138,6 +138,12 @@ impl NamedVariables {
     }
 }
 
+impl NamedVariables {
+    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+        self.names.iter()
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
 
 impl_has_source_span_for!(MappingVariable);

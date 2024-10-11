@@ -47,6 +47,9 @@ pub enum Error {
     LanguageValidationError {
         source: Diagnostic,
     },
+    LanguageTagError {
+        source: language_tags::ParseError,
+    },
     GeneratorError {
         name: String,
         message: String,
@@ -99,6 +102,8 @@ impl Display for Error {
                     format!("An error occurred formatting codespan reports; source: {source}"),
                 Self::LanguageValidationError { source } =>
                     format!("Validation diagnostic: {}", source.message),
+                Self::LanguageTagError { source } =>
+                    format!("An error occurred parsing a BCP-47 language tag; source: {source}"),
                 Self::GeneratorError { name, message } =>
                     format!("An error occurred in a generator named `{name}`: {message}"),
             }
@@ -179,6 +184,14 @@ impl From<codespan_reporting::files::Error> for Error {
     fn from(source: codespan_reporting::files::Error) -> Self {
         report_and_return! {
             Error::CodespanReportingError { source }
+        }
+    }
+}
+
+impl From<language_tags::ParseError> for Error {
+    fn from(source: language_tags::ParseError) -> Self {
+        report_and_return! {
+            Error::LanguageTagError { source }
         }
     }
 }

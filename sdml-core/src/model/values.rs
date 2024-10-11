@@ -78,7 +78,7 @@ pub struct LanguageString {
 pub struct LanguageTag {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    value: String,
+    value: language_tags::LanguageTag,
 }
 
 /// Corresponds to the grammar rule `mapping_value`.
@@ -461,7 +461,7 @@ impl FromStr for LanguageTag {
         if Self::is_valid_str(s) {
             Ok(Self {
                 span: None,
-                value: s.to_string(),
+                value: language_tags::LanguageTag::parse(s)?,
             })
         } else {
             Err(invalid_language_tag(0, None, s).into())
@@ -469,9 +469,21 @@ impl FromStr for LanguageTag {
     }
 }
 
-impl From<LanguageTag> for String {
+impl From<LanguageTag> for language_tags::LanguageTag {
     fn from(value: LanguageTag) -> Self {
         value.value
+    }
+}
+
+impl From<LanguageTag> for String {
+    fn from(value: LanguageTag) -> Self {
+        value.value.to_string()
+    }
+}
+
+impl AsRef<language_tags::LanguageTag> for LanguageTag {
+    fn as_ref(&self) -> &language_tags::LanguageTag {
+        &self.value
     }
 }
 
@@ -487,9 +499,15 @@ impl PartialEq for LanguageTag {
     }
 }
 
+impl PartialEq<language_tags::LanguageTag> for LanguageTag {
+    fn eq(&self, other: &language_tags::LanguageTag) -> bool {
+        self.value == *other
+    }
+}
+
 impl PartialEq<str> for LanguageTag {
     fn eq(&self, other: &str) -> bool {
-        self.value == other
+        self.value.as_str() == other
     }
 }
 
@@ -505,7 +523,7 @@ impl LanguageTag {
     pub fn new_unchecked(s: &str) -> Self {
         Self {
             span: None,
-            value: s.to_string(),
+            value: language_tags::LanguageTag::parse(s).unwrap(),
         }
     }
 
@@ -514,11 +532,19 @@ impl LanguageTag {
     // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {
-        LANGUAGE_TAG.is_match(s)
+        language_tags::LanguageTag::parse(s).is_ok()
     }
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value
+    }
+
+    pub fn inner(&self) -> &language_tags::LanguageTag {
+        &self.value
+    }
+
+    pub fn into_inner(self) -> language_tags::LanguageTag {
+        self.value
     }
 }
 

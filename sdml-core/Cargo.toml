@@ -22,6 +22,7 @@ terms = ["serde", "dep:serde_json", "dep:serde_regex"]
 [dependencies]
 codespan-reporting = "0.11.1"
 convert_case = "0.6"
+language-tags = { version = "0.3.2", features = ["serde"] }
 lazy_static = "1.4"
 ordered-float = { version = "4.2", features = ["serde"] }
 regex = "1.10.2"
