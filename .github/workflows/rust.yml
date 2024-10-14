@@ -23,6 +23,8 @@ on:
 env:
   RUST_LOG: info
   RUST_BACKTRACE: 1
+  RUST_VERBOSE: --verbose
+  RUST_DOCFLAGS: -D warnings
 
 jobs:
   publish:
@@ -44,20 +46,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
       with:
-        toolchain: stable
+        rust-version: stable
         profile: minimal
-        override: true
         
     - uses: Swatinem/rust-cache@v2
       
     - name: Check publish
-      uses: actions-rs/cargo@v1
-      with:
-        command: publish
-        args: --package ${{ matrix.package}} --dry-run
+      run: cargo publish ${{ env.RUST_VERBOSE }} --package ${{ matrix.package}} --dry-run
 
       
   check_tests:
@@ -92,26 +90,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust ${{ matrix.rust }} on ${{ matrix.os }}
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
       with:
-        toolchain: ${{ matrix.rust }}
+        rust-version: ${{ matrix.rust }}
         profile: minimal
-        override: true
         
     - uses: Swatinem/rust-cache@v2
       
     - name: Build
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --workspace ${{ matrix.test-features }}
+      run: cargo build ${{ env.RUST_VERBOSE }} --workspace ${{ matrix.test-features }}
       
     - name: Test with ${{ matrix.test-features }}
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --workspace ${{ matrix.test-features }}
+      run: cargo test ${{ env.RUST_VERBOSE }} --workspace ${{ matrix.test-features }}
  
       
   benchmarks:
@@ -127,20 +118,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
       with:
-        toolchain: ${{ matrix.rust }}
+        rust-version: ${{ matrix.rust }}
         profile: minimal
-        override: true
         
     - uses: Swatinem/rust-cache@v2
       
     - name: Run benchmarks with all features
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --workspace --benches --all-features --no-fail-fast
+      run: cargo test ${{ env.RUST_VERBOSE }} --workspace --benches --all-features --no-fail-fast
 
       
   examples:
@@ -164,10 +151,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       
     - name: Run examples with all features
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --workspace --examples --all-features --no-fail-fast
+      run: cargo test ${{ env.RUST_VERBOSE }} --workspace --examples --all-features --no-fail-fast
 
         
   coverage:   
@@ -187,7 +171,7 @@ jobs:
       run: cargo install cargo-tarpaulin
 
     - name: Run cargo-tarpaulin
-      run: cargo tarpaulin --out Xml --all-features -- --test-threads 1
+      run: cargo tarpaulin ${{ env.RUST_VERBOSE }} --out Xml --all-features -- --test-threads 1
 
     - name: Upload to codecov.io
       uses: codecov/codecov-action@v1.0.2
@@ -200,7 +184,30 @@ jobs:
         name: code-coverage-report
         path: cobertura.xml
 
-          
+        
+  mira:
+    if: false
+    name: Mira tests
+    needs: test
+    strategy:
+      matrix:
+        test-features: ["", "--all-features", "--no-default-features"]
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
+      with:
+        rust-version: nightly
+        components: mira
+
+    - name: Run tests using mira
+      run: cargo miri test ${{ env.RUST_VERBOSE }} ${{ matrix.test-features }}
+
+
   docs:
     name: Document generation
     needs: [rustfmt, clippy]
@@ -209,22 +216,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
       with:
-        toolchain: stable
-        profile: minimal
-        override: true
+        rust-version: stable
+        profile: default
         
     - uses: Swatinem/rust-cache@v2
       
     - name: Generate documentation
-      uses: actions-rs/cargo@v1
-      env:
-        RUSTDOCFLAGS: -D warnings
-      with:
-        command: doc
-        args: --workspace --all-features --no-deps
+      run: cargo doc ${{ env.RUST_VERBOSE }} --workspace --all-features --no-deps ${{ env.RUST_DOCFLAGS }}
 
       
   rustfmt:
@@ -234,21 +235,16 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
       with:
-        toolchain: stable
-        profile: minimal
-        override: true
-        components: rustfmt
+        rust-version: stable
+        profile: default
           
     - uses: Swatinem/rust-cache@v2
 
     - name: Check formatting
-      uses: actions-rs/cargo@v1
-      with:
-        command: fmt
-        args: --all -- --check
+      run: cargo fmt ${{ env.RUST_VERBOSE }} --all -- --check
 
       
   clippy:
@@ -260,17 +256,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
       with:
-        toolchain: stable
-        profile: minimal
-        override: true
-        components: clippy
+        rust-version: stable
+        profile: default
               
     - uses: Swatinem/rust-cache@v2
 
-    - uses: actions-rs/clippy-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --workspace --no-deps --all-features --all-targets -- -D warnings
+    - name: Check well-formedness rules
+      run: cargo clippy ${{ env.RUST_VERBOSE }} --workspace --no-deps --all-features --all-targets -- -D warnings
