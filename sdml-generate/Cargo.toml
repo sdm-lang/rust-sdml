@@ -23,8 +23,8 @@ s-expr = []
 [dependencies]
 nu-ansi-term = "0.50.1"
 regex = "1.11.0"
-sdml-core = { version = "0.3.0", features = ["serde"], path = "../sdml-core" }
-sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
+sdml-core = { version = "0.3.1", features = ["serde"], path = "../sdml-core" }
+sdml-errors = { version = "0.3.1", path = "../sdml-errors" }
 serde = { version = "1.0.210", features = ["derive"] }
 serde_regex = "1.1.0"
 tempfile = "3.13.0"

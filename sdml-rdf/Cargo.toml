@@ -17,10 +17,10 @@ all-features = true
 rdftk_core = "0.5"
 rdftk_io = "0.3.1"
 rdftk_iri = "0.2.5"
-sdml-core = { version = "0.3.0", features = ["serde", "tree-sitter"], path = "../sdml-core" }
-sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
-sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
+sdml-core = { version = "0.3.1", features = ["serde", "tree-sitter"], path = "../sdml-core" }
+sdml-errors = { version = "0.3.1", path = "../sdml-errors" }
 url = "2.5"
 
 [dev-dependencies]
 pretty_assertions = "1.4"
+sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
