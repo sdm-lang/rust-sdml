@@ -9,7 +9,6 @@ use std::{
     hash::Hash,
     ops::Range,
 };
-use tree_sitter::Node;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -188,14 +187,16 @@ pub struct Span(Range<usize>);
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
-impl From<&Node<'_>> for Span {
-    fn from(node: &Node<'_>) -> Self {
+#[cfg(feature = "tree-sitter")]
+impl From<&tree_sitter::Node<'_>> for Span {
+    fn from(node: &tree_sitter::Node<'_>) -> Self {
         Self(node.byte_range())
     }
 }
 
-impl From<Node<'_>> for Span {
-    fn from(node: Node<'_>) -> Self {
+#[cfg(feature = "tree-sitter")]
+impl From<tree_sitter::Node<'_>> for Span {
+    fn from(node: tree_sitter::Node<'_>) -> Self {
         Self::from(&node)
     }
 }
