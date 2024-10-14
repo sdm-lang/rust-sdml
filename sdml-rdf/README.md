@@ -10,24 +10,8 @@ data model (in package sdml-core) and the RDF semantics..
 
 The following figure demonstrates this package in the broader project context.
 
-```text
-                           ╭───────╮
-                           │  CLI  │
-                ╔═════╦══  │ crate │  ═══╦══════╗
-┌╌╌╌╌╌╌╌╌┐      ║     ║    ╰───────╯     ║      ║
-┆        ┆      ║     V                  V      ║
-┆ source ┆      ║  ╭───────╮       ╭──────────╮ ║
-┆  file  ┆  ══> ║  │ parse │  ══>  │ generate │ ║
-┆        ┆   ╭──║──│ crate │───────│   crate  │─║──╮
-└╌╌╌╌╌╌╌╌┘   │  ║  ╰───────╯       ╰──────────╯ ║  │
-             │  v    core & errors crates       v  │
-┌╌╌╌╌╌╌╌╌┐   │ ╭───────╮              ╭──────────╮ │
-┆        ┆   ╰─│  rdf  │──────────────│   tera   │─╯
-┆  RDF   ┆  ══>    │ crate │      ⋀       │  crate   │
-┆  file  ┆         ╰───────╯      ║       ╰──────────╯
-┆        ┆
-└╌╌╌╌╌╌╌╌┘
-```
+![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview.png)
+
 
 ## Changes
 

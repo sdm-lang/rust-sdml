@@ -15,23 +15,7 @@ integrated into the overall SDML CLI at some point.
 
 The following figure demonstrates this package in the broader project context.
 
-```
-                         ╭───────╮
-                         │  CLI  │
-                    ╔══  │ crate │  ══╗
-                    ║    ╰───────╯    ║
-┌╌╌╌╌╌╌╌╌┐          V                 V
-┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
-┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
-┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
-┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
-└╌╌╌╌╌╌╌╌┘   │        core/errors crate         │
-             ╰──────────────────────────────────╯
- ┌───────┐                  ⋀
- │ other │                  ║
- │ tools │  ════════════════╝
- └───────┘
-```
+![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview.png)
 
 # Example
 

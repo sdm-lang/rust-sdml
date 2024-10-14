@@ -279,7 +279,7 @@ jobs:
 
   docs:
     name: Document Generation
-    needs: [rustfmt, clippy]
+    needs: [rustfmt, check, clippy]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
