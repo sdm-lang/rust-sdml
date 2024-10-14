@@ -160,11 +160,12 @@ impl Context {
             .expect("Error, subject_uri is empty (get)")
             .clone()
     }
-    #[allow(dead_code)] // TODO: audit this
 
+    #[allow(dead_code)] // TODO: audit this
     fn push_subject(&mut self, new_subject: Url) {
         self.subject_uri.push(new_subject);
     }
+
     #[allow(dead_code)] // TODO: audit this
     fn pop_subject(&mut self) -> Url {
         self.subject_uri

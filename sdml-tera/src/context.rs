@@ -5,7 +5,7 @@ Note that the created context values *are not* intended as a direct 1:1 represen
 published surface syntax grammar or the Rust model. The form is simplified for use in the template
 language using the following guidelines.
 
-1. Reduce layers in the model that do not add value; i.e. [`Identifier`] in the Rust model has an
+1. Reduce layers in the model that do not add value; i.e. [Identifier` in the Rust model has an
    inner `value` field.
 2. Where an `Option<T>` field is `None` do not add a key in the generated object.
 3. Where a `Vec<T>` field `is_empty` do not add a key in the generated object.

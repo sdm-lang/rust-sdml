@@ -176,7 +176,7 @@ pub trait References {
 // ------------------------------------------------------------------------------------------------
 
 ///
-/// The source location information from the tree-sitter [`Node`] type. The location is stored as
+/// The source location information from the tree-sitter `Node` type. The location is stored as
 /// a start and end position, where the positions are byte indices.
 ///
 #[derive(Clone, PartialEq, Eq, Hash)]
