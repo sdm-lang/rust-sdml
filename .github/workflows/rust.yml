@@ -63,7 +63,7 @@ jobs:
 
       
   check_tests:
-    name: Check for test types
+    name: Check for Test Types
     runs-on: ubuntu-latest
     outputs:
       has_benchmarks: ${{ steps.check_benchmarks.outputs.has_benchmarks }}
@@ -80,8 +80,8 @@ jobs:
         shell: bash
 
         
-  test:
-    name: Test
+  build:
+    name: Build
     needs: [rustfmt, clippy]
     strategy:
       matrix:
@@ -104,6 +104,29 @@ jobs:
       
     - name: Build
       run: cargo build ${{ env.RUST_VERBOSE }} --workspace ${{ matrix.test-features }}
+
+        
+  test:
+    name: Tests
+    needs: [build]
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        rust: ["stable", "beta", "nightly"]
+        test-features: ["", "--all-features", "--no-default-features"]
+    continue-on-error: ${{ matrix.rust != 'stable' }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
+      with:
+        rust-version: ${{ matrix.rust }}
+        profile: minimal
+        
+    - uses: Swatinem/rust-cache@v2
       
     - name: Test with ${{ matrix.test-features }}
       run: cargo test ${{ env.RUST_VERBOSE }} --workspace ${{ matrix.test-features }}
@@ -190,7 +213,7 @@ jobs:
 
         
   miri:
-    name: Miri tests
+    name: Miri Tests
     needs: test
     strategy:
       matrix:
@@ -222,7 +245,7 @@ jobs:
 
 
   sanitizer-tests:
-    name: Test with -Zsanitizer=${{ matrix.sanitizer }}
+    name: Sanitizer Tests
     needs: test
     strategy:
       fail-fast: false
@@ -241,7 +264,7 @@ jobs:
         rust-version: nightly
         components: rust-src
 
-    - name: Sanitizer Tests
+    - name: Run tests w/sanitizer
       env:
         RUSTFLAGS: -Zsanitizer=${{ matrix.sanitizer }}
         RUSTDOCFLAGS: -Zsanitizer=${{ matrix.sanitizer }}
@@ -255,7 +278,7 @@ jobs:
 
 
   docs:
-    name: Document generation
+    name: Document Generation
     needs: [rustfmt, clippy]
     runs-on: ubuntu-latest
     steps:
@@ -275,7 +298,7 @@ jobs:
 
       
   rustfmt:
-    name: rustfmt
+    name: Format
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -320,7 +343,7 @@ jobs:
 
       
   check:
-    name: Cargo Check
+    name: Check
     strategy:
       matrix:
         test-features: ["", "--all-features", "--no-default-features"]
