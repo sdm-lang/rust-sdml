@@ -1,0 +1,40 @@
+digraph G {
+  lines="ortho";
+
+  node [shape="box3d"; width=1.0];
+  edge [arrowhead="vee"; style="dashed"; color="gray"];
+
+  cli;
+  core;
+  error;
+  parse;
+  rdf;
+  generate;
+
+  cli -> parse;
+  cli -> rdf;
+  cli -> generate;
+  cli -> tera
+  core -> error;
+  parse -> core;
+  rdf -> core;
+  generate -> core;
+  generate -> parse;
+  generate -> rdf;
+  generate -> tera;
+  tera -> core;
+
+  sdml_source [label="Surface\nSyntax"; shape="note"; height=0.66];
+  rdf_source [label="RDF\n(NT/Turtle)"; shape="note"; height=0.66];
+  doc [label="document\n(MD/Org)"; shape="note"; height=0.66];
+  diagrams [label="diagram\n(ERD/UML)"; shape="note"; height=0.66];
+
+  sdml_source -> parse [style="solid"; color="black"];
+  generate -> sdml_source [style="solid"; color="black"];
+
+  rdf_source -> rdf [style="solid"; color="black"];
+  rdf -> rdf_source [style="solid"; color="black"];
+  generate -> doc [style="solid"; color="black"];
+  generate -> diagrams [style="solid"; color="black"];
+
+}
