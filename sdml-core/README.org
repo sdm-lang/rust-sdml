@@ -39,6 +39,11 @@ Note that other tools can use the =sdml_core= API to create or manipulate models
 
 * Changes
 
+*Version 0.3.1*
+
+- Feature: move use of tree-sitter crate behind a feature.
+- Feature: added iterators to trait =ModuleStore=.
+
 *Version 0.3.0*
 
 - Feature: update for the latest grammar.
