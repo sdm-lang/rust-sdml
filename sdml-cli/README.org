@@ -427,6 +427,10 @@ end
 
 * Changes
 
+*Version 0.3.1*
+
+- Feature: added new =generate= command which uses the =sdml-tera= package for template-driven generators.
+
 *Version 0.3.0*
 
 - Feature: updates to support the latest grammar, see ~sdml-core~.
