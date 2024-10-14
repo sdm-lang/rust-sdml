@@ -1,123 +1,100 @@
-#+TITLE: Package sdml-cli
-#+AUTHOR: Simon Johnston
-#+EMAIL: johnstonskj@gmail.com
-#+LANGUAGE: en
-#+STARTUP: overview hidestars inlineimages entitiespretty
-#+OPTIONS: author:nil created:nil creator:nil date:nil email:nil num:3 toc:nil
+# Package sdml-cli
 
-Rust CLI for the Simple Domain Modeling Language (SDML).
-
-[[https://crates.io/crates/sdml_cli][https://img.shields.io/crates/v/sdml_cli.svg]]
+[![Crates.io](https://img.shields.io/crates/v/sdml_cli.svg)](https://crates.io/crates/sdml_cli)
+[![Docs.rs](https://img.shields.io/docsrs/sdml-cli.svg)](https://docs.rs/sdml_cli)
 
 This package is part of the Rust SDML project and specifically implements the =sdml= command-line interface (CLI).
 The project's intent is to provide an idiomatic implementation of the in-memory model, parser, generators, and the CLI tool.
 
 The following figure demonstrates this package in the broader project context.
 
-#+CAPTION: Package Organization
-#+BEGIN_EXAMPLE
-                         ╭───────╮
-                         │  CLI  │
-                    ╔══  │ crate │  ══╗
-                    ║    ╰───────╯    ║
-┌╌╌╌╌╌╌╌╌┐          V                 V
-┆        ┆       ╭───────╮       ╭──────────╮       Formatted Source
-┆ source ┆  ══>  │ parse │  ══>  │ generate │  ══>  RDF Representation 
-┆  file  ┆   ╭───│ crate │───────│   crate  │───╮   Documentation
-┆        ┆   │   ╰───────╯       ╰──────────╯   │   Diagrams
-└╌╌╌╌╌╌╌╌┘   │        core/errors crate         │
-             ╰──────────────────────────────────╯
- ┌───────┐                  ⋀
- │ other │                  ║
- │ tools │  ════════════════╝
- └───────┘
-#+END_EXAMPLE
+![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview.png)
 
-* Installation
+## Installation
 
 To install the command-line tool on MacOS or Linux use the Homebrew package manager and the SDML Tap. Installing in this
 way also installs dependencies such as GraphViz and PlantUML used for diagram generation.
 
-#+BEGIN_SRC sh :exports code :eval never
+```bash
 ❯ brew install sdm-lang/sdml/sdml
-#+END_SRC
+```
 
 You can check that you have the tool installed and on the path with the following check.
 
-#+BEGIN_EXAMPLE bash
+```bash
  ❯ sdml versions               
 SDML CLI:        0.2.7
 SDML grammar:    0.2.16
 Tree-Sitter ABI: 14
-#+END_EXAMPLE
+```
 
-** Install via cargo
+### Install via cargo
 
-Cargo is usually installed with the Rust toolchain using [[https://rustup.rs/[rustup]].
+Cargo is usually installed with the Rust toolchain using [rustup](https://rustup.rs/).
 
 The following command should download and build the tool, and will also work to install any updates.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ cargo install sdml-cli
-#+END_EXAMPLE
+```
 
 Cargo will sometimes report that you have the latest version installed, to be sure you can force it to install
-regardless with the =--force= option.
+regardless with the `--force` option.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ cargo install sdml-cli --force
-#+END_EXAMPLE
+```
 
-** Install from source
+### Install from source
 
 To install the CLI from source you need to clone the entire repository.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ git clone https://github.com/sdm-lang/rust-sdml.git
-#+END_EXAMPLE
+```
 
-In the =rust-sdml= directory you can build/test/install using the following commands.
+In the `rust-sdml` directory you can build/test/install using the following commands.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ cargo build
 ❯ cargo test
 ❯ cargo install --path sdml-cli
-#+END_EXAMPLE
+```
 
-* Global Options
+##Global Options
 
-Certain command-line options act on all commands, these must appear before the command. The SDML tool has a log-filter
-and a no-color global option.
+Certain command-line options act on all commands, these must appear before the command. The SDML tool has a `log-filter`
+and a `no-color` global option.
 
-The set of packages making up =rust-sdml= all have extensive logging which can be enabled when running the tool. The
-global argument =--log-filter= takes a log level and displays any log event with a severity greater than, or equal to,
+The set of packages making up `rust-sdml` all have extensive logging which can be enabled when running the tool. The
+global argument `--log-filter` takes a log level and displays any log event with a severity greater than, or equal to,
 the filter.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml --log-filter tracing versions
 2024-02-20T19:06:53.141741Z  INFO sdml: Log level set to `LevelFilter::Tracing`
 2024-02-20T19:06:53.141877Z TRACE sdml: Commands::execute self: Versions
 SDML CLI:        0.2.7
 SDML grammar:    0.2.16
 Tree-Sitter ABI: 14
-#+END_EXAMPLE
+```
 
 Some of the commands will, by default, use colored output which can be a problem if you save a file for future
 processing as the control characters play havoc with diff tools for example. 
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml --no-color versions
 ❯ NO_COLOR=1  sdml versions
 ❯ CLI_COLOR=0 sdml versions
-#+END_EXAMPLE
+```
 
-* Commands
+## Commands
 
 Input Files
 
-** Getting Help
+### Getting Help
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml --help
 Rust CLI for Simple Domain Modeling Language (SDML)
 
@@ -159,37 +136,37 @@ Options:
 
   -V, --version
           Print version
-#+END_EXAMPLE
+```
 
-** Representation Conversion
+### Representation Conversion
 
 This command (convert) allows the conversion of a module from the SDML surface syntax into one of a number of alternate
 representations.
 
-*** RDF
+#### RDF
 
 This uses the surface to RDF mapping defined in the SDML Language Reference. The mapping is normative and stable.
 
-*** JSON
+#### JSON
 
-This is a direct representation of the in-memory model in the Rust package =sdml_core= in JSON. This mapping is
+This is a direct representation of the in-memory model in the Rust package `sdml_core` in JSON. This mapping is
 non-normative and may change according to any model structure change.
 
-*** S-Expression
+#### S-Expression
 
 This is a debugging representation, and supported as the underlying tree-sitter library uses s-expressions as a
 parse-tree visualization.
 
-** Dependency Visualization
+### Dependency Visualization
 
 This command (dep) generates a representation of the transitive closure of dependencies for a given module into one of a
 number of alternate representations.
 
-*** Tree
+#### Tree
 
 Show dependencies as a text tree with the original as the root.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml deps sdml
 sdml
 ├── owl
@@ -206,13 +183,13 @@ sdml
 │   ├── rdf
 │   └── rdfs
 └── xsd
-#+END_EXAMPLE
+```
 
-In some cases the entire set of dependencies is not necessary and the =--depth= argument can be added to only show a
+In some cases the entire set of dependencies is not necessary and the `--depth` argument can be added to only show a
 number of levels of import from the root. The depth argument instructs to command to stop after that many dependencies
 away from the original module. Setting depth to 1 will only show the direct dependencies of the original.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml deps --depth 1 sdml
 sdml
 ├── owl
@@ -220,102 +197,102 @@ sdml
 ├── rdfs
 ├── skos
 └── xsd
-#+END_EXAMPLE
+```
 
-*** Graph
+#### Graph
 
 Create an SVG representation of the dependency graph using GraphViz.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml deps --output-format graph sdml > sdml-deps.svg
 ❯ open -a Safari sdml-deps.svg
-#+END_EXAMPLE
+```
 
-[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example_deps_graph.svg]]
+![example](https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example_deps_graph.svg)
 
-*** RDF
+#### RDF
 
 Create a set of RDF statements,as N-Triples, that represent the individual OWL import relationships.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml deps --depth 1 --output-format rdf sdml
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2002/07/owl#> .
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2000/01/rdf-schema#> .
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2004/02/skos/core#> .
 <http://sdml.io/sdml-owl.ttl#> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2001/XMLSchema#> .
-#+END_EXAMPLE
+```
 
-** Diagram Generation
+### Diagram Generation
 
 This command (draw) generates diagrams of a module with different perspectives.
 
-*** Concepts
+#### Concepts
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml draw --diagram concepts --o example-concepts.svg -i example/example.sdm
 ❯ open -a Safari example-concepts.svg
-#+END_EXAMPLE
+```
 
-[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-concepts.svg]]
+![example](https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-concepts.svg)
 
-*** Entity Relationship
+#### Entity Relationship
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml draw --diagram entity-relationship --o example-erd.svg -i example/example.sdm
 ❯ open -a Safari example-erd.svg
-#+END_EXAMPLE
+```
 
-[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-erd.svg]]
+![example](https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-erd.svg)
 
-*** UML Class
+#### UML Class
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml draw --diagram uml-class --o example-uml.svg -i example/example.sdm
 ❯ open -a Safari example-uml.svg
-#+END_EXAMPLE
+```
 
-[[https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-uml.svg]]
+![example](https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example-uml.svg)
 
-** Document (Project) Generation
+### Document (Project) Generation
 
 This command (doc-book) creates structured documentation for a collection of modules, and includes annotations,
 constraints and all definition types. The generated documentation also include diagrams and dependency graphs.
 
-*** Org-mode
+#### Org-mode
 
 Create an Emacs org-mode formatted file. This format allows all content to be written into a single file with export
 options to HTML, LaTeX, Word, PDF and more.
 
-** Document (Module) Generation
+### Document (Module) Generation
 
 This command (doc) creates structured documentation for a module, and includes annotations, constraints and all definition
 types. The generated documentation also include diagrams and dependency graphs.
 
-*** Org-mode
+#### Org-mode
 
 Create an Emacs org-mode formatted file. This format allows all content to be written into a single file with export
 options to HTML, LaTeX, Word, PDF and more.
 
-*** Markdown
+#### Markdown
 
 Create a markdown formatted file, this file uses GitHub-flavored markdown to allow for some better content formatting
 than CommonMark.
 
-** Module Highlighting
+### Module Highlighting
 
 TBD
 
-** XRef Tag Generation
+### XRef Tag Generation
 
 TBD
 
-** Validation
+### Validation
 
 This command (validate) provides deep validation of a module's content, including errors, warnings, and linter-like advice. Checks
 are run not only on the initial module, but it's transitively loaded dependencies.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml validate --level all -i examples/errors/i0506.sdm
 note[I0506]: identifier not using preferred casing
   ┌─ examples/errors/i0506.sdm:1:8
@@ -334,40 +311,40 @@ note[I0506]: identifier not using preferred casing
   │
   = expected upper camel case (UpperCamelCase)
   = help: for more details, see <https://sdml.io/errors/#I0506>
-#+END_EXAMPLE
+```
 
 Additionally, a `short-form` option will generate diagnostics using a CSV format that is easier for tools to parse. The
 fields in this format are: severity, file name, start line, start column, end line, end column, error code, and message.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml validate --level all --short-form -i examples/errors/i0506.sdm
 note,examples/errors/i0506.sdm,1,8,1,15,I0506,identifier not using preferred casing
 note,examples/errors/i0506.sdm,3,13,3,26,I0506,identifier not using preferred casing
-#+END_EXAMPLE
+```
 
-** Version Information
+### Version Information
 
-This command (versions) shows more information than the simple =--version= global argument and is useful for debugging.
+This command (versions) shows more information than the simple `--version` global argument and is useful for debugging.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml versions               
 SDML CLI:        0.2.7
 SDML grammar:    0.2.16
 Tree-Sitter ABI: 14
-#+END_EXAMPLE
+```
 
-** Module Viewer
+### Module Viewer
 
 This command (view) will generate source code from a module file, which at first seems redundant. However, this view provides
-levels of detail that allow for an overview of module definitions. The =--level= argument can be used to elide content and
+levels of detail that allow for an overview of module definitions. The `--level` argument can be used to elide content and
 get an overview of a module.
 
-*** Definitions Only
+#### Definitions Only
 
 Show only the definitions in the module, any definition body will be elided, for an overview of the module contents.
-Elided definitions are followed by =";; ..."=.
+Elided definitions are followed by `";; ..."`.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml view --level definitions -i examples/example.sdm
 module example <https://example.com/api> is
 
@@ -378,14 +355,14 @@ module example <https://example.com/api> is
   entity Example ;; ...
 
 end
-#+END_EXAMPLE
+```
 
-*** Members
+#### Members
 
 Show definitions in the module and show the members of product types and variants of sum types but
 not their bodies if present.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml view --level members -i examples/example.sdm
 module example <https://example.com/api> is
 
@@ -399,13 +376,13 @@ module example <https://example.com/api> is
   end
 
 end
-#+END_EXAMPLE
+```
 
-*** Full
+#### Full
 
 Show all contents of the module.
 
-#+BEGIN_EXAMPLE bash
+```bash
 ❯ sdml view --level full -i examples/example.sdm
 module example <https://example.com/api> is
 
@@ -423,60 +400,60 @@ module example <https://example.com/api> is
   end
 
 end
-#+END_EXAMPLE
+```
 
-* Changes
+## Changes
 
-*Version 0.3.1*
+### Version 0.3.1
 
-- Feature: added new =generate= command which uses the =sdml-tera= package for template-driven generators.
+- Feature: added new `generate` command which uses the =sdml-tera= package for template-driven generators.
 
-*Version 0.3.0*
+### Version 0.3.0
 
-- Feature: updates to support the latest grammar, see ~sdml-core~.
-- Refactor: use the latest ~Generator~ trait.
+- Feature: updates to support the latest grammar, see ~`sdml-core~`.
+- Refactor: use the latest ~`Generator~` trait.
 
-*Version 0.2.10*
+### Version 0.2.10
 
-- Feature: added new command =doc-book= to create a more complex documentation output for a collection of modules.
-- Build: bump version of =sdml-errors=, =sdml-core=, and =sdml-generate=.
+- Feature: added new command `doc-book` to create a more complex documentation output for a collection of modules.
+- Build: bump version of `sdml-errors`, `sdml-core`, and `sdml-generate`.
 
-*Version 0.2.9*
+### Version 0.2.9
 
-- Build: update dependency from =sdml_error= to =sdml-errors=.
-- Build: bump versions of =sdml-core=, =sdml-parse=, =sdml-generate=.
+- Build: update dependency from `sdml_error` to `sdml-errors`.
+- Build: bump versions of `sdml-core`, `sdml-parse`, `sdml-generate`.
 
-*Version 0.2.8*
+### Version 0.2.8
 
-- Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
+- Build: upgrade to `sdml_core` version `0.2.14` and the new `ModelStore` trait.
 
-*Version 0.2.7*
+### Version 0.2.7
 
-- Feature: better error handling in conjunction with the validation and diagnostics in =sdml-errors=.
+- Feature: better error handling in conjunction with the validation and diagnostics in `sdml-errors`.
 
-*Version 0.2.6*
+### Version 0.2.6
 
 - Build: update dependencies.
 
-*Version 0.2.5*
+### Version 0.2.5
 
-- Feature: Add new =--no-color= flag to the CLI which also uses the =NO_COLOR= environment variable.
-- Feature: Removed indirect dependencies from =Cargo.toml=.
+- Feature: Add new `--no-color` flag to the CLI which also uses the `NO_COLOR` environment variable.
+- Feature: Removed indirect dependencies from `Cargo.toml`.
 - Update: New generator features for colored RDF.
   
-*Version 0.2.4*
+### Version 0.2.4
 
-- Feature: Add new =source= command to call the new source generator.
-- Fix: Change the description of =depth= parameter for =deps= command, =0= is the default which means all depths are included
+- Feature: Add new `source` command to call the new source generator.
+- Fix: Change the description of `depth` parameter for `deps` command, 0 is the default which means all depths are included
   in the output.
 - Update: Use new generator traits that require a module cache parameter.
 
-*Version 0.2.3*
+### Version 0.2.3
 
-- Feature: add new =stdlib= modules with standard layout.
+- Feature: add new `stdlib` modules with standard layout.
 - Feature: minor refactor of cache and loader.
 
-*Version 0.2.2*
+### Version 0.2.2
 
 - Feature: Update to latest grammar for version URIs and RDF definitions.
   - Add support for base URI on modules.
@@ -484,25 +461,25 @@ end
   - Add support for version URI on module import.
   - Parse RDF definitions for classes and properties.
 
-*Version 0.2.1*
+### Version 0.2.1
 
 - Feature: Remove member groups.
 
-*Version 0.2.0*
+### Version 0.2.0
 
 - Feature: Update to latest grammar.
-  - Remove =ValueVariant= numeric values.
+  - Remove `ValueVariant` numeric values.
   - Update formal constraints.
   - Add type classes.
 
-*Version 0.1.6*
+### Version 0.1.6
 
 - Updated dependencies.
 
-*Version 0.1.5*
+### Version 0.1.5
 
 Initial stand-alone crate.
 
-*Version 0.1.4*
+### Version 0.1.4
 
-Previously part of a single crate [[https://crates.io/crates/sdml][sdml]].
+Previously part of a single crate [sdml](https://crates.io/crates/sdml).

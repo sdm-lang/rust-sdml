@@ -5,7 +5,7 @@ version = "0.3.1"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
 license-file = "../LICENSE"
-readme = "README.org"
+readme = "README.md"
 edition = "2021"
 publish = true
 

@@ -2,7 +2,8 @@
 
 Rust integration between the SDML core model and the Tera template engine.
 
-![https://crates.io/crates/sdml_cli](https://img.shields.io/crates/v/sdml_cli.svg)
+[![Crates.io](https://img.shields.io/crates/v/sdml_tera.svg)](https://crates.io/crates/sdml_tera)
+[![Docs.rs](https://img.shields.io/docsrs/sdml-tera.svg)](https://docs.rs/sdml_tera)
 
 This package is part of the Rust SDML project and specifically implements an
 integration between the SDML core model and the Tera template engine to allow

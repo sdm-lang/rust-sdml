@@ -2,9 +2,8 @@
 
 RDF Mapping for the Simple Domain Modeling Language (SDML).
 
-[![Crates.io](https://img.shields.io/crates/v/sdml_parse.svg)](https://crates.io/crates/sdml_parse)
-
-![https://docs.rs/sdml_parse](https://img.shields.io/docsrs/sdml-parse.svg)
+[![Crates.io](https://img.shields.io/crates/v/sdml_rdf.svg)](https://crates.io/crates/sdml_rdf)
+[![Docs.rs](https://img.shields.io/docsrs/sdml-rdf.svg)](https://docs.rs/sdml_rdf)
 
 This package is part of the Rust SDML project and specifically implements the bi-directional mapping between the SDML
 data model (in package sdml-core) and the RDF semantics..
