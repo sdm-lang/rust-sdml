@@ -82,7 +82,7 @@ jobs:
         
   build:
     name: Build
-    needs: [rustfmt, clippy]
+    needs: [rustfmt, check, clippy]
     strategy:
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
@@ -134,7 +134,7 @@ jobs:
       
   benchmarks:
     name: Benchmarks
-    needs: [rustfmt, clippy, check_tests]
+    needs: [rustfmt, check, clippy, check_tests]
     if: needs.check_tests.outputs.has_benchmarks
     strategy:
       matrix:
@@ -159,7 +159,7 @@ jobs:
       
   examples:
     name: Examples
-    needs: [rustfmt, clippy, check_tests]
+    needs: [rustfmt, check, clippy, check_tests]
     if: needs.check_tests.outputs.has_examples
     strategy:
       matrix:
