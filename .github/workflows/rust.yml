@@ -27,6 +27,7 @@ env:
   RUSTDOCFLAGS: -D warnings
 
 jobs:
+  
   publish:
     name: Publish (dry-run)
     needs: [test, docs]
@@ -55,7 +56,10 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       
     - name: Check publish
-      run: cargo publish ${{ env.RUST_VERBOSE }} --package ${{ matrix.package}} --dry-run
+      run: |
+        for package in $(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | .name'); do
+          cargo publish ${{ env.RUST_VERBOSE }} --package "$package" --dry-run
+        done
 
       
   check_tests:
@@ -203,11 +207,16 @@ jobs:
         rust-version: nightly
         components: mira
 
+    - name: Pin nightly Toolchain
+      run: |
+          rustup override set nightly
+          cargo miri setup
+
     - name: Run tests using mira
       run: cargo miri test ${{ env.RUST_VERBOSE }} ${{ matrix.test-features }}
 
 
-  sanitizer-test:
+  sanitizer-tests:
     name: Test with -Zsanitizer=${{ matrix.sanitizer }}
     needs: test
     strategy:
@@ -227,7 +236,7 @@ jobs:
         rust-version: nightly
         components: rust-src
 
-    - name: Test with sanitizer
+    - name: Sanitizer Tests
       env:
         RUSTFLAGS: -Zsanitizer=${{ matrix.sanitizer }}
         RUSTDOCFLAGS: -Zsanitizer=${{ matrix.sanitizer }}
@@ -280,10 +289,15 @@ jobs:
 
       
   clippy:
-    name: clippy
+    name: Clippy
+    strategy:
+      matrix:
+        test-features: ["", "--all-features", "--no-default-features"]
     runs-on: ubuntu-latest
     permissions:
       checks: write
+    env:
+      RUSTFLAGS: -Dwarnings
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -297,4 +311,30 @@ jobs:
     - uses: Swatinem/rust-cache@v2
 
     - name: Check well-formedness rules
-      run: cargo clippy ${{ env.RUST_VERBOSE }} --workspace --no-deps --all-features --all-targets -- -D warnings
+      run: cargo clippy ${{ env.RUST_VERBOSE }} --workspace --no-deps ${{ matrix.test-features }} --all-targets
+
+      
+  check:
+    name: Cargo Check
+    strategy:
+      matrix:
+        test-features: ["", "--all-features", "--no-default-features"]
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+    env:
+      RUSTFLAGS: -Dwarnings
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
+      with:
+        rust-version: stable
+        profile: default
+              
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Check well-formedness rules
+      run: cargo check ${{ env.RUST_VERBOSE }} --workspace --no-deps ${{ matrix.test-features }} --all-targets
