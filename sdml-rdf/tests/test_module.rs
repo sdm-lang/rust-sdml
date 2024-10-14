@@ -1,4 +1,4 @@
-use pretty_assertions::assert_eq;
+//use pretty_assertions::assert_eq;
 use rdftk_core::model::graph::Graph;
 use sdml_core::{
     model::identifiers::Identifier,

@@ -24,7 +24,7 @@ use sdml_errors::Error;
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn graph_to_modules(graph: Graph) -> Result<Vec<Module>, Error> {
+pub fn graph_to_modules(_graph: Graph) -> Result<Vec<Module>, Error> {
     todo!()
 }
 

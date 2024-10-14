@@ -96,6 +96,17 @@ pub trait ModuleStore {
     }
 
     ///
+    /// Return an iterator over all modules in this store. This may be an expensive operation if
+    /// modules only exist in some backing store.
+    ///
+    fn modules(&self) -> impl Iterator<Item = &Module>;
+
+    ///
+    /// Return an iterator over the names of the modules in this store.
+    ///
+    fn module_names(&self) -> impl Iterator<Item = &Identifier>;
+
+    ///
     /// Insert `module` into the store.
     ///
     fn insert(&mut self, module: Module);
@@ -231,6 +242,14 @@ impl ModuleStore for InMemoryModuleCache {
             Some(name) => self.get_mut(&name),
             _ => None,
         }
+    }
+
+    fn modules(&self) -> impl Iterator<Item = &Module> {
+        self.modules.values()
+    }
+
+    fn module_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.modules.keys()
     }
 
     fn insert(&mut self, module: Module) {
