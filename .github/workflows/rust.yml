@@ -20,6 +20,10 @@ on:
   schedule:
   - cron: '12 12 12 * *'
 
+env:
+  RUST_LOG: info
+  RUST_BACKTRACE: 1
+
 jobs:
   publish:
     name: Publish (dry-run)
@@ -31,6 +35,8 @@ jobs:
           - sdml-core
           - sdml-parse
           - sdml-generate
+          - sdml-rdf
+          - sdml-tera
           - sdml-cli
     continue-on-error: true
     runs-on: ubuntu-latest
@@ -86,7 +92,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
-    - name: Install Rust
+    - name: Install Rust ${{ matrix.rust }} on ${{ matrix.os }}
       uses: actions-rs/toolchain@v1
       with:
         toolchain: ${{ matrix.rust }}
@@ -101,7 +107,7 @@ jobs:
         command: build
         args: --workspace ${{ matrix.test-features }}
       
-    - name: Test
+    - name: Test with ${{ matrix.test-features }}
       uses: actions-rs/cargo@v1
       with:
         command: test
@@ -186,7 +192,7 @@ jobs:
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:
-          version: 0.22.0
+          version: 0.31.0
           args: --all-features -- --test-threads 1
 
       - name: Upload to codecov.io
