@@ -171,7 +171,7 @@ jobs:
       with:
         rust-version: stable
 
-    - name: Install cargo-tarpaulin
+    - name: Install Tarpaulin
       run: cargo install cargo-tarpaulin
 
     - name: Run cargo-tarpaulin
@@ -189,8 +189,8 @@ jobs:
         path: cobertura.xml
 
         
-  mira:
-    name: Mira tests
+  miri:
+    name: Miri tests
     needs: test
     strategy:
       matrix:
@@ -206,14 +206,14 @@ jobs:
       uses: hecrj/setup-rust-action@v2
       with:
         rust-version: nightly
-        components: mira
+        components: miri
 
     - name: Pin nightly Toolchain
       run: |
           rustup override set nightly
           cargo miri setup
 
-    - name: Run tests using mira
+    - name: Run tests w/miri
       run: cargo miri test ${{ env.RUST_VERBOSE }} ${{ matrix.test-features }}
 
 
