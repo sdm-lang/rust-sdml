@@ -214,7 +214,11 @@ jobs:
           cargo miri setup
 
     - name: Run tests w/miri
-      run: cargo miri test ${{ env.RUST_VERBOSE }} ${{ matrix.test-features }}
+      env:
+        MIRIFLAGS: -Zmiri-backtrace=full -Zmiri-isolation-error=warn
+        # MIRIFLAGS: -Zmiri-disable-isolation
+        # MIRIFLAGS: -Zmiri-isolation-error=warn
+      run: cargo miri test ${{ env.RUST_VERBOSE }} ${{ matrix.test-features }} -- -Z macro-backtrace
 
 
   sanitizer-tests:
