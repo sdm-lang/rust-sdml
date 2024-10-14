@@ -17,12 +17,12 @@ The following figure demonstrates this package in the broader project context.
 
 ### Version 0.3.0
 
-- Feature: updates to support the latest grammar, see ~sdml-core~.
+- Feature: updates to support the latest grammar, see `sdml-core`.
 
 ### Version 0.2.13-0.2.14
 
-- Build: update dependency from =sdml_error= to =sdml-errors=.
-- Build: bump version of =sdml-core=.
+- Build: update dependency from `sdml_error` to `sdml-errors`.
+- Build: bump version of `sdml-core`.
 
 ### Version 0.2.12
 
@@ -34,27 +34,27 @@ The following figure demonstrates this package in the broader project context.
 
 ### Version 0.2.11
 
-- Build: upgrade to =sdml_core= version =0.2.14= and the new =ModelStore= trait.
+- Build: upgrade to `sdml_core` version `0.2.14` and the new `ModelStore` trait.
 
 ### Version 0.2.10
 
-- Fix: Handle tree-sitter =ERROR= nodes correctly when they cause the top-level rule to fail.
+- Fix: Handle tree-sitter `ERROR` nodes correctly when they cause the top-level rule to fail.
 
 ### Version 0.2.9
 
-- Build: Using =sdml_core= version =0.2.11= for updated validation.
+- Build: Using `sdml_core` version `0.2.11` for updated validation.
 - Fix: minor changes found by better validation.
 
 ### Version 0.2.8
 
-- Build: Using =sdml_core= version =0.2.10= for new stdlib names.
+- Build: Using `sdml_core` version `0.2.10` for new stdlib names.
 
 ### Version 0.2.7
 
 - Fix: Cardinality parser set incorrect default values.
-  - Fix: For min/max it should be =one= and not =zero_or_one= as the default to match the =DEFAULT_CARDINALITY= constant in the model.
-  - Fix: For ordering/uniqueness the default if not parsed should be =None= not =Some(Default::default())=.
-  - Update: the =with_= constructors on =Cardinality= to take option types.
+  - Fix: For min/max it should be `one` and not `zero_or_one` as the default to match the `DEFAULT_CARDINALITY` constant in the model.
+  - Fix: For ordering/uniqueness the default if not parsed should be `None` not `Some(Default::default())`.
+  - Update: the `with_` constructors on `Cardinality` to take option types.
 
 ### Version 0.2.6
 
@@ -63,12 +63,12 @@ The following figure demonstrates this package in the broader project context.
 ### Version 0.2.5
 
 - Test: Update test cases for:
-  - The new =source_file= field on =Module=.
-  - The new =ModuleLoader= API requiring a =ModuleCache=.
+  - The new `source_file` field on `Module`.
+  - The new `ModuleLoader` API requiring a `ModuleCache`.
 
 ### Version 0.2.4
 
-- Fix: parsing new =rdf_def= rules now works correctly.
+- Fix: parsing new `rdf_def` rules now works correctly.
   - Updated test cases.
 
 ### Version 0.2.3
@@ -97,7 +97,7 @@ The following figure demonstrates this package in the broader project context.
 
 ### Version 0.1.9
 
-- Added support for =mapping_type= and =mapping_value= rules.
+- Added support for `mapping_type` and `mapping_value` rules.
 
 ### Version 0.1.8
 
@@ -105,18 +105,18 @@ The following figure demonstrates this package in the broader project context.
 
 ### Version 0.1.7
 
-- Updated parser with grammar changes in =tree-sitter-sdml= version =0.1.29=.
+- Updated parser with grammar changes in `tree-sitter-sdml` version `0.1.29`.
 - Added all the test cases from core.
 
 ### Version 0.1.6
 
-- Updated parser with grammar changes in =tree-sitter-sdml= version =0.1.26=.
+- Updated parser with grammar changes in `tree-sitter-sdml` version `0.1.26`.
 
 ### Version 0.1.5
 
-- Created a =stdlib= module and moved all the SDML and relevant RDF files into it.
-- Updated =tree-sitter-sdml= to version =0.1.21= with updated constraints.
+- Created a `stdlib` module and moved all the SDML and relevant RDF files into it.
+- Updated `tree-sitter-sdml` to version `0.1.21` with updated constraints.
 
 ### Version 0.1.4
 
-Previously part of a single crate [[https://crates.io/crates/sdml][sdml]].
+Previously part of a single crate [sdml](https://crates.io/crates/sdml).
