@@ -36,6 +36,12 @@ The following figure demonstrates this package in the broader project context.
 
 * Changes
 
+*Version 0.3.1*
+
+- Feature: add `LanguageTagError` variant for external error type.
+- Feature: add `Template` variant for external error type..
+  - put this behind a feature, it's not used in core, parser, etc.
+
 *Version 0.3.0*
 
 - Build: align version number with ~sdml-core~ supporting the latest grammar.
