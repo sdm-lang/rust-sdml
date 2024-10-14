@@ -24,7 +24,7 @@ cli = ["clap", "clio", "human-panic", "sdml-parse"]
 
 [dependencies]
 sdml-core = { version = "0.3.0", features = ["serde"], path = "../sdml-core" }
-sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
+sdml-errors = { version = "0.3.0", features = ["templates"], path = "../sdml-errors" }
 tera = "1.20.0"
 
 clap = { version = "4.5", features = ["derive", "env", "wrap_help"], optional = true }

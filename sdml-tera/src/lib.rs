@@ -195,6 +195,7 @@ Error: A template error occurred; source:
 
 use context::module_to_value;
 use sdml_core::{model::modules::Module, store::ModuleStore};
+use sdml_errors::Error;
 use std::{fs::OpenOptions, io::Write, path::Path};
 use tera::{Context, Map, Tera, Value};
 
@@ -212,7 +213,7 @@ use tera::{Context, Map, Tera, Value};
 /// This function is introduced mainly to allow the integration with the SDML core error structure.
 ///
 #[inline]
-pub fn make_engine_from(glob: &str) -> Result<Tera, error::Error> {
+pub fn make_engine_from(glob: &str) -> Result<Tera, Error> {
     let engine = Tera::new(glob)?;
     Ok(engine)
 }
@@ -227,6 +228,12 @@ pub fn make_engine_from(glob: &str) -> Result<Tera, error::Error> {
 /// If `context` is not specified a new blank object is created, and in either case a representation
 /// of the module is added to the context object under the key `"module"`.
 ///
+/// ```json
+/// {
+///     "module": {}
+/// }
+/// ```
+///
 /// In the case of this function the result is returned as a `String`.
 ///
 pub fn render_module(
@@ -235,7 +242,7 @@ pub fn render_module(
     cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
-) -> Result<String, error::Error> {
+) -> Result<String, Error> {
     let context = make_context_from(module, cache, context);
     let result = engine.render(template_name, &context)?;
     Ok(result)
@@ -247,6 +254,12 @@ pub fn render_module(
 /// If `context` is not specified a new blank object is created, and in either case a representation
 /// of the module is added to the context object under the key `"module"`.
 ///
+/// ```json
+/// {
+///     "module": {}
+/// }
+/// ```
+///
 /// In the case of this function the template is rendered to the write implementation `w`.
 ///
 pub fn render_module_to<W: Write>(
@@ -256,7 +269,7 @@ pub fn render_module_to<W: Write>(
     context: Option<Context>,
     template_name: &str,
     w: &mut W,
-) -> Result<(), error::Error> {
+) -> Result<(), Error> {
     let context = make_context_from(module, cache, context);
     engine.render_to(template_name, &context, w)?;
     Ok(())
@@ -268,6 +281,12 @@ pub fn render_module_to<W: Write>(
 /// If `context` is not specified a new blank object is created, and in either case a representation
 /// of the module is added to the context object under the key `"module"`.
 ///
+/// ```json
+/// {
+///     "module": {}
+/// }
+/// ```
+///
 /// In the case of this function the template is rendered to the file named by `path`.
 ///
 pub fn render_module_to_file<P: AsRef<Path>>(
@@ -277,7 +296,7 @@ pub fn render_module_to_file<P: AsRef<Path>>(
     context: Option<Context>,
     template_name: &str,
     path: P,
-) -> Result<(), error::Error> {
+) -> Result<(), Error> {
     let mut file = OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -297,6 +316,14 @@ pub fn render_module_to_file<P: AsRef<Path>>(
 /// If `context` is not specified a new blank object is created, and in either case a map is created
 /// under the key `"modules"` as a map from module name to module representation.
 ///
+/// ```json
+/// {
+///     "modules": {
+///         "Identifier": {},
+///     }
+/// }
+/// ```
+///
 /// In the case of this function the result is returned as a `String`.
 ///
 pub fn render_modules(
@@ -305,7 +332,7 @@ pub fn render_modules(
     cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
-) -> Result<String, error::Error> {
+) -> Result<String, Error> {
     let context = make_context_from_all(modules, cache, context);
     let result = engine.render(template_name, &context)?;
     Ok(result)
@@ -316,6 +343,14 @@ pub fn render_modules(
 /// If `context` is not specified a new blank object is created, and in either case a map is created
 /// under the key `"modules"` as a map from module name to module representation.
 ///
+/// ```json
+/// {
+///     "modules": {
+///         "Identifier": {},
+///     }
+/// }
+/// ```
+///
 /// In the case of this function the template is rendered to the write implementation `w`.
 ///
 pub fn render_modules_to<W: Write>(
@@ -325,7 +360,7 @@ pub fn render_modules_to<W: Write>(
     context: Option<Context>,
     template_name: &str,
     w: &mut W,
-) -> Result<(), error::Error> {
+) -> Result<(), Error> {
     let context = make_context_from_all(modules, cache, context);
     engine.render_to(template_name, &context, w)?;
     Ok(())
@@ -337,6 +372,14 @@ pub fn render_modules_to<W: Write>(
 /// If `context` is not specified a new blank object is created, and in either case a map is created
 /// under the key `"modules"` as a map from module name to module representation.
 ///
+/// ```json
+/// {
+///     "modules": {
+///         "Identifier": {},
+///     }
+/// }
+/// ```
+///
 /// In the case of this function the template is rendered to the file named by `path`.
 ///
 pub fn render_modules_to_file<P: AsRef<Path>>(
@@ -346,7 +389,7 @@ pub fn render_modules_to_file<P: AsRef<Path>>(
     context: Option<Context>,
     template_name: &str,
     path: P,
-) -> Result<(), error::Error> {
+) -> Result<(), Error> {
     let mut file = OpenOptions::new()
         .write(true)
         .truncate(true)
@@ -400,4 +443,4 @@ fn make_context_from_all(
 
 pub mod context;
 
-pub mod error;
+// pub mod error;

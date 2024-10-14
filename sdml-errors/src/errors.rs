@@ -50,6 +50,10 @@ pub enum Error {
     LanguageTagError {
         source: language_tags::ParseError,
     },
+    #[cfg(feature = "templates")]
+    Template {
+        source: tera::Error,
+    },
     GeneratorError {
         name: String,
         message: String,
@@ -106,6 +110,9 @@ impl Display for Error {
                     format!("An error occurred parsing a BCP-47 language tag; source: {source}"),
                 Self::GeneratorError { name, message } =>
                     format!("An error occurred in a generator named `{name}`: {message}"),
+                #[cfg(feature = "templates")]
+                Self::Template { source } =>
+                    format!("An error occurred in the template generator; source: {source}"),
             }
         )
     }
@@ -121,6 +128,8 @@ impl std::error::Error for Error {
             Self::TracingFilterError { source } => Some(source),
             Self::TracingSubscriberError { source } => Some(source),
             Self::CodespanReportingError { source } => Some(source),
+            #[cfg(feature = "templates")]
+            Self::Template { source } => Some(source),
             _ => None,
         }
     }
@@ -200,6 +209,15 @@ impl From<Diagnostic> for Error {
     fn from(source: Diagnostic) -> Self {
         report_and_return! {
             Self::LanguageValidationError { source }
+        }
+    }
+}
+
+#[cfg(feature = "templates")]
+impl From<tera::Error> for Error {
+    fn from(source: tera::Error) -> Self {
+        report_and_return! {
+            Self::Template { source }
         }
     }
 }

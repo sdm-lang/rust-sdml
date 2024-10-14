@@ -22,9 +22,10 @@ clap = { version = "4.5", features = ["derive", "env", "wrap_help"] }
 clio = { version = "0.3.5", features = ["clap-parse"] }
 human-panic = "2.0.1"
 sdml-core = { version = "0.3.0", features = ["serde", "terms"], path = "../sdml-core" }
-sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
+sdml-errors = { version = "0.3.0", features = ["templates"], path = "../sdml-errors" }
 sdml-generate = { version = "0.3.0", path = "../sdml-generate" }
 sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
+sdml-tera = { version = "0.1.0", path = "../sdml-tera" }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tree-sitter-sdml = "0.3.2"

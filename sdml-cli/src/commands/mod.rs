@@ -73,6 +73,7 @@ pub(crate) enum Commands {
     Doc(doc::Command),
     DocBook(book::Command),
     Draw(draw::Command),
+    Generate(generate::Command),
     Highlight(highlight::Command),
     Tags(tags::Command),
     Validate(validate::Command),
@@ -121,6 +122,7 @@ impl Command for Commands {
         trace!("Commands::execute self: {self:?}");
         match self {
             Commands::Highlight(cmd) => cmd.execute(),
+            Commands::Generate(cmd) => cmd.execute(),
             Commands::Doc(cmd) => cmd.execute(),
             Commands::DocBook(cmd) => cmd.execute(),
             Commands::Deps(cmd) => cmd.execute(),
@@ -143,6 +145,7 @@ mod convert;
 mod deps;
 mod doc;
 mod draw;
+mod generate;
 mod highlight;
 mod tags;
 mod validate;

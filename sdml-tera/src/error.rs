@@ -17,10 +17,7 @@ pub enum Error {
     IoError {
         source: std::io::Error,
     },
-    Template {
-        source: tera::Error,
-    },
-}
+
 
 ///
 /// A Result type that specifically uses this crate's Error.
@@ -73,11 +70,5 @@ impl std::error::Error for Error {
 impl From<std::io::Error> for Error {
     fn from(source: std::io::Error) -> Self {
         io_error(source)
-    }
-}
-
-impl From<tera::Error> for Error {
-    fn from(source: tera::Error) -> Self {
-        template_error(source)
     }
 }

@@ -1,5 +1,4 @@
 use std::process::ExitCode;
-
 use clap::{Args, ValueEnum};
 use sdml_core::model::check::terms::{default_term_set, validate_module_terms};
 use sdml_core::model::{modules::Module, HasName};
