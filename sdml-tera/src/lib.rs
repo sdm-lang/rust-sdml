@@ -409,11 +409,7 @@ fn make_context_from(
 ) -> Context {
     let (_, value) = module_to_value(module, cache);
 
-    let mut context = if let Some(context) = context {
-        context
-    } else {
-        Context::default()
-    };
+    let mut context = context.unwrap_or_default();
     context.insert("module", &value);
     context
 }
@@ -428,11 +424,7 @@ fn make_context_from_all(
         .map(|module| module_to_value(module, cache))
         .collect();
 
-    let mut context = if let Some(context) = context {
-        context
-    } else {
-        Context::default()
-    };
+    let mut context = context.unwrap_or_default();
     context.insert("modules", &values);
     context
 }
@@ -442,5 +434,3 @@ fn make_context_from_all(
 // ------------------------------------------------------------------------------------------------
 
 pub mod context;
-
-// pub mod error;
