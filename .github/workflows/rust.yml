@@ -6,6 +6,8 @@ on:
     - '**'
     - '!/*.md'
     - '!/*.org'
+    - '!/*.svg'
+    - '!/*.png'
     - "!/LICENSE"
     
   push:
@@ -15,6 +17,8 @@ on:
     - '**'
     - '!/*.md'
     - '!/*.org'
+    - '!/*.svg'
+    - '!/*.png'
     - "!/LICENSE"
     
   schedule:
