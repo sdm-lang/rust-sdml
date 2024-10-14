@@ -24,7 +24,7 @@ env:
   RUST_LOG: info
   RUST_BACKTRACE: 1
   RUST_VERBOSE: --verbose
-  RUST_DOCFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
 
 jobs:
   publish:
@@ -186,7 +186,6 @@ jobs:
 
         
   mira:
-    if: false
     name: Mira tests
     needs: test
     strategy:
@@ -208,6 +207,39 @@ jobs:
       run: cargo miri test ${{ env.RUST_VERBOSE }} ${{ matrix.test-features }}
 
 
+  sanitizer-test:
+    name: Test with -Zsanitizer=${{ matrix.sanitizer }}
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitizer: [address, memory, thread, leak]
+        test-features: ["", "--all-features", "--no-default-features"]
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Rust Toolchain
+      uses: hecrj/setup-rust-action@v2
+      with:
+        rust-version: nightly
+        components: rust-src
+
+    - name: Test with sanitizer
+      env:
+        RUSTFLAGS: -Zsanitizer=${{ matrix.sanitizer }}
+        RUSTDOCFLAGS: -Zsanitizer=${{ matrix.sanitizer }}
+        # only needed by asan
+        ASAN_OPTIONS: detect_stack_use_after_return=1
+        # Asan's leak detection occasionally complains
+        # about some small leaks if backtraces are captured,
+        # so ensure they're not
+        RUST_BACKTRACE: 0
+      run: cargo test -Zbuild-std ${{ env.RUST_VERBOSE }} --target=x86_64-unknown-linux-gnu ${{ matrix.test-features }}
+
+
   docs:
     name: Document generation
     needs: [rustfmt, clippy]
@@ -225,7 +257,7 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       
     - name: Generate documentation
-      run: cargo doc ${{ env.RUST_VERBOSE }} --workspace --all-features --no-deps ${{ env.RUST_DOCFLAGS }}
+      run: cargo doc ${{ env.RUST_VERBOSE }} --workspace --all-features --no-deps
 
       
   rustfmt:
