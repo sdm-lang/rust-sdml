@@ -117,7 +117,7 @@ jobs:
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         rust: ["stable"]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -138,11 +138,11 @@ jobs:
     name: Examples
     needs: [rustfmt, clippy, check_tests]
     if: needs.check_tests.outputs.has_examples
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         rust: ["stable"]
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -194,9 +194,10 @@ jobs:
     needs: test
     strategy:
       matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         test-features: ["", "--all-features", "--no-default-features"]
     continue-on-error: true
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -337,4 +338,4 @@ jobs:
     - uses: Swatinem/rust-cache@v2
 
     - name: Check well-formedness rules
-      run: cargo check ${{ env.RUST_VERBOSE }} --workspace --no-deps ${{ matrix.test-features }} --all-targets
+      run: cargo check ${{ env.RUST_VERBOSE }} --workspace --future-incompat-report ${{ matrix.test-features }} --all-targets
