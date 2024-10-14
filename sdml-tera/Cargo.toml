@@ -29,10 +29,10 @@ tera = "1.20.0"
 
 clap = { version = "4.5", features = ["derive", "env", "wrap_help"], optional = true }
 clio = { version = "0.3.5", features = ["clap-parse"], optional = true }
-human-panic = { version = "2.0.1", optional = true }
+human-panic = { version = "2.0.2", optional = true }
 sdml-parse = { version = "0.3.0", path = "../sdml-parse", optional = true }
 
 [dev-dependencies]
 pretty_assertions = "1.4"
 sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
-serde_json = "1.0.113"
+serde_json = "1.0.128"

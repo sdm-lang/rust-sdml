@@ -16,8 +16,8 @@ all-features = true
 [dependencies]
 rdftk_core = "0.5"
 rdftk_io = "0.3.1"
-rdftk_iri = "0.2.3"
-sdml-core = { version = "0.3.0", features = ["serde"], path = "../sdml-core" }
+rdftk_iri = "0.2.5"
+sdml-core = { version = "0.3.0", features = ["serde", "tree-sitter"], path = "../sdml-core" }
 sdml-errors = { version = "0.3.0", path = "../sdml-errors" }
 sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
 url = "2.5"

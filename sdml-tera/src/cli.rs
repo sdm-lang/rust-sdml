@@ -118,7 +118,7 @@ fn main() -> ExitCode {
         handle_loader!(
             loader.load(
                 module_name,
-                loader.get_file_id(&module_name),
+                loader.get_file_id(module_name),
                 &mut cache,
                 true,
             ),

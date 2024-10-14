@@ -120,8 +120,9 @@ end"#
             assert_eq!(values.len(), 2);
 
             if let Some(SequenceMember::Simple(SimpleValue::String(value))) = values.first() {
+                let language_str: &str = value.language().unwrap().as_ref();
                 assert_eq!(value.value().as_str(), "aa");
-                assert_eq!(value.language().unwrap().as_ref(), "en");
+                assert_eq!(language_str, "en");
             } else {
                 panic!();
             }

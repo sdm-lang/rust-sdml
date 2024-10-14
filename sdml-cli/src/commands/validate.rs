@@ -1,4 +1,3 @@
-use std::process::ExitCode;
 use clap::{Args, ValueEnum};
 use sdml_core::model::check::terms::{default_term_set, validate_module_terms};
 use sdml_core::model::{modules::Module, HasName};
@@ -9,6 +8,7 @@ use sdml_errors::diagnostics::{
 };
 use sdml_errors::Error;
 use sdml_parse::load::FsModuleLoader;
+use std::process::ExitCode;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
