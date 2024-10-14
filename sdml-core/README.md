@@ -10,7 +10,7 @@ project's intent is to provide an idiomatic implementation of the in-memory mode
 
 The following figure demonstrates this package in the broader project context.
 
-![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview.png)
+![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview-core.png)
 
 Note that other tools can use the =sdml_core= API to create or manipulate models.
 

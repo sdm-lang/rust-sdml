@@ -10,7 +10,7 @@ The project's intent is to provide an idiomatic implementation of the in-memory 
 
 The following figure demonstrates this package in the broader project context.
 
-![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview.png)
+![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview-generate.png)
 
 ## Changes
 

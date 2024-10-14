@@ -1,15 +1,18 @@
 digraph G {
-  lines="ortho";
+  splines="ortho";
 
   node [shape="box3d"; width=1.0];
-  edge [arrowhead="vee"; style="dashed"; color="gray"];
+       // [style="filled"; fillcolor="lightgray"]
+  edge [arrowhead="vee"; style="dashed"; color="gray"]; 
+       // ; style="filled"; fillcolor="lightgray"
 
   cli;
-  core;
+  core [style="filled"; fillcolor="lightgray"];
   error;
   parse;
   rdf;
   generate;
+  tera [style="filled"; fillcolor="lightgray"];
 
   cli -> parse;
   cli -> rdf;
@@ -28,8 +31,11 @@ digraph G {
   rdf_source [label="RDF\n(NT/Turtle)"; shape="note"; height=0.66];
   doc [label="document\n(MD/Org)"; shape="note"; height=0.66];
   diagrams [label="diagram\n(ERD/UML)"; shape="note"; height=0.66];
+  other [label="user\ndefined"; shape="note"; height=0.66; style="filled"; fillcolor="lightgray"];
 
-  sdml_source -> parse [style="solid"; color="black"];
+  model [label="Model(s)"; shape="cylinder"; height=0.66; style="filled"; fillcolor="lightgray"];
+
+  //sdml_source -> parse [style="solid"; color="black"];
   generate -> sdml_source [style="solid"; color="black"];
 
   rdf_source -> rdf [style="solid"; color="black"];
@@ -37,4 +43,7 @@ digraph G {
   generate -> doc [style="solid"; color="black"];
   generate -> diagrams [style="solid"; color="black"];
 
+  core -> model [style="solid"; color="black"];
+  model -> tera [style="solid"; color="black"];
+  tera -> other [style="solid"; color="black"];
 }
