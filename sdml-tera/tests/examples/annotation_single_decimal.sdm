@@ -1,0 +1,7 @@
+;;; Annotation, Single Decimal
+
+module campaign is
+
+  @dc:some = 102.201
+
+end

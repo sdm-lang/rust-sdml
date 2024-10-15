@@ -1,0 +1,7 @@
+;;; Annotation, Multiple Integers
+
+module campaign is
+
+  @dc:version = [ 1 2 3 ]
+
+end

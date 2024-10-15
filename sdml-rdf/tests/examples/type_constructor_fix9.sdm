@@ -1,0 +1,8 @@
+module type_constructor_fix9 is
+
+  import dc
+
+  @dc:description = "Regression test for bug #9"@en
+  @dc:date = xsd:date("2024-06-27")
+
+end

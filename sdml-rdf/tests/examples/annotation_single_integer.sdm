@@ -1,0 +1,7 @@
+;;; Annotation, Single Integer
+
+module Campaign is
+
+  @dc:version = 2
+
+end

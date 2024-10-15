@@ -1,0 +1,7 @@
+;;; Structure, Empty
+
+module campaign is
+
+  structure Duration
+
+end

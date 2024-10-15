@@ -1,0 +1,5 @@
+module sdml is
+
+  class Any (T)
+
+end

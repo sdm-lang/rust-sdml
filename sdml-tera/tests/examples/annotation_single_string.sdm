@@ -1,0 +1,7 @@
+;;; Annotation, Single String
+
+module campaign is
+
+  @dc:author = "me"
+
+end

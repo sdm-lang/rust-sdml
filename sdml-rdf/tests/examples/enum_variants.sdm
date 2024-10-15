@@ -1,0 +1,10 @@
+;;; Enum, With Variants
+
+module campaign is
+
+  enum NameKind of
+    Internal
+    External
+  end
+
+end

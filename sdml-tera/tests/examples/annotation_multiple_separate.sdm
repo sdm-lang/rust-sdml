@@ -1,0 +1,11 @@
+;;; Annotation, Multiple Separate
+
+module campaign is
+
+  @skos:prefLabel = "preferred"
+
+  @skos:altLabel = "alternate"@en
+
+  @dc:version = 3
+
+end

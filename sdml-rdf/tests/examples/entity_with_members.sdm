@@ -1,0 +1,14 @@
+;;; Entity, With Members
+
+module campaign is
+
+  entity Campaign is
+
+    identity id -> xs:string
+
+    a -> xsd:string
+    b -> xsd:integer
+
+  end
+
+end

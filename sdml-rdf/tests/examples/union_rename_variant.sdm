@@ -1,0 +1,10 @@
+;;; Union, With Renamed Variant
+
+module campaign is
+
+  union VehicleClass of
+    Car
+    Boat as WaterCar
+  end
+
+end

@@ -1,0 +1,7 @@
+;;; Import multiple modules
+
+module campaign is
+
+  import [ xsd skos ]
+
+end

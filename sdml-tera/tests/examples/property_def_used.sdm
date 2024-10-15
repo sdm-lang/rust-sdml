@@ -1,0 +1,5 @@
+module ddict is
+  structure Account is
+    ref accountId
+  end
+end

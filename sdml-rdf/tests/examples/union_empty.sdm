@@ -1,0 +1,7 @@
+;;; Union, Empty
+
+module campaign is
+
+  union VehicleClass
+
+end
