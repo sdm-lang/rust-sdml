@@ -1,0 +1,3 @@
+;;; Module, with underscore in name
+
+module rental_cars is end

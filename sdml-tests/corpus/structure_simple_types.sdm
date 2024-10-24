@@ -1,0 +1,13 @@
+module example is
+
+  structure Duration is
+    a -> boolean
+    b -> double
+    c -> decimal
+    d -> integer
+    e -> string
+    f -> binary
+    g -> iri
+  end
+
+end

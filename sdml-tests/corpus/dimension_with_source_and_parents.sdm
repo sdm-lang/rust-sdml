@@ -1,0 +1,10 @@
+;;; Dimension, With Source and Parents
+
+module dimensions is
+
+  dimension Campaigns is
+    source Campaign
+    parent portfolio -> Portfolio
+  end
+
+end

@@ -1,0 +1,90 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 88,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 14,
+            },
+        ),
+        value: "Example",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 15,
+                end: 87,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [
+            Constraint(
+                Constraint {
+                    span: None,
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 27,
+                                end: 41,
+                            },
+                        ),
+                        value: "no_definitions",
+                    },
+                    body: Informal(
+                        ControlledLanguageString {
+                            span: Some(
+                                Span {
+                                    start: 42,
+                                    end: 83,
+                                },
+                            ),
+                            value: " \"This module has no definitions\"@en-AC",
+                            language: Some(
+                                ControlledLanguageTag {
+                                    span: None,
+                                    value: "= \"This module has no definitions\"@en-ACE",
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        ],
+        definitions: [],
+    },
+}

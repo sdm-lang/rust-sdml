@@ -1,0 +1,67 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
+
+example:
+    rdf:type
+        owl:Ontology ,
+        sdml:Module ;
+    sdml:srcLabel "example" .
+
+example:Car
+    rdf:type
+        owl:Class ,
+        sdml:Structure ;
+    sdml:member
+        example:Car__engine ;
+    sdml:srcLabel "Car" ;
+    rdfs:isDefinedBy example: .
+
+example:engine
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain example:Car ;
+    rdfs:range example:Engine ;
+    sdml:srcLabel "engine" ;
+    rdfs:isDefinedBy example: .
+
+example:Engine
+    rdf:type
+        owl:Class ,
+        sdml:Union ;
+    sdml:hasTypeVariant
+        example:Engine__FourCylinder ,
+        example:Engine__SixCylinder ,
+        example:Engine__SixCylinderTurbo ;
+    sdml:srcLabel "Engine" ;
+    rdfs:isDefinedBy example: .
+
+example:Engine__FourCylinder
+    rdf:type
+        owl:Class ,
+        sdml:TypeVariant ;
+    rdfs:subClassOf example:Engine ;
+    owl:equivalentClass example:FourCylinder ;
+    sdml:srcLabel "Engine__FourCylinder" ;
+    rdfs:isDefinedBy example: .
+
+example:Engine__SixCylinder
+    rdf:type
+        owl:Class ,
+        sdml:TypeVariant ;
+    rdfs:subClassOf example:Engine ;
+    owl:equivalentClass example:SixCylinder ;
+    sdml:srcLabel "Engine__SixCylinder" ;
+    rdfs:isDefinedBy example: .
+
+example:Engine__SixCylinderTurbo
+    rdf:type
+        owl:Class ,
+        sdml:TypeVariant ;
+    rdfs:subClassOf example:Engine ;
+    owl:equivalentClass example:SixCylinderTurbo ;
+    sdml:srcLabel "Engine__SixCylinderTurbo" ;
+    rdfs:isDefinedBy example: .
+

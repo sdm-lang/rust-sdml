@@ -1,0 +1,175 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_multiple_module_version.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 110,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_multiple_module_version.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 109,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 22,
+                        end: 104,
+                    },
+                ),
+                imports: [
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 35,
+                                    end: 39,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 35,
+                                        end: 39,
+                                    },
+                                ),
+                                value: "sdml",
+                            },
+                            version_uri: None,
+                        },
+                    ),
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 44,
+                                    end: 87,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 44,
+                                        end: 52,
+                                    },
+                                ),
+                                value: "customer",
+                            },
+                            version_uri: Some(
+                                HeaderValue {
+                                    span: Some(
+                                        Span {
+                                            start: 53,
+                                            end: 87,
+                                        },
+                                    ),
+                                    value: Url {
+                                        scheme: "https",
+                                        cannot_be_a_base: false,
+                                        username: "",
+                                        password: None,
+                                        host: Some(
+                                            Domain(
+                                                "example.org",
+                                            ),
+                                        ),
+                                        port: None,
+                                        path: "/v2/Customer",
+                                        query: None,
+                                        fragment: Some(
+                                            "",
+                                        ),
+                                    },
+                                },
+                            ),
+                        },
+                    ),
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 92,
+                                    end: 95,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 92,
+                                        end: 95,
+                                    },
+                                ),
+                                value: "rdf",
+                            },
+                            version_uri: None,
+                        },
+                    ),
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 96,
+                                    end: 100,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 96,
+                                        end: 100,
+                                    },
+                                ),
+                                value: "skos",
+                            },
+                            version_uri: None,
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

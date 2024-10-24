@@ -1,0 +1,7 @@
+;;; Annotation, Single Constructor
+
+module campaign is
+
+  @dc:author = xsd:positiveInteger(1)
+
+end

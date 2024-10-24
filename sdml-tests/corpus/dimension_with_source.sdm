@@ -1,0 +1,9 @@
+;;; Dimension, With Source
+
+module dimensions is
+
+  dimension Campaigns is
+    source entity:Campaign
+  end
+
+end

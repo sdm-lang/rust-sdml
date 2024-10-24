@@ -1,0 +1,105 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/event_with_source.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 98,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 31,
+                end: 39,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/event_with_source.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 40,
+                end: 97,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [
+            Event(
+                EventDef {
+                    span: Some(
+                        Span {
+                            start: 46,
+                            end: 92,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 52,
+                                end: 63,
+                            },
+                        ),
+                        value: "NameChanged",
+                    },
+                    body: Some(
+                        EventBody {
+                            span: Some(
+                                Span {
+                                    start: 64,
+                                    end: 92,
+                                },
+                            ),
+                            annotations: [],
+                            event_source: SourceEntity {
+                                span: None,
+                                target_entity: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 78,
+                                                end: 86,
+                                            },
+                                        ),
+                                        value: "Campaign",
+                                    },
+                                ),
+                                with_members: [],
+                            },
+                            members: [],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}
