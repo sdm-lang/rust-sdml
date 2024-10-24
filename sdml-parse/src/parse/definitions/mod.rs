@@ -1,14 +1,15 @@
 use super::ParseContext;
 use crate::parse::annotations::parse_annotation;
+use crate::parse::parse_comment;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{AnnotationOnlyBody, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::syntax::{
-    NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_DEF,
-    NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF, NODE_KIND_RDF_DEF,
-    NODE_KIND_STRUCTURE_DEF, NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
+    NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DIMENSION_DEF, NODE_KIND_ENTITY_DEF,
+    NODE_KIND_ENUM_DEF, NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF,
+    NODE_KIND_RDF_DEF, NODE_KIND_STRUCTURE_DEF, NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
 };
 use sdml_errors::diagnostics::functions::library_definition_not_allowed;
 use tree_sitter::TreeCursor;
@@ -29,6 +30,9 @@ pub(crate) fn parse_definition<'a>(
             match node.kind() {
                 NODE_KIND_DATA_TYPE_DEF => {
                     return Ok(parse_data_type_def(context, &mut node.walk())?.into());
+                }
+                NODE_KIND_DIMENSION_DEF => {
+                    return Ok(parse_dimension_def(context, &mut node.walk())?.into());
                 }
                 NODE_KIND_ENTITY_DEF => {
                     return Ok(parse_entity_def(context, &mut node.walk())?.into());
@@ -74,7 +78,10 @@ pub(crate) fn parse_definition<'a>(
                         .into())
                     };
                 }
-                NODE_KIND_LINE_COMMENT => {}
+                NODE_KIND_LINE_COMMENT => {
+                    let comment = parse_comment(context, &node)?;
+                    context.push_comment(comment);
+                }
                 _ => {
                     unexpected_node!(
                         context,
@@ -112,7 +119,10 @@ pub(crate) fn parse_annotation_only_body<'a>(
                     NODE_KIND_ANNOTATION => {
                         body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {}
+                    NODE_KIND_LINE_COMMENT => {
+                        let comment = parse_comment(context, &node)?;
+                        context.push_comment(comment);
+                    }
                     _ => {
                         unexpected_node!(context, RULE_NAME, node, NODE_KIND_ANNOTATION);
                     }
@@ -134,6 +144,9 @@ use classes::parse_type_class_def;
 
 mod datatypes;
 use datatypes::parse_data_type_def;
+
+mod dimensions;
+use dimensions::parse_dimension_def;
 
 mod entities;
 use entities::parse_entity_def;

@@ -1,3 +1,0 @@
-module Campaign <https://example.org/v/Campaign#>
-  version "2" <https://example.org/v2/Campaign#> is
-end

@@ -1,5 +1,0 @@
-module Campaign is
-
-  import [ xsd:base xml:lang ]
-  
-end

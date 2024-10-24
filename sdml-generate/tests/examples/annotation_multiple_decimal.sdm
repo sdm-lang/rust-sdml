@@ -1,7 +1,0 @@
-;;; Annotation, Multiple Decimals
-
-module campaign is
-
-  @dc:some = [ 101.0 102.201 0.1 ]
-
-end

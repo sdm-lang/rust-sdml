@@ -1,5 +1,0 @@
-module Campaign is
-
-  @dc:published = "date" -> xsd:date("2023-08-04")
-
-end

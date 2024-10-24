@@ -4,7 +4,7 @@ use crate::parse::constraints::{
 };
 use crate::parse::definitions::parse_annotation_only_body;
 use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::ParseContext;
+use crate::parse::{parse_comment, ParseContext};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{Annotation, HasAnnotations};
@@ -84,7 +84,10 @@ fn parse_type_variable<'a>(
                 variable
                     .add_to_restrictions(parse_type_class_reference(context, &mut node.walk())?);
             }
-            NODE_KIND_LINE_COMMENT => {}
+            NODE_KIND_LINE_COMMENT => {
+                let comment = parse_comment(context, &node)?;
+                context.push_comment(comment);
+            }
             NODE_KIND_IDENTIFIER => {}
             NODE_KIND_FUNCTION_CARDINALITY_EXPRESSION => {}
             _ => {
@@ -142,7 +145,10 @@ pub(crate) fn parse_type_class_body<'a>(
             NODE_KIND_METHOD_DEF => {
                 body.add_to_methods(parse_method_def(context, &mut node.walk())?);
             }
-            NODE_KIND_LINE_COMMENT => {}
+            NODE_KIND_LINE_COMMENT => {
+                let comment = parse_comment(context, &node)?;
+                context.push_comment(comment);
+            }
             _ => {
                 unexpected_node!(
                     context,

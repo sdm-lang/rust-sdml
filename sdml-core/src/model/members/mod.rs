@@ -7,7 +7,7 @@ use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
-use crate::model::{HasSourceSpan, References, Span};
+use crate::model::{HasName, HasSourceSpan, References, Span};
 use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
@@ -266,6 +266,8 @@ impl MemberKind {
 // Implementations ❱ Members ❱ MemberDef
 // ------------------------------------------------------------------------------------------------
 
+impl_has_name_for!(MemberDef);
+
 impl_has_cardinality_for!(MemberDef);
 
 impl_has_optional_body_for!(MemberDef);
@@ -348,7 +350,6 @@ impl MemberDef {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub name, set_name  => Identifier);
     get_and_set!(pub target_type, set_target_type  => TypeReference);
     get_and_set!(pub target_cardinality, set_target_cardinality  => Cardinality);
 }
@@ -366,5 +367,3 @@ pub use cardinality::{
 
 mod types;
 pub use types::{HasType, MappingType, TypeReference};
-
-use super::HasName;

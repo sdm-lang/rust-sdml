@@ -270,6 +270,8 @@ impl Span {
 #[macro_use]
 mod macros;
 
+pub mod comments;
+
 pub mod annotations;
 
 pub mod check;

@@ -214,7 +214,8 @@ use tera::{Context, Map, Tera, Value};
 ///
 #[inline]
 pub fn make_engine_from(glob: &str) -> Result<Tera, Error> {
-    let engine = Tera::new(glob)?;
+    let mut engine = Tera::new(glob)?;
+    add_ons::register(&mut engine)?;
     Ok(engine)
 }
 
@@ -432,5 +433,7 @@ fn make_context_from_all(
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
+
+mod add_ons;
 
 pub mod context;

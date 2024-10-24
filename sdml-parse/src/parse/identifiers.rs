@@ -1,3 +1,5 @@
+use crate::parse::{parse_comment};
+
 use super::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
@@ -52,7 +54,10 @@ pub(crate) fn parse_identifier_reference<'a>(
             NODE_KIND_QUALIFIED_IDENTIFIER => {
                 return Ok(parse_qualified_identifier(context, &mut node.walk())?.into());
             }
-            NODE_KIND_LINE_COMMENT => {}
+            NODE_KIND_LINE_COMMENT => {
+                let comment = parse_comment(context, &node)?;
+                context.push_comment(comment);
+            }
             _ => {
                 unexpected_node!(
                     context,

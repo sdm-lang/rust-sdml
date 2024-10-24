@@ -59,6 +59,7 @@ pub trait HasVariants {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub enum Definition {
     Datatype(DatatypeDef),
+    Dimension(DimensionDef),
     Entity(EntityDef),
     Enum(EnumDef),
     Event(EventDef),
@@ -74,6 +75,8 @@ pub enum Definition {
 // ------------------------------------------------------------------------------------------------
 
 impl_from_for_variant!(Definition, Datatype, DatatypeDef);
+
+impl_from_for_variant!(Definition, Dimension, DimensionDef);
 
 impl_from_for_variant!(Definition, Entity, EntityDef);
 
@@ -91,13 +94,13 @@ impl_from_for_variant!(Definition, TypeClass, TypeClassDef);
 
 impl_from_for_variant!(Definition, Union, UnionDef);
 
-impl_has_name_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+impl_has_name_for!(Definition => variants Datatype, Dimension, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_has_source_span_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+impl_has_source_span_for!(Definition => variants Datatype, Dimension, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_references_for!(Definition => variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+impl_references_for!(Definition => variants Datatype, Dimension, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
-impl_maybe_incomplete_for!(Definition; variants Datatype, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
+impl_maybe_incomplete_for!(Definition; variants Datatype, Dimension, Entity, Enum, Event, Property, Rdf, Structure, TypeClass, Union);
 
 impl Validate for Definition {
     fn validate(
@@ -109,6 +112,7 @@ impl Validate for Definition {
     ) {
         match self {
             Definition::Datatype(v) => v.validate(top, cache, loader, check_constraints),
+            Definition::Dimension(v) => v.validate(top, cache, loader, check_constraints),
             Definition::Entity(v) => v.validate(top, cache, loader, check_constraints),
             Definition::Enum(v) => v.validate(top, cache, loader, check_constraints),
             Definition::Event(v) => v.validate(top, cache, loader, check_constraints),
@@ -175,6 +179,9 @@ pub use classes::{
 mod datatypes;
 pub use datatypes::DatatypeDef;
 
+mod dimensions;
+pub use dimensions::{DimensionBody, DimensionDef, DimensionIdentity, DimensionParent, SourceEntity};
+
 mod entities;
 pub use entities::{EntityBody, EntityDef};
 
@@ -182,7 +189,7 @@ mod enums;
 pub use enums::{EnumBody, EnumDef, ValueVariant};
 
 mod events;
-pub use events::EventDef;
+pub use events::{EventBody, EventDef};
 
 mod properties;
 pub use properties::PropertyDef;

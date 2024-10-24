@@ -1,9 +1,0 @@
-module campaign is
-
-  import [
-    sdml
-    customer <https://example.org/v2/Customer#>
-    rdf skos
-  ]
-
-end

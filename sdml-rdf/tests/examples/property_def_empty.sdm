@@ -1,5 +1,0 @@
-module ddict is
-
-  property accountId -> unknown
-
-end

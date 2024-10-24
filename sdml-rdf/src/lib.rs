@@ -55,8 +55,10 @@ More detailed description, with
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum HandleStatementNodes {
+    #[default]
+    AsIs,
     Error,
     Reify,
     Star,

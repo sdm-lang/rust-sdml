@@ -8,33 +8,33 @@ More detailed description, with
 
  */
 
+use crate::errors::{missing_base_uri_error, module_not_loaded_error};
+use crate::HandleStatementNodes;
 use rdftk_core::model::graph::{Graph, PrefixMapping};
 use rdftk_core::model::literal::{DataType, Literal};
 use rdftk_core::model::statement::{BlankNode, Statement, SubjectNode};
 use rdftk_iri::Name;
+use rdftk_iri::{Iri, IriExtra};
 use sdml_core::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
-use sdml_core::model::constraints::Constraint;
+use sdml_core::model::constraints::{
+    Constraint, ConstraintBody, ControlledLanguageString, FormalConstraint,
+};
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef, StructureDef,
-    TypeClassDef, UnionDef,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, PropertyDef, RdfDef,
+    StructureBody, StructureDef, TypeClassDef, UnionDef,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
+use sdml_core::model::members::{Member, MemberDef, MemberKind, TypeReference};
 use sdml_core::model::modules::{HeaderValue, Module, ModuleBody};
 use sdml_core::model::values::{
     MappingValue, SequenceMember, SequenceOfValues, SimpleValue, Value, ValueConstructor,
 };
-use sdml_core::model::{HasBody, HasName, HasNameReference, HasSourceSpan};
-use sdml_core::stdlib;
-use sdml_core::stdlib::sdml::{
-    HAS_DOMAIN_VALUE, HAS_RANGE_VALUE, HAS_SOURCE_LOCATION, LOCATION_END_BYTE, LOCATION_START_BYTE,
-    MODULE_NAME, MODULE_URL,
-};
+use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan};
+use sdml_core::stdlib::{owl, rdf, sdml};
 use sdml_core::store::ModuleStore;
 use sdml_errors::Error as ApiError;
 use std::str::FromStr;
 use url::Url;
-
-use crate::errors::{missing_base_uri_error, module_not_loaded_error};
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -44,9 +44,12 @@ use crate::errors::{missing_base_uri_error, module_not_loaded_error};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct RdfGeneratorOptions {
     include_source_location: bool,
+    #[allow(dead_code)]
+    handle_statement_nodes: HandleStatementNodes,
+    mappings: Option<PrefixMapping>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -64,9 +67,19 @@ pub fn module_to_graph_with_options(
     options: RdfGeneratorOptions,
 ) -> Result<Graph, ApiError> {
     println!("{module:#?}");
-    let mappings = PrefixMapping::common().with(
-        Name::from_str(MODULE_NAME).unwrap(),
-        Url::from_str(MODULE_URL)?,
+    let mappings = if let Some(mappings) = &options.mappings {
+        mappings.clone()
+    } else {
+        PrefixMapping::common().with_dc_elements()
+    };
+    let mappings = if let Some(base_uri) = module.base_uri() {
+        mappings.with_default(base_uri.value().clone())
+    } else {
+        mappings
+    };
+    let mappings = mappings.with(
+        Name::from_str(sdml::MODULE_NAME).expect("TODO: convert to Error"),
+        Url::parse(sdml::MODULE_URL)?,
     );
     let mut graph = Graph::default().with_mappings(mappings);
 
@@ -90,43 +103,49 @@ pub fn add_module_to_graph_with_options(
     options: RdfGeneratorOptions,
 ) -> Result<(), ApiError> {
     if let Some(base_uri) = module.base_uri() {
-        let context = Context {
+        let mut context = Context {
             module_name: module.name().clone(),
             base_uri: base_uri.value().clone(),
-            subject_uri: vec![base_uri.value().join(module.name().as_ref())?],
+            subject: vec![base_uri.value().join(module.name().as_ref())?.into()],
             options,
         };
 
         graph.insert(Statement::new(
             context.current_subject(),
-            rdf_url(stdlib::rdf::TYPE),
-            owl_url(stdlib::owl::ONTOLOGY),
+            rdf_url(rdf::TYPE),
+            owl_url(owl::ONTOLOGY),
         ));
         graph.insert(Statement::new(
             context.current_subject(),
-            rdf_url(stdlib::rdf::TYPE),
-            sdml_url(stdlib::sdml::MODULE),
+            rdf_url(rdf::TYPE),
+            sdml_url(sdml::MODULE),
+        ));
+
+        graph.insert(Statement::new(
+            context.current_subject(),
+            sdml_url(sdml::NAME),
+            Literal::with_data_type_iri(module.name().to_string(), sdml_url(sdml::IDENTIFIER)),
         ));
 
         if let Some(version_uri) = module.version_uri() {
             graph.insert(Statement::new(
-                context.current_subject(),
-                owl_url(stdlib::owl::VERSION_IRI),
+                context.current_subject().clone(),
+                owl_url(owl::VERSION_IRI),
                 version_uri.value(),
             ));
         }
 
         if let Some(version_info) = module.version_info() {
             graph.insert(Statement::new(
-                context.current_subject(),
-                owl_url(stdlib::owl::VERSION_INFO),
+                context.current_subject().clone(),
+                owl_url(owl::VERSION_INFO),
                 Literal::plain(version_info.value()),
             ));
         }
 
-        add_source_span(module, &context, cache, graph)?;
+        add_source_span(module, &mut context, cache, graph)?;
 
-        add_module_body(module.body(), &context, cache, graph)
+        add_module_body(module.body(), &mut context, cache, graph)
     } else {
         Err(missing_base_uri_error(module.name()))
     }
@@ -135,6 +154,74 @@ pub fn add_module_to_graph_with_options(
 // ------------------------------------------------------------------------------------------------
 // Private Macros
 // ------------------------------------------------------------------------------------------------
+
+macro_rules! add_rdf_type {
+    ($graph: expr, $subject: expr, $type_uri: expr) => {
+        $graph.insert(Statement::new($subject, rdf_url(rdf::TYPE), $type_uri));
+    };
+}
+
+macro_rules! add_rdf_value {
+    ($graph: expr, $subject: expr, $value: expr) => {
+        $graph.insert(Statement::new($subject, rdf_url(rdf::VALUE), $value));
+    };
+}
+
+macro_rules! add_sdml_name {
+    ($graph: expr, $subject: expr, $name: expr) => {
+        $graph.insert(Statement::new(
+            $subject,
+            sdml_url(sdml::NAME),
+            Literal::with_data_type_iri($name.to_string(), sdml_url(sdml::IDENTIFIER)),
+        ));
+    };
+}
+
+macro_rules! set_current_context {
+    ($named: expr, $ctx: expr) => {{
+        let new_name = rdftk_iri::Name::from_str($named.name().as_ref()).unwrap();
+        let new_subject = $ctx.base_uri.make_name(new_name).unwrap();
+        $ctx.push_subject(new_subject);
+    }};
+    ($parent: expr, $named: expr, $ctx: expr) => {{
+        let new_name = rdftk_iri::Name::from_str(format!(
+            "{}__{}",
+            $parent.name().as_ref(),
+            $named.name().as_ref()
+        ))
+        .unwrap();
+        let new_subject = $ctx.base_uri.make_name(new_name).unwrap();
+        $ctx.push_subject(new_subject);
+    }};
+}
+macro_rules! defn_common {
+    ($defn: expr, $ctx: expr, $graph: expr, $type_name: expr, $member_name: expr) => {
+        let outer_subject = $ctx.current_subject().clone();
+        set_current_context!($defn, $ctx);
+
+        $graph.insert(Statement::new(
+            outer_subject,
+            sdml_url($member_name),
+            $ctx.current_subject().to_object(),
+        ));
+
+        add_rdf_type!($graph, $ctx.current_subject(), sdml_url($type_name));
+        add_sdml_name!($graph, $ctx.current_subject(), $defn.name());
+    };
+    ($parent: expr, $defn: expr, $ctx: expr, $graph: expr, $type_name: expr, $member_name: expr) => {
+        let outer_subject = $ctx.current_subject().clone();
+        set_current_context!($parent, $defn, $ctx);
+
+        $graph.insert(Statement::new(
+            outer_subject,
+            sdml_url($member_name),
+            $ctx.current_subject().to_object(),
+        ));
+
+        add_rdf_type!($graph, $ctx.current_subject(), sdml_url($type_name));
+        add_sdml_name!($graph, $ctx.current_subject(), $defn.name());
+    };
+}
 
 // ------------------------------------------------------------------------------------------------
 // Private Types
@@ -145,7 +232,7 @@ pub fn add_module_to_graph_with_options(
 struct Context {
     module_name: Identifier,
     base_uri: Url,
-    subject_uri: Vec<Url>,
+    subject: Vec<SubjectNode>,
     options: RdfGeneratorOptions,
 }
 
@@ -154,23 +241,21 @@ struct Context {
 // ------------------------------------------------------------------------------------------------
 
 impl Context {
-    fn current_subject(&self) -> Url {
-        self.subject_uri
-            .first()
-            .expect("Error, subject_uri is empty (get)")
-            .clone()
+    fn current_subject(&self) -> &SubjectNode {
+        self.subject.last().expect("Error, subject is empty (get)")
     }
 
     #[allow(dead_code)] // TODO: audit this
-    fn push_subject(&mut self, new_subject: Url) {
-        self.subject_uri.push(new_subject);
+    fn push_subject<S>(&mut self, new_subject: S)
+    where
+        S: Into<SubjectNode>,
+    {
+        self.subject.push(new_subject.into());
     }
 
     #[allow(dead_code)] // TODO: audit this
-    fn pop_subject(&mut self) -> Url {
-        self.subject_uri
-            .pop()
-            .expect("Error, subject_uri is empty (pop)")
+    fn pop_subject(&mut self) -> SubjectNode {
+        self.subject.pop().expect("Error, subject is empty (pop)")
     }
 }
 
@@ -185,22 +270,22 @@ fn make_url(base: &str, name: &str) -> Url {
 
 #[inline(always)]
 fn sdml_url(name: &str) -> Url {
-    make_url(MODULE_URL, name)
+    make_url(sdml::MODULE_URL, name)
 }
 
 #[inline(always)]
 fn rdf_url(name: &str) -> Url {
-    make_url(stdlib::rdf::MODULE_URL, name)
+    make_url(rdf::MODULE_URL, name)
 }
 
 #[inline(always)]
 fn owl_url(name: &str) -> Url {
-    make_url(stdlib::owl::MODULE_URL, name)
+    make_url(owl::MODULE_URL, name)
 }
 
 fn add_source_span(
     has_span: &impl HasSourceSpan,
-    ctx: &Context,
+    ctx: &mut Context,
     _: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -208,18 +293,18 @@ fn add_source_span(
         if let Some(span) = has_span.source_span() {
             let blank = BlankNode::generate();
             graph.insert(Statement::new(
-                ctx.current_subject(),
-                sdml_url(HAS_SOURCE_LOCATION),
+                ctx.current_subject().clone(),
+                sdml_url(sdml::SOURCE_LOCATION),
                 blank.clone(),
             ));
             graph.insert(Statement::new(
                 blank.clone(),
-                sdml_url(LOCATION_START_BYTE),
+                sdml_url(sdml::START_BYTE),
                 Literal::from(span.start() as u64),
             ));
             graph.insert(Statement::new(
                 blank,
-                sdml_url(LOCATION_END_BYTE),
+                sdml_url(sdml::END_BYTE),
                 Literal::from(span.end() as u64),
             ));
         }
@@ -229,7 +314,7 @@ fn add_source_span(
 
 fn add_module_body(
     body: &ModuleBody,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -250,7 +335,7 @@ fn add_module_body(
 
 fn add_annotations(
     thing: &impl HasAnnotations,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -265,35 +350,31 @@ fn add_annotations(
 
 fn add_annotation_property(
     property: &AnnotationProperty,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
     if property.has_source_span() {
         add_source_span(property, ctx, cache, graph)?;
     }
+    let subject = ctx.current_subject().clone();
     let predicate = identifier_reference_to_url(property.name_reference(), ctx, cache)
         .expect("Url parse error");
-    add_values(
-        &(ctx.current_subject().into()),
-        &predicate,
-        property.value(),
-        ctx,
-        cache,
-        graph,
-    )
+    add_values(&subject, &predicate, property.value(), ctx, cache, graph)
 }
 
 fn identifier_reference_to_url(
     name_reference: &IdentifierReference,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
 ) -> Result<Url, ApiError> {
     match name_reference {
         IdentifierReference::Identifier(ident) => Ok(ctx.base_uri.join(ident.as_ref())?),
         IdentifierReference::QualifiedIdentifier(ident) => {
             if let Some(other_base_uri) = cache.module_name_to_uri(ident.module()) {
-                Ok(other_base_uri.join(ident.member().as_ref())?)
+                let new_name = rdftk_iri::Name::from_str(ident.member().as_ref()).unwrap();
+                let url = other_base_uri.make_name(new_name).unwrap();
+                Ok(url)
             } else {
                 Err(module_not_loaded_error(ident.module()))
             }
@@ -305,7 +386,7 @@ fn add_values(
     subject: &SubjectNode,
     predicate: &Url,
     value: &Value,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -326,7 +407,7 @@ fn add_sequence_value(
     subject: &SubjectNode,
     predicate: &Url,
     value: &SequenceOfValues,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -336,13 +417,9 @@ fn add_sequence_value(
         predicate.clone(),
         &sequence,
     ));
-    graph.insert(Statement::new(
-        &sequence,
-        rdf_url(stdlib::rdf::TYPE),
-        &sequence,
-    ));
+    add_rdf_type!(graph, &sequence, sdml_url(sdml::SEQUENCE));
 
-    let sequence = SubjectNode::from(sequence);
+    let sequence = SubjectNode::from(&sequence);
 
     for value in value.iter() {
         match value {
@@ -366,7 +443,7 @@ fn add_value_constructor_value(
     subject: &SubjectNode,
     predicate: &Url,
     value: &ValueConstructor,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -394,7 +471,7 @@ fn add_name_reference_value(
     subject: &SubjectNode,
     predicate: &Url,
     value: &IdentifierReference,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -410,24 +487,25 @@ fn add_mapping_value(
     subject: &SubjectNode,
     predicate: &Url,
     value: &MappingValue,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
     let mapping = BlankNode::generate();
     graph.insert(Statement::new(subject.clone(), predicate.clone(), &mapping));
-    graph.insert(Statement::new(
-        &mapping,
-        rdf_url(stdlib::rdf::TYPE),
-        sdml_url(stdlib::sdml::CLASS_MAP_TYPE_NAME),
-    ));
+    add_rdf_type!(graph, &mapping, sdml_url(sdml::MAP_TYPE));
 
     let mapping = SubjectNode::from(mapping);
 
-    add_simple_value(&mapping, &sdml_url(HAS_DOMAIN_VALUE), value.domain(), graph)?;
+    add_simple_value(
+        &mapping,
+        &sdml_url(sdml::DOMAIN_VALUE),
+        value.domain(),
+        graph,
+    )?;
     add_values(
         &mapping,
-        &sdml_url(HAS_RANGE_VALUE),
+        &sdml_url(sdml::RANGE_VALUE),
         value.range(),
         ctx,
         cache,
@@ -457,7 +535,10 @@ fn add_simple_value(
             }
         }
         SimpleValue::IriReference(v) => Literal::from(v.clone()),
-        SimpleValue::Binary(v) => Literal::hex_encoded(v.as_bytes()),
+        SimpleValue::Binary(v) => {
+            println!("BYTES: {:#?}", v.as_bytes());
+            Literal::hex_encoded(v.as_bytes())
+        }
     };
 
     graph.insert(Statement::new(subject.clone(), predicate.clone(), object));
@@ -466,21 +547,72 @@ fn add_simple_value(
 }
 
 fn add_annotation_constraint(
-    _constraint: &Constraint,
-    _ctx: &Context,
-    _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    constraint: &Constraint,
+    ctx: &mut Context,
+    cache: &impl ModuleStore,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    let subject = ctx.current_subject();
+    let constraint_node = BlankNode::generate();
+    graph.insert(Statement::new(
+        subject,
+        sdml_url(sdml::HAS_CONSTRAINT),
+        &constraint_node,
+    ));
+    add_sdml_name!(graph, &constraint_node, constraint.name());
+
+    ctx.push_subject(constraint_node);
+
+    match constraint.body() {
+        ConstraintBody::Informal(v) => add_informal_constraint(v, ctx, cache, graph)?,
+        ConstraintBody::Formal(v) => add_formal_constraint(v, ctx, cache, graph)?,
+    };
+
+    ctx.pop_subject();
+
+    Ok(())
+}
+
+fn add_informal_constraint(
+    constraint: &ControlledLanguageString,
+    ctx: &mut Context,
+    _cache: &impl ModuleStore,
+    graph: &mut Graph,
+) -> Result<(), ApiError> {
+    let subject = ctx.current_subject();
+    add_rdf_type!(graph, subject, sdml_url(sdml::CONSTRAINT));
+    add_rdf_type!(graph, subject, sdml_url(sdml::INFORMAL_CONSTRAINT));
+    add_rdf_value!(graph, subject, Literal::plain(constraint.value()));
+    if let Some(language) = constraint.language() {
+        graph.insert(Statement::new(
+            subject,
+            sdml_url(sdml::CONTROLLED_LANG_STRING),
+            Literal::plain(language.to_string()),
+        ));
+    }
+    Ok(())
+}
+
+fn add_formal_constraint(
+    _constraint: &FormalConstraint,
+    ctx: &mut Context,
+    _cache: &impl ModuleStore,
+    graph: &mut Graph,
+) -> Result<(), ApiError> {
+    let subject = ctx.current_subject();
+    add_rdf_type!(graph, subject, sdml_url(sdml::CONSTRAINT));
+    add_rdf_type!(graph, subject, sdml_url(sdml::FORMAL_CONSTRAINT));
     Ok(())
 }
 
 fn add_imports(
     module: &ModuleBody,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
     for (name, version) in module.imported_module_versions() {
+        // NOTE: we ignore imported members
         add_an_import(name, version, ctx, cache, graph)?;
     }
     Ok(())
@@ -489,7 +621,7 @@ fn add_imports(
 fn add_an_import(
     name: &Identifier,
     version: Option<&HeaderValue<Url>>,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -497,13 +629,13 @@ fn add_an_import(
         if let Some(version_uri) = version {
             graph.insert(Statement::new(
                 ctx.current_subject(),
-                owl_url(stdlib::owl::IMPORTS),
+                owl_url(owl::IMPORTS),
                 version_uri.value(),
             ));
         } else if let Some(base_uri) = actual.base_uri() {
             graph.insert(Statement::new(
                 ctx.current_subject(),
-                owl_url(stdlib::owl::IMPORTS),
+                owl_url(owl::IMPORTS),
                 base_uri.value(),
             ));
         } else {
@@ -517,7 +649,7 @@ fn add_an_import(
 
 fn add_definitions(
     module: &ModuleBody,
-    ctx: &Context,
+    ctx: &mut Context,
     cache: &impl ModuleStore,
     graph: &mut Graph,
 ) -> Result<(), ApiError> {
@@ -538,83 +670,233 @@ fn add_definitions(
 }
 
 fn add_datatype_def(
-    _defn: &DatatypeDef,
-    _ctx: &Context,
+    defn: &DatatypeDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::DATATYPE, sdml::HAS_DEFINITION);
     Ok(())
 }
 
 fn add_entity_def(
-    _defn: &EntityDef,
-    _ctx: &Context,
+    defn: &EntityDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::ENTITY, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 
 fn add_enum_def(
-    _defn: &EnumDef,
-    _ctx: &Context,
+    defn: &EnumDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::ENUMERATION, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 
 fn add_event_def(
-    _defn: &EventDef,
-    _ctx: &Context,
+    defn: &EventDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::EVENT, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 
 fn add_property_def(
-    _defn: &PropertyDef,
-    _ctx: &Context,
+    defn: &PropertyDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::PROPERTY, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 
 fn add_rdf_def(
-    _defn: &RdfDef,
-    _ctx: &Context,
+    defn: &RdfDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::RDF, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 
 fn add_structure_def(
-    _defn: &StructureDef,
-    _ctx: &Context,
-    _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    defn: &StructureDef,
+    ctx: &mut Context,
+    cache: &impl ModuleStore,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::STRUCTURE, sdml::HAS_DEFINITION);
+
+    if let Some(body) = defn.body() {
+        add_structure_body(body, ctx, cache, graph)?;
+    }
+
+    ctx.pop_subject();
+
+    Ok(())
+}
+
+fn add_structure_body(
+    body: &StructureBody,
+    ctx: &mut Context,
+    cache: &impl ModuleStore,
+    graph: &mut Graph,
+) -> Result<(), ApiError> {
+    if body.has_annotations() {
+        add_annotations(body, ctx, cache, graph)?;
+    }
+    for member in body.members() {
+        add_member(member, ctx, cache, graph)?;
+    }
+    Ok(())
+}
+
+fn add_member(
+    member: &Member,
+    ctx: &mut Context,
+    cache: &impl ModuleStore,
+    graph: &mut Graph,
+) -> Result<(), ApiError> {
+    defn_common!(member, ctx, graph, sdml::MEMBER, sdml::HAS_MEMBER);
+
+    let current_subject = ctx.current_subject().clone();
+    match member.kind() {
+        MemberKind::Reference(v) => graph.insert(Statement::new(
+            &current_subject,
+            sdml_url(sdml::IDENTIFIER_REFERENCE),
+            identifier_reference_to_url(v, ctx, cache)?,
+        )),
+        MemberKind::Definition(v) => {
+            add_member_definition(v, ctx, cache, graph)?;
+        }
+    }
+
+    ctx.pop_subject();
+
+    Ok(())
+}
+
+fn add_member_definition(
+    member: &MemberDef,
+    ctx: &mut Context,
+    cache: &impl ModuleStore,
+    graph: &mut Graph,
+) -> Result<(), ApiError> {
+    let current_subject = ctx.current_subject().clone();
+    add_rdf_type!(graph, &current_subject, sdml_url(sdml::MEMBER));
+    add_sdml_name!(graph, &current_subject, member.name());
+
+    //member.target_cardinality();
+
+    add_type_reference(
+        member.target_type(),
+        sdml_url(sdml::HAS_TYPE),
+        ctx,
+        cache,
+        graph,
+    )?;
+
+    if let Some(body) = member.body() {
+        if body.has_annotations() {
+            add_annotations(body, ctx, cache, graph)?;
+        }
+    }
+
+    Ok(())
+}
+
+fn add_type_reference(
+    type_ref: &TypeReference,
+    predicate: Iri,
+    ctx: &mut Context,
+    cache: &impl ModuleStore,
+    graph: &mut Graph,
+) -> Result<(), ApiError> {
+    let current_subject = ctx.current_subject().clone();
+
+    match type_ref {
+        TypeReference::Unknown => {
+            graph.insert(Statement::new(
+                &current_subject,
+                predicate,
+                sdml_url(sdml::UNKNOWN),
+            ));
+        }
+        TypeReference::Type(v) => {
+            graph.insert(Statement::new(
+                &current_subject,
+                predicate,
+                identifier_reference_to_url(v, ctx, cache)?,
+            ));
+        }
+        TypeReference::MappingType(v) => {
+            let type_node = BlankNode::generate();
+            graph.insert(Statement::new(
+                &current_subject,
+                predicate.clone(),
+                &type_node,
+            ));
+            add_rdf_type!(graph, &type_node, sdml_url(sdml::MAP_TYPE));
+            graph.insert(Statement::new(&current_subject, predicate, &type_node));
+
+            ctx.push_subject(&type_node);
+            add_type_reference(v.domain(), sdml_url(sdml::DOMAIN_TYPE), ctx, cache, graph)?;
+            add_type_reference(v.range(), sdml_url(sdml::RANGE_TYPE), ctx, cache, graph)?;
+            ctx.pop_subject();
+        }
+    }
+
     Ok(())
 }
 
 fn add_type_class_def(
-    _defn: &TypeClassDef,
-    _ctx: &Context,
+    defn: &TypeClassDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::TYPE_CLASS, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 
 fn add_union_def(
-    _defn: &UnionDef,
-    _ctx: &Context,
+    defn: &UnionDef,
+    ctx: &mut Context,
     _cache: &impl ModuleStore,
-    _graph: &mut Graph,
+    graph: &mut Graph,
 ) -> Result<(), ApiError> {
+    defn_common!(defn, ctx, graph, sdml::UNION, sdml::HAS_DEFINITION);
+
+    ctx.pop_subject();
+
     Ok(())
 }
 

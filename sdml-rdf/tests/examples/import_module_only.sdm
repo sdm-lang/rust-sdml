@@ -1,7 +1,0 @@
-;;; Import single module only
-
-module campaign is
-
-  import xsd
-
-end

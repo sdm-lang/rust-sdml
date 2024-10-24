@@ -1,7 +1,0 @@
-;;; Annotation, Single Boolean
-
-module campaign is
-
-  @dc:published = false
-
-end

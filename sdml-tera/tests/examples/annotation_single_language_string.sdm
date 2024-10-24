@@ -1,7 +1,0 @@
-;;; Annotation, Single Language-Tagged String
-
-module campaign is
-
-  @dc:title = "a test"@en-US
-
-end

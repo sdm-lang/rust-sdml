@@ -4,6 +4,7 @@ use super::ParseContext;
 use crate::parse::annotations::parse_annotation;
 use crate::parse::definitions::parse_definition;
 use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
+use crate::parse::{parse_comment};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
@@ -112,7 +113,10 @@ fn parse_module_body<'a>(
             NODE_KIND_DEFINITION => {
                 body.add_to_definitions(parse_definition(context, &mut node.walk())?)?;
             }
-            NODE_KIND_LINE_COMMENT => {}
+            NODE_KIND_LINE_COMMENT => {
+                let comment = parse_comment(context, &node)?;
+                context.push_comment(comment);
+            }
             _ => {
                 unexpected_node!(
                     context,

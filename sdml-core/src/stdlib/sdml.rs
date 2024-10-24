@@ -19,42 +19,44 @@ use url::Url;
 pub const MODULE_NAME: &str = "sdml";
 pub const MODULE_URL: &str = "http://sdml.io/sdml-owl.ttl#";
 
-pub const ANNOTATION: &str = "Annotation";
+/* Classes */
 pub const ANNOTATION_PROPERTY: &str = "AnnotationProperty";
 pub const CARDINALITY: &str = "Cardinality";
+pub const MAP_TYPE: &str = "MapType";
 pub const CONSTRAINT: &str = "Constraint";
 pub const DEFINITION: &str = "Definition";
+pub const DATATYPE: &str = "Datatype";
 pub const ENTITY: &str = "Entity";
 pub const ENUMERATION: &str = "Enumeration";
 pub const EVENT: &str = "Event";
 pub const FEATURE_SET: &str = "FeatureSet";
 pub const FORMAL_CONSTRAINT: &str = "FormalConstraint";
-pub const IDENTIFIER_REFERENCE: &str = "IdentifierReference";
 pub const IMPORT: &str = "Import";
 pub const IMPORT_STATEMENT: &str = "ImportStatement";
 pub const INFORMAL_CONSTRAINT: &str = "InformalConstraint";
-pub const CLASS_MAP_TYPE_NAME: &str = "MapType";
 pub const MEMBER: &str = "Member";
 pub const MEMBER_IMPORT: &str = "MemberImport";
 pub const MODULE: &str = "Module";
 pub const MODULE_IMPORT: &str = "ModuleImport";
 pub const ORDERING_CONSTRAINT: &str = "OrderingConstraint";
 pub const PROPERTY: &str = "Property";
+pub const RDF: &str = "Rdf";
 pub const ROLE: &str = "Role";
 pub const ROLE_REFERENCE: &str = "RoleReference";
-pub const QUALIFIED_IDENTIFIER: &str = "QualifiedIdentifier";
 pub const STRUCTURE: &str = "Structure";
+pub const SEQUENCE: &str = "Sequence";
 pub const TYPE_CLASS: &str = "TypeClass";
 pub const TYPE_VARIANT: &str = "TypeVariant";
 pub const UNION: &str = "Union";
-pub const UNKNOWN: &str = "Unknown";
 pub const UNIQUENESS_CONSTRAINT: &str = "UniquenessConstraint";
+pub const UNKNOWN: &str = "Unknown";
 pub const VALUE_VARIANT: &str = "ValueVariant";
+pub const ANNOTATION: &str = "Annotation";
 
-pub const IDENTIFIER: &str = "Identifier";
-
+/* Datatypes */
 pub const BINARY: &str = "binary";
 pub const BOOLEAN: &str = "boolean";
+pub const CONTROLLED_LANGUAGE: &str = "controlledLanguage";
 pub const DECIMAL: &str = "decimal";
 pub const DOUBLE: &str = "double";
 pub const INTEGER: &str = "integer";
@@ -63,26 +65,37 @@ pub const LANGUAGE: &str = "language";
 pub const STRING: &str = "string";
 pub const UNSIGNED: &str = "unsigned";
 
-pub const HAS_NAME: &str = "hasName";
+pub const IDENTIFIER: &str = "identifier";
+pub const QUALIFIED_IDENTIFIER: &str = "qualifiedIdentifier";
+pub const IDENTIFIER_REFERENCE: &str = "identifierReference";
+
+/* Properties */
 pub const HAS_ANNOTATION: &str = "hasAnnotation";
 pub const HAS_CARDINALITY: &str = "hasCardinality";
-pub const HAS_DEFINITION: &str = "hasDefinition";
-pub const HAS_DOMAIN_VALUE: &str = "hasDomainValue";
+pub const CONTROLLED_LANG_STRING: &str = "controlledLangString";
+pub const HAS_CONSTRAINT: &str = "hasConstraint";
+pub const HAS_DEFINITION: &str = "definition";
+pub const DOMAIN_TYPE: &str = "domainType";
+pub const DOMAIN_VALUE: &str = "domainValue";
 pub const HAS_IMPORT_STATEMENT: &str = "hasImportStatement";
-pub const HAS_MEMBER: &str = "hasMember";
-pub const HAS_RANGE_VALUE: &str = "hasRangeValue";
-pub const HAS_SOURCE_ENTITY: &str = "hasSourceEntity";
-pub const HAS_SOURCE_LOCATION: &str = "hasSourceLocation";
+pub const HAS_MEMBER: &str = "member";
+pub const NAME: &str = "name";
+pub const RANGE_VALUE: &str = "rangeValue";
+pub const RANGE_TYPE: &str = "rangeType";
+pub const SOURCE_ENTITY: &str = "sourceEntity";
+pub const SOURCE_LOCATION: &str = "sourceLocation";
+pub const HAS_TYPE: &str = "hasType";
 pub const HAS_TYPE_VARIANT: &str = "hasTypeVariant";
 pub const HAS_VALUE_VARIANT: &str = "hasValueVariant";
-pub const LOCATION_END_BYTE: &str = "endByte";
-pub const LOCATION_START_BYTE: &str = "startByte";
+pub const END_BYTE: &str = "endByte";
+pub const START_BYTE: &str = "startByte";
 pub const MAX_OCCURS: &str = "maxOccurs";
 pub const MIN_OCCURS: &str = "minOccurs";
 pub const ORDERING: &str = "ordering";
 pub const SRC_LABEL: &str = "srcLabel";
 pub const UNIQUENESS: &str = "uniqueness";
 
+/* Values */
 pub const ORDERED: &str = "Ordered";
 pub const UNIQUE: &str = "Unique";
 pub const NONUNIQUE: &str = "NonUnique";
@@ -168,11 +181,11 @@ pub fn module() -> Module {
             rdf!(property HAS_ANNOTATION, MODULE_IRI).into(),
             rdf!(property HAS_CARDINALITY, MODULE_IRI).into(),
             rdf!(property HAS_DEFINITION, MODULE_IRI).into(),
-            rdf!(property HAS_DOMAIN_VALUE, MODULE_IRI).into(),
+            rdf!(property DOMAIN_VALUE, MODULE_IRI).into(),
             rdf!(property HAS_IMPORT_STATEMENT, MODULE_IRI).into(),
             rdf!(property HAS_MEMBER, MODULE_IRI).into(),
-            rdf!(property HAS_NAME, MODULE_IRI).into(),
-            rdf!(property HAS_RANGE_VALUE, MODULE_IRI).into(),
+            rdf!(property NAME, MODULE_IRI).into(),
+            rdf!(property RANGE_VALUE, MODULE_IRI).into(),
             rdf!(property HAS_TYPE_VARIANT, MODULE_IRI).into(),
             rdf!(property HAS_VALUE_VARIANT, MODULE_IRI).into(),
             rdf!(property MAX_OCCURS, MODULE_IRI).into(),

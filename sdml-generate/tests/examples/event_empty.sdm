@@ -1,7 +1,0 @@
-;;; Event, Empty
-
-module campaign is
-
-  event NameChanged source Campaign
-
-end

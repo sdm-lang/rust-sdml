@@ -1,0 +1,496 @@
+#+TITLE: Module =campaign=#+LANGUAGE: en#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup#+HTML_HEAD: <style>table {{ min-width: 50%; }}</style>#+HTML_HEAD: <style>img {{ max-width: 800px; height: auto; }}</style>#+HTML_HEAD: <style>div.figure {{ text-align: center; }}</style>#+OPTIONS: h:5 toc:3 ^:{}
+#+BEGIN_SRC emacs-lisp :eval yes :exports none 
+(require 'ob-dot)
+(require 'ob-sdml)
+#+END_SRC
+
+* Description
+
+#+NAME: lst:module-campaign-uml-class
+#+BEGIN_SRC sdml :eval yes :exports results :results  :file ./module-campaign-uml-class.svg :cmdline draw --diagram uml-class --output-format svg :noweb yes
+module campaign <https://advertising.amazon.com/api-model> is
+
+  import [
+    dc
+    owl
+    rdf
+    skos
+    xsd
+  ]
+
+
+  @skos:version = xsd:decimal(2) ;; this is a badly spelled comment.
+
+  datatype Name <- xsd:string is
+    @xsd:minLength = 5
+    @xsd:maxLength = 25
+  end
+
+  datatype CampaignId <- xsd:string is
+    @skos:prefLabel = [
+      "Campaign Identifier"@en
+      "Identified de campagne"@fr
+    ]
+  end
+
+  enum State of
+    @owl:equivalentClass = sdml:unsigned
+    Running is
+      @rdf:value = 1
+    end
+    Paused is
+      @rdf:value = 2
+    end
+    error is
+      @rdf:value = 3
+    end
+  end
+
+  structure Tag is
+    key -> xsd:NMTOKEN
+    value -> {0..} rdf:langString
+  end
+
+  entity Ad
+
+  entity AdGroup
+
+; entity UnusedAdGroup
+
+  entity Campaign is
+    identity campaignId -> CampaignId
+
+    name -> unknown
+
+    tag -> {0..} Tag
+
+    target -> {1..} TargetCriteria
+  end
+
+  entity AudienceTarget
+
+  entity GeographicTarget
+
+  union TargetCriteria of
+    AudienceTarget as Audience
+    GeographicTarget as Geographic
+  end
+
+end
+
+#+END_SRC
+
+#+NAME: fig:module-campaign-uml-class
+#+CAPTION: Module =campaign= UML Class Diagram#+RESULTS: lst:module-campaign-uml-class[[file:./module-campaign-uml-class.svg]]
+
+* Dependencies
+
+#+NAME: tbl:module-campaign-imports
+#+CAPTION: Module =campaign= Imports| *Name* | *Base IRI* |
+|------+----------|
+| =dc= | http://purl.org/dc/elements/1.1/ |
+| =owl= | http://www.w3.org/2002/07/owl# |
+| =rdf= | http://www.w3.org/1999/02/22-rdf-syntax-ns# |
+| =skos= | http://www.w3.org/2004/02/skos/core# |
+| =xsd= | http://www.w3.org/2001/XMLSchema# |
+
+
+* Definitions
+
+** Datatype =Name=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-Name
+:END:
+
+
+The datatype *=Name=* is based on the existing datatype =xsd:string=.
+
+
+** Datatype =CampaignId=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-CampaignId
+:END:
+
+
+The datatype *=CampaignId=* is based on the existing datatype =xsd:string=.
+
+
+** Enumeration =State=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-State
+:END:
+
+
+*** Variant =Running=
+:PROPERTIES:
+:CUSTOM_ID: sec:variant-campaign-State-Running
+:END:
+
+
+*** Variant =Paused=
+:PROPERTIES:
+:CUSTOM_ID: sec:variant-campaign-State-Paused
+:END:
+
+
+*** Variant =error=
+:PROPERTIES:
+:CUSTOM_ID: sec:variant-campaign-State-error
+:END:
+
+
+** Structure =Tag=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-Tag
+:END:
+
+
+*** Member =key=
+:PROPERTIES:
+:CUSTOM_ID: sec:member-campaign-Tag-key
+:END:
+
+
+Member =key= is a *required* value of type =xsd:NMTOKEN=.
+
+
+
+*** Member =value=
+:PROPERTIES:
+:CUSTOM_ID: sec:member-campaign-Tag-value
+:END:
+
+
+Member =value= is /an unordered bag/, with zero or more values, of type =rdf:langString=.
+
+
+
+** Entity =Ad=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-Ad
+:END:
+
+
+This type is currently /incomplete/.
+
+** Entity =AdGroup=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-AdGroup
+:END:
+
+
+This type is currently /incomplete/.
+
+** Entity =Campaign=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-Campaign
+:END:
+
+
+This type is currently /incomplete/.
+
+** Entity =AudienceTarget=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-AudienceTarget
+:END:
+
+
+This type is currently /incomplete/.
+
+** Entity =GeographicTarget=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-GeographicTarget
+:END:
+
+
+This type is currently /incomplete/.
+
+** Union =TargetCriteria=
+:PROPERTIES:
+:CUSTOM_ID: sec:definition-campaign-TargetCriteria
+:END:
+
+
+*** Variant =Audience=
+:PROPERTIES:
+:CUSTOM_ID: sec:variant-campaign-TargetCriteria-Audience
+:END:
+
+
+  : AudienceTarget as Audience
+
+*** Variant =Geographic=
+:PROPERTIES:
+:CUSTOM_ID: sec:variant-campaign-TargetCriteria-Geographic
+:END:
+
+
+  : GeographicTarget as Geographic
+
+* Appendix: Dependency Graph
+
+
+#+NAME: lst:module-campaign-dep-graph
+#+BEGIN_SRC dot :eval yes :exports results :results  :file ./module-campaign-dep-graph.svg
+digraph G {
+  bgcolor="transparent";
+  rankdir="TB";
+  fontname="Helvetica,Arial,sans-serif";
+  node [
+    shape="tab";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=11
+  ];
+  edge [
+    style="dashed"; arrowhead="open";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
+    labelfontcolor="blue"; labeldistance=2.0
+  ];
+
+  campaign [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><B>campaign</B>>];
+  rdfs [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>rdfs</I>>];
+  rdf [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>rdf</I>>];
+  dc [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>dc</I>>];
+  xsd [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>xsd</I>>];
+  owl [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>owl</I>>];
+  skos [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>skos</I>>];
+
+  campaign -> dc;
+  dc -> rdf;
+  rdf -> rdfs;
+  rdfs -> rdf;
+  dc -> rdfs;
+  campaign -> owl;
+  owl -> rdf;
+  owl -> rdfs;
+  owl -> xsd;
+  xsd -> rdf;
+  xsd -> rdfs;
+  campaign -> rdf;
+  campaign -> skos;
+  skos -> rdf;
+  skos -> rdfs;
+  campaign -> xsd;
+}
+
+#+END_SRC
+
+#+NAME: fig:module-campaign-dep-graph
+#+CAPTION: Module =campaign= Dependency Graph#+RESULTS: lst:module-campaign-dep-graph[[./module-campaign-dep-graph.svg]]
+
+* Appendix: SDML Source
+
+
+#+NAME: lst:module-campaign-src-sdml
+#+CAPTION: Module =campaign= SDML Source#+BEGIN_SRC sdml :eval yes :exports code  :noweb yes
+<<lst:module-campaign-uml-class>>
+#+END_SRC
+* Appendix: RDF Source
+
+
+#+NAME: lst:module-campaign-src-rdf
+#+CAPTION: Module =campaign= RDF Source#+BEGIN_SRC ttl :eval yes :exports code 
+@base <https://advertising.amazon.com/api-model> .
+@prefix campaign: <https://advertising.amazon.com/api-model> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+campaign:
+    rdf:type
+        owl:Ontology ,
+        sdml:Module ;
+    owl:imports <http://www.w3.org/2004/02/skos/core#> ;
+    owl:imports <http://purl.org/dc/elements/1.1/> ;
+    skos:version 2^^xsd:decimal ;
+    sdml:srcLabel "campaign" .
+
+campaign:Name
+    rdf:type rdfs:Datatype ;
+    owl:onDatatype xsd:string ;
+    owl:withRestrictions (
+        [ xsd:minLength 5 ] ,
+        [ xsd:maxLength 25 ]
+    ) ;
+    sdml:srcLabel "Name" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:CampaignId
+    rdf:type rdfs:Datatype ;
+    owl:onDatatype xsd:string ;
+    skos:prefLabel  (
+        "Campaign Identifier"@en
+        "Identified de campagne"@fr
+    ) ;
+    sdml:srcLabel "CampaignId" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:State
+    rdf:type
+        owl:Class ,
+        sdml:Enumeration ;
+    owl:equivalentClass sdml:unsigned ;
+    sdml:hasValueVariant
+        campaign:State__Running ,
+        campaign:State__Paused ,
+        campaign:State__error ;
+    sdml:srcLabel "State" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:State__Running
+    rdf:type
+        owl:NamedIndividual ,
+        sdml:ValueVariant ,
+        campaign:State ;
+    rdf:value 1 ;
+    sdml:srcLabel "State__Running" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:State__Paused
+    rdf:type
+        owl:NamedIndividual ,
+        sdml:ValueVariant ,
+        campaign:State ;
+    rdf:value 2 ;
+    sdml:srcLabel "State__Paused" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:State__error
+    rdf:type
+        owl:NamedIndividual ,
+        sdml:ValueVariant ,
+        campaign:State ;
+    rdf:value 3 ;
+    sdml:srcLabel "State__error" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:Tag
+    rdf:type
+        owl:Class ,
+        sdml:Structure ;
+    sdml:hasMember
+        campaign:Tag__key ,
+        campaign:Tag__value ;
+    sdml:srcLabel "Tag" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:key
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain campaign:Tag ;
+    rdfs:range xsd:NMTOKEN ;
+    sdml:srcLabel "key" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:value
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain campaign:Tag ;
+    rdfs:range rdf:langString ;
+    owl:minCardinality 0^^xsd:nonNegativeInteger ;
+    sdml:srcLabel "value" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:Ad
+    rdf:type
+        owl:Class ,
+        sdml:Entity ;
+    sdml:srcLabel "Ad" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:AdGroup
+    rdf:type
+        owl:Class ,
+        sdml:Entity ;
+    sdml:srcLabel "AdGroup" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:Campaign
+    rdf:type
+        owl:Class ,
+        sdml:Entity ;
+    sdml:hasMember
+        campaign:Campaign__name ,
+        campaign:Campaign__tag ,
+        campaign:Campaign__target ;
+    sdml:srcLabel "Campaign" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:name
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain campaign:Campaign ;
+    rdfs:range sdml:Unknown ;
+    sdml:srcLabel "name" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:tag
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain campaign:Campaign ;
+    rdfs:range campaign:Tag ;
+    owl:minCardinality 0^^xsd:nonNegativeInteger ;
+    sdml:srcLabel "tag" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:target
+    rdf:type
+        rdf:Property ,
+        sdml:Member ;
+    rdfs:domain campaign:Campaign ;
+    rdfs:range campaign:TargetCriteria ;
+    owl:minCardinality 1^^xsd:nonNegativeInteger ;
+    sdml:srcLabel "target" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:AudienceTarget
+    rdf:type
+        owl:Class ,
+        sdml:Entity ;
+    sdml:srcLabel "AudienceTarget" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:GeographicTarget
+    rdf:type
+        owl:Class ,
+        sdml:Entity ;
+    sdml:srcLabel "GeographicTarget" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:TargetCriteria
+    rdf:type
+        owl:Class ,
+        sdml:Union ;
+    sdml:hasTypeVariant
+        campaign:TargetCriteria__Audience ,
+        campaign:TargetCriteria__Geographic ;
+    sdml:srcLabel "TargetCriteria" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:TargetCriteria__Audience
+    rdf:type
+        owl:Class ,
+        sdml:TypeVariant ;
+    rdfs:subClassOf campaign:TargetCriteria ;
+    owl:equivalentClass campaign:AudienceTarget ;
+    sdml:srcLabel "TargetCriteria__Audience" ;
+    rdfs:isDefinedBy campaign: .
+
+campaign:TargetCriteria__Geographic
+    rdf:type
+        owl:Class ,
+        sdml:TypeVariant ;
+    rdfs:subClassOf campaign:TargetCriteria ;
+    owl:equivalentClass campaign:GeographicTarget ;
+    sdml:srcLabel "TargetCriteria__Geographic" ;
+    rdfs:isDefinedBy campaign: .
+
+
+#+END_SRC

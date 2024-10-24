@@ -678,7 +678,7 @@ impl RdfModelGenerator {
         writer.write_all(
             predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::HAS_SOURCE_ENTITY,
+                stdlib::sdml::SOURCE_ENTITY,
                 predicate_qname(source_module, source_name),
                 Separator::Predicate,
             )
@@ -1104,18 +1104,18 @@ impl RdfModelGenerator {
             collection_element(predicate_with_value(
                 stdlib::rdf::MODULE_NAME,
                 stdlib::rdf::TYPE,
-                type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::CLASS_MAP_TYPE_NAME,),
+                type_ref_qname(stdlib::sdml::MODULE_NAME, stdlib::sdml::MAP_TYPE,),
                 Separator::Predicate,
             )),
             collection_element(predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::HAS_DOMAIN_VALUE,
+                stdlib::sdml::DOMAIN_VALUE,
                 self.simple_value_to_string(me.domain()),
                 Separator::Predicate,
             )),
             collection_element(predicate_with_value(
                 stdlib::sdml::MODULE_NAME,
-                stdlib::sdml::HAS_RANGE_VALUE,
+                stdlib::sdml::RANGE_VALUE,
                 self.value_to_string(me.range(), module_name),
                 Separator::None,
             )),

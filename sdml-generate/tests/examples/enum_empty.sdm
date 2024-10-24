@@ -1,7 +1,0 @@
-;;; Enum, Empty
-
-module campaign is
-
-  enum NameKind
-
-end

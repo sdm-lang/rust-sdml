@@ -418,6 +418,7 @@ pub mod terms {
         ) {
             match self {
                 Self::Datatype(v) => v.validate_terms(validator, top, loader),
+                Self::Dimension(v) => v.validate_terms(validator, top, loader),
                 Self::Entity(v) => v.validate_terms(validator, top, loader),
                 Self::Enum(v) => v.validate_terms(validator, top, loader),
                 Self::Event(v) => v.validate_terms(validator, top, loader),
@@ -442,6 +443,62 @@ pub mod terms {
             if let Some(body) = self.body() {
                 body.validate_terms(validator, top, loader);
             }
+        }
+    }
+
+    impl ValidateTerms for DimensionDef {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.name().validate_terms(validator, top, loader);
+            if let Some(body) = self.body() {
+                for annotation in body.annotations() {
+                    annotation.validate_terms(validator, top, loader);
+                }
+                match body.identity() {
+                    DimensionIdentity::Source(source) => {
+                        source.validate_terms(validator, top, loader)
+                    }
+                    DimensionIdentity::Identity(member) => {
+                        member.validate_terms(validator, top, loader)
+                    }
+                }
+                for parent in body.parents() {
+                    parent.validate_terms(validator, top, loader);
+                }
+                for member in body.members() {
+                    member.validate_terms(validator, top, loader);
+                }
+            }
+        }
+    }
+
+    impl ValidateTerms for SourceEntity {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.target_entity().validate_terms(validator, top, loader);
+            for member in self.members() {
+                member.validate_terms(validator, top, loader);
+            }
+        }
+    }
+
+    impl ValidateTerms for DimensionParent {
+        fn validate_terms(
+            &self,
+            validator: &mut Validator<'_>,
+            top: &Module,
+            loader: &impl ModuleLoader,
+        ) {
+            self.name().validate_terms(validator, top, loader);
+            self.target_entity().validate_terms(validator, top, loader);
         }
     }
 
@@ -507,8 +564,8 @@ pub mod terms {
             loader: &impl ModuleLoader,
         ) {
             self.name().validate_terms(validator, top, loader);
-            self.event_source().validate_terms(validator, top, loader);
             if let Some(body) = self.body() {
+                // TODO: put back -- body.event_source().validate_terms(validator, top, loader);
                 for annotation in body.annotations() {
                     annotation.validate_terms(validator, top, loader);
                     for member in body.members() {

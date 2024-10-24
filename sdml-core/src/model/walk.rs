@@ -40,6 +40,8 @@ use crate::model::modules::{ImportStatement, Module};
 use crate::model::{HasBody, HasOptionalBody};
 use tracing::info;
 
+use super::definitions::{DimensionDef, DimensionIdentity, DimensionParent, SourceEntity};
+
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
@@ -265,6 +267,83 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the start of a `DimensionDef` instance.
+    ///
+    /// # Nested
+    ///
+    /// - `annotation_start`
+    /// - `dimension_entity_start`
+    /// - `dimension_parent_start`
+    /// - `member_start`
+    /// - `dimension_end`
+    ///
+    fn dimension_start(&mut self, _thing: &DimensionDef) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::dimension_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// Called to denote the end of a `DimensionDef` instance.
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn dimension_end(&mut self, _thing: &DimensionDef) -> Result<(), Error> {
+        info!("SimpleModuleWalker::dimension_end(..) -- skipped");
+        Ok(())
+    }
+
+    ///
+    /// Called to denote the start of a `DimensionIdentity` instance.
+    ///
+    /// # Nested
+    ///
+    /// - `identity_member_start` or `source_entity_start`
+    /// - `dimension_entity_end`
+    ///
+    fn dimension_identity_start(&mut self, _thing: &DimensionIdentity) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::dimension_identity_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// Called to denote the end of a `DimensionIdentity` instance.
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn dimension_identity_end(&mut self, _thing: &DimensionIdentity) -> Result<(), Error> {
+        info!("SimpleModuleWalker::dimension_identity_end(..) -- skipped");
+        Ok(())
+    }
+
+    ///
+    /// Called to denote the start of an `SourceEntity` instance.
+    ///
+    /// # Nested
+    ///
+    /// - `source_entity_end`
+    ///
+    fn source_entity_start(&mut self, _thing: &SourceEntity) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::source_entity_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// Called to denote the end of an `SourceEntity` instance.
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn source_entity_end(&mut self, _thing: &SourceEntity) -> Result<(), Error> {
+        info!("SimpleModuleWalker::source_entity_end(..) -- skipped");
+        Ok(())
+    }
+
+    ///
     /// Called to denote the start of an `EntityDef` instance.
     ///
     /// # Nested
@@ -323,6 +402,7 @@ pub trait SimpleModuleVisitor {
     /// # Nested
     ///
     /// - `annotation_start`
+    /// - `source_entity_start`
     /// - `member_start`
     /// - `event_end`
     ///
@@ -502,6 +582,30 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
+    /// Called to denote the start of a `DimensionParent` instance.
+    ///
+    /// # Nested
+    ///
+    /// - `dimension_parent_end`
+    ///
+    fn dimension_parent_start(&mut self, _thing: &DimensionParent) -> Result<bool, Error> {
+        info!("SimpleModuleWalker::dimension_parent_start(..) -- skipped");
+        Self::INCLUDE_NESTED
+    }
+
+    ///
+    /// Called to denote the end of a `DimensionParent` instance.
+    ///
+    /// # Nested
+    ///
+    /// None.
+    ///
+    fn dimension_parent_end(&mut self, _thing: &DimensionParent) -> Result<(), Error> {
+        info!("SimpleModuleWalker::dimension_parent_end(..) -- skipped");
+        Ok(())
+    }
+
+    ///
     /// Called to denote the start of a `MemberDef` instance.
     ///
     /// # Nested
@@ -663,6 +767,12 @@ pub fn walk_module_simple(
             if walker.definition_start(type_def)? {
                 match &type_def {
                     Definition::Datatype(def) => walk_datatype_def(def, walker, visit_annotations)?,
+                    Definition::Dimension(def) => walk_dimension_def(
+                        def,
+                        walker,
+                        visit_annotations,
+                        visit_members_and_variants,
+                    )?,
                     Definition::Entity(def) => {
                         walk_entity_def(def, walker, visit_annotations, visit_members_and_variants)?
                     }
@@ -709,6 +819,69 @@ fn walk_datatype_def(
         }
 
         walker.datatype_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_dimension_def(
+    thing: &DimensionDef,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+    visit_members_and_variants: bool,
+) -> Result<(), Error> {
+    if walker.dimension_start(thing)? {
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+
+            walk_dimension_identity(body.identity(), walker, visit_annotations)?;
+
+            if visit_members_and_variants {
+                for parent in body.parents() {
+                    walk_dimension_parent(parent, walker)?;
+                }
+
+                for member in body.members() {
+                    walk_member(member, walker, visit_annotations)?;
+                }
+            }
+        }
+
+        walker.dimension_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_dimension_identity(
+    thing: &DimensionIdentity,
+    walker: &mut impl SimpleModuleVisitor,
+    visit_annotations: bool,
+) -> Result<(), Error> {
+    if walker.dimension_identity_start(thing)? {
+        match thing {
+            DimensionIdentity::Source(v) => walk_source_entity(v, walker),
+            DimensionIdentity::Identity(v) => walk_identity_member(v, walker, visit_annotations),
+        }?;
+        walker.dimension_identity_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_source_entity(
+    thing: &SourceEntity,
+    walker: &mut impl SimpleModuleVisitor,
+) -> Result<(), Error> {
+    if walker.source_entity_start(thing)? {
+        walker.source_entity_end(thing)?;
+    }
+    Ok(())
+}
+
+fn walk_dimension_parent(
+    thing: &DimensionParent,
+    walker: &mut impl SimpleModuleVisitor,
+) -> Result<(), Error> {
+    if walker.dimension_parent_start(thing)? {
+        walker.dimension_parent_end(thing)?;
     }
     Ok(())
 }

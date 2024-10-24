@@ -1,7 +1,0 @@
-;;; Import single member
-
-module campaign is
-
-  import xsd:base
-
-end

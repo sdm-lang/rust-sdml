@@ -1,21 +1,12 @@
-use paste::paste;
-use sdml_core::{
-    model::{modules::Module, HasName},
-    store::{InMemoryModuleCache, ModuleStore},
-};
 use sdml_errors::diagnostics::UseColor;
 use sdml_generate::{
     actions::deps::{DependencyViewGenerator, DependencyViewOptions},
     color::set_colorize,
-    Generator,
 };
+use sdml_generate::Generator;
 
 #[macro_use]
 mod common;
-
-// ------------------------------------------------------------------------------------------------
-// Modules ❱ Imports
-// ------------------------------------------------------------------------------------------------
 
 generator! {
     DependencyViewGenerator::default(),
@@ -26,12 +17,13 @@ generator! {
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-// Modules ❱ Imports
-// ------------------------------------------------------------------------------------------------
+sdml_tests::test_setup! {
+    "dep_tree",
+    generate_to_string
+}
 
-test_examples! {
-    dependency_view, "dep_tree", generate_to_string => (
+sdml_tests::test_suite! {
+    dependency_view => (
         import_member_only,
         import_module_only,
         import_module_version,

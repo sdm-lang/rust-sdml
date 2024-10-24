@@ -1,7 +1,0 @@
-;;; Annotation, Multiple Language-Tagged Strings
-
-module campaign is
-
-  @dc:title = [ "a rather good test"@en-GB "a test"@en-US ]
-
-end

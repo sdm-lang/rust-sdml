@@ -1,0 +1,25 @@
+module dimension is
+
+  entity Sale is
+    identity sale_id -> long
+    store -> Store
+    city -> String
+  end
+
+  entity Store
+
+  entity State
+
+  entity Country
+
+  dimension ByLocation is
+    source Sale with [ store city ]
+    parent state -> ByState
+    label -> string
+  end
+
+  dimension ByState is
+    identity state_id -> string
+  end
+
+end

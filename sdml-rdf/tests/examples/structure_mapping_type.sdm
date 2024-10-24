@@ -1,7 +1,0 @@
-module Campaign is
-
-  structure Thing is
-    properties -> {unique 1..} (string -> integer)
-  end
-
-end

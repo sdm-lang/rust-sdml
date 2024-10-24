@@ -12,6 +12,7 @@ YYYYY
 use crate::load::FsModuleLoader;
 use crate::parse::modules::parse_module;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
+use sdml_core::model::comments::Comment;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::{Import, Module};
 use sdml_core::model::HasSourceSpan;
@@ -69,6 +70,13 @@ pub(crate) fn parse_str(file_id: FileId, loader: &FsModuleLoader) -> Result<Modu
     }
 }
 
+pub(crate) fn parse_comment<'a>(
+    context: &mut ParseContext<'a>,
+    node: &Node<'a>,
+) -> Result<Comment, Error> {
+    Ok(Comment::new(context.node_source(node)?).with_source_span(node.into()))
+}
+
 // ------------------------------------------------------------------------------------------------
 // Private Macros
 // ------------------------------------------------------------------------------------------------
@@ -87,6 +95,7 @@ pub(crate) struct ParseContext<'a> {
     imports: HashSet<Import>,
     type_names: HashSet<Identifier>,
     member_names: HashSet<Identifier>,
+    comments: Vec<Comment>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -106,6 +115,7 @@ impl<'a> ParseContext<'a> {
             imports: Default::default(),
             type_names: Default::default(),
             member_names: Default::default(),
+            comments: Default::default(),
         }
     }
 
@@ -189,6 +199,10 @@ impl<'a> ParseContext<'a> {
 
     fn end_type(&mut self) {
         self.member_names.clear()
+    }
+
+    fn push_comment(&mut self, comment: Comment) {
+        self.comments.push(comment);
     }
 }
 

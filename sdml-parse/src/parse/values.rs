@@ -1,4 +1,5 @@
 use crate::parse::identifiers::parse_identifier_reference;
+use crate::parse::parse_comment;
 use rust_decimal::Decimal;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::values::{
@@ -241,7 +242,10 @@ fn parse_string<'a>(
                                 .with_source_span(node.into()),
                         );
                     }
-                    NODE_KIND_LINE_COMMENT => {}
+                    NODE_KIND_LINE_COMMENT => {
+                        let comment = parse_comment(context, &node)?;
+                        context.push_comment(comment);
+                    }
                     _ => {
                         unexpected_node!(
                             context,
@@ -273,7 +277,7 @@ fn parse_binary<'a>(
     {
         context.check_if_error(&node, RULE_NAME)?;
         let value = context.node_source(&node)?;
-        let value = u8::from_str(value).expect("Invalid value for Byte");
+        let value = u8::from_str_radix(value, 16).expect("Invalid value for Byte");
         result.push(value);
     }
 
@@ -338,7 +342,10 @@ fn parse_sequence_of_values<'a>(
                     NODE_KIND_IDENTIFIER_REFERENCE => {
                         sequence.push(parse_identifier_reference(context, cursor)?);
                     }
-                    NODE_KIND_LINE_COMMENT => {}
+                    NODE_KIND_LINE_COMMENT => {
+                        let comment = parse_comment(context, &node)?;
+                        context.push_comment(comment);
+                    }
                     _ => {
                         unexpected_node!(
                             context,

@@ -1,5 +1,0 @@
-module ddict is
-  property identifier -> {2} account:AccountId is
-    @skos:definition = "a"@en
-  end
-end

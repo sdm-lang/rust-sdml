@@ -1,0 +1,1085 @@
+{
+  "span": {
+    "start": 0,
+    "end": 1049
+  },
+  "name": {
+    "span": {
+      "start": 7,
+      "end": 15
+    },
+    "value": "campaign"
+  },
+  "base_uri": {
+    "span": {
+      "start": 16,
+      "end": 58
+    },
+    "value": "https://advertising.amazon.com/api-model"
+  },
+  "body": {
+    "span": {
+      "start": 59,
+      "end": 1048
+    },
+    "imports": [
+      {
+        "span": {
+          "start": 65,
+          "end": 117
+        },
+        "imports": [
+          {
+            "Module": {
+              "span": {
+                "start": 78,
+                "end": 80
+              },
+              "name": {
+                "span": {
+                  "start": 78,
+                  "end": 80
+                },
+                "value": "dc"
+              }
+            }
+          },
+          {
+            "Module": {
+              "span": {
+                "start": 85,
+                "end": 88
+              },
+              "name": {
+                "span": {
+                  "start": 85,
+                  "end": 88
+                },
+                "value": "owl"
+              }
+            }
+          },
+          {
+            "Module": {
+              "span": {
+                "start": 93,
+                "end": 96
+              },
+              "name": {
+                "span": {
+                  "start": 93,
+                  "end": 96
+                },
+                "value": "rdf"
+              }
+            }
+          },
+          {
+            "Module": {
+              "span": {
+                "start": 101,
+                "end": 105
+              },
+              "name": {
+                "span": {
+                  "start": 101,
+                  "end": 105
+                },
+                "value": "skos"
+              }
+            }
+          },
+          {
+            "Module": {
+              "span": {
+                "start": 110,
+                "end": 113
+              },
+              "name": {
+                "span": {
+                  "start": 110,
+                  "end": 113
+                },
+                "value": "xsd"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "Property": {
+          "span": {
+            "start": 122,
+            "end": 152
+          },
+          "name_reference": {
+            "QualifiedIdentifier": {
+              "span": {
+                "start": 123,
+                "end": 135
+              },
+              "module": {
+                "span": {
+                  "start": 123,
+                  "end": 127
+                },
+                "value": "skos"
+              },
+              "member": {
+                "span": {
+                  "start": 128,
+                  "end": 135
+                },
+                "value": "version"
+              }
+            }
+          },
+          "value": {
+            "ValueConstructor": {
+              "span": {
+                "start": 138,
+                "end": 152
+              },
+              "type_name": {
+                "QualifiedIdentifier": {
+                  "span": {
+                    "start": 138,
+                    "end": 149
+                  },
+                  "module": {
+                    "span": {
+                      "start": 138,
+                      "end": 141
+                    },
+                    "value": "xsd"
+                  },
+                  "member": {
+                    "span": {
+                      "start": 142,
+                      "end": 149
+                    },
+                    "value": "decimal"
+                  }
+                }
+              },
+              "value": {
+                "Integer": 2
+              }
+            }
+          }
+        }
+      }
+    ],
+    "definitions": [
+      {
+        "Datatype": {
+          "span": {
+            "start": 192,
+            "end": 275
+          },
+          "name": {
+            "span": {
+              "start": 201,
+              "end": 205
+            },
+            "value": "Name"
+          },
+          "opaque": false,
+          "base_type": {
+            "QualifiedIdentifier": {
+              "span": {
+                "start": 209,
+                "end": 219
+              },
+              "module": {
+                "span": {
+                  "start": 209,
+                  "end": 212
+                },
+                "value": "xsd"
+              },
+              "member": {
+                "span": {
+                  "start": 213,
+                  "end": 219
+                },
+                "value": "string"
+              }
+            }
+          },
+          "body": {
+            "span": {
+              "start": 220,
+              "end": 275
+            },
+            "annotations": [
+              {
+                "Property": {
+                  "span": {
+                    "start": 227,
+                    "end": 245
+                  },
+                  "name_reference": {
+                    "QualifiedIdentifier": {
+                      "span": {
+                        "start": 228,
+                        "end": 241
+                      },
+                      "module": {
+                        "span": {
+                          "start": 228,
+                          "end": 231
+                        },
+                        "value": "xsd"
+                      },
+                      "member": {
+                        "span": {
+                          "start": 232,
+                          "end": 241
+                        },
+                        "value": "minLength"
+                      }
+                    }
+                  },
+                  "value": {
+                    "Simple": {
+                      "Integer": 5
+                    }
+                  }
+                }
+              },
+              {
+                "Property": {
+                  "span": {
+                    "start": 250,
+                    "end": 269
+                  },
+                  "name_reference": {
+                    "QualifiedIdentifier": {
+                      "span": {
+                        "start": 251,
+                        "end": 264
+                      },
+                      "module": {
+                        "span": {
+                          "start": 251,
+                          "end": 254
+                        },
+                        "value": "xsd"
+                      },
+                      "member": {
+                        "span": {
+                          "start": 255,
+                          "end": 264
+                        },
+                        "value": "maxLength"
+                      }
+                    }
+                  },
+                  "value": {
+                    "Simple": {
+                      "Integer": 25
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Datatype": {
+          "span": {
+            "start": 279,
+            "end": 416
+          },
+          "name": {
+            "span": {
+              "start": 288,
+              "end": 298
+            },
+            "value": "CampaignId"
+          },
+          "opaque": false,
+          "base_type": {
+            "QualifiedIdentifier": {
+              "span": {
+                "start": 302,
+                "end": 312
+              },
+              "module": {
+                "span": {
+                  "start": 302,
+                  "end": 305
+                },
+                "value": "xsd"
+              },
+              "member": {
+                "span": {
+                  "start": 306,
+                  "end": 312
+                },
+                "value": "string"
+              }
+            }
+          },
+          "body": {
+            "span": {
+              "start": 313,
+              "end": 416
+            },
+            "annotations": [
+              {
+                "Property": {
+                  "span": {
+                    "start": 320,
+                    "end": 410
+                  },
+                  "name_reference": {
+                    "QualifiedIdentifier": {
+                      "span": {
+                        "start": 321,
+                        "end": 335
+                      },
+                      "module": {
+                        "span": {
+                          "start": 321,
+                          "end": 325
+                        },
+                        "value": "skos"
+                      },
+                      "member": {
+                        "span": {
+                          "start": 326,
+                          "end": 335
+                        },
+                        "value": "prefLabel"
+                      }
+                    }
+                  },
+                  "value": {
+                    "List": {
+                      "span": {
+                        "start": 338,
+                        "end": 410
+                      },
+                      "ordering": null,
+                      "uniqueness": null,
+                      "values": [
+                        {
+                          "Simple": {
+                            "String": {
+                              "span": {
+                                "start": 346,
+                                "end": 370
+                              },
+                              "value": "Campaign Identifier",
+                              "language": {
+                                "span": {
+                                  "start": 367,
+                                  "end": 370
+                                },
+                                "value": "en"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Simple": {
+                            "String": {
+                              "span": {
+                                "start": 377,
+                                "end": 404
+                              },
+                              "value": "Identified de campagne",
+                              "language": {
+                                "span": {
+                                  "start": 401,
+                                  "end": 404
+                                },
+                                "value": "fr"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Enum": {
+          "span": {
+            "start": 420,
+            "end": 609
+          },
+          "name": {
+            "span": {
+              "start": 425,
+              "end": 430
+            },
+            "value": "State"
+          },
+          "body": {
+            "span": {
+              "start": 431,
+              "end": 609
+            },
+            "annotations": [
+              {
+                "Property": {
+                  "span": {
+                    "start": 438,
+                    "end": 474
+                  },
+                  "name_reference": {
+                    "QualifiedIdentifier": {
+                      "span": {
+                        "start": 439,
+                        "end": 458
+                      },
+                      "module": {
+                        "span": {
+                          "start": 439,
+                          "end": 442
+                        },
+                        "value": "owl"
+                      },
+                      "member": {
+                        "span": {
+                          "start": 443,
+                          "end": 458
+                        },
+                        "value": "equivalentClass"
+                      }
+                    }
+                  },
+                  "value": {
+                    "Reference": {
+                      "QualifiedIdentifier": {
+                        "span": {
+                          "start": 461,
+                          "end": 474
+                        },
+                        "module": {
+                          "span": {
+                            "start": 461,
+                            "end": 465
+                          },
+                          "value": "sdml"
+                        },
+                        "member": {
+                          "span": {
+                            "start": 466,
+                            "end": 474
+                          },
+                          "value": "unsigned"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "variants": [
+              {
+                "span": {
+                  "start": 479,
+                  "end": 518
+                },
+                "name": {
+                  "span": {
+                    "start": 479,
+                    "end": 486
+                  },
+                  "value": "Running"
+                },
+                "body": {
+                  "span": {
+                    "start": 487,
+                    "end": 518
+                  },
+                  "annotations": [
+                    {
+                      "Property": {
+                        "span": {
+                          "start": 496,
+                          "end": 510
+                        },
+                        "name_reference": {
+                          "QualifiedIdentifier": {
+                            "span": {
+                              "start": 497,
+                              "end": 506
+                            },
+                            "module": {
+                              "span": {
+                                "start": 497,
+                                "end": 500
+                              },
+                              "value": "rdf"
+                            },
+                            "member": {
+                              "span": {
+                                "start": 501,
+                                "end": 506
+                              },
+                              "value": "value"
+                            }
+                          }
+                        },
+                        "value": {
+                          "Simple": {
+                            "Integer": 1
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "span": {
+                  "start": 523,
+                  "end": 561
+                },
+                "name": {
+                  "span": {
+                    "start": 523,
+                    "end": 529
+                  },
+                  "value": "Paused"
+                },
+                "body": {
+                  "span": {
+                    "start": 530,
+                    "end": 561
+                  },
+                  "annotations": [
+                    {
+                      "Property": {
+                        "span": {
+                          "start": 539,
+                          "end": 553
+                        },
+                        "name_reference": {
+                          "QualifiedIdentifier": {
+                            "span": {
+                              "start": 540,
+                              "end": 549
+                            },
+                            "module": {
+                              "span": {
+                                "start": 540,
+                                "end": 543
+                              },
+                              "value": "rdf"
+                            },
+                            "member": {
+                              "span": {
+                                "start": 544,
+                                "end": 549
+                              },
+                              "value": "value"
+                            }
+                          }
+                        },
+                        "value": {
+                          "Simple": {
+                            "Integer": 2
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "span": {
+                  "start": 566,
+                  "end": 603
+                },
+                "name": {
+                  "span": {
+                    "start": 566,
+                    "end": 571
+                  },
+                  "value": "error"
+                },
+                "body": {
+                  "span": {
+                    "start": 572,
+                    "end": 603
+                  },
+                  "annotations": [
+                    {
+                      "Property": {
+                        "span": {
+                          "start": 581,
+                          "end": 595
+                        },
+                        "name_reference": {
+                          "QualifiedIdentifier": {
+                            "span": {
+                              "start": 582,
+                              "end": 591
+                            },
+                            "module": {
+                              "span": {
+                                "start": 582,
+                                "end": 585
+                              },
+                              "value": "rdf"
+                            },
+                            "member": {
+                              "span": {
+                                "start": 586,
+                                "end": 591
+                              },
+                              "value": "value"
+                            }
+                          }
+                        },
+                        "value": {
+                          "Simple": {
+                            "Integer": 3
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Structure": {
+          "span": {
+            "start": 613,
+            "end": 692
+          },
+          "name": {
+            "span": {
+              "start": 623,
+              "end": 626
+            },
+            "value": "Tag"
+          },
+          "body": {
+            "span": {
+              "start": 627,
+              "end": 692
+            },
+            "members": [
+              {
+                "span": {
+                  "start": 634,
+                  "end": 652
+                },
+                "name": {
+                  "span": {
+                    "start": 634,
+                    "end": 637
+                  },
+                  "value": "key"
+                },
+                "kind": {
+                  "Definition": {
+                    "span": {
+                      "start": 634,
+                      "end": 652
+                    },
+                    "target_cardinality": {
+                      "range": {
+                        "min": 1,
+                        "max": 1
+                      }
+                    },
+                    "target_type": {
+                      "Type": {
+                        "QualifiedIdentifier": {
+                          "span": {
+                            "start": 641,
+                            "end": 652
+                          },
+                          "module": {
+                            "span": {
+                              "start": 641,
+                              "end": 644
+                            },
+                            "value": "xsd"
+                          },
+                          "member": {
+                            "span": {
+                              "start": 645,
+                              "end": 652
+                            },
+                            "value": "NMTOKEN"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "span": {
+                  "start": 657,
+                  "end": 686
+                },
+                "name": {
+                  "span": {
+                    "start": 657,
+                    "end": 662
+                  },
+                  "value": "value"
+                },
+                "kind": {
+                  "Definition": {
+                    "span": {
+                      "start": 657,
+                      "end": 686
+                    },
+                    "target_cardinality": {
+                      "span": {
+                        "start": 666,
+                        "end": 671
+                      },
+                      "range": {
+                        "min": 0
+                      }
+                    },
+                    "target_type": {
+                      "Type": {
+                        "QualifiedIdentifier": {
+                          "span": {
+                            "start": 672,
+                            "end": 686
+                          },
+                          "module": {
+                            "span": {
+                              "start": 672,
+                              "end": 675
+                            },
+                            "value": "rdf"
+                          },
+                          "member": {
+                            "span": {
+                              "start": 676,
+                              "end": 686
+                            },
+                            "value": "langString"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Entity": {
+          "span": {
+            "start": 696,
+            "end": 705
+          },
+          "name": {
+            "span": {
+              "start": 703,
+              "end": 705
+            },
+            "value": "Ad"
+          }
+        }
+      },
+      {
+        "Entity": {
+          "span": {
+            "start": 709,
+            "end": 723
+          },
+          "name": {
+            "span": {
+              "start": 716,
+              "end": 723
+            },
+            "value": "AdGroup"
+          }
+        }
+      },
+      {
+        "Entity": {
+          "span": {
+            "start": 751,
+            "end": 892
+          },
+          "name": {
+            "span": {
+              "start": 758,
+              "end": 766
+            },
+            "value": "Campaign"
+          },
+          "body": {
+            "span": {
+              "start": 767,
+              "end": 892
+            },
+            "identity": {
+              "span": {
+                "start": 774,
+                "end": 807
+              },
+              "name": {
+                "span": {
+                  "start": 783,
+                  "end": 793
+                },
+                "value": "campaignId"
+              },
+              "kind": {
+                "Definition": {
+                  "span": {
+                    "start": 774,
+                    "end": 807
+                  },
+                  "target_type": {
+                    "Type": {
+                      "Identifier": {
+                        "span": {
+                          "start": 797,
+                          "end": 807
+                        },
+                        "value": "CampaignId"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "members": [
+              {
+                "span": {
+                  "start": 813,
+                  "end": 828
+                },
+                "name": {
+                  "span": {
+                    "start": 813,
+                    "end": 817
+                  },
+                  "value": "name"
+                },
+                "kind": {
+                  "Definition": {
+                    "span": {
+                      "start": 813,
+                      "end": 828
+                    },
+                    "target_cardinality": {
+                      "range": {
+                        "min": 1,
+                        "max": 1
+                      }
+                    },
+                    "target_type": "Unknown"
+                  }
+                }
+              },
+              {
+                "span": {
+                  "start": 834,
+                  "end": 850
+                },
+                "name": {
+                  "span": {
+                    "start": 834,
+                    "end": 837
+                  },
+                  "value": "tag"
+                },
+                "kind": {
+                  "Definition": {
+                    "span": {
+                      "start": 834,
+                      "end": 850
+                    },
+                    "target_cardinality": {
+                      "span": {
+                        "start": 841,
+                        "end": 846
+                      },
+                      "range": {
+                        "min": 0
+                      }
+                    },
+                    "target_type": {
+                      "Type": {
+                        "Identifier": {
+                          "span": {
+                            "start": 847,
+                            "end": 850
+                          },
+                          "value": "Tag"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "span": {
+                  "start": 856,
+                  "end": 886
+                },
+                "name": {
+                  "span": {
+                    "start": 856,
+                    "end": 862
+                  },
+                  "value": "target"
+                },
+                "kind": {
+                  "Definition": {
+                    "span": {
+                      "start": 856,
+                      "end": 886
+                    },
+                    "target_cardinality": {
+                      "span": {
+                        "start": 866,
+                        "end": 871
+                      },
+                      "range": {
+                        "min": 1
+                      }
+                    },
+                    "target_type": {
+                      "Type": {
+                        "Identifier": {
+                          "span": {
+                            "start": 872,
+                            "end": 886
+                          },
+                          "value": "TargetCriteria"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "Entity": {
+          "span": {
+            "start": 896,
+            "end": 917
+          },
+          "name": {
+            "span": {
+              "start": 903,
+              "end": 917
+            },
+            "value": "AudienceTarget"
+          }
+        }
+      },
+      {
+        "Entity": {
+          "span": {
+            "start": 921,
+            "end": 944
+          },
+          "name": {
+            "span": {
+              "start": 928,
+              "end": 944
+            },
+            "value": "GeographicTarget"
+          }
+        }
+      },
+      {
+        "Union": {
+          "span": {
+            "start": 948,
+            "end": 1043
+          },
+          "name": {
+            "span": {
+              "start": 954,
+              "end": 968
+            },
+            "value": "TargetCriteria"
+          },
+          "body": {
+            "span": {
+              "start": 969,
+              "end": 1043
+            },
+            "variants": [
+              {
+                "span": {
+                  "start": 976,
+                  "end": 1002
+                },
+                "name_reference": {
+                  "Identifier": {
+                    "span": {
+                      "start": 976,
+                      "end": 990
+                    },
+                    "value": "AudienceTarget"
+                  }
+                },
+                "rename": {
+                  "span": {
+                    "start": 994,
+                    "end": 1002
+                  },
+                  "value": "Audience"
+                }
+              },
+              {
+                "span": {
+                  "start": 1007,
+                  "end": 1037
+                },
+                "name_reference": {
+                  "Identifier": {
+                    "span": {
+                      "start": 1007,
+                      "end": 1023
+                    },
+                    "value": "GeographicTarget"
+                  }
+                },
+                "rename": {
+                  "span": {
+                    "start": 1027,
+                    "end": 1037
+                  },
+                  "value": "Geographic"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

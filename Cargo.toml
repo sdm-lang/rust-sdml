@@ -10,4 +10,5 @@ members = [
     "sdml-generate",
     "sdml-cli",
     "sdml-tera",
+    "sdml-tests",
 ]

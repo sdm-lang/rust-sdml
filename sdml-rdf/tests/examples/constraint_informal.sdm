@@ -1,3 +1,0 @@
-module Example is
-  assert no_definitions = "This module has no definitions"
-end

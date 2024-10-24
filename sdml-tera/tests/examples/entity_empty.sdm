@@ -1,7 +1,0 @@
-;;; Entity, Empty
-
-module campaign is
-
-  entity Campaign
-
-end

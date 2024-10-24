@@ -7,7 +7,7 @@ use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
 use sdml_core::load::{ModuleLoader, ModuleResolver};
 use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::HeaderValue;
+use sdml_core::model::modules::{HeaderValue, Module};
 use sdml_core::model::{HasName, HasSourceSpan};
 use sdml_core::stdlib;
 use sdml_core::store::ModuleStore;
@@ -308,20 +308,34 @@ impl FsModuleLoader {
         let module = cache.get_mut(&module_name).unwrap();
         module.set_source_file(file.clone());
         if !module.has_base_uri() {
-            if let Some(catalog) = catalog {
-                let name = module.name().to_string();
-                if let Some(url) = catalog.resolve_uri(&name) {
-                    module.set_base_uri(HeaderValue::from(url));
-                }
-            } else {
-                let file = file.canonicalize()?;
-                match Url::from_file_path(file) {
-                    Ok(base) => module.set_base_uri(HeaderValue::from(base)),
-                    Err(_) => warn!("Could not construct a base URI"),
-                }
-            }
+            self.set_base_uri(module, &file, &catalog)?;
         }
         Ok(module_name)
+    }
+
+    fn set_base_uri(
+        &self,
+        module: &mut Module,
+        file: &Path,
+        catalog: &Option<ModuleCatalog>,
+    ) -> Result<(), Error> {
+        if let Some(catalog) = catalog {
+            let name = module.name().to_string();
+            if let Some(url) = catalog.resolve_uri(&name) {
+                module.set_base_uri(HeaderValue::from(url));
+                return Ok(());
+            }
+        }
+
+        let file = file.canonicalize()?;
+        match Url::parse(&format!(
+            "http://example.org{}/",
+            file.to_string_lossy().as_ref()
+        )) {
+            Ok(base) => module.set_base_uri(HeaderValue::from(base)),
+            Err(_) => warn!("Could not construct a base URI"),
+        }
+        Ok(())
     }
 
     /// Load a module reading the source from `reader`.

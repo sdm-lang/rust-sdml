@@ -1,5 +1,0 @@
-module sdml is
-
-  class Any (T -> None(T))
-
-end

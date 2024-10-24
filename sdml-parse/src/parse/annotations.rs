@@ -2,6 +2,7 @@ use super::ParseContext;
 use crate::parse::constraints::parse_constraint;
 use crate::parse::identifiers::parse_identifier_reference;
 use crate::parse::values::parse_value;
+use crate::parse::{parse_comment};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty};
@@ -29,7 +30,10 @@ pub(crate) fn parse_annotation<'a>(
                 return Ok(parse_annotation_property(context, &mut node.walk())?.into())
             }
             NODE_KIND_CONSTRAINT => return Ok(parse_constraint(context, &mut node.walk())?.into()),
-            NODE_KIND_LINE_COMMENT => {}
+            NODE_KIND_LINE_COMMENT => {
+                let comment = parse_comment(context, &node)?;
+                context.push_comment(comment);
+            }
             _ => {
                 unexpected_node!(
                     context,
