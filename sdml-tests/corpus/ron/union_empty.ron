@@ -1,0 +1,79 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/union_empty.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 64,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 25,
+                end: 33,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/union_empty.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 34,
+                end: 63,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [
+            Union(
+                UnionDef {
+                    span: Some(
+                        Span {
+                            start: 40,
+                            end: 58,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 46,
+                                end: 58,
+                            },
+                        ),
+                        value: "VehicleClass",
+                    },
+                    body: None,
+                },
+            ),
+        ],
+    },
+}

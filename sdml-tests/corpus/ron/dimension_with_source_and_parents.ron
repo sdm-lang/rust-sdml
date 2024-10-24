@@ -1,0 +1,133 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/dimension_with_source_and_parents.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 152,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 47,
+                end: 57,
+            },
+        ),
+        value: "dimensions",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/dimension_with_source_and_parents.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 58,
+                end: 151,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [
+            Dimension(
+                DimensionDef {
+                    span: Some(
+                        Span {
+                            start: 64,
+                            end: 146,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 74,
+                                end: 83,
+                            },
+                        ),
+                        value: "Campaigns",
+                    },
+                    body: Some(
+                        DimensionBody {
+                            span: Some(
+                                Span {
+                                    start: 84,
+                                    end: 146,
+                                },
+                            ),
+                            annotations: [],
+                            identity: Source(
+                                SourceEntity {
+                                    span: None,
+                                    target_entity: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 98,
+                                                    end: 106,
+                                                },
+                                            ),
+                                            value: "Campaign",
+                                        },
+                                    ),
+                                    with_members: [],
+                                },
+                            ),
+                            parents: [
+                                DimensionParent {
+                                    span: None,
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 118,
+                                                end: 127,
+                                            },
+                                        ),
+                                        value: "portfolio",
+                                    },
+                                    target_entity: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 131,
+                                                    end: 140,
+                                                },
+                                            ),
+                                            value: "Portfolio",
+                                        },
+                                    ),
+                                    body: None,
+                                },
+                            ],
+                            members: [],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}

@@ -1,0 +1,5 @@
+module campaign is
+
+  import customer <https://example.org/v2/Customer#>
+
+end

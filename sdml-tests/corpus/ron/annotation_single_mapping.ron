@@ -1,0 +1,169 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/annotation_single_mapping.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 76,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "Campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/annotation_single_mapping.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 75,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 22,
+                            end: 70,
+                        },
+                    ),
+                    name_reference: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 23,
+                                    end: 35,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 23,
+                                        end: 25,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 26,
+                                        end: 35,
+                                    },
+                                ),
+                                value: "published",
+                            },
+                        },
+                    ),
+                    value: Mapping(
+                        MappingValue {
+                            span: Some(
+                                Span {
+                                    start: 38,
+                                    end: 70,
+                                },
+                            ),
+                            domain: String(
+                                LanguageString {
+                                    span: Some(
+                                        Span {
+                                            start: 38,
+                                            end: 44,
+                                        },
+                                    ),
+                                    value: "date",
+                                    language: None,
+                                },
+                            ),
+                            range: ValueConstructor(
+                                ValueConstructor {
+                                    span: Some(
+                                        Span {
+                                            start: 48,
+                                            end: 70,
+                                        },
+                                    ),
+                                    type_name: QualifiedIdentifier(
+                                        QualifiedIdentifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 48,
+                                                    end: 56,
+                                                },
+                                            ),
+                                            module: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 48,
+                                                        end: 51,
+                                                    },
+                                                ),
+                                                value: "xsd",
+                                            },
+                                            member: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 52,
+                                                        end: 56,
+                                                    },
+                                                ),
+                                                value: "date",
+                                            },
+                                        },
+                                    ),
+                                    value: String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 57,
+                                                    end: 69,
+                                                },
+                                            ),
+                                            value: "2023-08-04",
+                                            language: None,
+                                        },
+                                    ),
+                                },
+                            ),
+                        },
+                    ),
+                },
+            ),
+        ],
+        definitions: [],
+    },
+}

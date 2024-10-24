@@ -1,0 +1,58 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/module_empty.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 39,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 26,
+                end: 31,
+            },
+        ),
+        value: "empty",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/module_empty.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 32,
+                end: 38,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [],
+    },
+}

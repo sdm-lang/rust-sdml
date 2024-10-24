@@ -1,0 +1,8 @@
+;;; Module, Empty with Comments
+
+;;; This is a file document, using Lispy conventions.
+;;; This is where you put file stuff.
+
+;; This is a general comment that starts at the left
+;; with current indentation
+module campaign is end ; a trailing comment

@@ -1,0 +1,126 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/annotation_multiple_decimal.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 95,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 42,
+                end: 50,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/annotation_multiple_decimal.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 51,
+                end: 94,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 57,
+                            end: 89,
+                        },
+                    ),
+                    name_reference: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 65,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 58,
+                                        end: 60,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 61,
+                                        end: 65,
+                                    },
+                                ),
+                                value: "some",
+                            },
+                        },
+                    ),
+                    value: List(
+                        SequenceOfValues {
+                            span: Some(
+                                Span {
+                                    start: 68,
+                                    end: 89,
+                                },
+                            ),
+                            ordering: None,
+                            uniqueness: None,
+                            values: [
+                                Simple(
+                                    Decimal(
+                                        101.0,
+                                    ),
+                                ),
+                                Simple(
+                                    Decimal(
+                                        102.201,
+                                    ),
+                                ),
+                                Simple(
+                                    Decimal(
+                                        0.1,
+                                    ),
+                                ),
+                            ],
+                        },
+                    ),
+                },
+            ),
+        ],
+        definitions: [],
+    },
+}

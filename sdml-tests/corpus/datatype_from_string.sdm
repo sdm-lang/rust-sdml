@@ -1,0 +1,5 @@
+module example is
+
+  datatype nameString <- string
+
+end

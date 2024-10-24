@@ -1,0 +1,141 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/dimension_with_identity.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 124,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 37,
+                end: 47,
+            },
+        ),
+        value: "dimensions",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/dimension_with_identity.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 48,
+                end: 123,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [
+            Dimension(
+                DimensionDef {
+                    span: Some(
+                        Span {
+                            start: 54,
+                            end: 118,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 64,
+                                end: 73,
+                            },
+                        ),
+                        value: "Campaigns",
+                    },
+                    body: Some(
+                        DimensionBody {
+                            span: Some(
+                                Span {
+                                    start: 74,
+                                    end: 118,
+                                },
+                            ),
+                            annotations: [],
+                            identity: Identity(
+                                Member {
+                                    span: None,
+                                    kind: Definition(
+                                        MemberDef {
+                                            span: Some(
+                                                Span {
+                                                    start: 90,
+                                                    end: 112,
+                                                },
+                                            ),
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 90,
+                                                        end: 98,
+                                                    },
+                                                ),
+                                                value: "campaign",
+                                            },
+                                            target_cardinality: Cardinality {
+                                                span: None,
+                                                ordering: None,
+                                                uniqueness: None,
+                                                range: CardinalityRange {
+                                                    span: None,
+                                                    min: 1,
+                                                    max: Some(
+                                                        1,
+                                                    ),
+                                                },
+                                            },
+                                            target_type: Type(
+                                                Identifier(
+                                                    Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 102,
+                                                                end: 112,
+                                                            },
+                                                        ),
+                                                        value: "CampaignId",
+                                                    },
+                                                ),
+                                            ),
+                                            body: None,
+                                        },
+                                    ),
+                                },
+                            ),
+                            parents: [],
+                            members: [],
+                        },
+                    ),
+                },
+            ),
+        ],
+    },
+}

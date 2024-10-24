@@ -1,0 +1,101 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/module_empty_with_version.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 106,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "Campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 16,
+                    end: 49,
+                },
+            ),
+            value: Url {
+                scheme: "https",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "/v/Campaign",
+                query: None,
+                fragment: Some(
+                    "",
+                ),
+            },
+        },
+    ),
+    version_info: Some(
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 60,
+                    end: 63,
+                },
+            ),
+            value: "2",
+        },
+    ),
+    version_uri: Some(
+        HeaderValue {
+            span: Some(
+                Span {
+                    start: 64,
+                    end: 98,
+                },
+            ),
+            value: Url {
+                scheme: "https",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "/v2/Campaign",
+                query: None,
+                fragment: Some(
+                    "",
+                ),
+            },
+        },
+    ),
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 99,
+                end: 105,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [],
+    },
+}

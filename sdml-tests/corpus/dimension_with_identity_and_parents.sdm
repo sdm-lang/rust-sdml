@@ -1,0 +1,10 @@
+;;; Dimension, With Identity and Parents
+
+module dimensions is
+
+  dimension Campaigns is
+    identity campaign -> CampaignId
+    parent portfolio -> Portfolio
+  end
+
+end

@@ -1,0 +1,165 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_multiple_mixed.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 95,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 34,
+                end: 42,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_multiple_mixed.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 43,
+                end: 94,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 49,
+                        end: 89,
+                    },
+                ),
+                imports: [
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 58,
+                                    end: 64,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 58,
+                                        end: 64,
+                                    },
+                                ),
+                                value: "target",
+                            },
+                            version_uri: None,
+                        },
+                    ),
+                    Member(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 65,
+                                    end: 73,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 65,
+                                        end: 68,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 69,
+                                        end: 73,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        },
+                    ),
+                    Member(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 74,
+                                    end: 82,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 74,
+                                        end: 77,
+                                    },
+                                ),
+                                value: "xml",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 78,
+                                        end: 82,
+                                    },
+                                ),
+                                value: "lang",
+                            },
+                        },
+                    ),
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 83,
+                                    end: 87,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 83,
+                                        end: 87,
+                                    },
+                                ),
+                                value: "skos",
+                            },
+                            version_uri: None,
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

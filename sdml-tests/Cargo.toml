@@ -1,0 +1,11 @@
+[package]
+name = "sdml-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+paste = "1.0.15"
+pretty_assertions = "1.4"
+sdml-core = { version = "0.3.1", features = ["serde", "tree-sitter"], path = "../sdml-core" }
+sdml-parse = { version = "0.3.1", path = "../sdml-parse" }

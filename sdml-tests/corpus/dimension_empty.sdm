@@ -1,0 +1,7 @@
+;;; Dimension, Empty
+
+module Campaign is
+
+  dimension Campaigns
+
+end

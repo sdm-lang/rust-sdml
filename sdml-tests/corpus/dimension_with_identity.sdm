@@ -1,0 +1,9 @@
+;;; Dimension, With Identity
+
+module dimensions is
+
+  dimension Campaigns is
+    identity campaign -> CampaignId
+  end
+
+end

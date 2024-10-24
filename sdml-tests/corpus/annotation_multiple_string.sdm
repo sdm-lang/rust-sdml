@@ -1,0 +1,7 @@
+;;; Annotation, Multiple Strings
+
+module campaign is
+
+  @dc:author = [ "me" "and" "you" ]
+
+end

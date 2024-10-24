@@ -1,0 +1,79 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/enum_empty.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 58,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 24,
+                end: 32,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/enum_empty.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 33,
+                end: 57,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [],
+        definitions: [
+            Enum(
+                EnumDef {
+                    span: Some(
+                        Span {
+                            start: 39,
+                            end: 52,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 44,
+                                end: 52,
+                            },
+                        ),
+                        value: "NameKind",
+                    },
+                    body: None,
+                },
+            ),
+        ],
+    },
+}

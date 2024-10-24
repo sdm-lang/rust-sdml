@@ -1,0 +1,115 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_module_version.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 78,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_module_version.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 77,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 22,
+                        end: 72,
+                    },
+                ),
+                imports: [
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 29,
+                                    end: 72,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 29,
+                                        end: 37,
+                                    },
+                                ),
+                                value: "customer",
+                            },
+                            version_uri: Some(
+                                HeaderValue {
+                                    span: Some(
+                                        Span {
+                                            start: 38,
+                                            end: 72,
+                                        },
+                                    ),
+                                    value: Url {
+                                        scheme: "https",
+                                        cannot_be_a_base: false,
+                                        username: "",
+                                        password: None,
+                                        host: Some(
+                                            Domain(
+                                                "example.org",
+                                            ),
+                                        ),
+                                        port: None,
+                                        path: "/v2/Customer",
+                                        query: None,
+                                        fragment: Some(
+                                            "",
+                                        ),
+                                    },
+                                },
+                            ),
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

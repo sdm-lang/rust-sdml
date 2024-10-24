@@ -1,0 +1,175 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/annotation_multiple_language_string.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 135,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 57,
+                end: 65,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/annotation_multiple_language_string.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 66,
+                end: 134,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [],
+        annotations: [
+            Property(
+                AnnotationProperty {
+                    span: Some(
+                        Span {
+                            start: 72,
+                            end: 129,
+                        },
+                    ),
+                    name_reference: QualifiedIdentifier(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 73,
+                                    end: 81,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 73,
+                                        end: 75,
+                                    },
+                                ),
+                                value: "dc",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 76,
+                                        end: 81,
+                                    },
+                                ),
+                                value: "title",
+                            },
+                        },
+                    ),
+                    value: List(
+                        SequenceOfValues {
+                            span: Some(
+                                Span {
+                                    start: 84,
+                                    end: 129,
+                                },
+                            ),
+                            ordering: None,
+                            uniqueness: None,
+                            values: [
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 86,
+                                                    end: 112,
+                                                },
+                                            ),
+                                            value: "a rather good test",
+                                            language: Some(
+                                                LanguageTag {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 106,
+                                                            end: 112,
+                                                        },
+                                                    ),
+                                                    value: LanguageTag {
+                                                        serialization: "en-GB",
+                                                        language_end: 2,
+                                                        extlang_end: 2,
+                                                        script_end: 2,
+                                                        region_end: 5,
+                                                        variant_end: 5,
+                                                        extension_end: 5,
+                                                    },
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                ),
+                                Simple(
+                                    String(
+                                        LanguageString {
+                                            span: Some(
+                                                Span {
+                                                    start: 113,
+                                                    end: 127,
+                                                },
+                                            ),
+                                            value: "a test",
+                                            language: Some(
+                                                LanguageTag {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 121,
+                                                            end: 127,
+                                                        },
+                                                    ),
+                                                    value: LanguageTag {
+                                                        serialization: "en-US",
+                                                        language_end: 2,
+                                                        extlang_end: 2,
+                                                        script_end: 2,
+                                                        region_end: 5,
+                                                        variant_end: 5,
+                                                        extension_end: 5,
+                                                    },
+                                                },
+                                            ),
+                                        },
+                                    ),
+                                ),
+                            ],
+                        },
+                    ),
+                },
+            ),
+        ],
+        definitions: [],
+    },
+}

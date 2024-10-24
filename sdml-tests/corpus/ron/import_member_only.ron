@@ -1,0 +1,97 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_member_only.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 69,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 33,
+                end: 41,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_member_only.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 42,
+                end: 68,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 48,
+                        end: 63,
+                    },
+                ),
+                imports: [
+                    Member(
+                        QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 55,
+                                    end: 63,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 55,
+                                        end: 58,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 59,
+                                        end: 63,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: [],
+    },
+}

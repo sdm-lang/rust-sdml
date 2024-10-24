@@ -1,0 +1,11 @@
+;;; Event, With Members
+
+module campaign is
+
+  event NameChanged is
+    source Campaign
+    old_name -> string
+    new_name -> string
+  end
+
+end

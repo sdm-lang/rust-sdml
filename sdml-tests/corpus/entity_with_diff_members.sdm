@@ -1,0 +1,15 @@
+;;; Entity, With Different Members
+
+module campaign is
+
+  entity Campaign is
+
+    identity a -> CampaignId
+
+    b -> xsd:string
+
+    ref c
+
+  end
+
+end

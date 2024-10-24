@@ -1,0 +1,11 @@
+;;; Dimension, With Source and Members
+
+module dimensions is
+
+  dimension Campaigns is
+    source Campaign with status
+    name -> Name
+    ref Target
+  end
+
+end

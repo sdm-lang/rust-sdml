@@ -1,0 +1,11 @@
+;;; Dimension, With Identity and Members
+
+module dimensions is
+
+  dimension Campaigns is
+    identity campaign -> CampaignId
+    name -> Name
+    ref Target
+  end
+
+end
