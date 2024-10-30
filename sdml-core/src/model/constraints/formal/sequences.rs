@@ -1,11 +1,13 @@
-use crate::model::{constraints::QuantifiedSentence, identifiers::Identifier, Span};
+use crate::model::{
+    constraints::QuantifiedSentence, identifiers::Identifier, HasBody, HasSourceSpan, Span,
+};
 use std::collections::HashSet;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Formal Constraints ❱  Sequence Comprehensions
+// Public Types ❱ Constraints ❱  Sequence Comprehensions
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `sequence_comprehension`.
@@ -43,12 +45,44 @@ pub struct MappingVariable {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Formal Constraints ❱  Sequence Comprehensions
+// Implementations ❱ Constraints ❱  SequenceBuilder
 // ------------------------------------------------------------------------------------------------
 
-impl_has_body_for!(SequenceBuilder, QuantifiedSentence);
+impl HasBody for SequenceBuilder {
+    type Body = QuantifiedSentence;
 
-impl_has_source_span_for!(SequenceBuilder);
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
+
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = body;
+    }
+}
+
+impl HasSourceSpan for SequenceBuilder {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl SequenceBuilder {
     // --------------------------------------------------------------------------------------------
@@ -84,10 +118,24 @@ impl SequenceBuilder {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱  Variables
+// ------------------------------------------------------------------------------------------------
+
+impl From<&NamedVariables> for Variables {
+    fn from(value: &NamedVariables) -> Self {
+        Self::Named(value.clone())
+    }
+}
 
 impl From<NamedVariables> for Variables {
     fn from(value: NamedVariables) -> Self {
         Self::Named(value)
+    }
+}
+
+impl From<&MappingVariable> for Variables {
+    fn from(value: &MappingVariable) -> Self {
+        Self::Mapping(value.clone())
     }
 }
 
@@ -102,14 +150,58 @@ impl Variables {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Named (NamedVariables) => is_named_set, as_named_set);
+    pub const fn is_named_set(&self) -> bool {
+        match self {
+            Self::Named(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(Mapping (MappingVariable) => is_mapping, as_mapping);
+    pub const fn as_named_set(&self) -> Option<&NamedVariables> {
+        match self {
+            Self::Named(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_mapping(&self) -> bool {
+        match self {
+            Self::Mapping(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_mapping(&self) -> Option<&MappingVariable> {
+        match self {
+            Self::Mapping(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱  NamedVariables
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(NamedVariables);
+impl HasSourceSpan for NamedVariables {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl FromIterator<Identifier> for NamedVariables {
     fn from_iter<T: IntoIterator<Item = Identifier>>(iter: T) -> Self {
@@ -130,23 +222,49 @@ impl AsMut<HashSet<Identifier>> for NamedVariables {
 }
 
 impl NamedVariables {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(names: HashSet<Identifier>) -> Self {
         Self {
             span: Default::default(),
             names,
         }
     }
-}
 
-impl NamedVariables {
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
     pub fn names(&self) -> impl Iterator<Item = &Identifier> {
         self.names.iter()
     }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱  MappingVariable
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(MappingVariable);
+impl HasSourceSpan for MappingVariable {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl MappingVariable {
     // --------------------------------------------------------------------------------------------
@@ -165,7 +283,21 @@ impl MappingVariable {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub domain, set_domain => Identifier);
+    pub const fn domain(&self) -> &Identifier {
+        &self.domain
+    }
 
-    get_and_set!(pub range, set_range => Identifier);
+    pub fn set_domain(&mut self, domain: Identifier) {
+        self.domain = domain;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn range(&self) -> &Identifier {
+        &self.range
+    }
+
+    pub fn set_range(&mut self, range: Identifier) {
+        self.range = range;
+    }
 }

@@ -4,7 +4,7 @@ use crate::model::constraints::ConstraintSentence;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::members::{CardinalityRange, MappingType, Ordering, Uniqueness};
 use crate::model::modules::Module;
-use crate::model::Span;
+use crate::model::{HasBody, HasName, HasSourceSpan, Span};
 use crate::store::ModuleStore;
 use crate::syntax::KW_WILDCARD;
 use std::fmt::Display;
@@ -13,7 +13,7 @@ use std::fmt::Display;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Formal Constraints ❱ Environments ❱ Functions
+// Public Types ❱ Constraints ❱ Functions
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
@@ -83,12 +83,44 @@ pub enum FunctionTypeReferenceInner {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Formal Constraints ❱ Environments ❱ Functions
+// Implementations ❱ Constraints ❱ FunctionDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_body_for!(FunctionDef, ConstraintSentence);
+impl HasBody for FunctionDef {
+    type Body = ConstraintSentence;
 
-impl_has_source_span_for!(FunctionDef);
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
+
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = body;
+    }
+}
+
+impl HasSourceSpan for FunctionDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl FunctionDef {
     // --------------------------------------------------------------------------------------------
@@ -107,12 +139,38 @@ impl FunctionDef {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub signature, set_signature => FunctionSignature);
+    pub const fn signature(&self) -> &FunctionSignature {
+        &self.signature
+    }
+
+    pub fn set_signature(&mut self, signature: FunctionSignature) {
+        self.signature = signature;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionSignature
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(FunctionSignature);
+impl HasSourceSpan for FunctionSignature {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl FunctionSignature {
     // --------------------------------------------------------------------------------------------
@@ -131,25 +189,80 @@ impl FunctionSignature {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_vec!(
-        pub
-        has has_parameters,
-        parameters_len,
-        parameters,
-        parameters_mut,
-        add_to_parameters,
-        extend_parameters
-            => parameters, FunctionParameter
-    );
+    pub fn has_parameters(&self) -> bool {
+        !self.parameters.is_empty()
+    }
 
-    get_and_set!(pub target_type, set_target_type => FunctionType);
+    pub fn parameters_len(&self) -> usize {
+        self.parameters.len()
+    }
+
+    pub fn parameters(&self) -> impl Iterator<Item = &FunctionParameter> {
+        self.parameters.iter()
+    }
+
+    pub fn parameters_mut(&mut self) -> impl Iterator<Item = &mut FunctionParameter> {
+        self.parameters.iter_mut()
+    }
+
+    pub fn add_to_parameters<I>(&mut self, value: I)
+    where
+        I: Into<FunctionParameter>,
+    {
+        self.parameters.push(value.into())
+    }
+
+    pub fn extend_parameters<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = FunctionParameter>,
+    {
+        self.parameters.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn target_type(&self) -> &FunctionType {
+        &self.target_type
+    }
+
+    pub fn set_target_type(&mut self, target_type: FunctionType) {
+        self.target_type = target_type;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionParameter
+// ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(FunctionParameter);
+impl HasName for FunctionParameter {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_source_span_for!(FunctionParameter);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
+
+impl HasSourceSpan for FunctionParameter {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl FunctionParameter {
     // --------------------------------------------------------------------------------------------
@@ -168,12 +281,38 @@ impl FunctionParameter {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub target_type, set_target_type => FunctionType);
+    pub const fn target_type(&self) -> &FunctionType {
+        &self.target_type
+    }
+
+    pub fn set_target_type(&mut self, target_type: FunctionType) {
+        self.target_type = target_type;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionType
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(FunctionType);
+impl HasSourceSpan for FunctionType {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl FunctionType {
     // --------------------------------------------------------------------------------------------
@@ -191,36 +330,49 @@ impl FunctionType {
         }
     }
 
+    pub fn with_wildcard_cardinality(self) -> Self {
+        let mut self_mut = self;
+        self_mut.target_cardinality = FunctionCardinality::new_wildcard();
+        self_mut
+    }
+
+    pub fn with_target_cardinality(self, target_cardinality: FunctionCardinality) -> Self {
+        let mut self_mut = self;
+        self_mut.target_cardinality = target_cardinality;
+        self_mut
+    }
+
+    pub fn with_target_type(self, target_type: FunctionTypeReference) -> Self {
+        let mut self_mut = self;
+        self_mut.target_type = target_type;
+        self_mut
+    }
+
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_wildcard_cardinality(self) -> Self {
-        Self {
-            target_cardinality: FunctionCardinality::new_wildcard(),
-            ..self
-        }
+    pub const fn target_cardinality(&self) -> &FunctionCardinality {
+        &self.target_cardinality
     }
 
-    pub fn with_target_cardinality(self, target_cardinality: FunctionCardinality) -> Self {
-        Self {
-            target_cardinality,
-            ..self
-        }
+    pub fn set_target_cardinality(&mut self, target_cardinality: FunctionCardinality) {
+        self.target_cardinality = target_cardinality;
     }
 
-    get_and_set!(pub target_cardinality, set_target_cardinality => FunctionCardinality);
+    // --------------------------------------------------------------------------------------------
 
-    pub fn with_target_type(self, target_type: FunctionTypeReference) -> Self {
-        Self {
-            target_type,
-            ..self
-        }
+    pub const fn target_type(&self) -> &FunctionTypeReference {
+        &self.target_type
     }
 
-    get_and_set!(pub target_type, set_target_type => FunctionTypeReference);
+    pub fn set_target_type(&mut self, target_type: FunctionTypeReference) {
+        self.target_type = target_type;
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionCardinality
 // ------------------------------------------------------------------------------------------------
 
 impl Display for FunctionCardinality {
@@ -241,7 +393,25 @@ impl Display for FunctionCardinality {
     }
 }
 
-impl_has_source_span_for!(FunctionCardinality);
+impl HasSourceSpan for FunctionCardinality {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl Validate for FunctionCardinality {
     fn validate(
@@ -329,18 +499,37 @@ impl FunctionCardinality {
         Self::new_unbounded(0)
     }
 
+    pub const fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+        let mut self_mut = self;
+        self_mut.uniqueness = Some(uniqueness);
+        self_mut
+    }
+
+    pub const fn with_ordering(self, ordering: Ordering) -> Self {
+        let mut self_mut = self;
+        self_mut.ordering = Some(ordering);
+        self_mut
+    }
+
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub const fn with_ordering(self, ordering: Ordering) -> Self {
-        Self {
-            ordering: Some(ordering),
-            ..self
-        }
+    pub const fn has_ordering(&self) -> bool {
+        self.ordering.is_some()
     }
 
-    get_and_set!(pub ordering, set_ordering, unset_ordering => optional copy has_ordering, Ordering);
+    pub const fn ordering(&self) -> Option<Ordering> {
+        self.ordering
+    }
+
+    pub fn set_ordering(&mut self, ordering: Ordering) {
+        self.ordering = Some(ordering);
+    }
+
+    pub fn unset_ordering(&mut self) {
+        self.ordering = None;
+    }
 
     #[inline(always)]
     pub fn is_ordered(&self) -> Option<bool> {
@@ -349,15 +538,21 @@ impl FunctionCardinality {
 
     // --------------------------------------------------------------------------------------------
 
-    #[inline(always)]
-    pub const fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
-        Self {
-            uniqueness: Some(uniqueness),
-            ..self
-        }
+    pub const fn has_uniqueness(&self) -> bool {
+        self.uniqueness.is_some()
     }
 
-    get_and_set!(pub uniqueness, set_uniqueness, unset_uniqueness => optional copy has_uniqueness, Uniqueness);
+    pub const fn uniqueness(&self) -> Option<Uniqueness> {
+        self.uniqueness
+    }
+
+    pub fn set_uniqueness(&mut self, uniqueness: Uniqueness) {
+        self.uniqueness = Some(uniqueness);
+    }
+
+    pub fn unset_uniqueness(&mut self) {
+        self.uniqueness = None;
+    }
 
     #[inline(always)]
     pub fn is_unique(&self) -> Option<bool> {
@@ -366,7 +561,23 @@ impl FunctionCardinality {
 
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub range, set_range, unset_range => optional has_range, CardinalityRange);
+    pub const fn has_range(&self) -> bool {
+        self.range.is_some()
+    }
+
+    pub const fn range(&self) -> Option<&CardinalityRange> {
+        self.range.as_ref()
+    }
+
+    pub fn set_range(&mut self, range: CardinalityRange) {
+        self.range = Some(range);
+    }
+
+    pub fn unset_range(&mut self) {
+        self.range = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn is_wildcard(&self) -> bool {
         self.range.is_none()
@@ -374,6 +585,14 @@ impl FunctionCardinality {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionTypeReference
+// ------------------------------------------------------------------------------------------------
+
+impl From<&FunctionTypeReferenceInner> for FunctionTypeReference {
+    fn from(inner: &FunctionTypeReferenceInner) -> Self {
+        Self::from(inner.clone())
+    }
+}
 
 impl From<FunctionTypeReferenceInner> for FunctionTypeReference {
     fn from(inner: FunctionTypeReferenceInner) -> Self {
@@ -416,10 +635,24 @@ impl FunctionTypeReference {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionTypeReferenceInner
+// ------------------------------------------------------------------------------------------------
+
+impl From<&IdentifierReference> for FunctionTypeReferenceInner {
+    fn from(value: &IdentifierReference) -> Self {
+        Self::Reference(value.clone())
+    }
+}
 
 impl From<IdentifierReference> for FunctionTypeReferenceInner {
     fn from(value: IdentifierReference) -> Self {
         Self::Reference(value)
+    }
+}
+
+impl From<&MappingType> for FunctionTypeReferenceInner {
+    fn from(value: &MappingType) -> Self {
+        Self::MappingType(value.clone())
     }
 }
 
@@ -434,9 +667,42 @@ impl FunctionTypeReferenceInner {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Reference (IdentifierReference) => is_type_reference, as_type_reference);
+    pub const fn is_reference(&self) -> bool {
+        match self {
+            Self::Reference(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(MappingType (MappingType) => is_mapping_type, as_mapping_type);
+    pub const fn as_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
 
-    is_variant!(Wildcard => is_wildcard);
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_mapping_type(&self) -> bool {
+        match self {
+            Self::MappingType(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_mapping_type(&self) -> Option<&MappingType> {
+        match self {
+            Self::MappingType(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_wildcard(&self) -> bool {
+        match self {
+            Self::Wildcard => true,
+            _ => false,
+        }
+    }
 }

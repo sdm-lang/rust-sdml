@@ -76,7 +76,7 @@ pub struct ModuleBody {
     is_library: bool,        // <- to catch errors
     imports: Vec<ImportStatement>,
     annotations: Vec<Annotation>,
-    definitions: Vec<Definition>,
+    definitions: HashMap<Identifier, Definition>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -123,9 +123,35 @@ pub struct ModuleImport {
 // Implementations ❱ Modules
 // ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(Module);
+impl HasSourceSpan for Module {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_has_name_for!(Module);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl HasName for Module {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
 impl HasBody for Module {
     type Body = ModuleBody;
@@ -215,25 +241,92 @@ impl Module {
         }
     }
 
-    get_and_set!(pub source_file, set_source_file, unset_source_file => optional has_source_file, PathBuf);
+    pub const fn has_source_file(&self) -> bool {
+        self.source_file.is_some()
+    }
+    pub const fn source_file(&self) -> Option<&PathBuf> {
+        self.source_file.as_ref()
+    }
+    pub fn set_source_file(&mut self, source_file: PathBuf) {
+        self.source_file = Some(source_file);
+    }
+    pub fn unset_source_file(&mut self) {
+        self.source_file = None;
+    }
 
-    get_and_set!(pub base_uri, set_base_uri, unset_base_uri => optional has_base_uri, HeaderValue<Url>);
+    pub const fn has_base_uri(&self) -> bool {
+        self.base_uri.is_some()
+    }
+    pub const fn base_uri(&self) -> Option<&HeaderValue<Url>> {
+        self.base_uri.as_ref()
+    }
+    pub fn set_base_uri(&mut self, base_uri: HeaderValue<Url>) {
+        self.base_uri = Some(base_uri);
+    }
+    pub fn unset_base_uri(&mut self) {
+        self.base_uri = None;
+    }
 
-    get_and_set!(pub version_info, set_version_info, unset_version_info => optional has_version_info, HeaderValue<String>);
+    pub const fn has_version_info(&self) -> bool {
+        self.version_info.is_some()
+    }
+    pub const fn version_info(&self) -> Option<&HeaderValue<String>> {
+        self.version_info.as_ref()
+    }
+    pub fn set_version_info(&mut self, version_info: HeaderValue<String>) {
+        self.version_info = Some(version_info);
+    }
+    pub fn unset_version_info(&mut self) {
+        self.version_info = None;
+    }
 
-    get_and_set!(pub version_uri, set_version_uri, unset_version_uri => optional has_version_uri, HeaderValue<Url>);
+    pub const fn has_version_uri(&self) -> bool {
+        self.version_uri.is_some()
+    }
+    pub const fn version_uri(&self) -> Option<&HeaderValue<Url>> {
+        self.version_uri.as_ref()
+    }
+    pub fn set_version_uri(&mut self, version_uri: HeaderValue<Url>) {
+        self.version_uri = Some(version_uri);
+    }
+    pub fn unset_version_uri(&mut self) {
+        self.version_uri = None;
+    }
 
-    get_and_set!(pub file_id, set_file_id, unset_file_id => optional has_file_id, FileId);
+    pub const fn has_file_id(&self) -> bool {
+        self.file_id.is_some()
+    }
+    pub const fn file_id(&self) -> Option<&FileId> {
+        self.file_id.as_ref()
+    }
+    pub fn set_file_id(&mut self, file_id: FileId) {
+        self.file_id = Some(file_id);
+    }
+    pub fn unset_file_id(&mut self) {
+        self.file_id = None;
+    }
 
     // --------------------------------------------------------------------------------------------
 
-    delegate!(pub imported_modules, HashSet<&Identifier>, body);
+    #[inline(always)]
+    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+        self.body.imported_modules()
+    }
 
-    delegate!(pub imported_module_versions, HashMap<&Identifier, Option<&HeaderValue<Url>>>, body);
+    #[inline(always)]
+    pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&HeaderValue<Url>>> {
+        self.body.imported_module_versions()
+    }
 
-    delegate!(pub imported_types, HashSet<&QualifiedIdentifier>, body);
+    #[inline(always)]
+    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+        self.body.imported_types()
+    }
 
-    delegate!(pub defined_names, HashSet<&Identifier>, body);
+    #[inline(always)]
+    pub fn defined_names(&self) -> HashSet<&Identifier> {
+        self.body.defined_names()
+    }
 
     // --------------------------------------------------------------------------------------------
     // Module :: Pseudo-Validate
@@ -370,14 +463,68 @@ impl<T: PartialEq> HeaderValue<T> {
 }
 
 impl<T> HeaderValue<T> {
-    get_and_set!(pub value, set_value => T);
+    pub const fn value(&self) -> &T {
+        &self.value
+    }
+
+    pub fn set_value(&mut self, value: T) {
+        self.value = value;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(ModuleBody);
+impl HasSourceSpan for ModuleBody {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_has_annotations_for!(ModuleBody);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl HasAnnotations for ModuleBody {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
 
 impl References for ModuleBody {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -393,7 +540,12 @@ impl References for ModuleBody {
     }
 }
 
-impl_maybe_incomplete_for!(ModuleBody; over definitions);
+impl MaybeIncomplete for ModuleBody {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        self.definitions()
+            .any(|elem| elem.is_incomplete(top, cache))
+    }
+}
 
 impl Validate for ModuleBody {
     ///
@@ -428,31 +580,68 @@ impl ModuleBody {
     // ModuleBody :: Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_vec!(
-        pub
-        has has_imports,
-        imports_len,
-        imports,
-        imports_mut,
-        add_to_imports,
-        extend_imports
-            => imports, ImportStatement
-    );
+    pub fn has_imports(&self) -> bool {
+        !self.imports.is_empty()
+    }
 
-    pub fn has_definitions(&self) -> bool {
+    pub fn imports_len(&self) -> usize {
+        self.imports.len()
+    }
+
+    pub fn imports(&self) -> impl Iterator<Item = &ImportStatement> {
+        self.imports.iter()
+    }
+
+    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut ImportStatement> {
+        self.imports.iter_mut()
+    }
+
+    pub fn add_to_imports<I>(&mut self, value: I)
+    where
+        I: Into<ImportStatement>,
+    {
+        self.imports.push(value.into())
+    }
+
+    pub fn extend_imports<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = ImportStatement>,
+    {
+        self.imports.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    fn has_definitions(&self) -> bool {
         !self.definitions.is_empty()
     }
 
-    pub fn definitions_len(&self) -> usize {
+    fn definition_count(&self) -> usize {
         self.definitions.len()
     }
 
-    pub fn definitions(&self) -> impl Iterator<Item = &Definition> {
-        self.definitions.iter()
+    fn contains_definition(&self, name: &Identifier) -> bool {
+        self.definitions.contains_key(name)
     }
 
-    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
-        self.definitions.iter_mut()
+    fn definition(&self, name: &Identifier) -> Option<&Definition> {
+        self.definitions.get(name)
+    }
+
+    fn definition_mut(&mut self, name: &Identifier) -> Option<&mut Definition> {
+        self.definitions.get_mut(name)
+    }
+
+    fn definitions(&self) -> impl Iterator<Item = &Definition> {
+        self.definitions.values()
+    }
+
+    fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
+        self.definitions.values_mut()
+    }
+
+    fn definition_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.definitions.keys()
     }
 
     pub fn add_to_definitions<I>(&mut self, value: I) -> Result<(), Error>
@@ -515,7 +704,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn datatype_definitions(&self) -> impl Iterator<Item = &DatatypeDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Datatype(v) => Some(v),
             _ => None,
         })
@@ -523,7 +712,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn entity_definitions(&self) -> impl Iterator<Item = &EntityDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Entity(v) => Some(v),
             _ => None,
         })
@@ -531,7 +720,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn enum_definitions(&self) -> impl Iterator<Item = &EnumDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Enum(v) => Some(v),
             _ => None,
         })
@@ -539,7 +728,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn event_definitions(&self) -> impl Iterator<Item = &EventDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Event(v) => Some(v),
             _ => None,
         })
@@ -547,7 +736,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn property_definitions(&self) -> impl Iterator<Item = &PropertyDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Property(v) => Some(v),
             _ => None,
         })
@@ -555,7 +744,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn rdf_definitions(&self) -> impl Iterator<Item = &RdfDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Rdf(v) => Some(v),
             _ => None,
         })
@@ -563,7 +752,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn structure_definitions(&self) -> impl Iterator<Item = &StructureDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Structure(v) => Some(v),
             _ => None,
         })
@@ -571,7 +760,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn type_class_definitions(&self) -> impl Iterator<Item = &TypeClassDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::TypeClass(v) => Some(v),
             _ => None,
         })
@@ -579,7 +768,7 @@ impl ModuleBody {
 
     #[inline]
     pub fn union_definitions(&self) -> impl Iterator<Item = &UnionDef> {
-        self.definitions.iter().filter_map(|d| match d {
+        self.definitions().filter_map(|d| match d {
             Definition::Union(v) => Some(v),
             _ => None,
         })
@@ -618,7 +807,25 @@ impl From<ImportStatement> for Vec<Import> {
     }
 }
 
-impl_has_source_span_for! {ImportStatement}
+impl HasSourceSpan for ImportStatement {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl Validate for ImportStatement {
     ///
@@ -753,16 +960,35 @@ impl ImportStatement {
     // ImportStatement :: Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_vec!(
-        pub
-        has has_imports,
-        imports_len,
-        imports,
-        imports_mut,
-        add_to_imports,
-        extend_imports
-            => imports, Import
-    );
+    pub fn has_imports(&self) -> bool {
+        !self.imports.is_empty()
+    }
+
+    pub fn imports_len(&self) -> usize {
+        self.imports.len()
+    }
+
+    pub fn imports(&self) -> impl Iterator<Item = &Import> {
+        self.imports.iter()
+    }
+
+    pub fn imports_mut(&mut self) -> impl Iterator<Item = &mut Import> {
+        self.imports.iter_mut()
+    }
+
+    pub fn add_to_imports<I>(&mut self, value: I)
+    where
+        I: Into<Import>,
+    {
+        self.imports.push(value.into())
+    }
+
+    pub fn extend_imports<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Import>,
+    {
+        self.imports.extend(extension)
+    }
 
     // --------------------------------------------------------------------------------------------
 
@@ -803,9 +1029,21 @@ impl ImportStatement {
 
 // ------------------------------------------------------------------------------------------------
 
+impl From<&Identifier> for Import {
+    fn from(v: &Identifier) -> Self {
+        Self::Module(ModuleImport::from(v.clone()))
+    }
+}
+
 impl From<Identifier> for Import {
     fn from(v: Identifier) -> Self {
         Self::Module(ModuleImport::from(v))
+    }
+}
+
+impl From<&ModuleImport> for Import {
+    fn from(v: &ModuleImport) -> Self {
+        Self::Module(v.clone())
     }
 }
 
@@ -815,15 +1053,64 @@ impl From<ModuleImport> for Import {
     }
 }
 
+impl From<&QualifiedIdentifier> for Import {
+    fn from(v: &QualifiedIdentifier) -> Self {
+        Self::Member(v.clone())
+    }
+}
+
 impl From<QualifiedIdentifier> for Import {
     fn from(v: QualifiedIdentifier) -> Self {
         Self::Member(v)
     }
 }
 
-enum_display_impl!(Import => Module, Member);
+impl std::fmt::Display for Import {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Module(v) => v.to_string(),
+                Self::Member(v) => v.to_string(),
+            }
+        )
+    }
+}
 
-impl_has_source_span_for!(Import => variants Module, Member);
+impl HasSourceSpan for Import {
+    #[inline]
+    fn with_source_span(self, span: Span) -> Self {
+        match self {
+            Self::Module(v) => Self::Module(v.with_source_span(span)),
+            Self::Member(v) => Self::Member(v.with_source_span(span)),
+        }
+    }
+
+    #[inline]
+    fn source_span(&self) -> Option<&Span> {
+        match self {
+            Self::Module(v) => v.source_span(),
+            Self::Member(v) => v.source_span(),
+        }
+    }
+
+    #[inline]
+    fn set_source_span(&mut self, span: Span) {
+        match self {
+            Self::Module(v) => v.set_source_span(span),
+            Self::Member(v) => v.set_source_span(span),
+        }
+    }
+
+    #[inline]
+    fn unset_source_span(&mut self) {
+        match self {
+            Self::Module(v) => v.unset_source_span(),
+            Self::Member(v) => v.unset_source_span(),
+        }
+    }
+}
 
 impl Import {
     pub fn module(&self) -> &Identifier {
@@ -878,7 +1165,25 @@ impl Hash for ModuleImport {
     }
 }
 
-impl_has_source_span_for!(ModuleImport);
+impl HasSourceSpan for ModuleImport {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl ModuleImport {
     // --------------------------------------------------------------------------------------------
@@ -903,9 +1208,29 @@ impl ModuleImport {
     // ModuleImport :: Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub name, set_name => Identifier);
+    pub const fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-    get_and_set!(pub version_uri, set_version_uri, unset_version_uri => optional has_version_uri, HeaderValue<Url>);
+    pub fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+
+    pub const fn has_version_uri(&self) -> bool {
+        self.version_uri.is_some()
+    }
+
+    pub const fn version_uri(&self) -> Option<&HeaderValue<Url>> {
+        self.version_uri.as_ref()
+    }
+
+    pub fn set_version_uri(&mut self, version_uri: HeaderValue<Url>) {
+        self.version_uri = Some(version_uri);
+    }
+
+    pub fn unset_version_uri(&mut self) {
+        self.version_uri = None;
+    }
 
     // --------------------------------------------------------------------------------------------
     // ModuleImport :: Helpers

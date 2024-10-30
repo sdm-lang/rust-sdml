@@ -1,7 +1,7 @@
 use crate::error::Error;
 use crate::model::constraints::Term;
 use crate::model::identifiers::Identifier;
-use crate::model::Span;
+use crate::model::{HasBody, HasName, HasSourceSpan, Span};
 use crate::syntax::{
     KW_OPERATION_BICONDITIONAL, KW_OPERATION_BICONDITIONAL_SYMBOL, KW_OPERATION_CONJUNCTION,
     KW_OPERATION_CONJUNCTION_SYMBOL, KW_OPERATION_DISJUNCTION, KW_OPERATION_DISJUNCTION_SYMBOL,
@@ -20,7 +20,7 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Formal Constraints ❱  Sentences
+// Public Types ❱ Constraints ❱  Sentences
 // ------------------------------------------------------------------------------------------------
 
 ///
@@ -212,8 +212,14 @@ pub struct QuantifiedVariable {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Formal Constraints ❱  Sentences
+// Implementations ❱ Constraints ❱ ConstraintSentence
 // ------------------------------------------------------------------------------------------------
+
+impl From<&SimpleSentence> for ConstraintSentence {
+    fn from(v: &SimpleSentence) -> Self {
+        Self::Simple(v.clone())
+    }
+}
 
 impl From<SimpleSentence> for ConstraintSentence {
     fn from(v: SimpleSentence) -> Self {
@@ -221,9 +227,21 @@ impl From<SimpleSentence> for ConstraintSentence {
     }
 }
 
+impl From<&BooleanSentence> for ConstraintSentence {
+    fn from(v: &BooleanSentence) -> Self {
+        Self::Boolean(v.clone())
+    }
+}
+
 impl From<BooleanSentence> for ConstraintSentence {
     fn from(v: BooleanSentence) -> Self {
         Self::Boolean(v)
+    }
+}
+
+impl From<&QuantifiedSentence> for ConstraintSentence {
+    fn from(v: &QuantifiedSentence) -> Self {
+        Self::Quantified(v.clone())
     }
 }
 
@@ -238,14 +256,49 @@ impl ConstraintSentence {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Simple (SimpleSentence) => is_simple, as_simple);
+    pub const fn is_simple(&self) -> bool {
+        matches!(self, Self::Simple(_))
+    }
 
-    is_as_variant!(Boolean (BooleanSentence) => is_boolean, as_boolean);
+    pub const fn as_simple(&self) -> Option<&SimpleSentence> {
+        match self {
+            Self::Simple(v) => Some(v),
+            _ => None,
+        }
+    }
 
-    is_as_variant!(Quantified (QuantifiedSentence) => is_quantified, as_quantified);
+    pub const fn is_boolean(&self) -> bool {
+        matches!(self, Self::Boolean(_))
+    }
+
+    pub const fn as_boolean(&self) -> Option<&BooleanSentence> {
+        match self {
+            Self::Boolean(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_quantified(&self) -> bool {
+        matches!(self, Self::Quantified(_))
+    }
+
+    pub const fn as_quantified(&self) -> Option<&QuantifiedSentence> {
+        match self {
+            Self::Quantified(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ SimpleSentence
+// ------------------------------------------------------------------------------------------------
+
+impl From<&AtomicSentence> for SimpleSentence {
+    fn from(v: &AtomicSentence) -> Self {
+        Self::Atomic(v.clone())
+    }
+}
 
 impl From<AtomicSentence> for SimpleSentence {
     fn from(v: AtomicSentence) -> Self {
@@ -253,9 +306,21 @@ impl From<AtomicSentence> for SimpleSentence {
     }
 }
 
+impl From<&Equation> for SimpleSentence {
+    fn from(v: &Equation) -> Self {
+        Self::Equation(v.clone())
+    }
+}
+
 impl From<Equation> for SimpleSentence {
     fn from(v: Equation) -> Self {
         Self::Equation(v)
+    }
+}
+
+impl From<&Inequation> for SimpleSentence {
+    fn from(v: &Inequation) -> Self {
+        Self::Inequation(v.clone())
     }
 }
 
@@ -270,16 +335,63 @@ impl SimpleSentence {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Atomic (AtomicSentence) => is_atomic, as_atomic);
+    pub const fn is_atomic(&self) -> bool {
+        matches!(self, Self::Atomic(_))
+    }
 
-    is_as_variant!(Equation (Equation) => is_equation, as_equation);
+    pub const fn as_atomic(&self) -> Option<&AtomicSentence> {
+        match self {
+            Self::Atomic(v) => Some(v),
+            _ => None,
+        }
+    }
 
-    is_as_variant!(Inequation (Inequation) => is_inequation, as_inequation);
+    pub const fn is_equation(&self) -> bool {
+        matches!(self, Self::Equation(_))
+    }
+
+    pub const fn as_equation(&self) -> Option<&Equation> {
+        match self {
+            Self::Equation(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_inequation(&self) -> bool {
+        matches!(self, Self::Inequation(_))
+    }
+
+    pub const fn as_inequation(&self) -> Option<&Inequation> {
+        match self {
+            Self::Inequation(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ AtomicSentence
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(AtomicSentence);
+impl HasSourceSpan for AtomicSentence {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl AtomicSentence {
     // --------------------------------------------------------------------------------------------
@@ -313,23 +425,70 @@ impl AtomicSentence {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub predicate, set_predicate => Term);
+    pub const fn predicate(&self) -> &Term {
+        &self.predicate
+    }
 
-    get_and_set_vec!(
-        pub
-        has has_arguments,
-        arguments_len,
-        arguments,
-        arguments_mut,
-        add_to_arguments,
-        extend_arguments
-            => arguments, Term
-    );
+    pub fn set_predicate(&mut self, predicate: Term) {
+        self.predicate = predicate;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_arguments(&self) -> bool {
+        !self.arguments.is_empty()
+    }
+
+    pub fn arguments_len(&self) -> usize {
+        self.arguments.len()
+    }
+
+    pub fn arguments(&self) -> impl Iterator<Item = &Term> {
+        self.arguments.iter()
+    }
+
+    pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut Term> {
+        self.arguments.iter_mut()
+    }
+
+    pub fn add_to_arguments<I>(&mut self, value: I)
+    where
+        I: Into<Term>,
+    {
+        self.arguments.push(value.into())
+    }
+
+    pub fn extend_arguments<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Term>,
+    {
+        self.arguments.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ Equation
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(Equation);
+impl HasSourceSpan for Equation {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl Equation {
     // --------------------------------------------------------------------------------------------
@@ -352,14 +511,48 @@ impl Equation {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub left_operand, set_left_operand => Term);
+    pub const fn left_operand(&self) -> &Term {
+        &self.left_operand
+    }
 
-    get_and_set!(pub right_operand, set_right_operand => Term);
+    pub fn set_left_operand(&mut self, left_operand: Term) {
+        self.left_operand = left_operand;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn right_operand(&self) -> &Term {
+        &self.right_operand
+    }
+
+    pub fn set_right_operand(&mut self, right_operand: Term) {
+        self.right_operand = right_operand;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ Inequation
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(Inequation);
+impl HasSourceSpan for Inequation {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl Inequation {
     // --------------------------------------------------------------------------------------------
@@ -436,9 +629,23 @@ impl Inequation {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub left_operand, set_left_operand => Term);
+    pub const fn left_operand(&self) -> &Term {
+        &self.left_operand
+    }
 
-    get_and_set!(pub relation, set_relation => InequalityRelation);
+    pub fn set_left_operand(&mut self, left_operand: Term) {
+        self.left_operand = left_operand;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn relation(&self) -> &InequalityRelation {
+        &self.relation
+    }
+
+    pub fn set_relation(&mut self, relation: InequalityRelation) {
+        self.relation = relation;
+    }
 
     #[inline(always)]
     pub fn is_not_equal(&self) -> bool {
@@ -465,29 +672,20 @@ impl Inequation {
         self.relation == InequalityRelation::GreaterThanOrEqual
     }
 
-    get_and_set!(pub right_operand, set_right_operand => Term);
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn right_operand(&self) -> &Term {
+        &self.right_operand
+    }
+
+    pub fn set_right_operand(&mut self, right_operand: Term) {
+        self.right_operand = right_operand;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-
-impl Display for InequalityRelation {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match (self, f.alternate()) {
-                (Self::NotEqual, true) => KW_RELATION_NOT_EQUAL_SYMBOL,
-                (Self::NotEqual, false) => KW_RELATION_NOT_EQUAL,
-                (Self::LessThan, _) => KW_RELATION_LESS_THAN,
-                (Self::LessThanOrEqual, true) => KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
-                (Self::LessThanOrEqual, false) => KW_RELATION_LESS_THAN_OR_EQUAL,
-                (Self::GreaterThan, _) => KW_RELATION_GREATER_THAN,
-                (Self::GreaterThanOrEqual, true) => KW_RELATION_GREATER_THAN_OR_EQUAL,
-                (Self::GreaterThanOrEqual, false) => KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
-            }
-        )
-    }
-}
+// Implementations ❱ Constraints ❱ InequalityRelation
+// ------------------------------------------------------------------------------------------------
 
 impl FromStr for InequalityRelation {
     type Err = Error;
@@ -509,11 +707,44 @@ impl FromStr for InequalityRelation {
     }
 }
 
+impl Display for InequalityRelation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match (self, f.alternate()) {
+                (Self::NotEqual, true) => KW_RELATION_NOT_EQUAL_SYMBOL,
+                (Self::NotEqual, false) => KW_RELATION_NOT_EQUAL,
+                (Self::LessThan, _) => KW_RELATION_LESS_THAN,
+                (Self::LessThanOrEqual, true) => KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
+                (Self::LessThanOrEqual, false) => KW_RELATION_LESS_THAN_OR_EQUAL,
+                (Self::GreaterThan, _) => KW_RELATION_GREATER_THAN,
+                (Self::GreaterThanOrEqual, true) => KW_RELATION_GREATER_THAN_OR_EQUAL,
+                (Self::GreaterThanOrEqual, false) => KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
+            }
+        )
+    }
+}
+
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ BooleanSentence
+// ------------------------------------------------------------------------------------------------
+
+impl From<&UnaryBooleanSentence> for BooleanSentence {
+    fn from(v: &UnaryBooleanSentence) -> Self {
+        Self::Unary(v.clone())
+    }
+}
 
 impl From<UnaryBooleanSentence> for BooleanSentence {
     fn from(v: UnaryBooleanSentence) -> Self {
         Self::Unary(v)
+    }
+}
+
+impl From<&BinaryBooleanSentence> for BooleanSentence {
+    fn from(v: &BinaryBooleanSentence) -> Self {
+        Self::Binary(v.clone())
     }
 }
 
@@ -528,14 +759,52 @@ impl BooleanSentence {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Unary (UnaryBooleanSentence) => is_unary, as_unary);
+    pub const fn is_unary(&self) -> bool {
+        matches!(self, Self::Unary(_))
+    }
 
-    is_as_variant!(Binary (BinaryBooleanSentence) => is_binary, as_binary);
+    pub const fn as_unary(&self) -> Option<&UnaryBooleanSentence> {
+        match self {
+            Self::Unary(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_binary(&self) -> bool {
+        matches!(self, Self::Binary(_))
+    }
+
+    pub const fn as_binary(&self) -> Option<&BinaryBooleanSentence> {
+        match self {
+            Self::Binary(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ UnaryBooleanSentence
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(UnaryBooleanSentence);
+impl HasSourceSpan for UnaryBooleanSentence {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl UnaryBooleanSentence {
     // --------------------------------------------------------------------------------------------
@@ -564,17 +833,44 @@ impl UnaryBooleanSentence {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    #[inline(always)]
-    pub fn operator(&self) -> ConnectiveOperator {
+    pub const fn operator(&self) -> ConnectiveOperator {
         ConnectiveOperator::Negation
     }
 
-    get_and_set!(pub operand, set_operand => boxed ConstraintSentence);
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn operand(&self) -> &ConstraintSentence {
+        &self.operand
+    }
+
+    pub fn set_operand(&mut self, operand: ConstraintSentence) {
+        self.operand = Box::new(operand);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ BinaryBooleanSentence
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(BinaryBooleanSentence);
+impl HasSourceSpan for BinaryBooleanSentence {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl BinaryBooleanSentence {
     // --------------------------------------------------------------------------------------------
@@ -652,13 +948,37 @@ impl BinaryBooleanSentence {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub left_operand, set_left_operand => boxed ConstraintSentence);
+    pub const fn left_operand(&self) -> &ConstraintSentence {
+        &self.left_operand
+    }
 
-    get_and_set!(pub operator, set_operator => ConnectiveOperator);
+    pub fn set_left_operand(&mut self, left_operand: ConstraintSentence) {
+        self.left_operand = Box::new(left_operand);
+    }
 
-    get_and_set!(pub right_operand, set_right_operand => boxed ConstraintSentence);
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn operator(&self) -> &ConnectiveOperator {
+        &self.operator
+    }
+
+    pub fn set_operator(&mut self, operator: ConnectiveOperator) {
+        self.operator = operator;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn right_operand(&self) -> &ConstraintSentence {
+        &self.right_operand
+    }
+
+    pub fn set_right_operand(&mut self, right_operand: ConstraintSentence) {
+        self.right_operand = Box::new(right_operand);
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ ConnectiveOperator
 // ------------------------------------------------------------------------------------------------
 
 impl Display for ConnectiveOperator {
@@ -687,10 +1007,44 @@ impl Display for ConnectiveOperator {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ QuantifiedSentence
+// ------------------------------------------------------------------------------------------------
 
-impl_has_body_for!(QuantifiedSentence, boxed ConstraintSentence);
+impl HasBody for QuantifiedSentence {
+    type Body = ConstraintSentence;
 
-impl_has_source_span_for!(QuantifiedSentence);
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
+
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Box::new(body);
+    }
+}
+
+impl HasSourceSpan for QuantifiedSentence {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl QuantifiedSentence {
     // --------------------------------------------------------------------------------------------
@@ -712,9 +1066,17 @@ impl QuantifiedSentence {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub binding, set_binding => QuantifiedVariableBinding);
+    pub const fn binding(&self) -> &QuantifiedVariableBinding {
+        &self.binding
+    }
+
+    pub fn set_binding(&mut self, binding: QuantifiedVariableBinding) {
+        self.binding = binding;
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ Quantifier
 // ------------------------------------------------------------------------------------------------
 
 impl Default for Quantifier {
@@ -754,8 +1116,28 @@ impl FromStr for Quantifier {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ QuantifiedVariableBinding
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(QuantifiedVariableBinding);
+impl HasSourceSpan for QuantifiedVariableBinding {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl QuantifiedVariableBinding {
     // --------------------------------------------------------------------------------------------
@@ -790,7 +1172,13 @@ impl QuantifiedVariableBinding {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub quantifier, set_quantifier => Quantifier);
+    pub const fn quantifier(&self) -> &Quantifier {
+        &self.quantifier
+    }
+
+    pub fn set_quantifier(&mut self, quantifier: Quantifier) {
+        self.quantifier = quantifier;
+    }
 
     #[inline(always)]
     pub fn is_existential(&self) -> bool {
@@ -801,6 +1189,8 @@ impl QuantifiedVariableBinding {
     pub fn is_universal(&self) -> bool {
         self.quantifier == Quantifier::Universal
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub fn binding(&self) -> Option<&QuantifiedVariable> {
         self.binding.as_ref()
@@ -824,10 +1214,38 @@ impl QuantifiedVariableBinding {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ QuantifiedVariable
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(QuantifiedVariable);
+impl HasName for QuantifiedVariable {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_name_for!(QuantifiedVariable);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
+
+impl HasSourceSpan for QuantifiedVariable {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl QuantifiedVariable {
     // --------------------------------------------------------------------------------------------
@@ -849,5 +1267,14 @@ impl QuantifiedVariable {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub source, set_source => into Term);
+    pub const fn source(&self) -> &Term {
+        &self.source
+    }
+
+    pub fn set_source<T>(&mut self, source: T)
+    where
+        T: Into<Term>,
+    {
+        self.source = source.into();
+    }
 }

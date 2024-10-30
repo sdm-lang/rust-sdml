@@ -1,9 +1,14 @@
 /*!
 Provide the Rust types that implement *constraint*-related components of the SDML Grammar.
 */
+use std::collections::HashSet;
+
 use crate::{
     load::ModuleLoader,
-    model::{Identifier, Span},
+    model::{
+        check::Validate, modules::Module, HasBody, HasName, HasSourceSpan, Identifier,
+        IdentifierReference, References, Span,
+    },
     store::ModuleStore,
 };
 
@@ -42,16 +47,64 @@ pub enum ConstraintBody {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Constraints
+// Implementations ❱ Constraints ❱ Constraint
 // ------------------------------------------------------------------------------------------------
 
-impl_has_body_for!(Constraint, ConstraintBody);
+impl HasName for Constraint {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_name_for!(Constraint);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_source_span_for!(Constraint);
+impl HasBody for Constraint {
+    type Body = ConstraintBody;
 
-impl_references_for!(Constraint => delegate body);
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
+
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = body;
+    }
+}
+
+impl HasSourceSpan for Constraint {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl References for Constraint {
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.body.referenced_annotations(names);
+    }
+
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.body.referenced_types(names);
+    }
+}
 
 impl Validate for Constraint {
     fn validate(
@@ -83,10 +136,24 @@ impl Constraint {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ ConstraintBody
+// ------------------------------------------------------------------------------------------------
+
+impl From<&ControlledLanguageString> for ConstraintBody {
+    fn from(v: &ControlledLanguageString) -> Self {
+        Self::Informal(v.clone())
+    }
+}
 
 impl From<ControlledLanguageString> for ConstraintBody {
     fn from(v: ControlledLanguageString) -> Self {
         Self::Informal(v)
+    }
+}
+
+impl From<&FormalConstraint> for ConstraintBody {
+    fn from(v: &FormalConstraint) -> Self {
+        Self::Formal(v.clone())
     }
 }
 
@@ -96,18 +163,69 @@ impl From<FormalConstraint> for ConstraintBody {
     }
 }
 
-impl_references_for!(ConstraintBody => variants Informal, Formal);
+impl References for ConstraintBody {
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        match self {
+            Self::Informal(v) => v.referenced_annotations(names),
+            Self::Formal(v) => v.referenced_annotations(names),
+        }
+    }
 
-impl_validate_for!(ConstraintBody => variants Informal, Formal);
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        match self {
+            Self::Informal(v) => v.referenced_types(names),
+            Self::Formal(v) => v.referenced_types(names),
+        }
+    }
+}
+
+impl Validate for ConstraintBody {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        match self {
+            Self::Informal(v) => v.validate(top, cache, loader, check_constraints),
+            Self::Formal(v) => v.validate(top, cache, loader, check_constraints),
+        }
+    }
+}
 
 impl ConstraintBody {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Informal (ControlledLanguageString) => is_informal, as_informal);
+    pub const fn is_informal(&self) -> bool {
+        match self {
+            Self::Informal(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(Formal (FormalConstraint) => is_formal, as_formal);
+    pub const fn as_informal(&self) -> Option<&ControlledLanguageString> {
+        match self {
+            Self::Informal(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_formal(&self) -> bool {
+        match self {
+            Self::Formal(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_formal(&self) -> Option<&FormalConstraint> {
+        match self {
+            Self::Formal(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -127,5 +245,3 @@ pub use formal::{
 
 mod informal;
 pub use informal::{ControlledLanguageString, ControlledLanguageTag};
-
-use super::{check::Validate, modules::Module};

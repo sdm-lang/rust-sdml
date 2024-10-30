@@ -1,23 +1,26 @@
 use crate::load::ModuleLoader;
-use crate::model::References;
+use crate::model::annotations::{AnnotationBuilder, AnnotationProperty, HasAnnotations};
+use crate::model::check::MaybeIncomplete;
+use crate::model::values::Value;
 use crate::model::{
     annotations::Annotation,
     check::Validate,
-    definitions::HasMembers,
     identifiers::{Identifier, IdentifierReference},
     members::Member,
     modules::Module,
     Span,
 };
+use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References};
 use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
+use std::collections::HashMap;
 use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Entities
+// Public Types ❱ Definitions ❱ Entities
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `entity_def`.
@@ -40,25 +43,102 @@ pub struct EntityBody {
     identity: Member,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
-    members: Vec<Member>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
+    members: HashMap<Identifier, Member>,
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Type Definitions ❱ Entities
+// Implementations ❱ Definitions ❱ EntityDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(EntityDef);
+impl HasName for EntityDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_optional_body_for!(EntityDef, EntityBody);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_source_span_for!(EntityDef);
+impl HasOptionalBody for EntityDef {
+    type Body = EntityBody;
 
-impl_references_for!(EntityDef => delegate optional body);
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
 
-impl_annotation_builder!(EntityDef, optional body);
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
 
-impl_maybe_incomplete_for!(EntityDef);
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for EntityDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl References for EntityDef {
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        if let Some(inner) = &self.body {
+            inner.referenced_annotations(names);
+        }
+    }
+
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        if let Some(inner) = &self.body {
+            inner.referenced_types(names);
+        }
+    }
+}
+
+impl AnnotationBuilder for EntityDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
+
+impl MaybeIncomplete for EntityDef {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        if let Some(body) = &self.body {
+            body.is_incomplete(top, cache)
+        } else {
+            true
+        }
+    }
+}
 
 impl Validate for EntityDef {
     fn validate(
@@ -78,7 +158,7 @@ impl Validate for EntityDef {
 
 impl EntityDef {
     // --------------------------------------------------------------------------------------------
-    // EntityDef :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(name: Identifier) -> Self {
@@ -91,14 +171,61 @@ impl EntityDef {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ EntityBody
+// ------------------------------------------------------------------------------------------------
 
-impl_has_annotations_for!(EntityBody);
+impl HasAnnotations for EntityBody {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
 
-impl_has_members_for!(EntityBody);
+impl HasSourceSpan for EntityBody {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_has_source_span_for!(EntityBody);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
 
-impl_maybe_incomplete_for!(EntityBody; over members);
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl MaybeIncomplete for EntityBody {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        self.members().any(|elem| elem.is_incomplete(top, cache))
+    }
+}
 
 impl Validate for EntityBody {
     fn validate(
@@ -143,9 +270,75 @@ impl EntityBody {
         }
     }
 
+    pub fn with_members<I>(self, members: I) -> Self
+    where
+        I: IntoIterator<Item = Member>,
+    {
+        let mut self_mut = self;
+        self_mut.members = members.into_iter().collect();
+        self_mut
+    }
+
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub identity, set_identity => Member);
+    pub const fn identity(&self) -> &Member {
+        &self.identity
+    }
+
+    pub fn set_identity(&mut self, identity: Member) {
+        self.identity = identity;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Members
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_empty(&self) -> bool {
+        self.members.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.members.len()
+    }
+
+    pub fn contains(&self, name: &Identifier) -> bool {
+        self.members.contains_key(name)
+    }
+
+    pub fn get(&self, name: &Identifier) -> Option<&Member> {
+        self.members.get(name)
+    }
+
+    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut Member> {
+        self.members.get_mut(name)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Member> {
+        self.members.values()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Member> {
+        self.members.values_mut()
+    }
+
+    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+        self.members.keys()
+    }
+
+    pub fn insert(&mut self, value: Member) -> Option<Member> {
+        self.members.insert(value.name().clone(), value)
+    }
+
+    pub fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Member>,
+    {
+        self.members.extend(
+            extension
+                .into_iter()
+                .map(|elem| (elem.name().clone(), elem)),
+        )
+    }
 }

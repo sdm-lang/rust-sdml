@@ -2,7 +2,7 @@ use crate::error::Error;
 use crate::load::ModuleLoader;
 use crate::model::check::Validate;
 use crate::model::modules::Module;
-use crate::model::Span;
+use crate::model::{HasSourceSpan, Span};
 use crate::store::ModuleStore;
 use crate::syntax::{
     KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_UNIQUENESS_NONUNIQUE, KW_UNIQUENESS_UNIQUE,
@@ -89,6 +89,30 @@ pub enum PseudoSequenceType {
 // Implementations ❱ Members ❱ Cardinality
 // ------------------------------------------------------------------------------------------------
 
+impl From<&u32> for Cardinality {
+    fn from(value: &u32) -> Self {
+        Self::new_single(*value)
+    }
+}
+
+impl From<u32> for Cardinality {
+    fn from(value: u32) -> Self {
+        Self::new_single(value)
+    }
+}
+
+impl From<CardinalityRange> for Cardinality {
+    fn from(range: CardinalityRange) -> Self {
+        Self::new(None, None, range)
+    }
+}
+
+impl From<&CardinalityRange> for Cardinality {
+    fn from(range: &CardinalityRange) -> Self {
+        Self::new(None, None, *range)
+    }
+}
+
 impl Display for Cardinality {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -104,24 +128,25 @@ impl Display for Cardinality {
     }
 }
 
-impl From<u32> for Cardinality {
-    fn from(value: u32) -> Self {
-        Self::new_single(value)
+impl HasSourceSpan for Cardinality {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
     }
 }
-
-impl From<CardinalityRange> for Cardinality {
-    fn from(range: CardinalityRange) -> Self {
-        Self {
-            span: Default::default(),
-            ordering: Default::default(),
-            uniqueness: Default::default(),
-            range,
-        }
-    }
-}
-
-impl_has_source_span_for!(Cardinality);
 
 impl Validate for Cardinality {
     fn validate(
@@ -137,7 +162,7 @@ impl Validate for Cardinality {
 
 impl Cardinality {
     // --------------------------------------------------------------------------------------------
-    // Cardinality :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(
@@ -201,7 +226,7 @@ impl Cardinality {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Cardinality :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub const fn with_ordering(self, ordering: Option<Ordering>) -> Self {
@@ -295,7 +320,7 @@ impl Cardinality {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Cardinality :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
@@ -340,6 +365,14 @@ impl Cardinality {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ CardinalityRange
+// ------------------------------------------------------------------------------------------------
+
+impl From<u32> for CardinalityRange {
+    fn from(value: u32) -> Self {
+        Self::new_single(value)
+    }
+}
 
 impl Display for CardinalityRange {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -352,13 +385,25 @@ impl Display for CardinalityRange {
     }
 }
 
-impl From<u32> for CardinalityRange {
-    fn from(value: u32) -> Self {
-        Self::new_single(value)
+impl HasSourceSpan for CardinalityRange {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
     }
 }
-
-impl_has_source_span_for!(CardinalityRange);
 
 impl Validate for CardinalityRange {
     fn validate(
@@ -378,7 +423,7 @@ impl Validate for CardinalityRange {
 
 impl CardinalityRange {
     // --------------------------------------------------------------------------------------------
-    // Cardinality :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new_range(min: u32, max: u32) -> Self {
@@ -434,7 +479,7 @@ impl CardinalityRange {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Cardinality :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
@@ -469,7 +514,7 @@ impl CardinalityRange {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Cardinality :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
@@ -516,10 +561,24 @@ impl CardinalityRange {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ Ordering
+// ------------------------------------------------------------------------------------------------
 
 impl Default for Ordering {
     fn default() -> Self {
         Self::Unordered
+    }
+}
+
+impl FromStr for Ordering {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_ORDERING_ORDERED => Ok(Self::Ordered),
+            KW_ORDERING_UNORDERED => Ok(Self::Unordered),
+            _ => panic!(),
+        }
     }
 }
 
@@ -536,23 +595,25 @@ impl Display for Ordering {
     }
 }
 
-impl FromStr for Ordering {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            KW_ORDERING_ORDERED => Ok(Self::Ordered),
-            KW_ORDERING_UNORDERED => Ok(Self::Unordered),
-            _ => panic!(),
-        }
-    }
-}
-
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Members ❱ Uniqueness
 // ------------------------------------------------------------------------------------------------
 
 impl Default for Uniqueness {
     fn default() -> Self {
         Self::Nonunique
+    }
+}
+
+impl FromStr for Uniqueness {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_UNIQUENESS_UNIQUE => Ok(Self::Unique),
+            KW_UNIQUENESS_NONUNIQUE => Ok(Self::Nonunique),
+            _ => panic!(),
+        }
     }
 }
 
@@ -566,17 +627,5 @@ impl Display for Uniqueness {
                 Self::Nonunique => KW_UNIQUENESS_NONUNIQUE,
             }
         )
-    }
-}
-
-impl FromStr for Uniqueness {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            KW_UNIQUENESS_UNIQUE => Ok(Self::Unique),
-            KW_UNIQUENESS_NONUNIQUE => Ok(Self::Nonunique),
-            _ => panic!(),
-        }
     }
 }

@@ -94,10 +94,18 @@ const RESERVED_MODULES: [&str; 12] = [
 ];
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Identifier
+// ------------------------------------------------------------------------------------------------
 
-impl Display for Identifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.value)
+impl From<&Identifier> for String {
+    fn from(value: &Identifier) -> Self {
+        value.value.clone()
+    }
+}
+
+impl From<Identifier> for String {
+    fn from(value: Identifier) -> Self {
+        value.value
     }
 }
 
@@ -114,18 +122,6 @@ impl FromStr for Identifier {
             error!("Identifier::from_str({s}) is invalid");
             Err(invalid_identifier(0, None, s).into())
         }
-    }
-}
-
-impl From<Identifier> for String {
-    fn from(value: Identifier) -> Self {
-        value.value
-    }
-}
-
-impl From<&Identifier> for String {
-    fn from(value: &Identifier) -> Self {
-        value.value.clone()
     }
 }
 
@@ -168,11 +164,35 @@ impl Hash for Identifier {
     }
 }
 
-impl_has_source_span_for!(Identifier);
+impl Display for Identifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
+impl HasSourceSpan for Identifier {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl Identifier {
     // --------------------------------------------------------------------------------------------
-    // Identifier :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new_unchecked(s: &str) -> Self {
@@ -193,7 +213,7 @@ impl Identifier {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Identifier :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn validate(
@@ -285,12 +305,8 @@ impl Identifier {
 }
 
 // ------------------------------------------------------------------------------------------------
-
-impl Display for QualifiedIdentifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}", self.module, self.member)
-    }
-}
+// Implementations ❱ QualifiedIdentifier
+// ------------------------------------------------------------------------------------------------
 
 impl From<QualifiedIdentifier> for String {
     fn from(value: QualifiedIdentifier) -> Self {
@@ -349,13 +365,34 @@ impl Hash for QualifiedIdentifier {
     }
 }
 
-impl_has_source_span_for!(QualifiedIdentifier, span);
+impl Display for QualifiedIdentifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.module, self.member)
+    }
+}
+
+impl HasSourceSpan for QualifiedIdentifier {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl QualifiedIdentifier {
     const SEPARATOR_STR: &'static str = ":";
 
     // --------------------------------------------------------------------------------------------
-    // QualifiedIdentifier :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(module: Identifier, member: Identifier) -> Self {
@@ -367,15 +404,17 @@ impl QualifiedIdentifier {
     }
 
     // --------------------------------------------------------------------------------------------
-    // QualifiedIdentifier :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    getter!(pub module => Identifier);
-
-    getter!(pub member => Identifier);
-
+    pub const fn module(&self) -> &Identifier {
+        &self.module
+    }
+    pub const fn member(&self) -> &Identifier {
+        &self.member
+    }
     // --------------------------------------------------------------------------------------------
-    // QualifiedIdentifier :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {
@@ -391,6 +430,32 @@ impl QualifiedIdentifier {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ IdentifierReference
+// ------------------------------------------------------------------------------------------------
+
+impl From<&Identifier> for IdentifierReference {
+    fn from(v: &Identifier) -> Self {
+        Self::Identifier(v.clone())
+    }
+}
+
+impl From<Identifier> for IdentifierReference {
+    fn from(v: Identifier) -> Self {
+        Self::Identifier(v)
+    }
+}
+
+impl From<&QualifiedIdentifier> for IdentifierReference {
+    fn from(v: &QualifiedIdentifier) -> Self {
+        Self::QualifiedIdentifier(v.clone())
+    }
+}
+
+impl From<QualifiedIdentifier> for IdentifierReference {
+    fn from(v: QualifiedIdentifier) -> Self {
+        Self::QualifiedIdentifier(v)
+    }
+}
 
 impl From<IdentifierReference> for String {
     fn from(value: IdentifierReference) -> Self {
@@ -452,28 +517,84 @@ impl Hash for IdentifierReference {
     }
 }
 
-enum_display_impl!(IdentifierReference => Identifier, QualifiedIdentifier);
+impl std::fmt::Display for IdentifierReference {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f,
+            "{}",
+            match self {
+                Self::Identifier(v) => v.to_string(),
+                Self::QualifiedIdentifier(v) => v.to_string(),
+            }
+        )
+    }
+}
 
-impl_from_for_variant!(IdentifierReference, Identifier, Identifier);
-impl_from_for_variant!(
-    IdentifierReference,
-    QualifiedIdentifier,
-    QualifiedIdentifier
-);
-
-impl_has_source_span_for!(IdentifierReference => variants Identifier, QualifiedIdentifier);
+impl HasSourceSpan for IdentifierReference {
+    #[inline]
+    fn with_source_span(self, span: Span) -> Self {
+        match self {
+            Self::Identifier(v) => Self::Identifier(v.with_source_span(span)),
+            Self::QualifiedIdentifier(v) => Self::QualifiedIdentifier(v.with_source_span(span)),
+        }
+    }
+    #[inline]
+    fn source_span(&self) -> Option<&Span> {
+        match self {
+            Self::Identifier(v) => v.source_span(),
+            Self::QualifiedIdentifier(v) => v.source_span(),
+        }
+    }
+    #[inline]
+    fn set_source_span(&mut self, span: Span) {
+        match self {
+            Self::Identifier(v) => v.set_source_span(span),
+            Self::QualifiedIdentifier(v) => v.set_source_span(span),
+        }
+    }
+    #[inline]
+    fn unset_source_span(&mut self) {
+        match self {
+            Self::Identifier(v) => v.unset_source_span(),
+            Self::QualifiedIdentifier(v) => v.unset_source_span(),
+        }
+    }
+}
 
 impl IdentifierReference {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Identifier (Identifier) => is_identifier, as_identifier);
+    pub const fn is_identifier(&self) -> bool {
+        match self {
+            Self::Identifier(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(QualifiedIdentifier (QualifiedIdentifier) => is_qualified_identifier, as_qualified_identifier);
+    pub const fn as_identifier(&self) -> Option<&Identifier> {
+        match self {
+            Self::Identifier(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_qualified_identifier(&self) -> bool {
+        match self {
+            Self::QualifiedIdentifier(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_qualified_identifier(&self) -> Option<&QualifiedIdentifier> {
+        match self {
+            Self::QualifiedIdentifier(v) => Some(v),
+            _ => None,
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
-    // IdentifierReference :: Variants
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub const fn module(&self) -> Option<&Identifier> {
@@ -491,7 +612,7 @@ impl IdentifierReference {
     }
 
     // --------------------------------------------------------------------------------------------
-    // IdentifierReference :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn validate(&self, top: &Module, loader: &impl ModuleLoader) {

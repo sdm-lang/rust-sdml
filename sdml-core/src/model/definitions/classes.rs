@@ -9,12 +9,18 @@ YYYYY
 
 */
 
+use std::collections::{HashMap, HashSet};
+
 use crate::load::ModuleLoader;
-use crate::model::annotations::Annotation;
-use crate::model::check::Validate;
+use crate::model::annotations::{
+    Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations,
+};
+use crate::model::check::{MaybeIncomplete, Validate};
 use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
 use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::{HasName, References, Span};
+use crate::model::modules::Module;
+use crate::model::values::Value;
+use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References, Span};
 use crate::store::ModuleStore;
 
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
@@ -22,7 +28,7 @@ use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Definitions ❱ Type Classes
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `type_class_def`.
@@ -78,8 +84,8 @@ pub struct TypeClassBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
-    methods: Vec<MethodDef>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
+    methods: HashMap<Identifier, MethodDef>,
 }
 
 /// Corresponds to the grammar rule `method_def`.
@@ -97,31 +103,84 @@ pub struct MethodDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations
+// Implementations ❱ Definitions ❱ TypeClassDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(TypeClassDef);
+impl HasName for TypeClassDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_optional_body_for!(TypeClassDef, TypeClassBody);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_source_span_for!(TypeClassDef);
+impl HasOptionalBody for TypeClassDef {
+    type Body = TypeClassBody;
 
-impl_annotation_builder!(TypeClassDef, optional body);
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
 
-impl_maybe_incomplete_for!(TypeClassDef; exists body);
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for TypeClassDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl AnnotationBuilder for TypeClassDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
+
+impl MaybeIncomplete for TypeClassDef {
+    fn is_incomplete(&self, _: &Module, _: &impl ModuleStore) -> bool {
+        self.body.is_none()
+    }
+}
 
 impl References for TypeClassDef {
-    fn referenced_types<'a>(
-        &'a self,
-        _names: &mut std::collections::HashSet<&'a IdentifierReference>,
-    ) {
-    }
+    fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 
-    fn referenced_annotations<'a>(
-        &'a self,
-        _names: &mut std::collections::HashSet<&'a IdentifierReference>,
-    ) {
-    }
+    fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
 }
 
 impl Validate for TypeClassDef {
@@ -140,7 +199,7 @@ impl Validate for TypeClassDef {
 
 impl TypeClassDef {
     // --------------------------------------------------------------------------------------------
-    // TypeClassDef :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new<I>(name: Identifier, variables: I) -> Self
@@ -156,30 +215,77 @@ impl TypeClassDef {
     }
 
     // --------------------------------------------------------------------------------------------
-    // TypeClassDef :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_vec!(
-        pub
-        has has_variables,
-        variables_len,
-        variables,
-        variables_mut,
-        add_to_variables,
-        extend_variables
-            => variables, TypeVariable
-    );
+    pub const fn has_variables(&self) -> bool {
+        !self.variables.is_empty()
+    }
+
+    pub const fn variables_len(&self) -> usize {
+        self.variables.len()
+    }
+
+    pub fn variables(&self) -> impl Iterator<Item = &TypeVariable> {
+        self.variables.iter()
+    }
+
+    pub fn variables_mut(&mut self) -> impl Iterator<Item = &mut TypeVariable> {
+        self.variables.iter_mut()
+    }
+
+    pub fn add_to_variables<I>(&mut self, value: I)
+    where
+        I: Into<TypeVariable>,
+    {
+        self.variables.push(value.into())
+    }
+
+    pub fn extend_variables<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = TypeVariable>,
+    {
+        self.variables.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ TypeVariable
+// ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(TypeVariable);
+impl HasName for TypeVariable {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_source_span_for!(TypeVariable);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
+
+impl HasSourceSpan for TypeVariable {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl TypeVariable {
     // --------------------------------------------------------------------------------------------
-    // TypeVariable :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(name: Identifier) -> Self {
@@ -209,30 +315,85 @@ impl TypeVariable {
     }
 
     // --------------------------------------------------------------------------------------------
-    // TypeVariable :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub cardinality, set_cardinality, unset_cardinality => optional has_cardinality, FunctionCardinality);
+    pub const fn has_cardinality(&self) -> bool {
+        self.cardinality.is_some()
+    }
 
-    get_and_set_vec!(
-        pub
-        has has_restrictions,
-        restrictions_len,
-        restrictions,
-        restrictions_mut,
-        add_to_restrictions,
-        extend_restrictions
-            => restrictions, TypeClassReference
-    );
+    pub const fn cardinality(&self) -> Option<&FunctionCardinality> {
+        self.cardinality.as_ref()
+    }
+
+    pub fn set_cardinality(&mut self, cardinality: FunctionCardinality) {
+        self.cardinality = Some(cardinality);
+    }
+
+    pub fn unset_cardinality(&mut self) {
+        self.cardinality = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_restrictions(&self) -> bool {
+        !self.restrictions.is_empty()
+    }
+
+    pub const fn restrictions_len(&self) -> usize {
+        self.restrictions.len()
+    }
+
+    pub fn restrictions(&self) -> impl Iterator<Item = &TypeClassReference> {
+        self.restrictions.iter()
+    }
+
+    pub fn restrictions_mut(&mut self) -> impl Iterator<Item = &mut TypeClassReference> {
+        self.restrictions.iter_mut()
+    }
+
+    pub fn add_to_restrictions<I>(&mut self, value: I)
+    where
+        I: Into<TypeClassReference>,
+    {
+        self.restrictions.push(value.into())
+    }
+
+    pub fn extend_restrictions<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = TypeClassReference>,
+    {
+        self.restrictions.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ TypeClassReference
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(TypeClassReference);
+impl HasSourceSpan for TypeClassReference {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl TypeClassReference {
     // --------------------------------------------------------------------------------------------
-    // TypeClassReference :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(name: IdentifierReference) -> Self {
@@ -254,44 +415,140 @@ impl TypeClassReference {
     }
 
     // --------------------------------------------------------------------------------------------
-    // TypeClassReference :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub name, set_name => IdentifierReference);
+    pub const fn name(&self) -> &IdentifierReference {
+        &self.name
+    }
 
-    get_and_set_vec!(
-        pub
-        has has_arguments,
-        arguments_len,
-        arguments,
-        arguments_mut,
-        add_to_arguments,
-        extend_arguments
-            => arguments, TypeClassArgument
-    );
+    pub fn set_name(&mut self, name: IdentifierReference) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_arguments(&self) -> bool {
+        !self.arguments.is_empty()
+    }
+
+    pub const fn arguments_len(&self) -> usize {
+        self.arguments.len()
+    }
+
+    pub fn arguments(&self) -> impl Iterator<Item = &TypeClassArgument> {
+        self.arguments.iter()
+    }
+
+    pub fn arguments_mut(&mut self) -> impl Iterator<Item = &mut TypeClassArgument> {
+        self.arguments.iter_mut()
+    }
+
+    pub fn add_to_arguments<I>(&mut self, value: I)
+    where
+        I: Into<TypeClassArgument>,
+    {
+        self.arguments.push(value.into())
+    }
+
+    pub fn extend_arguments<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = TypeClassArgument>,
+    {
+        self.arguments.extend(extension)
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ TypeClassArgument
 // ------------------------------------------------------------------------------------------------
 
 impl TypeClassArgument {
     // --------------------------------------------------------------------------------------------
-    // TypeClassArgument :: Variants
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_variant!(Wildcard  => is_wildcard);
+    pub const fn is_wildcard(&self) -> bool {
+        match self {
+            Self::Wildcard => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(Reference (TypeClassReference) => is_reference, as_reference);
+    pub const fn is_reference(&self) -> bool {
+        match self {
+            Self::Reference(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_reference(&self) -> Option<&TypeClassReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ TypeClassBody
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(TypeClassBody);
+impl HasSourceSpan for TypeClassBody {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_has_annotations_for!(TypeClassBody);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl HasAnnotations for TypeClassBody {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
 
 impl TypeClassBody {
     // --------------------------------------------------------------------------------------------
-    // TypeClassBody :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn with_methods<I>(self, methods: I) -> Self
@@ -299,36 +556,151 @@ impl TypeClassBody {
         I: IntoIterator<Item = MethodDef>,
     {
         Self {
-            methods: Vec::from_iter(methods),
+            methods: methods
+                .into_iter()
+                .map(|elem| (elem.name().clone(), elem))
+                .collect(),
             ..self
         }
     }
 
     // --------------------------------------------------------------------------------------------
-    // TypeClassBody :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_vec!(
-        pub
-        has has_methods,
-        methods_len,
-        methods,
-        methods_mut,
-        add_to_methods,
-        extend_methods
-            => methods, MethodDef
-    );
+    pub fn is_empty(&self) -> bool {
+        self.methods.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.methods.len()
+    }
+
+    pub fn contains(&self, name: &Identifier) -> bool {
+        self.methods.contains_key(name)
+    }
+
+    pub fn get(&self, name: &Identifier) -> Option<&MethodDef> {
+        self.methods.get(name)
+    }
+
+    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut MethodDef> {
+        self.methods.get_mut(name)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &MethodDef> {
+        self.methods.values()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut MethodDef> {
+        self.methods.values_mut()
+    }
+
+    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+        self.methods.keys()
+    }
+
+    pub fn insert(&mut self, value: MethodDef) -> Option<MethodDef> {
+        self.methods.insert(value.name().clone(), value)
+    }
+
+    pub fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = MethodDef>,
+    {
+        self.methods.extend(
+            extension
+                .into_iter()
+                .map(|elem| (elem.name().clone(), elem)),
+        )
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ MethodDef
+// ------------------------------------------------------------------------------------------------
 
-impl_has_annotations_for!(MethodDef);
+impl HasAnnotations for MethodDef {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
 
-impl_has_name_for!(MethodDef);
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
 
-impl_has_optional_body_for!(MethodDef, ConstraintSentence);
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
 
-impl_has_source_span_for!(MethodDef);
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
+
+impl HasName for MethodDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
+
+impl HasOptionalBody for MethodDef {
+    type Body = ConstraintSentence;
+
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for MethodDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl MethodDef {
     // --------------------------------------------------------------------------------------------
@@ -356,5 +728,11 @@ impl MethodDef {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub signature, set_signature => FunctionSignature);
+    pub const fn signature(&self) -> &FunctionSignature {
+        &self.signature
+    }
+
+    pub fn set_signature(&mut self, signature: FunctionSignature) {
+        self.signature = signature;
+    }
 }

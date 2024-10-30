@@ -21,6 +21,8 @@ use url::Url;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use super::HasSourceSpan;
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Traits
 // ------------------------------------------------------------------------------------------------
@@ -359,10 +361,8 @@ pub fn preferred_type_label<T: HasAnnotations + HasName>(
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Annotations
+// Implementations ❱ Annotation
 // ------------------------------------------------------------------------------------------------
-
-impl_has_source_span_for!(Annotation => variants Property, Constraint);
 
 impl From<AnnotationProperty> for Annotation {
     fn from(value: AnnotationProperty) -> Self {
@@ -373,6 +373,37 @@ impl From<AnnotationProperty> for Annotation {
 impl From<Constraint> for Annotation {
     fn from(value: Constraint) -> Self {
         Self::Constraint(value)
+    }
+}
+
+impl HasSourceSpan for Annotation {
+    #[inline]
+    fn with_source_span(self, span: Span) -> Self {
+        match self {
+            Self::Property(v) => Self::Property(v.with_source_span(span)),
+            Self::Constraint(v) => Self::Constraint(v.with_source_span(span)),
+        }
+    }
+    #[inline]
+    fn source_span(&self) -> Option<&Span> {
+        match self {
+            Self::Property(v) => v.source_span(),
+            Self::Constraint(v) => v.source_span(),
+        }
+    }
+    #[inline]
+    fn set_source_span(&mut self, span: Span) {
+        match self {
+            Self::Property(v) => v.set_source_span(span),
+            Self::Constraint(v) => v.set_source_span(span),
+        }
+    }
+    #[inline]
+    fn unset_source_span(&mut self) {
+        match self {
+            Self::Property(v) => v.unset_source_span(),
+            Self::Constraint(v) => v.unset_source_span(),
+        }
     }
 }
 
@@ -397,21 +428,64 @@ impl Validate for Annotation {
 
 impl Annotation {
     // --------------------------------------------------------------------------------------------
-    // Annotation :: Variants
+    // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Property (AnnotationProperty) => is_annotation_property, as_annotation_property);
-
-    is_as_variant!(Constraint (Constraint) => is_constraint, as_constraint);
+    pub const fn is_annotation_property(&self) -> bool {
+        match self {
+            Self::Property(_) => true,
+            _ => false,
+        }
+    }
+    pub const fn as_annotation_property(&self) -> Option<&AnnotationProperty> {
+        match self {
+            Self::Property(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub const fn is_constraint(&self) -> bool {
+        match self {
+            Self::Constraint(_) => true,
+            _ => false,
+        }
+    }
+    pub const fn as_constraint(&self) -> Option<&Constraint> {
+        match self {
+            Self::Constraint(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Annotations ❱ Annotation Properties
+// Implementations ❱ AnnotationProperty
 // ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(AnnotationProperty);
+impl HasSourceSpan for AnnotationProperty {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
-impl_has_name_reference_for!(AnnotationProperty);
+impl HasNameReference for AnnotationProperty {
+    fn name_reference(&self) -> &IdentifierReference {
+        &self.name_reference
+    }
+    fn set_name_reference(&mut self, name: IdentifierReference) {
+        self.name_reference = name;
+    }
+}
 
 impl Validate for AnnotationProperty {
     fn validate(&self, _top: &Module, _cache: &impl ModuleStore, _: &impl ModuleLoader, _: bool) {
@@ -425,7 +499,7 @@ impl Validate for AnnotationProperty {
 
 impl AnnotationProperty {
     // --------------------------------------------------------------------------------------------
-    // AnnotationProperty :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new(name_reference: IdentifierReference, value: Value) -> Self {
@@ -437,13 +511,19 @@ impl AnnotationProperty {
     }
 
     // --------------------------------------------------------------------------------------------
-    // AnnotationProperty :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub value, set_value => Value);
+    pub const fn value(&self) -> &Value {
+        &self.value
+    }
+
+    pub fn set_value(&mut self, value: Value) {
+        self.value = value;
+    }
 
     // --------------------------------------------------------------------------------------------
-    // AnnotationProperty :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
@@ -467,10 +547,60 @@ impl AnnotationProperty {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ AnnotationOnlyBody
+// ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(AnnotationOnlyBody);
+impl HasSourceSpan for AnnotationOnlyBody {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_has_annotations_for!(AnnotationOnlyBody);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl HasAnnotations for AnnotationOnlyBody {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
+
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
+
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
+
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
+
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
 
 impl From<Vec<Annotation>> for AnnotationOnlyBody {
     fn from(annotations: Vec<Annotation>) -> Self {

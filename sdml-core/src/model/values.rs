@@ -19,6 +19,8 @@ use url::Url;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use super::HasSourceSpan;
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Values
 // ------------------------------------------------------------------------------------------------
@@ -123,7 +125,7 @@ pub struct ValueConstructor {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Private Types
+// Implementations
 // ------------------------------------------------------------------------------------------------
 
 lazy_static! {
@@ -132,7 +134,7 @@ lazy_static! {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Annotations ❱ Values
+// Implementations ❱ Value
 // ------------------------------------------------------------------------------------------------
 
 impl From<SimpleValue> for Value {
@@ -231,14 +233,99 @@ impl From<SequenceOfValues> for Value {
     }
 }
 
-enum_display_impl!(Value => Simple, ValueConstructor, Reference, Mapping, List);
+impl Display for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Simple(v) => v.to_string(),
+                Self::ValueConstructor(v) => v.to_string(),
+                Self::Reference(v) => v.to_string(),
+                Self::Mapping(v) => v.to_string(),
+                Self::List(v) => v.to_string(),
+            }
+        )
+    }
+}
 
 impl Value {
-    is_as_variant!(Simple (SimpleValue) => is_simple, as_simple);
-    is_as_variant!(ValueConstructor (ValueConstructor) => is_value_constructor, as_value_constructor);
-    is_as_variant!(Mapping (MappingValue) => is_mapping_value, as_mapping_value);
-    is_as_variant!(Reference (IdentifierReference) => is_reference, as_reference);
-    is_as_variant!(List (SequenceOfValues) => is_sequence, as_sequence);
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_simple(&self) -> bool {
+        match self {
+            Self::Simple(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_simple(&self) -> Option<&SimpleValue> {
+        match self {
+            Self::Simple(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_value_constructor(&self) -> bool {
+        match self {
+            Self::ValueConstructor(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_value_constructor(&self) -> Option<&ValueConstructor> {
+        match self {
+            Self::ValueConstructor(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_mapping_value(&self) -> bool {
+        match self {
+            Self::Mapping(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_mapping_value(&self) -> Option<&MappingValue> {
+        match self {
+            Self::Mapping(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_reference(&self) -> bool {
+        match self {
+            Self::Reference(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
+    pub const fn is_sequence(&self) -> bool {
+        match self {
+            Self::List(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_sequence(&self) -> Option<&SequenceOfValues> {
+        match self {
+            Self::List(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Variants ❱ SimpleTypes
+    // --------------------------------------------------------------------------------------------
 
     pub const fn is_boolean(&self) -> bool {
         matches!(self, Self::Simple(SimpleValue::Boolean(_)))
@@ -330,22 +417,116 @@ impl Value {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ SimpleValue
+// ------------------------------------------------------------------------------------------------
 
-impl_from_for_variant!(SimpleValue, Boolean, bool);
+impl From<&bool> for SimpleValue {
+    fn from(v: &bool) -> Self {
+        Self::Boolean(*v)
+    }
+}
 
-impl_from_for_variant!(SimpleValue, Double, OrderedFloat<f64>);
+impl From<bool> for SimpleValue {
+    fn from(v: bool) -> Self {
+        Self::Boolean(v)
+    }
+}
 
-impl_from_for_variant!(SimpleValue, Decimal, Decimal);
+impl From<&f64> for SimpleValue {
+    fn from(v: &f64) -> Self {
+        Self::Double(OrderedFloat::from(*v))
+    }
+}
 
-impl_from_for_variant!(SimpleValue, Integer, i64);
+impl From<f64> for SimpleValue {
+    fn from(v: f64) -> Self {
+        Self::Double(OrderedFloat::from(v))
+    }
+}
 
-impl_from_for_variant!(SimpleValue, Unsigned, u64);
+impl From<&OrderedFloat<f64>> for SimpleValue {
+    fn from(v: &OrderedFloat<f64>) -> Self {
+        Self::Double(*v)
+    }
+}
 
-impl_from_for_variant!(SimpleValue, String, LanguageString);
+impl From<OrderedFloat<f64>> for SimpleValue {
+    fn from(v: OrderedFloat<f64>) -> Self {
+        Self::Double(v)
+    }
+}
 
-impl_from_for_variant!(SimpleValue, IriReference, Url);
+impl From<&Decimal> for SimpleValue {
+    fn from(v: &Decimal) -> Self {
+        Self::Decimal(*v)
+    }
+}
 
-impl_from_for_variant!(SimpleValue, Binary, Binary);
+impl From<Decimal> for SimpleValue {
+    fn from(v: Decimal) -> Self {
+        Self::Decimal(v)
+    }
+}
+
+impl From<&i64> for SimpleValue {
+    fn from(v: &i64) -> Self {
+        Self::Integer(*v)
+    }
+}
+
+impl From<i64> for SimpleValue {
+    fn from(v: i64) -> Self {
+        Self::Integer(v)
+    }
+}
+
+impl From<&u64> for SimpleValue {
+    fn from(v: &u64) -> Self {
+        Self::Unsigned(*v)
+    }
+}
+
+impl From<u64> for SimpleValue {
+    fn from(v: u64) -> Self {
+        Self::Unsigned(v)
+    }
+}
+
+impl From<&LanguageString> for SimpleValue {
+    fn from(v: &LanguageString) -> Self {
+        Self::String(v.clone())
+    }
+}
+
+impl From<LanguageString> for SimpleValue {
+    fn from(v: LanguageString) -> Self {
+        Self::String(v)
+    }
+}
+
+impl From<&Url> for SimpleValue {
+    fn from(v: &Url) -> Self {
+        Self::IriReference(v.clone())
+    }
+}
+
+impl From<Url> for SimpleValue {
+    fn from(v: Url) -> Self {
+        Self::IriReference(v)
+    }
+}
+
+impl From<&Binary> for SimpleValue {
+    fn from(v: &Binary) -> Self {
+        Self::Binary(v.clone())
+    }
+}
+
+impl From<Binary> for SimpleValue {
+    fn from(v: Binary) -> Self {
+        Self::Binary(v)
+    }
+}
 
 impl Display for SimpleValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -367,32 +548,126 @@ impl Display for SimpleValue {
 }
 
 impl SimpleValue {
-    is_as_variant!(Boolean (bool) => is_boolean, as_boolean);
-    is_as_variant!(Double (OrderedFloat<f64>) => is_double, as_double);
-    is_as_variant!(Decimal (Decimal) => is_decimal, as_decimal);
-    is_as_variant!(Integer (i64) => is_integer, as_integer);
-    is_as_variant!(Unsigned (u64) => is_unsigned, as_unsigned);
-    is_as_variant!(String (LanguageString) => is_string, as_string);
-    is_as_variant!(IriReference (Url) => is_iri, as_iri);
-    is_as_variant!(Binary (Binary) => is_binary, as_binary);
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_boolean(&self) -> bool {
+        match self {
+            Self::Boolean(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_boolean(&self) -> Option<&bool> {
+        match self {
+            Self::Boolean(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_double(&self) -> bool {
+        match self {
+            Self::Double(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_double(&self) -> Option<&OrderedFloat<f64>> {
+        match self {
+            Self::Double(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_decimal(&self) -> bool {
+        match self {
+            Self::Decimal(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_decimal(&self) -> Option<&Decimal> {
+        match self {
+            Self::Decimal(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_integer(&self) -> bool {
+        match self {
+            Self::Integer(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_integer(&self) -> Option<&i64> {
+        match self {
+            Self::Integer(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_unsigned(&self) -> bool {
+        match self {
+            Self::Unsigned(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_unsigned(&self) -> Option<&u64> {
+        match self {
+            Self::Unsigned(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_string(&self) -> bool {
+        match self {
+            Self::String(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_string(&self) -> Option<&LanguageString> {
+        match self {
+            Self::String(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_iri(&self) -> bool {
+        match self {
+            Self::IriReference(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_iri(&self) -> Option<&Url> {
+        match self {
+            Self::IriReference(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_binary(&self) -> bool {
+        match self {
+            Self::Binary(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_binary(&self) -> Option<&Binary> {
+        match self {
+            Self::Binary(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-
-impl Display for LanguageString {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{:?}{}",
-            self.value,
-            if let Some(language) = &self.language {
-                language.to_string()
-            } else {
-                String::new()
-            }
-        )
-    }
-}
+// Implementations ❱ LanguageString
+// ------------------------------------------------------------------------------------------------
 
 impl From<String> for LanguageString {
     fn from(v: String) -> Self {
@@ -414,11 +689,44 @@ impl PartialEq for LanguageString {
 
 impl Eq for LanguageString {}
 
-impl_has_source_span_for!(LanguageString);
+impl HasSourceSpan for LanguageString {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl Display for LanguageString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{:?}{}",
+            self.value,
+            if let Some(language) = &self.language {
+                language.to_string()
+            } else {
+                String::new()
+            }
+        )
+    }
+}
 
 impl LanguageString {
     // --------------------------------------------------------------------------------------------
-    // LanguageString :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new(value: &str, language: Option<LanguageTag>) -> Self {
@@ -430,15 +738,35 @@ impl LanguageString {
     }
 
     // --------------------------------------------------------------------------------------------
-    // LanguageString :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub value, set_value => String);
+    pub const fn value(&self) -> &String {
+        &self.value
+    }
 
-    get_and_set!(pub language, set_language, unset_language => optional has_language, LanguageTag);
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
+
+    pub const fn has_language(&self) -> bool {
+        self.language.is_some()
+    }
+
+    pub const fn language(&self) -> Option<&LanguageTag> {
+        self.language.as_ref()
+    }
+
+    pub fn set_language(&mut self, language: LanguageTag) {
+        self.language = Some(language);
+    }
+
+    pub fn unset_language(&mut self) {
+        self.language = None;
+    }
 
     // --------------------------------------------------------------------------------------------
-    // LanguageString :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
@@ -447,10 +775,18 @@ impl LanguageString {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ LanguageTag
+// ------------------------------------------------------------------------------------------------
 
-impl Display for LanguageTag {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "@{}", self.value)
+impl From<LanguageTag> for language_tags::LanguageTag {
+    fn from(value: LanguageTag) -> Self {
+        value.value
+    }
+}
+
+impl From<LanguageTag> for String {
+    fn from(value: LanguageTag) -> Self {
+        value.value.to_string()
     }
 }
 
@@ -466,18 +802,6 @@ impl FromStr for LanguageTag {
         } else {
             Err(invalid_language_tag(0, None, s).into())
         }
-    }
-}
-
-impl From<LanguageTag> for language_tags::LanguageTag {
-    fn from(value: LanguageTag) -> Self {
-        value.value
-    }
-}
-
-impl From<LanguageTag> for String {
-    fn from(value: LanguageTag) -> Self {
-        value.value.to_string()
     }
 }
 
@@ -513,11 +837,35 @@ impl PartialEq<str> for LanguageTag {
 
 impl Eq for LanguageTag {}
 
-impl_has_source_span_for!(LanguageTag);
+impl Display for LanguageTag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "@{}", self.value)
+    }
+}
+
+impl HasSourceSpan for LanguageTag {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl LanguageTag {
     // --------------------------------------------------------------------------------------------
-    // LanguageTag :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new_unchecked(s: &str) -> Self {
@@ -528,7 +876,7 @@ impl LanguageTag {
     }
 
     // --------------------------------------------------------------------------------------------
-    // LanguageTag :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {
@@ -548,6 +896,8 @@ impl LanguageTag {
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Binary
 // ------------------------------------------------------------------------------------------------
 
 impl Display for Binary {
@@ -579,6 +929,10 @@ impl AsRef<Vec<u8>> for Binary {
 }
 
 impl Binary {
+    // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
+
     pub fn as_bytes(&self) -> &[u8] {
         self.0.as_slice()
     }
@@ -629,6 +983,8 @@ fn format_byte_block(bytes: &[u8], indent: &str) -> String {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ MappingValue
+// ------------------------------------------------------------------------------------------------
 
 impl Display for MappingValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -636,11 +992,29 @@ impl Display for MappingValue {
     }
 }
 
-impl_has_source_span_for!(MappingValue);
+impl HasSourceSpan for MappingValue {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl MappingValue {
     // --------------------------------------------------------------------------------------------
-    // MappingValue :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn new(domain: SimpleValue, range: Value) -> Self {
@@ -652,29 +1026,35 @@ impl MappingValue {
     }
 
     // --------------------------------------------------------------------------------------------
-    // MappingValue :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub domain, set_domain => into SimpleValue);
+    pub const fn domain(&self) -> &SimpleValue {
+        &self.domain
+    }
 
-    get_and_set!(pub range, set_range => boxed into Value);
+    pub fn set_domain<T>(&mut self, domain: T)
+    where
+        T: Into<SimpleValue>,
+    {
+        self.domain = domain.into();
+    }
+
+    pub const fn range(&self) -> &Value {
+        &self.range
+    }
+
+    pub fn set_range<T>(&mut self, range: T)
+    where
+        T: Into<Value>,
+    {
+        self.range = Box::new(range.into());
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
-
-impl Display for SequenceOfValues {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "[{}]",
-            self.values
-                .iter()
-                .map(|v| v.to_string())
-                .collect::<Vec<String>>()
-                .join(" ")
-        )
-    }
-}
+// Implementations ❱ SequenceOfValues
+// ------------------------------------------------------------------------------------------------
 
 impl From<Vec<SequenceMember>> for SequenceOfValues {
     fn from(values: Vec<SequenceMember>) -> Self {
@@ -693,13 +1073,43 @@ impl FromIterator<SequenceMember> for SequenceOfValues {
     }
 }
 
-impl_has_source_span_for!(SequenceOfValues);
+impl Display for SequenceOfValues {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "[{}]",
+            self.values
+                .iter()
+                .map(|v| v.to_string())
+                .collect::<Vec<String>>()
+                .join(" ")
+        )
+    }
+}
 
-impl_as_sequence!(pub SequenceOfValues => SequenceMember);
+impl HasSourceSpan for SequenceOfValues {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl SequenceOfValues {
     // --------------------------------------------------------------------------------------------
-    // SequenceOfValues :: Fields
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn with_ordering(self, ordering: Ordering) -> Self {
@@ -709,8 +1119,6 @@ impl SequenceOfValues {
         }
     }
 
-    get_and_set!(pub ordering, set_ordering, unset_ordering => optional has_ordering, Ordering);
-
     pub fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
         Self {
             uniqueness: Some(uniqueness),
@@ -718,19 +1126,186 @@ impl SequenceOfValues {
         }
     }
 
-    get_and_set!(pub uniqueness, set_uniqueness, unset_uniqueness => optional has_uniqueness, Uniqueness);
+    // --------------------------------------------------------------------------------------------
+    // Values
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &SequenceMember> {
+        self.values.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut SequenceMember> {
+        self.values.iter_mut()
+    }
+
+    pub fn push<I>(&mut self, value: I)
+    where
+        I: Into<SequenceMember>,
+    {
+        self.values.push(value.into())
+    }
+
+    pub fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = SequenceMember>,
+    {
+        self.values.extend(extension)
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_ordering(&self) -> bool {
+        self.ordering.is_some()
+    }
+
+    pub const fn ordering(&self) -> Option<&Ordering> {
+        self.ordering.as_ref()
+    }
+
+    pub fn set_ordering(&mut self, ordering: Ordering) {
+        self.ordering = Some(ordering);
+    }
+
+    pub fn unset_ordering(&mut self) {
+        self.ordering = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_uniqueness(&self) -> bool {
+        self.uniqueness.is_some()
+    }
+
+    pub const fn uniqueness(&self) -> Option<&Uniqueness> {
+        self.uniqueness.as_ref()
+    }
+
+    pub fn set_uniqueness(&mut self, uniqueness: Uniqueness) {
+        self.uniqueness = Some(uniqueness);
+    }
+
+    pub fn unset_uniqueness(&mut self) {
+        self.uniqueness = None;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ SequenceMember
+// ------------------------------------------------------------------------------------------------
 
-impl_from_for_variant!(SequenceMember, Simple, SimpleValue);
+impl From<&SimpleValue> for SequenceMember {
+    fn from(v: &SimpleValue) -> Self {
+        Self::Simple(v.clone())
+    }
+}
 
-impl_from_for_variant!(SequenceMember, ValueConstructor, ValueConstructor);
+impl From<SimpleValue> for SequenceMember {
+    fn from(v: SimpleValue) -> Self {
+        Self::Simple(v)
+    }
+}
 
-impl_from_for_variant!(SequenceMember, Reference, IdentifierReference);
+impl From<&ValueConstructor> for SequenceMember {
+    fn from(v: &ValueConstructor) -> Self {
+        Self::ValueConstructor(v.clone())
+    }
+}
 
-enum_display_impl!(SequenceMember => Simple, ValueConstructor, Reference, Mapping);
+impl From<ValueConstructor> for SequenceMember {
+    fn from(v: ValueConstructor) -> Self {
+        Self::ValueConstructor(v)
+    }
+}
 
+impl From<&IdentifierReference> for SequenceMember {
+    fn from(v: &IdentifierReference) -> Self {
+        Self::Reference(v.clone())
+    }
+}
+
+impl From<IdentifierReference> for SequenceMember {
+    fn from(v: IdentifierReference) -> Self {
+        Self::Reference(v)
+    }
+}
+
+impl Display for SequenceMember {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Simple(v) => v.to_string(),
+                Self::ValueConstructor(v) => v.to_string(),
+                Self::Reference(v) => v.to_string(),
+                Self::Mapping(v) => v.to_string(),
+            }
+        )
+    }
+}
+
+impl SequenceMember {
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_simple(&self) -> bool {
+        matches!(self, Self::Simple(_))
+    }
+
+    pub fn as_simple(&self) -> Option<&SimpleValue> {
+        match self {
+            Self::Simple(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_value_constructor(&self) -> bool {
+        matches!(self, Self::ValueConstructor(_))
+    }
+
+    pub fn as_value_constructor(&self) -> Option<&ValueConstructor> {
+        match self {
+            Self::ValueConstructor(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_reference(&self) -> bool {
+        matches!(self, Self::Reference(_))
+    }
+
+    pub fn as_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub fn is_mapping(&self) -> bool {
+        matches!(self, Self::Mapping(_))
+    }
+
+    pub fn as_mapping(&self) -> Option<&MappingValue> {
+        match self {
+            Self::Mapping(v) => Some(v),
+            _ => None,
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ ValueConstructor
 // ------------------------------------------------------------------------------------------------
 
 impl Display for ValueConstructor {
@@ -739,11 +1314,29 @@ impl Display for ValueConstructor {
     }
 }
 
-impl_has_source_span_for!(ValueConstructor);
+impl HasSourceSpan for ValueConstructor {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl ValueConstructor {
     // --------------------------------------------------------------------------------------------
-    // ValueConstructor :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(type_name: IdentifierReference, value: SimpleValue) -> Self {
@@ -755,10 +1348,22 @@ impl ValueConstructor {
     }
 
     // --------------------------------------------------------------------------------------------
-    // ValueConstructor :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub type_name, set_type_name => IdentifierReference);
+    pub const fn type_name(&self) -> &IdentifierReference {
+        &self.type_name
+    }
 
-    get_and_set!(pub value, set_value => SimpleValue);
+    pub fn set_type_name(&mut self, type_name: IdentifierReference) {
+        self.type_name = type_name;
+    }
+
+    pub const fn value(&self) -> &SimpleValue {
+        &self.value
+    }
+
+    pub fn set_value(&mut self, value: SimpleValue) {
+        self.value = value;
+    }
 }

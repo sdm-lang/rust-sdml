@@ -1,23 +1,25 @@
 use crate::{
     load::ModuleLoader,
     model::{
-        annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
-        check::Validate,
-        definitions::HasVariants,
+        annotations::{
+            Annotation, AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
+        },
+        check::{MaybeIncomplete, Validate},
         identifiers::{Identifier, IdentifierReference},
         modules::Module,
-        References, Span,
+        values::Value,
+        HasName, HasNameReference, HasOptionalBody, HasSourceSpan, References, Span,
     },
     store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::{HashMap, HashSet}, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Unions
+// Public Types ❱ Definitions ❱ Unions
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `union_def`.
@@ -39,8 +41,8 @@ pub struct UnionBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
-    variants: Vec<TypeVariant>, // assert!(!variants.is_empty());
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
+    variants: HashMap<Identifier, TypeVariant>, // assert!(!variants.is_empty());
 }
 
 /// Corresponds to the grammar rule `type_variant`.
@@ -57,16 +59,64 @@ pub struct TypeVariant {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Type Definitions ❱ Unions
+// Implementations ❱ Definitions ❱ UnionDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(UnionDef);
+impl HasName for UnionDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_optional_body_for!(UnionDef, UnionBody);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_source_span_for!(UnionDef);
+impl HasOptionalBody for UnionDef {
+    type Body = UnionBody;
 
-impl_maybe_incomplete_for!(UnionDef; exists body);
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for UnionDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl MaybeIncomplete for UnionDef {
+    fn is_incomplete(&self, _: &Module, _: &impl ModuleStore) -> bool {
+        self.body.is_none()
+    }
+}
 
 impl Validate for UnionDef {
     fn validate(
@@ -115,16 +165,90 @@ impl UnionDef {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ UnionBody
+// ------------------------------------------------------------------------------------------------
 
-impl_has_annotations_for!(UnionBody);
+impl HasAnnotations for UnionBody {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
 
-impl_has_source_span_for!(UnionBody);
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
 
-impl_has_variants_for!(UnionBody, TypeVariant);
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
 
-impl_validate_for_annotations_and_variants!(UnionBody);
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
 
-impl_annotation_builder!(UnionDef, optional body);
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
+
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
+
+impl HasSourceSpan for UnionBody {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl Validate for UnionBody {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.annotations()
+            .for_each(|a| a.validate(top, cache, loader, check_constraints));
+        self.variants()
+            .for_each(|v| v.validate(top, cache, loader, check_constraints));
+    }
+}
+
+impl AnnotationBuilder for UnionDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
 
 impl References for UnionBody {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -135,20 +259,142 @@ impl References for UnionBody {
 }
 
 impl UnionBody {
-    pub fn with_variants(self, variants: Vec<TypeVariant>) -> Self {
-        Self { variants, ..self }
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_variants<I>(self, variants: I) -> Self
+    where
+        I: IntoIterator<Item = TypeVariant>,
+    {
+        let mut self_mut = self;
+        self_mut.variants = variants
+            .into_iter()
+            .map(|elem| (elem.name().clone(), elem))
+            .collect();
+        self_mut
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_empty(&self) -> bool {
+        self.variants.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.variants.len()
+    }
+
+    pub fn contains(&self, name: &Identifier) -> bool {
+        self.variants.contains_key(name)
+    }
+
+    pub fn get(&self, name: &Identifier) -> Option<&TypeVariant> {
+        self.variants.get(name)
+    }
+
+    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut TypeVariant> {
+        self.variants.get_mut(name)
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &TypeVariant> {
+        self.variants.values()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TypeVariant> {
+        self.variants.values_mut()
+    }
+
+    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+        self.variants.keys()
+    }
+
+    pub fn insert(&mut self, value: TypeVariant) -> Option<TypeVariant> {
+        self.variants.insert(value.name().clone(), value)
+    }
+
+    pub fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = TypeVariant>,
+    {
+        self.variants.extend(
+            extension
+                .into_iter()
+                .map(|elem| (elem.name().clone(), elem)),
+        )
     }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ TypeVariant
+// ------------------------------------------------------------------------------------------------
 
-impl_has_name_reference_for!(TypeVariant);
+impl HasNameReference for TypeVariant {
+    fn name_reference(&self) -> &IdentifierReference {
+        &self.name_reference
+    }
 
-impl_has_optional_body_for!(TypeVariant);
+    fn set_name_reference(&mut self, name: IdentifierReference) {
+        self.name_reference = name;
+    }
+}
 
-impl_has_source_span_for!(TypeVariant);
+impl HasOptionalBody for TypeVariant {
+    type Body = AnnotationOnlyBody;
 
-impl_annotation_builder!(TypeVariant, optional body);
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for TypeVariant {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl AnnotationBuilder for TypeVariant {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
 
 impl Validate for TypeVariant {
     fn validate(
@@ -191,29 +437,41 @@ impl TypeVariant {
         }
     }
 
-    pub fn new_with(name_reference: IdentifierReference, body: AnnotationOnlyBody) -> Self {
-        Self {
-            span: None,
-            name_reference,
-            rename: None,
-            body: Some(body),
-        }
+    pub fn with_body(self, body: AnnotationOnlyBody) -> Self {
+        let mut self_mut = self;
+        self_mut.body = Some(body);
+        self_mut
+    }
+
+    pub fn with_rename(self, rename: Identifier) -> Self {
+        let mut self_mut = self;
+        self_mut.rename = Some(rename);
+        self_mut
     }
 
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn with_rename(self, rename: Identifier) -> Self {
-        Self {
-            rename: Some(rename),
-            ..self
-        }
+    pub const fn has_rename(&self) -> bool {
+        self.rename.is_some()
     }
 
-    get_and_set!(pub name_reference, set_name_reference => IdentifierReference);
+    pub const fn rename(&self) -> Option<&Identifier> {
+        self.rename.as_ref()
+    }
 
-    get_and_set!(pub rename, set_rename, unset_rename => optional has_rename, Identifier);
+    pub fn set_rename(&mut self, rename: Identifier) {
+        self.rename = Some(rename);
+    }
+
+    pub fn unset_rename(&mut self) {
+        self.rename = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
 
     pub fn name(&self) -> &Identifier {
         if let Some(rename) = self.rename() {

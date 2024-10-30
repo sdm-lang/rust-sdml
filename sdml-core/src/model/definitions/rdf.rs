@@ -1,11 +1,14 @@
+use std::collections::HashSet;
+
 use crate::{
     load::ModuleLoader,
     model::{
-        annotations::{AnnotationBuilder, AnnotationOnlyBody, HasAnnotations},
-        check::Validate,
-        identifiers::{Identifier, QualifiedIdentifier},
+        annotations::{AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations},
+        check::{MaybeIncomplete, Validate},
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
         modules::Module,
-        Span,
+        values::Value,
+        HasBody, HasName, HasSourceSpan, References, Span,
     },
     stdlib,
     store::ModuleStore,
@@ -16,7 +19,7 @@ use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Definitions ❱ RDF
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `rdf_class_def` and `rdf_property_def`.
@@ -30,20 +33,85 @@ pub struct RdfDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations
+// Implementations ❱ Definitions ❱ RDF
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(RdfDef);
+impl HasName for RdfDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_body_for!(RdfDef, AnnotationOnlyBody);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_source_span_for!(RdfDef);
+impl HasBody for RdfDef {
+    type Body = AnnotationOnlyBody;
 
-impl_references_for!(RdfDef => delegate body);
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
 
-impl_annotation_builder!(RdfDef);
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
 
-impl_maybe_incomplete_for!(RdfDef; always false);
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = body;
+    }
+}
+
+impl HasSourceSpan for RdfDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl References for RdfDef {
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.body.referenced_annotations(names);
+    }
+
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.body.referenced_types(names);
+    }
+}
+
+impl AnnotationBuilder for RdfDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        self_mut
+            .body
+            .add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        self_mut
+    }
+}
+
+impl MaybeIncomplete for RdfDef {
+    fn is_incomplete(&self, _: &Module, _: &impl ModuleStore) -> bool {
+        false
+    }
+}
 
 impl Validate for RdfDef {
     fn validate(

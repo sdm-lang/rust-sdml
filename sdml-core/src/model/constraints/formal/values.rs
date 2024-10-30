@@ -1,13 +1,13 @@
 use crate::model::identifiers::IdentifierReference;
 use crate::model::values::{MappingValue, SimpleValue, ValueConstructor};
-use crate::model::Span;
+use crate::model::{HasSourceSpan, Span};
 use std::fmt::Display;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Formal Constraints ❱ Terms ❱ Values
+// Public Types ❱ Constraints ❱ Values
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
@@ -35,7 +35,7 @@ pub enum PredicateSequenceMember {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Formal Constraints ❱ Terms ❱ Values
+// Implementations ❱ Constraints ❱ PredicateValue
 // ------------------------------------------------------------------------------------------------
 
 impl<T> From<T> for PredicateValue
@@ -58,12 +58,52 @@ impl PredicateValue {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Simple (SimpleValue) => is_simple, as_simple);
+    pub const fn is_simple(&self) -> bool {
+        match self {
+            Self::Simple(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(Sequence (SequenceOfPredicateValues) => is_sequence, as_sequence);
+    pub const fn as_simple(&self) -> Option<&SimpleValue> {
+        match self {
+            Self::Simple(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_sequence(&self) -> bool {
+        match self {
+            Self::Sequence(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_sequence(&self) -> Option<&SequenceOfPredicateValues> {
+        match self {
+            Self::Sequence(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ SequenceOfPredicateValues
+// ------------------------------------------------------------------------------------------------
+
+impl From<Vec<PredicateSequenceMember>> for SequenceOfPredicateValues {
+    fn from(values: Vec<PredicateSequenceMember>) -> Self {
+        Self { span: None, values }
+    }
+}
+
+impl FromIterator<PredicateSequenceMember> for SequenceOfPredicateValues {
+    fn from_iter<T: IntoIterator<Item = PredicateSequenceMember>>(iter: T) -> Self {
+        Self::from(Vec::from_iter(iter))
+    }
+}
 
 impl Display for SequenceOfPredicateValues {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -79,38 +119,61 @@ impl Display for SequenceOfPredicateValues {
     }
 }
 
-impl From<Vec<PredicateSequenceMember>> for SequenceOfPredicateValues {
-    fn from(values: Vec<PredicateSequenceMember>) -> Self {
-        Self { span: None, values }
+impl HasSourceSpan for SequenceOfPredicateValues {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
     }
 }
 
-impl FromIterator<PredicateSequenceMember> for SequenceOfPredicateValues {
-    fn from_iter<T: IntoIterator<Item = PredicateSequenceMember>>(iter: T) -> Self {
-        Self::from(Vec::from_iter(iter))
+impl SequenceOfPredicateValues {
+    pub fn is_empty(&self) -> bool {
+        self.values.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.values.len()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &PredicateSequenceMember> {
+        self.values.iter()
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut PredicateSequenceMember> {
+        self.values.iter_mut()
+    }
+
+    pub fn push<I>(&mut self, value: I)
+    where
+        I: Into<PredicateSequenceMember>,
+    {
+        self.values.push(value.into())
+    }
+
+    pub fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = PredicateSequenceMember>,
+    {
+        self.values.extend(extension)
     }
 }
-
-impl_has_source_span_for!(SequenceOfPredicateValues);
-
-impl_as_sequence!(pub SequenceOfPredicateValues => PredicateSequenceMember);
 
 // ------------------------------------------------------------------------------------------------
-
-impl Display for PredicateSequenceMember {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                PredicateSequenceMember::Simple(v) => v.to_string(),
-                PredicateSequenceMember::ValueConstructor(v) => v.to_string(),
-                PredicateSequenceMember::Mapping(v) => v.to_string(),
-                PredicateSequenceMember::Reference(v) => v.to_string(),
-            }
-        )
-    }
-}
+// Implementations ❱ Constraints ❱ PredicateSequenceMember
+// ------------------------------------------------------------------------------------------------
 
 impl<T> From<T> for PredicateSequenceMember
 where
@@ -127,12 +190,53 @@ impl From<IdentifierReference> for PredicateSequenceMember {
     }
 }
 
+impl Display for PredicateSequenceMember {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                PredicateSequenceMember::Simple(v) => v.to_string(),
+                PredicateSequenceMember::ValueConstructor(v) => v.to_string(),
+                PredicateSequenceMember::Mapping(v) => v.to_string(),
+                PredicateSequenceMember::Reference(v) => v.to_string(),
+            }
+        )
+    }
+}
+
 impl PredicateSequenceMember {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Simple (SimpleValue) => is_simple, as_simple);
+    pub const fn is_simple(&self) -> bool {
+        match self {
+            Self::Simple(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(Reference (IdentifierReference) => is_reference, as_reference);
+    pub const fn as_simple(&self) -> Option<&SimpleValue> {
+        match self {
+            Self::Simple(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_reference(&self) -> bool {
+        match self {
+            Self::Reference(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
 }

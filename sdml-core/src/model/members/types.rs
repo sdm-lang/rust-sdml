@@ -18,7 +18,7 @@ use std::fmt::{Debug, Display};
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Members ❱ Types
 // ------------------------------------------------------------------------------------------------
 
 pub trait HasType {
@@ -35,10 +35,6 @@ pub trait HasType {
     }
 }
 
-// ------------------------------------------------------------------------------------------------
-// Public Types ❱ Members ❱ Type Reference
-// ------------------------------------------------------------------------------------------------
-
 /// Corresponds to the grammar rule `type_reference`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
@@ -48,10 +44,6 @@ pub enum TypeReference {
     Type(IdentifierReference),
     MappingType(MappingType),
 }
-
-// ------------------------------------------------------------------------------------------------
-// Public Types ❱ Members ❱ Mapping Type
-// ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the definition component within grammar rule `mapping_type`.
 #[derive(Clone, Debug)]
@@ -64,8 +56,32 @@ pub struct MappingType {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members ❱ Type Reference
+// Implementations ❱ Members ❱ TypeReference
 // ------------------------------------------------------------------------------------------------
+
+impl From<&IdentifierReference> for TypeReference {
+    fn from(value: &IdentifierReference) -> Self {
+        Self::Type(value.clone())
+    }
+}
+
+impl From<IdentifierReference> for TypeReference {
+    fn from(value: IdentifierReference) -> Self {
+        Self::Type(value)
+    }
+}
+
+impl From<&MappingType> for TypeReference {
+    fn from(value: &MappingType) -> Self {
+        Self::MappingType(value.clone())
+    }
+}
+
+impl From<MappingType> for TypeReference {
+    fn from(value: MappingType) -> Self {
+        Self::MappingType(value)
+    }
+}
 
 impl Display for TypeReference {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -174,9 +190,33 @@ impl TypeReference {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Type (IdentifierReference) => is_reference, as_reference);
+    pub const fn is_reference(&self) -> bool {
+        match self {
+            Self::Type(_) => true,
+            _ => false,
+        }
+    }
 
-    is_as_variant!(MappingType (MappingType) => is_mapping_type, as_mapping_type);
+    pub const fn as_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Type(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_mapping_type(&self) -> bool {
+        match self {
+            Self::MappingType(_) => true,
+            _ => false,
+        }
+    }
+
+    pub const fn as_mapping_type(&self) -> Option<&MappingType> {
+        match self {
+            Self::MappingType(v) => Some(v),
+            _ => None,
+        }
+    }
 
     // --------------------------------------------------------------------------------------------
     // Helpers
@@ -188,7 +228,7 @@ impl TypeReference {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Members ❱ Mapping Type
+// Implementations ❱ Members ❱ MappingType
 // ------------------------------------------------------------------------------------------------
 
 impl Display for MappingType {
@@ -197,7 +237,25 @@ impl Display for MappingType {
     }
 }
 
-impl_has_source_span_for!(MappingType);
+impl HasSourceSpan for MappingType {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl References for MappingType {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -243,13 +301,49 @@ impl MappingType {
         }
     }
 
-    builder_fn!(pub with_domain, boxed domain => into TypeReference);
-    builder_fn!(pub with_range, boxed range => into TypeReference);
+    pub fn with_domain<T>(self, domain: T) -> Self
+    where
+        T: Into<TypeReference>,
+    {
+        let mut self_mut = self;
+        self_mut.domain = Box::new(domain.into());
+        self_mut
+    }
+
+    pub fn with_range<T>(self, range: T) -> Self
+    where
+        T: Into<TypeReference>,
+    {
+        let mut self_mut = self;
+        self_mut.range = Box::new(range.into());
+        self_mut
+    }
 
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub domain, set_domain => boxed into TypeReference);
-    get_and_set!(pub range, set_range => boxed into TypeReference);
+    pub const fn domain(&self) -> &TypeReference {
+        &self.domain
+    }
+
+    pub fn set_domain<T>(&mut self, domain: T)
+    where
+        T: Into<TypeReference>,
+    {
+        self.domain = Box::new(domain.into());
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn range(&self) -> &TypeReference {
+        &self.range
+    }
+
+    pub fn set_range<T>(&mut self, range: T)
+    where
+        T: Into<TypeReference>,
+    {
+        self.range = Box::new(range.into());
+    }
 }

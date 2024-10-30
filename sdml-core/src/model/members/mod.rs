@@ -2,12 +2,15 @@
 Provide the Rust types that implement *member*-related components of the SDML Grammar.
 */
 use crate::load::ModuleLoader;
-use crate::model::annotations::AnnotationOnlyBody;
+use crate::model::annotations::{
+    AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
+};
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
-use crate::model::{HasName, HasSourceSpan, References, Span};
+use crate::model::values::Value;
+use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References, Span};
 use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
@@ -69,7 +72,25 @@ where
     }
 }
 
-impl_has_source_span_for!(Member);
+impl HasSourceSpan for Member {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl MaybeIncomplete for Member {
     fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
@@ -162,7 +183,7 @@ impl References for Member {
 
 impl Member {
     // --------------------------------------------------------------------------------------------
-    // Member :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new_reference(in_property: IdentifierReference) -> Self {
@@ -180,24 +201,38 @@ impl Member {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Member :: Variants
+    // Variants
     // --------------------------------------------------------------------------------------------
 
     pub const fn kind(&self) -> &MemberKind {
         &self.kind
     }
 
-    delegate!(pub const is_definition, bool, kind);
-    delegate!(pub const as_definition, Option<&MemberDef>, kind);
+    #[inline(always)]
+    pub const fn is_definition(&self) -> bool {
+        self.kind.is_definition()
+    }
 
-    delegate!(pub const is_property_reference, bool, kind);
-    delegate!(pub const as_property_reference, Option<&IdentifierReference>, kind);
+    #[inline(always)]
+    pub const fn as_definition(&self) -> Option<&MemberDef> {
+        self.kind.as_definition()
+    }
+
+    #[inline(always)]
+    pub const fn is_property_reference(&self) -> bool {
+        self.kind.is_property_reference()
+    }
+
+    #[inline(always)]
+    pub const fn as_property_reference(&self) -> Option<&IdentifierReference> {
+        self.kind.as_property_reference()
+    }
 
     // --------------------------------------------------------------------------------------------
-    // Member :: Delegated
+    // Delegated
     // --------------------------------------------------------------------------------------------
 
-    pub fn name(&self) -> &Identifier {
+    pub const fn name(&self) -> &Identifier {
         match self.kind() {
             MemberKind::Reference(v) => v.member(),
             MemberKind::Definition(defn) => defn.name(),
@@ -258,25 +293,121 @@ impl From<IdentifierReference> for MemberKind {
 }
 
 impl MemberKind {
-    is_as_variant!(Definition (MemberDef) => is_definition, as_definition);
-    is_as_variant!(Reference (IdentifierReference) => is_property_reference, as_property_reference);
+    // --------------------------------------------------------------------------------------------
+    // Variants
+    // --------------------------------------------------------------------------------------------
+    
+    pub const fn is_definition(&self) -> bool {
+        matches!(self, Self::Definition(_))
+    }
+
+    pub const fn as_definition(&self) -> Option<&MemberDef> {
+        match self {
+            Self::Definition(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_property_reference(&self) -> bool {
+        matches!(self, Self::Reference(_))
+    }
+
+    pub const fn as_property_reference(&self) -> Option<&IdentifierReference> {
+        match self {
+            Self::Reference(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Members ❱ MemberDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(MemberDef);
+impl HasName for MemberDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_cardinality_for!(MemberDef);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_optional_body_for!(MemberDef);
+impl HasCardinality for MemberDef {
+    fn target_cardinality(&self) -> &Cardinality {
+        &self.target_cardinality
+    }
 
-impl_has_source_span_for!(MemberDef);
+    fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
+        self.target_cardinality = target_cardinality;
+    }
+}
 
-impl_has_type_for!(MemberDef);
+impl HasOptionalBody for MemberDef {
+    type Body = AnnotationOnlyBody;
 
-impl_annotation_builder!(MemberDef, optional body);
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for MemberDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl HasType for MemberDef {
+    fn target_type(&self) -> &TypeReference {
+        &self.target_type
+    }
+
+    fn set_target_type(&mut self, target_type: TypeReference) {
+        self.target_type = target_type;
+    }
+}
+
+impl AnnotationBuilder for MemberDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
 
 impl References for MemberDef {
     fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -342,16 +473,43 @@ impl MemberDef {
         }
     }
 
-    builder_fn!(pub with_target_type, target_type => TypeReference);
-    builder_fn!(pub with_target_cardinality, target_cardinality => Cardinality);
-    builder_fn!(pub with_body, body => optional AnnotationOnlyBody);
+    pub fn with_target_type(self, target_type: TypeReference) -> Self {
+        let mut self_mut = self;
+        self_mut.target_type = target_type;
+        self_mut
+    }
+
+    pub fn with_target_cardinality(self, target_cardinality: Cardinality) -> Self {
+        let mut self_mut = self;
+        self_mut.target_cardinality = target_cardinality;
+        self_mut
+    }
+
+    pub fn with_body(self, body: AnnotationOnlyBody) -> Self {
+        let mut self_mut = self;
+        self_mut.body = Some(body);
+        self_mut
+    }
 
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub target_type, set_target_type  => TypeReference);
-    get_and_set!(pub target_cardinality, set_target_cardinality  => Cardinality);
+    pub const fn target_type(&self) -> &TypeReference {
+        &self.target_type
+    }
+
+    pub fn set_target_type(&mut self, target_type: TypeReference) {
+        self.target_type = target_type;
+    }
+
+    pub const fn target_cardinality(&self) -> &Cardinality {
+        &self.target_cardinality
+    }
+
+    pub fn set_target_cardinality(&mut self, target_cardinality: Cardinality) {
+        self.target_cardinality = target_cardinality;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

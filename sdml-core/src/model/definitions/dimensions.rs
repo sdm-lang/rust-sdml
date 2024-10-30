@@ -1,19 +1,24 @@
-use crate::model::{
-    annotations::{Annotation, AnnotationOnlyBody, HasAnnotations},
-    check::Validate,
-    definitions::HasMembers,
-    identifiers::{Identifier, IdentifierReference},
-    members::Member,
-    References, Span,
+use crate::{
+    load::ModuleLoader,
+    model::{
+        annotations::{
+            Annotation, AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
+        }, check::{find_definition, MaybeIncomplete, Validate}, identifiers::{Identifier, IdentifierReference}, members::Member, modules::Module, values::Value, HasName, HasOptionalBody, HasSourceSpan, References, Span
+    },
+    stdlib::is_builtin_type_name,
+    store::ModuleStore,
 };
-use std::{collections::HashSet, fmt::Debug};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::Debug,
+};
 
-use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
+use sdml_errors::diagnostics::functions::{type_definition_not_found, IdentifierCaseConvention};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Dimensions
+// Public Types ❱ Definitions ❱ Dimensions
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `dimension_def`.
@@ -36,10 +41,10 @@ pub struct DimensionBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
     identity: DimensionIdentity,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
-    parents: Vec<DimensionParent>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
-    members: Vec<Member>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
+    parents: HashMap<Identifier, DimensionParent>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
+    members: HashMap<Identifier, Member>,
 }
 
 /// Corresponds to the anonymous grammar rule in `dimension_body`.
@@ -73,27 +78,110 @@ pub struct SourceEntity {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Dimensions
+// Implementations ❱ Definitions ❱ DimensionDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(DimensionDef);
+impl HasName for DimensionDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_optional_body_for!(DimensionDef, DimensionBody);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_source_span_for!(DimensionDef);
+impl HasOptionalBody for DimensionDef {
+    type Body = DimensionBody;
 
-impl_references_for!(DimensionDef => delegate optional body);
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
 
-impl_annotation_builder!(DimensionDef, optional body);
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
 
-impl_maybe_incomplete_for!(DimensionDef);
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl HasSourceSpan for DimensionDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl References for DimensionDef {
+    fn referenced_annotations<'a>(
+        &'a self,
+        names: &mut ::std::collections::HashSet<&'a IdentifierReference>,
+    ) {
+        if let Some(inner) = &self.body {
+            inner.referenced_annotations(names);
+        }
+    }
+
+    fn referenced_types<'a>(
+        &'a self,
+        names: &mut ::std::collections::HashSet<&'a IdentifierReference>,
+    ) {
+        if let Some(inner) = &self.body {
+            inner.referenced_types(names);
+        }
+    }
+}
+
+impl AnnotationBuilder for DimensionDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
+
+impl MaybeIncomplete for DimensionDef {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        if let Some(body) = &self.body {
+            body.is_incomplete(top, cache)
+        } else {
+            true
+        }
+    }
+}
 
 impl Validate for DimensionDef {
     fn validate(
         &self,
-        top: &crate::model::modules::Module,
-        cache: &impl crate::store::ModuleStore,
-        loader: &impl crate::load::ModuleLoader,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
         self.name
@@ -125,17 +213,85 @@ impl DimensionDef {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ DimensionBody
+// ------------------------------------------------------------------------------------------------
 
-impl_has_annotations_for!(DimensionBody);
+impl HasAnnotations for DimensionBody {
+    fn has_annotations(&self) -> bool {
+        !self.annotations.is_empty()
+    }
 
-impl_has_members_for!(DimensionBody);
+    fn annotations_len(&self) -> usize {
+        self.annotations.len()
+    }
 
-impl_has_source_span_for!(DimensionBody);
+    fn annotations(&self) -> impl Iterator<Item = &Annotation> {
+        self.annotations.iter()
+    }
 
-impl_maybe_incomplete_for!(DimensionBody; over members);
+    fn annotations_mut(&mut self) -> impl Iterator<Item = &mut Annotation> {
+        self.annotations.iter_mut()
+    }
 
-impl_validate_for_annotations_and_members!(DimensionBody);
+    fn add_to_annotations<I>(&mut self, value: I)
+    where
+        I: Into<Annotation>,
+    {
+        self.annotations.push(value.into())
+    }
 
+    fn extend_annotations<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Annotation>,
+    {
+        self.annotations.extend(extension.into_iter())
+    }
+}
+
+impl HasSourceSpan for DimensionBody {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl MaybeIncomplete for DimensionBody {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        self.identity().is_incomplete(top, cache)
+            || self.members().any(|elem| elem.is_incomplete(top, cache))
+    }
+}
+impl Validate for DimensionBody {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        self.annotations()
+            .for_each(|a| a.validate(top, cache, loader, check_constraints));
+        self.identity()
+            .validate(top, cache, loader, check_constraints);
+        self.parents()
+            .for_each(|m| m.validate(top, cache, loader, check_constraints));
+        self.members()
+            .for_each(|m| m.validate(top, cache, loader, check_constraints));
+    }
+}
 impl References for DimensionBody {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         self.identity().referenced_types(names);
@@ -171,7 +327,10 @@ impl DimensionBody {
         I: IntoIterator<Item = Member>,
     {
         let mut self_mut = self;
-        self_mut.members = members.into_iter().collect();
+        self_mut.members = members
+            .into_iter()
+            .map(|mem| (mem.name().clone(), mem))
+            .collect();
         self_mut
     }
 
@@ -180,7 +339,10 @@ impl DimensionBody {
         I: IntoIterator<Item = DimensionParent>,
     {
         let mut self_mut = self;
-        self_mut.parents = parents.into_iter().collect();
+        self_mut.parents = parents
+            .into_iter()
+            .map(|mem| (mem.name().clone(), mem))
+            .collect();
         self_mut
     }
 
@@ -188,20 +350,122 @@ impl DimensionBody {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub identity, set_identity => into DimensionIdentity);
+    pub const fn identity(&self) -> &DimensionIdentity {
+        &self.identity
+    }
 
-    get_and_set_vec!(
-        pub
-        has has_parents,
-        parents_len,
-        parents,
-        parents_mut,
-        add_to_parents,
-        extend_parents
-            => parents, DimensionParent
-    );
+    pub fn set_identity<T>(&mut self, identity: T)
+    where
+        T: Into<DimensionIdentity>,
+    {
+        self.identity = identity.into();
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Members
+    // --------------------------------------------------------------------------------------------
+
+    fn is_empty(&self) -> bool {
+        self.members.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.members.len()
+    }
+
+    fn contains(&self, name: &Identifier) -> bool {
+        self.members.contains_key(name)
+    }
+
+    fn get(&self, name: &Identifier) -> Option<&Member> {
+        self.members.get(name)
+    }
+
+    fn get_mut(&mut self, name: &Identifier) -> Option<&mut Member> {
+        self.members.get_mut(name)
+    }
+
+    fn iter(&self) -> impl Iterator<Item = &Member> {
+        self.members.values()
+    }
+
+    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Member> {
+        self.members.values_mut()
+    }
+
+    fn names(&self) -> impl Iterator<Item = &Identifier> {
+        self.members.keys()
+    }
+
+    fn insert(&mut self, value: Member) -> Option<Member> {
+        self.members.insert(value.name().clone(), value)
+    }
+
+    fn extend<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Member>,
+    {
+        self.members.extend(
+            extension
+                .into_iter()
+                .map(|elem| (elem.name().clone(), elem)),
+        )
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Parents
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_parents(&self) -> bool {
+        !self.parents.is_empty()
+    }
+
+    pub const fn parent_count(&self) -> usize {
+        self.parents.len()
+    }
+
+    pub fn contains_parent(&self, name: &Identifier) -> bool {
+        self.parents.contains_key(name)
+    }
+
+    pub fn parent(&self, name: &Identifier) -> Option<&DimensionParent> {
+        self.parents.get(name)
+    }
+
+    pub fn parent_mut(&mut self, name: &Identifier) -> Option<&mut DimensionParent> {
+        self.parents.get_mut(name)
+    }
+
+    pub fn parents(&self) -> impl Iterator<Item = &DimensionParent> {
+        self.parents.values()
+    }
+
+    pub fn parents_mut(&mut self) -> impl Iterator<Item = &mut DimensionParent> {
+        self.parents.values_mut()
+    }
+
+    pub fn parent_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.parents.keys()
+    }
+
+    pub fn add_to_parents(&mut self, value: DimensionParent) -> Option<DimensionParent> {
+        self.parents.insert(value.name().clone(), value)
+    }
+
+    pub fn extend_parents<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = DimensionParent>,
+    {
+        self.parents.extend(
+            extension
+                .into_iter()
+                .map(|elem| (elem.name().clone(), elem)),
+        )
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ DimensionIdentity
 // ------------------------------------------------------------------------------------------------
 
 impl From<SourceEntity> for DimensionIdentity {
@@ -228,6 +492,30 @@ impl From<&Member> for DimensionIdentity {
     }
 }
 
+impl Validate for DimensionIdentity {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        match self {
+            Self::Source(src) => src.validate(top, cache, loader, check_constraints),
+            Self::Identity(member) => member.validate(top, cache, loader, check_constraints),
+        }
+    }
+}
+
+impl MaybeIncomplete for DimensionIdentity {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        match self {
+            Self::Source(_) => false,
+            Self::Identity(member) => member.is_incomplete(top, cache),
+        }
+    }
+}
+
 impl References for DimensionIdentity {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
         match self {
@@ -242,17 +530,82 @@ impl DimensionIdentity {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    is_as_variant!(Source(SourceEntity) => is_source_entity, as_source_entity);
-    is_as_variant!(Identity(Member) => is_identity_member, as_identity_member);
+    pub const fn is_source_entity(&self) -> bool {
+        matches!(self, Self::Source(_))
+    }
+
+    pub const fn as_source_entity(&self) -> Option<&SourceEntity> {
+        match self {
+            Self::Source(v) => Some(v),
+            _ => None,
+        }
+    }
+
+    pub const fn is_identity_member(&self) -> bool {
+        matches!(self, Self::Identity(_))
+    }
+
+    pub const fn as_identity_member(&self) -> Option<&Member> {
+        match self {
+            Self::Identity(v) => Some(v),
+            _ => None,
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ DimensionParent
+// ------------------------------------------------------------------------------------------------
 
-impl_has_name_for!(DimensionParent);
+impl HasName for DimensionParent {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
 
-impl_has_source_span_for!(DimensionParent);
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
-impl_has_optional_body_for!(DimensionParent, AnnotationOnlyBody);
+impl HasSourceSpan for DimensionParent {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl HasOptionalBody for DimensionParent {
+    type Body = AnnotationOnlyBody;
+
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
 
 impl References for DimensionParent {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -287,9 +640,20 @@ impl DimensionParent {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub target_entity, set_target_entity => into IdentifierReference);
+    pub const fn target_entity(&self) -> &IdentifierReference {
+        &self.target_entity
+    }
+
+    pub fn set_target_entity<T>(&mut self, target_entity: T)
+    where
+        T: Into<IdentifierReference>,
+    {
+        self.target_entity = target_entity.into();
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ SourceEntity
 // ------------------------------------------------------------------------------------------------
 
 impl From<IdentifierReference> for SourceEntity {
@@ -304,7 +668,62 @@ impl From<&IdentifierReference> for SourceEntity {
     }
 }
 
-impl_has_source_span_for!(SourceEntity);
+impl HasSourceSpan for SourceEntity {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl Validate for SourceEntity {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        let name = self.target_entity();
+        if let Some(defn) = find_definition(name, top, cache) {
+            if let Some(entity) = defn.as_entity() {
+                for member in self.members() {
+                    //if !entity.member
+                }
+            } else {
+                panic!("source must be entity");
+            }
+        } else {
+            if !name
+                .as_identifier()
+                .map(is_builtin_type_name)
+                .unwrap_or_default()
+            {
+                loader
+                    .report(&type_definition_not_found(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap()
+            } else {
+                panic!("source must be entity");
+            }
+        }
+    }
+}
 
 impl References for SourceEntity {
     fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
@@ -341,16 +760,46 @@ impl SourceEntity {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub target_entity, set_target_entity => into IdentifierReference);
+    pub const fn target_entity(&self) -> &IdentifierReference {
+        &self.target_entity
+    }
 
-    get_and_set_vec!(
-        pub
-        has has_members,
-        members_len,
-        members,
-        members_mut,
-        add_to_members,
-        extend_members
-            => with_members, Identifier
-    );
+    pub fn set_target_entity<T>(&mut self, target_entity: T)
+    where
+        T: Into<IdentifierReference>,
+    {
+        self.target_entity = target_entity.into();
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_members(&self) -> bool {
+        !self.with_members.is_empty()
+    }
+
+    pub fn members_len(&self) -> usize {
+        self.with_members.len()
+    }
+
+    pub fn members(&self) -> impl Iterator<Item = &Identifier> {
+        self.with_members.iter()
+    }
+
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
+        self.with_members.iter_mut()
+    }
+
+    pub fn add_to_members<I>(&mut self, value: I)
+    where
+        I: Into<Identifier>,
+    {
+        self.with_members.push(value.into())
+    }
+
+    pub fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.with_members.extend(extension)
+    }
 }

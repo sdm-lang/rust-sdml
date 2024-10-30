@@ -1,6 +1,6 @@
 use crate::{
     load::ModuleLoader,
-    model::{check::Validate, modules::Module, References, Span},
+    model::{check::Validate, modules::Module, HasSourceSpan, References, Span},
     store::ModuleStore,
 };
 use lazy_static::lazy_static;
@@ -13,7 +13,7 @@ use tracing::warn;
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Informal Constraints
+// Public Types ❱ Constraints ❱ Informal     ,
 // ------------------------------------------------------------------------------------------------
 
 ///
@@ -70,7 +70,7 @@ pub struct ControlledLanguageTag {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Informal Constraints
+// Implementations ❱ Constraints ❱ ControlledLanguageString
 // ------------------------------------------------------------------------------------------------
 
 impl From<String> for ControlledLanguageString {
@@ -83,7 +83,25 @@ impl From<String> for ControlledLanguageString {
     }
 }
 
-impl_has_source_span_for!(ControlledLanguageString);
+impl HasSourceSpan for ControlledLanguageString {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl References for ControlledLanguageString {}
 
@@ -119,11 +137,35 @@ impl ControlledLanguageString {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub value, set_value => String);
+    pub const fn value(&self) -> &String {
+        &self.value
+    }
 
-    get_and_set!(pub language, set_language, unset_language => optional has_language, ControlledLanguageTag);
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_language(&self) -> bool {
+        self.language.is_some()
+    }
+
+    pub const fn language(&self) -> Option<&ControlledLanguageTag> {
+        self.language.as_ref()
+    }
+
+    pub fn set_language(&mut self, language: ControlledLanguageTag) {
+        self.language = Some(language);
+    }
+
+    pub fn unset_language(&mut self) {
+        self.language = None;
+    }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ ControlledLanguageTag
 // ------------------------------------------------------------------------------------------------
 
 lazy_static! {
@@ -177,7 +219,25 @@ impl PartialEq<str> for ControlledLanguageTag {
 
 impl Eq for ControlledLanguageTag {}
 
-impl_has_source_span_for!(ControlledLanguageTag);
+impl HasSourceSpan for ControlledLanguageTag {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl Validate for ControlledLanguageTag {
     fn validate(
@@ -207,10 +267,16 @@ impl ControlledLanguageTag {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub value, set_value => String);
+    pub const fn value(&self) -> &String {
+        &self.value
+    }
+
+    pub fn set_value(&mut self, value: String) {
+        self.value = value;
+    }
 
     // --------------------------------------------------------------------------------------------
-    // FromStr helper
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn is_valid_str(s: &str) -> bool {

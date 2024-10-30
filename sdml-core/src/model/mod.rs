@@ -73,63 +73,6 @@ pub trait HasNameReference {
 }
 
 ///
-/// This trait is implemented by types that have uniquely named members such as modules and
-/// structures.
-///
-pub trait Namespace {
-    type Member: HasName;
-
-    ///
-    /// Returns `true` of the namespace contains any members, else `false`.
-    ///
-    fn has_members(&self) -> bool;
-
-    ///
-    /// Returns the number of members in the namespace.
-    ///
-    fn member_count(&self) -> usize;
-
-    ///
-    /// Returns `true` if the namespace contains a member named `name`, else `false`.
-    ///
-    fn contains_member(&self, name: &Identifier) -> bool;
-
-    ///
-    /// Return the member with the name `name`, if present.
-    ///
-    fn member(&self, name: &Identifier) -> Option<&Self::Member>;
-
-    ///
-    /// Returns an iterator over all members in the namespace.
-    ///
-    fn members(&self) -> impl Iterator<Item = &Self::Member>;
-
-    ///
-    /// Returns an iterator over mutable members in the namespace.
-    ///
-    fn members_mut(&mut self) -> impl Iterator<Item = &mut Self::Member>;
-
-    ///
-    /// Returns an iterator over the names of namespace members.
-    ///
-    fn member_names(&self) -> impl Iterator<Item = &Identifier>;
-
-    ///
-    /// Add a member to the namespace. If a member already existed with the same name it
-    /// will be returned.
-    ///
-    fn add_to_members(&mut self, value: Self::Member) -> Option<Self::Member>;
-
-    ///
-    /// Add the members of the extension to the namespace. Any existing members with
-    /// the same names will be replaced.
-    ///
-    fn extend_members<I>(&mut self, extension: I)
-    where
-        I: IntoIterator<Item = Self::Member>;
-}
-
-///
 /// This trait is implemented by types that have a distinct, but optional, *body* type.
 ///
 pub trait HasOptionalBody {

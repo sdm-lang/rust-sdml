@@ -1,6 +1,6 @@
 use crate::{
     load::ModuleLoader,
-    model::{check::Validate, modules::Module, References, Span},
+    model::{check::Validate, modules::Module, HasBody, HasSourceSpan, References, Span},
     store::ModuleStore,
 };
 
@@ -8,7 +8,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Formal Constraints
+// Public Types ❱ Constraints ❱ Formal
 // ------------------------------------------------------------------------------------------------
 
 #[derive(Clone, Debug)]
@@ -22,12 +22,44 @@ pub struct FormalConstraint {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Formal Constraints
+// Implementations ❱ Constraints ❱ FormalConstraint
 // ------------------------------------------------------------------------------------------------
 
-impl_has_body_for!(FormalConstraint, ConstraintSentence);
+impl HasBody for FormalConstraint {
+    type Body = ConstraintSentence;
 
-impl_has_source_span_for!(FormalConstraint);
+    fn body(&self) -> &Self::Body {
+        &self.body
+    }
+
+    fn body_mut(&mut self) -> &mut Self::Body {
+        &mut self.body
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = body;
+    }
+}
+
+impl HasSourceSpan for FormalConstraint {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
 
 impl References for FormalConstraint {}
 
@@ -59,10 +91,6 @@ impl FormalConstraint {
         }
     }
 
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
     pub fn with_definition<I>(self, definition: EnvironmentDef) -> Self {
         let mut self_mut = self;
         self_mut.environment.push(definition);
@@ -75,16 +103,39 @@ impl FormalConstraint {
         self_mut
     }
 
-    get_and_set_vec!(
-        pub
-        has has_definitions,
-        definitions_len,
-        definitions,
-        definitions_mut,
-        add_to_definitions,
-        extend_definitions
-            => environment, EnvironmentDef
-    );
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_definitions(&self) -> bool {
+        !self.environment.is_empty()
+    }
+
+    pub fn definitions_len(&self) -> usize {
+        self.environment.len()
+    }
+
+    pub fn definitions(&self) -> impl Iterator<Item = &EnvironmentDef> {
+        self.environment.iter()
+    }
+
+    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut EnvironmentDef> {
+        self.environment.iter_mut()
+    }
+
+    pub fn add_to_definitions<I>(&mut self, value: I)
+    where
+        I: Into<EnvironmentDef>,
+    {
+        self.environment.push(value.into())
+    }
+
+    pub fn extend_definitions<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = EnvironmentDef>,
+    {
+        self.environment.extend(extension)
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

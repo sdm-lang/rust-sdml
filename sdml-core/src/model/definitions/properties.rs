@@ -1,14 +1,23 @@
-use crate::model::{
-    annotations::AnnotationBuilder, check::Validate, identifiers::Identifier, members::MemberDef,
-    HasName, Span,
+use crate::{
+    load::ModuleLoader,
+    model::{
+        annotations::AnnotationBuilder,
+        check::{MaybeIncomplete, Validate},
+        identifiers::{Identifier, IdentifierReference},
+        members::MemberDef,
+        modules::Module,
+        values::Value,
+        HasName, HasSourceSpan, References, Span,
+    },
+    store::ModuleStore,
 };
-use std::fmt::Debug;
+use std::{collections::HashSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Properties
+// Public Types ❱ Definitions ❱ Properties
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `property_def`.
@@ -21,8 +30,14 @@ pub struct PropertyDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Public Types ❱ Type Definitions ❱ Properties
+// Implementations ❱ Definitions ❱ PropertyDef
 // ------------------------------------------------------------------------------------------------
+
+impl From<&MemberDef> for PropertyDef {
+    fn from(member: &MemberDef) -> Self {
+        Self::new(member.clone())
+    }
+}
 
 impl From<MemberDef> for PropertyDef {
     fn from(member: MemberDef) -> Self {
@@ -30,18 +45,48 @@ impl From<MemberDef> for PropertyDef {
     }
 }
 
-impl_has_source_span_for!(PropertyDef);
+impl HasSourceSpan for PropertyDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_references_for!(PropertyDef => delegate member);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
 
-impl_maybe_incomplete_for!(PropertyDef; delegate member);
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl References for PropertyDef {
+    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.member.referenced_annotations(names);
+    }
+
+    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+        self.member.referenced_types(names);
+    }
+}
+
+impl MaybeIncomplete for PropertyDef {
+    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
+        self.member.is_incomplete(top, cache)
+    }
+}
 
 impl AnnotationBuilder for PropertyDef {
     fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
     where
         Self: Sized,
-        I: Into<crate::model::identifiers::IdentifierReference>,
-        V: Into<crate::model::values::Value>,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
     {
         let mut self_mut = self;
         self_mut.member = self_mut.member.with_predicate(predicate, value);
@@ -62,9 +107,9 @@ impl HasName for PropertyDef {
 impl Validate for PropertyDef {
     fn validate(
         &self,
-        top: &crate::model::modules::Module,
-        cache: &impl crate::store::ModuleStore,
-        loader: &impl crate::load::ModuleLoader,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
         self.member.validate(top, cache, loader, check_constraints)
@@ -72,15 +117,29 @@ impl Validate for PropertyDef {
 }
 
 impl PropertyDef {
+    // --------------------------------------------------------------------------------------------
+    // Constructor
+    // --------------------------------------------------------------------------------------------
+
     pub fn new(member: MemberDef) -> Self {
         Self { span: None, member }
     }
 
-    builder_fn!(pub with_member_def, member => MemberDef);
+    pub fn with_member_def(self, member: MemberDef) -> Self {
+        let mut self_mut = self;
+        self_mut.member = member;
+        self_mut
+    }
 
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set!(pub member, member_def, set_member_def => MemberDef);
+    pub const fn member_def(&self) -> &MemberDef {
+        &self.member
+    }
+
+    pub fn set_member_def(&mut self, member: MemberDef) {
+        self.member = member;
+    }
 }

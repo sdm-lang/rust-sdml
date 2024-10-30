@@ -30,7 +30,7 @@ use crate::error::Error;
 use crate::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use crate::model::constraints::{ConstraintBody, ControlledLanguageString, FormalConstraint};
 use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, HasVariants, PropertyDef,
+    DatatypeDef, Definition, EntityDef, EnumDef, EventDef,PropertyDef,
     RdfDef, StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
 use crate::model::identifiers::{IdentifierReference, QualifiedIdentifier};

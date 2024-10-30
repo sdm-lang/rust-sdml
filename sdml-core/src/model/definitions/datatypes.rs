@@ -1,14 +1,16 @@
 use crate::load::ModuleLoader;
-use crate::model::check::{find_definition, Validate};
+use crate::model::annotations::{AnnotationBuilder, AnnotationProperty};
+use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
 use crate::model::modules::Module;
-use crate::model::HasSourceSpan;
+use crate::model::values::Value;
 use crate::model::References;
 use crate::model::{
     annotations::AnnotationOnlyBody,
     identifiers::{Identifier, IdentifierReference},
     HasName, Span,
 };
+use crate::model::{HasOptionalBody, HasSourceSpan};
 use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
@@ -19,7 +21,7 @@ use std::{collections::HashSet, fmt::Debug};
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
-// Public Types
+// Public Types ❱ Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
 
 /// Corresponds to the grammar rule `data_type_def`.
@@ -37,18 +39,83 @@ pub struct DatatypeDef {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations
+// Implementations ❱ Definitions ❱ DatatypeDef
 // ------------------------------------------------------------------------------------------------
 
-impl_has_source_span_for!(DatatypeDef);
+impl HasSourceSpan for DatatypeDef {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
 
-impl_has_name_for!(DatatypeDef);
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
 
-impl_has_optional_body_for!(DatatypeDef);
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
 
-impl_maybe_incomplete_for!(DatatypeDef; always false);
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
 
-impl_annotation_builder!(DatatypeDef, optional body);
+    fn has_source_span(&self) -> bool {
+        self.source_span().is_some()
+    }
+}
+
+impl HasName for DatatypeDef {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
+
+impl HasOptionalBody for DatatypeDef {
+    type Body = AnnotationOnlyBody;
+
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
+    }
+
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
+    }
+
+    fn set_body(&mut self, body: Self::Body) {
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
+    }
+}
+
+impl MaybeIncomplete for DatatypeDef {
+    fn is_incomplete(&self, _: &Module, _: &impl ModuleStore) -> bool {
+        false
+    }
+}
+
+impl AnnotationBuilder for DatatypeDef {
+    fn with_predicate<I, V>(self, predicate: I, value: V) -> Self
+    where
+        Self: Sized,
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
+        let mut self_mut = self;
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
+        self_mut
+    }
+}
 
 impl Validate for DatatypeDef {
     fn validate(
@@ -119,7 +186,7 @@ impl References for DatatypeDef {
 
 impl DatatypeDef {
     // --------------------------------------------------------------------------------------------
-    // DatatypeDef :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(name: Identifier, base_type: IdentifierReference) -> Self {
@@ -143,17 +210,28 @@ impl DatatypeDef {
     }
 
     pub fn with_body(self, body: AnnotationOnlyBody) -> Self {
-        Self {
-            body: Some(body),
-            ..self
-        }
+        let mut self_mut = self;
+        self_mut.body = Some(body);
+        self_mut
     }
 
     // --------------------------------------------------------------------------------------------
-    // DatatypeDef :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
-    get_and_set_bool!(pub opaque, is_opaque, set_opaque);
+    pub const fn is_opaque(&self) -> bool {
+        self.opaque
+    }
 
-    get_and_set!(pub base_type, set_base_type => IdentifierReference);
+    pub fn set_opaque(&mut self, opaque: bool) {
+        self.opaque = opaque;
+    }
+
+    pub const fn base_type(&self) -> &IdentifierReference {
+        &self.base_type
+    }
+
+    pub fn set_base_type(&mut self, base_type: IdentifierReference) {
+        self.base_type = base_type;
+    }
 }
