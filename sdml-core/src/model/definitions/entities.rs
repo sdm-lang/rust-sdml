@@ -13,8 +13,8 @@ use crate::model::{
 use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References};
 use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
-use std::collections::HashMap;
-use std::{collections::HashSet, fmt::Debug};
+use std::collections::BTreeMap;
+use std::{collections::BTreeSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -43,8 +43,8 @@ pub struct EntityBody {
     identity: Member,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
-    members: HashMap<Identifier, Member>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
+    members: BTreeMap<Identifier, Member>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -102,13 +102,13 @@ impl HasSourceSpan for EntityDef {
 }
 
 impl References for EntityDef {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         if let Some(inner) = &self.body {
             inner.referenced_annotations(names);
         }
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         if let Some(inner) = &self.body {
             inner.referenced_types(names);
         }
@@ -178,7 +178,7 @@ impl HasAnnotations for EntityBody {
     fn has_annotations(&self) -> bool {
         !self.annotations.is_empty()
     }
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
     fn annotations(&self) -> impl Iterator<Item = &Annotation> {
@@ -240,18 +240,18 @@ impl Validate for EntityBody {
         for annotation in &self.annotations {
             annotation.validate(top, cache, loader, check_constraints);
         }
-        for member in &self.members {
+        for member in self.members() {
             member.validate(top, cache, loader, check_constraints);
         }
     }
 }
 
 impl References for EntityBody {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.members().for_each(|m| m.referenced_annotations(names))
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.members().for_each(|m| m.referenced_types(names))
     }
 }
@@ -275,7 +275,7 @@ impl EntityBody {
         I: IntoIterator<Item = Member>,
     {
         let mut self_mut = self;
-        self_mut.members = members.into_iter().collect();
+        self_mut.extend_members(members);
         self_mut
     }
 
@@ -295,43 +295,43 @@ impl EntityBody {
     // Members
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_empty(&self) -> bool {
-        self.members.is_empty()
+    pub fn has_members(&self) -> bool {
+        !self.members.is_empty()
     }
 
-    pub fn len(&self) -> usize {
+    pub fn member_count(&self) -> usize {
         self.members.len()
     }
 
-    pub fn contains(&self, name: &Identifier) -> bool {
+    pub fn contains_member(&self, name: &Identifier) -> bool {
         self.members.contains_key(name)
     }
 
-    pub fn get(&self, name: &Identifier) -> Option<&Member> {
+    pub fn member(&self, name: &Identifier) -> Option<&Member> {
         self.members.get(name)
     }
 
-    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut Member> {
+    pub fn member_mut(&mut self, name: &Identifier) -> Option<&mut Member> {
         self.members.get_mut(name)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &Member> {
+    pub fn members(&self) -> impl Iterator<Item = &Member> {
         self.members.values()
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut Member> {
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut Member> {
         self.members.values_mut()
     }
 
-    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+    pub fn member_names(&self) -> impl Iterator<Item = &Identifier> {
         self.members.keys()
     }
 
-    pub fn insert(&mut self, value: Member) -> Option<Member> {
+    pub fn add_to_members(&mut self, value: Member) -> Option<Member> {
         self.members.insert(value.name().clone(), value)
     }
 
-    pub fn extend<I>(&mut self, extension: I)
+    pub fn extend_members<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = Member>,
     {

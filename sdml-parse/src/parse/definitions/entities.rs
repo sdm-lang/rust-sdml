@@ -1,11 +1,11 @@
 use crate::parse::annotations::parse_annotation;
 use crate::parse::identifiers::parse_identifier;
 use crate::parse::members::parse_member;
-use crate::parse::{parse_comment, ParseContext};
+use crate::parse::ParseContext;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{EntityBody, EntityDef, HasMembers};
+use sdml_core::model::definitions::{EntityBody, EntityDef};
 use sdml_core::model::members::Member;
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
@@ -80,10 +80,7 @@ fn parse_entity_body<'a>(
                     NODE_KIND_MEMBER => {
                         body.add_to_members(parse_member(context, &mut node.walk())?);
                     }
-                    NODE_KIND_LINE_COMMENT => {
-                        let comment = parse_comment(context, &node)?;
-                        context.push_comment(comment);
-                    }
+                    NODE_KIND_LINE_COMMENT => {}
                     _ => {
                         unexpected_node!(
                             context,

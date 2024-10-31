@@ -111,8 +111,16 @@ Module {
             },
         ],
         annotations: [],
-        definitions: [
-            Rdf(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 84,
+                        end: 92,
+                    },
+                ),
+                value: "Resource",
+            }: Rdf(
                 RdfDef {
                     span: Some(
                         Span {
@@ -263,256 +271,15 @@ Module {
                     },
                 },
             ),
-            Rdf(
-                RdfDef {
-                    span: Some(
-                        Span {
-                            start: 205,
-                            end: 390,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 209,
-                                end: 219,
-                            },
-                        ),
-                        value: "subClassOf",
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 398,
+                        end: 405,
                     },
-                    body: AnnotationOnlyBody {
-                        span: Some(
-                            Span {
-                                start: 238,
-                                end: 390,
-                            },
-                        ),
-                        annotations: [
-                            Property(
-                                AnnotationProperty {
-                                    span: Some(
-                                        Span {
-                                            start: 245,
-                                            end: 260,
-                                        },
-                                    ),
-                                    name_reference: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 246,
-                                                    end: 252,
-                                                },
-                                            ),
-                                            value: "domain",
-                                        },
-                                    ),
-                                    value: Reference(
-                                        Identifier(
-                                            Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 255,
-                                                        end: 260,
-                                                    },
-                                                ),
-                                                value: "Class",
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ),
-                            Property(
-                                AnnotationProperty {
-                                    span: Some(
-                                        Span {
-                                            start: 265,
-                                            end: 279,
-                                        },
-                                    ),
-                                    name_reference: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 266,
-                                                    end: 271,
-                                                },
-                                            ),
-                                            value: "range",
-                                        },
-                                    ),
-                                    value: Reference(
-                                        Identifier(
-                                            Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 274,
-                                                        end: 279,
-                                                    },
-                                                ),
-                                                value: "Class",
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ),
-                            Property(
-                                AnnotationProperty {
-                                    span: Some(
-                                        Span {
-                                            start: 284,
-                                            end: 303,
-                                        },
-                                    ),
-                                    name_reference: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 285,
-                                                    end: 296,
-                                                },
-                                            ),
-                                            value: "isDefinedBy",
-                                        },
-                                    ),
-                                    value: Reference(
-                                        Identifier(
-                                            Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 299,
-                                                        end: 303,
-                                                    },
-                                                ),
-                                                value: "rdfs",
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ),
-                            Property(
-                                AnnotationProperty {
-                                    span: Some(
-                                        Span {
-                                            start: 308,
-                                            end: 329,
-                                        },
-                                    ),
-                                    name_reference: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 309,
-                                                    end: 314,
-                                                },
-                                            ),
-                                            value: "label",
-                                        },
-                                    ),
-                                    value: Simple(
-                                        String(
-                                            LanguageString {
-                                                span: Some(
-                                                    Span {
-                                                        start: 317,
-                                                        end: 329,
-                                                    },
-                                                ),
-                                                value: "subClassOf",
-                                                language: None,
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ),
-                            Property(
-                                AnnotationProperty {
-                                    span: Some(
-                                        Span {
-                                            start: 334,
-                                            end: 384,
-                                        },
-                                    ),
-                                    name_reference: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 335,
-                                                    end: 342,
-                                                },
-                                            ),
-                                            value: "comment",
-                                        },
-                                    ),
-                                    value: Simple(
-                                        String(
-                                            LanguageString {
-                                                span: Some(
-                                                    Span {
-                                                        start: 345,
-                                                        end: 384,
-                                                    },
-                                                ),
-                                                value: "The subject is a subclass of a class.",
-                                                language: None,
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ),
-                            Property(
-                                AnnotationProperty {
-                                    span: None,
-                                    name_reference: QualifiedIdentifier(
-                                        QualifiedIdentifier {
-                                            span: None,
-                                            module: Identifier {
-                                                span: None,
-                                                value: "rdf",
-                                            },
-                                            member: Identifier {
-                                                span: None,
-                                                value: "type",
-                                            },
-                                        },
-                                    ),
-                                    value: Reference(
-                                        QualifiedIdentifier(
-                                            QualifiedIdentifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 225,
-                                                        end: 237,
-                                                    },
-                                                ),
-                                                module: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 225,
-                                                            end: 228,
-                                                        },
-                                                    ),
-                                                    value: "rdf",
-                                                },
-                                                member: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 229,
-                                                            end: 237,
-                                                        },
-                                                    ),
-                                                    value: "Property",
-                                                },
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ),
-                        ],
-                    },
-                },
-            ),
-            Rdf(
+                ),
+                value: "comment",
+            }: Rdf(
                 RdfDef {
                     span: Some(
                         Span {
@@ -809,6 +576,263 @@ Module {
                     },
                 },
             ),
-        ],
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 209,
+                        end: 219,
+                    },
+                ),
+                value: "subClassOf",
+            }: Rdf(
+                RdfDef {
+                    span: Some(
+                        Span {
+                            start: 205,
+                            end: 390,
+                        },
+                    ),
+                    name: Identifier {
+                        span: Some(
+                            Span {
+                                start: 209,
+                                end: 219,
+                            },
+                        ),
+                        value: "subClassOf",
+                    },
+                    body: AnnotationOnlyBody {
+                        span: Some(
+                            Span {
+                                start: 238,
+                                end: 390,
+                            },
+                        ),
+                        annotations: [
+                            Property(
+                                AnnotationProperty {
+                                    span: Some(
+                                        Span {
+                                            start: 245,
+                                            end: 260,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 246,
+                                                    end: 252,
+                                                },
+                                            ),
+                                            value: "domain",
+                                        },
+                                    ),
+                                    value: Reference(
+                                        Identifier(
+                                            Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 255,
+                                                        end: 260,
+                                                    },
+                                                ),
+                                                value: "Class",
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                            Property(
+                                AnnotationProperty {
+                                    span: Some(
+                                        Span {
+                                            start: 265,
+                                            end: 279,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 266,
+                                                    end: 271,
+                                                },
+                                            ),
+                                            value: "range",
+                                        },
+                                    ),
+                                    value: Reference(
+                                        Identifier(
+                                            Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 274,
+                                                        end: 279,
+                                                    },
+                                                ),
+                                                value: "Class",
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                            Property(
+                                AnnotationProperty {
+                                    span: Some(
+                                        Span {
+                                            start: 284,
+                                            end: 303,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 285,
+                                                    end: 296,
+                                                },
+                                            ),
+                                            value: "isDefinedBy",
+                                        },
+                                    ),
+                                    value: Reference(
+                                        Identifier(
+                                            Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 299,
+                                                        end: 303,
+                                                    },
+                                                ),
+                                                value: "rdfs",
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                            Property(
+                                AnnotationProperty {
+                                    span: Some(
+                                        Span {
+                                            start: 308,
+                                            end: 329,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 309,
+                                                    end: 314,
+                                                },
+                                            ),
+                                            value: "label",
+                                        },
+                                    ),
+                                    value: Simple(
+                                        String(
+                                            LanguageString {
+                                                span: Some(
+                                                    Span {
+                                                        start: 317,
+                                                        end: 329,
+                                                    },
+                                                ),
+                                                value: "subClassOf",
+                                                language: None,
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                            Property(
+                                AnnotationProperty {
+                                    span: Some(
+                                        Span {
+                                            start: 334,
+                                            end: 384,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 335,
+                                                    end: 342,
+                                                },
+                                            ),
+                                            value: "comment",
+                                        },
+                                    ),
+                                    value: Simple(
+                                        String(
+                                            LanguageString {
+                                                span: Some(
+                                                    Span {
+                                                        start: 345,
+                                                        end: 384,
+                                                    },
+                                                ),
+                                                value: "The subject is a subclass of a class.",
+                                                language: None,
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                            Property(
+                                AnnotationProperty {
+                                    span: None,
+                                    name_reference: QualifiedIdentifier(
+                                        QualifiedIdentifier {
+                                            span: None,
+                                            module: Identifier {
+                                                span: None,
+                                                value: "rdf",
+                                            },
+                                            member: Identifier {
+                                                span: None,
+                                                value: "type",
+                                            },
+                                        },
+                                    ),
+                                    value: Reference(
+                                        QualifiedIdentifier(
+                                            QualifiedIdentifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 225,
+                                                        end: 237,
+                                                    },
+                                                ),
+                                                module: Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 225,
+                                                            end: 228,
+                                                        },
+                                                    ),
+                                                    value: "rdf",
+                                                },
+                                                member: Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 229,
+                                                            end: 237,
+                                                        },
+                                                    ),
+                                                    value: "Property",
+                                                },
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                        ],
+                    },
+                },
+            ),
+        },
     },
 }

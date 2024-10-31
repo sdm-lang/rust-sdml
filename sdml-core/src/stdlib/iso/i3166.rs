@@ -17,7 +17,9 @@ use url::Url;
 // ------------------------------------------------------------------------------------------------
 
 pub const MODULE_NAME: &str = "iso_3166";
-pub const MODULE_URL: &str = "https://sdml.io/modules/iso3166/2020.ttl#";
+library_module_url! { "iso", "3166:2020" }
+
+pub const MODULE_SRC: &str = include_str!("iso_3166.sdml");
 
 pub const COUNTRY_CODE_ALPHA_2: &str = "CountryCodeAlpha2";
 pub const COUNTRY_CODE_ALPHA_3: &str = "CountryCodeAlpha3";

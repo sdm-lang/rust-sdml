@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Property(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 27,
+                        end: 37,
+                    },
+                ),
+                value: "identifier",
+            }: Property(
                 PropertyDef {
                     span: None,
                     member: MemberDef {
@@ -205,6 +213,6 @@ Module {
                     },
                 },
             ),
-        ],
+        },
     },
 }

@@ -12,7 +12,7 @@ use crate::{
     store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::definition_is_incomplete;
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::BTreeSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -259,7 +259,7 @@ impl HasSourceSpan for Definition {
 }
 
 impl References for Definition {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match self {
             Self::Datatype(v) => v.referenced_annotations(names),
             Self::Dimension(v) => v.referenced_annotations(names),
@@ -274,7 +274,7 @@ impl References for Definition {
         }
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match self {
             Self::Datatype(v) => v.referenced_types(names),
             Self::Dimension(v) => v.referenced_types(names),

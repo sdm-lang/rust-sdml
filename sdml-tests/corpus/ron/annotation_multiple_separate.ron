@@ -219,6 +219,6 @@ Module {
                 },
             ),
         ],
-        definitions: [],
+        definitions: {},
     },
 }

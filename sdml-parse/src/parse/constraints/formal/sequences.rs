@@ -1,16 +1,20 @@
-use crate::parse::constraints::formal::parse_quantified_sentence;
-use crate::parse::identifiers::parse_identifier;
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::{MappingVariable, NamedVariables, SequenceBuilder, Variables};
-use sdml_core::model::identifiers::Identifier;
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_DOMAIN, FIELD_NAME_RANGE, FIELD_NAME_VARIABLE,
-    NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VARIABLE,
-    NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_QUANTIFIED_SENTENCE,
+use crate::parse::{
+    constraints::formal::parse_quantified_sentence, identifiers::parse_identifier, ParseContext,
+};
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        constraints::{MappingVariable, NamedVariables, SequenceBuilder, Variables},
+        identifiers::Identifier,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_DOMAIN, FIELD_NAME_RANGE, FIELD_NAME_VARIABLE,
+        NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VARIABLE,
+        NODE_KIND_NAMED_VARIABLE_SET, NODE_KIND_QUANTIFIED_SENTENCE,
+    },
 };
 use sdml_errors::Error;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------
@@ -30,7 +34,7 @@ pub(crate) fn parse_sequence_builder<'a>(
     let variables: Variables = match child.kind() {
         NODE_KIND_NAMED_VARIABLE_SET => parse_named_variable_set(context, &mut child.walk())?,
         NODE_KIND_MAPPING_VARIABLE => parse_mapping_variable(context, &mut child.walk())?,
-        // should check for NODE_KIND_LINE_COMMENT => {},
+        // TODO: should check for NODE_KIND_LINE_COMMENT => {},
         _ => {
             unexpected_node!(
                 context,
@@ -67,7 +71,7 @@ pub(crate) fn parse_named_variable_set<'a>(
     rule_fn!("named_variable_set", cursor.node());
 
     let names = {
-        let mut names: HashSet<Identifier> = Default::default();
+        let mut names: BTreeSet<Identifier> = Default::default();
         for name in cursor.node().named_children(cursor) {
             match name.kind() {
                 NODE_KIND_IDENTIFIER => {

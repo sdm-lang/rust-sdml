@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Entity(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 29,
+                        end: 37,
+                    },
+                ),
+                value: "Campaign",
+            }: Entity(
                 EntityDef {
                     span: Some(
                         Span {
@@ -128,8 +136,16 @@ Module {
                                 ),
                             },
                             annotations: [],
-                            members: [
-                                Member {
+                            members: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 76,
+                                            end: 77,
+                                        },
+                                    ),
+                                    value: "b",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -231,7 +247,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 151,
+                                            end: 152,
+                                        },
+                                    ),
+                                    value: "c",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -354,11 +378,11 @@ Module {
                                         },
                                     ),
                                 },
-                            ],
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

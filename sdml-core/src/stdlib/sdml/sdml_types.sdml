@@ -1,0 +1,57 @@
+module sdml_types <https://sdml.io/v/sdml-types.ttl> is
+
+  import [ xml owl rdf rdfs xsd ]
+
+  rdf string is
+    @rdf:type = rdfs:Datatype
+    @owl:equivalentClass = xsd:string
+    @rdfs:label = "string"@en
+    @rdfs:comment = "A Unicode string."@en
+   end
+
+  rdf double is
+    @rdf:type = rdfs:Datatype
+    @rdfs:subClassOf = Decimal
+    @owl:equivalentClass = xsd:double
+    @rdfs:label = "double"@en
+    @rdfs:comment = "A double-precision floating point number."@en
+  end
+
+  rdf decimal is
+    @rdf:type = rdfs:Datatype
+    @rdfs:subClassOf = Integer
+    @owl:equivalentClass = xsd:decimal
+    @rdfs:label = "decimal"@en
+    @rdfs:comment = ""@en
+   end
+
+  rdf integer is
+    @rdf:type = rdfs:Datatype
+    @owl:equivalentClass = xsd:integer
+    @rdfs:label = "integer"@en
+    @rdfs:comment = ""@en
+  end
+
+  rdf boolean is
+    @rdf:type = rdfs:Datatype
+    @owl:equivalentClass = xsd:boolean
+    @rdfs:label = "boolean"@en
+    @rdfs:comment = "A boolean with values `true` andd `false`."@en
+  end
+
+  rdf iri is
+    @rdf:type = rdfs:Datatype
+    @owl:equivalentClass = xsd:anyURI
+    @rdfs:label = "iri"@en
+    @rdfs:comment = ""@en
+  end
+
+  rdf float is
+    @rdf:type = rdfs:Datatype
+    @rdfs:subClassOf = Decimal
+    @owl:equivalentClass = xsd:float
+    @rdfs:label = "double"@en
+    @rdfs:comment = "A single-precision floating point number."@en
+  end
+
+end

@@ -397,7 +397,7 @@ fn add_values(
         }
         Value::Mapping(v) => add_mapping_value(subject, predicate, v, ctx, cache, graph),
         Value::Reference(v) => add_name_reference_value(subject, predicate, v, ctx, cache, graph),
-        Value::List(vs) => add_sequence_value(subject, predicate, vs, ctx, cache, graph),
+        Value::Sequence(vs) => add_sequence_value(subject, predicate, vs, ctx, cache, graph),
     }?;
 
     Ok(())

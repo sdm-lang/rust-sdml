@@ -96,6 +96,6 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [],
+        definitions: {},
     },
 }

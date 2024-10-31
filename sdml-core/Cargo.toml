@@ -26,7 +26,6 @@ convert_case = "0.6"
 language-tags = { version = "0.3.2", features = ["serde"] }
 lazy_static = "1.5"
 ordered-float = { version = "4.3", features = ["serde"] }
-paste = "1.0.15"
 regex = "1.11.0"
 rust_decimal = { version = "1.36.0", features = ["serde"] }
 sdml-errors = { version = "0.3.1", path = "../sdml-errors" }

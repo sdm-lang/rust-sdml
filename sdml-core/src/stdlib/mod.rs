@@ -12,6 +12,13 @@ use crate::model::{identifiers::Identifier, modules::Module};
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+macro_rules! library_module_url {
+    ($authority:expr, $path:expr) => {
+        pub const MODULE_URL: &str =
+            concat!("https://sdml.io/stdlib/", $authority, "/", $path, "#");
+    };
+}
+
 // ------------------------------------------------------------------------------------------------
 // Public Functions
 // ------------------------------------------------------------------------------------------------
@@ -20,8 +27,8 @@ pub fn is_library_module(name: &Identifier) -> bool {
     [
         dc::MODULE_NAME,
         dc::terms::MODULE_NAME,
-        iso_3166::MODULE_NAME,
-        iso_4217::MODULE_NAME,
+        iso::i3166::MODULE_NAME,
+        iso::i4217::MODULE_NAME,
         owl::MODULE_NAME,
         rdf::MODULE_NAME,
         rdfs::MODULE_NAME,
@@ -51,8 +58,8 @@ pub fn library_module(name: &Identifier) -> Option<Module> {
     match name.as_ref() {
         dc::MODULE_NAME => Some(dc::module()),
         dc::terms::MODULE_NAME => Some(dc::terms::module()),
-        iso_3166::MODULE_NAME => Some(iso_3166::module()),
-        iso_4217::MODULE_NAME => Some(iso_4217::module()),
+        iso::i3166::MODULE_NAME => Some(iso::i3166::module()),
+        iso::i4217::MODULE_NAME => Some(iso::i4217::module()),
         owl::MODULE_NAME => Some(owl::module()),
         rdf::MODULE_NAME => Some(rdf::module()),
         rdfs::MODULE_NAME => Some(rdfs::module()),
@@ -105,18 +112,6 @@ macro_rules! idref {
     };
 }
 
-macro_rules! seq {
-    ($( $member:expr ),*) => {
-        $crate::model::values::SequenceOfValues::from(
-            vec![
-                $(
-                     $crate::model::values::SequenceMember::from($member),
-                )*
-            ]
-        )
-    };
-}
-
 macro_rules! import {
     ( $( $module:expr ),* ) => {
         $crate::model::modules::ImportStatement::new(
@@ -145,10 +140,7 @@ macro_rules! tc {
 
 macro_rules! prop {
     ($module:expr, $name:expr; $value:expr) => {
-        $crate::model::annotations::AnnotationProperty::new(
-            qualid!($module, $name).into(),
-            $crate::model::values::Value::from($value),
-        )
+        $crate::model::annotations::AnnotationProperty::new(qualid!($module, $name), $value)
     }; //($name:expr; $value:expr) => {
        //    $crate::model::annotations::AnnotationProperty::new(
        //        id!($name).into(),
@@ -257,31 +249,7 @@ macro_rules! rdf {
         rdf!(property, $id, $in)
             .with_domain(id!($dom))
     };
-    (property $id:expr, $in:expr => $rge:expr) => {
-        rdf!(property, $id, $in)
-            .with_range(id!($rge))
-    };
-    (property $id:expr, $in:expr, $( ($super_mod:expr, $super:expr) ),+ ) => {
-        rdf!(property, $id, $in)
-            $(
-                .with_super_property(qualid!($super_mod, $super))
-            )+
-    };
-    (property $id:expr, $in:expr, $( $super:expr ),+ ) => {
-        rdf!(property, $id, $in)
-            $(
-                .with_super_property(id!($super))
-            )+
-    };
-    (property $id:expr, $in:expr, $( $super:expr ),+; $dom:expr => $rge:expr ) => {
-        rdf!(property, $id, $in)
-            $(
-                .with_super_property(id!($super))
-            )+
-            .with_domain(id!($dom))
-            .with_range(id!($rge))
-    };
-    (property $id:expr, $in:expr) => {
+   (property $id:expr, $in:expr) => {
         rdf!(property, $id, $in)
     };
 }
@@ -304,6 +272,8 @@ macro_rules! rdf {
 
 pub mod dc;
 
+pub mod iso;
+
 pub mod owl;
 
 pub mod rdf;
@@ -315,7 +285,3 @@ pub mod sdml;
 pub mod skos;
 
 pub mod xsd;
-
-pub mod iso_3166;
-
-pub mod iso_4217;

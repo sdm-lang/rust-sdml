@@ -115,7 +115,7 @@ end"#
         "skos:prefLang"
     );
     match annotation.value() {
-        Value::List(list) => {
+        Value::Sequence(list) => {
             let values: Vec<&SequenceMember> = list.iter().collect();
             assert_eq!(values.len(), 2);
 

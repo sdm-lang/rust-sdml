@@ -53,8 +53,16 @@ Module {
         is_library: true,
         imports: [],
         annotations: [],
-        definitions: [
-            TypeClass(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 24,
+                        end: 27,
+                    },
+                ),
+                value: "Any",
+            }: TypeClass(
                 TypeClassDef {
                     span: Some(
                         Span {
@@ -101,22 +109,30 @@ Module {
                                 },
                             ),
                             annotations: [],
-                            methods: [
-                                MethodDef {
+                            methods: {
+                                Identifier {
                                     span: Some(
                                         Span {
-                                            start: 39,
-                                            end: 74,
+                                            start: 187,
+                                            end: 197,
+                                        },
+                                    ),
+                                    value: "has_member",
+                                }: MethodDef {
+                                    span: Some(
+                                        Span {
+                                            start: 183,
+                                            end: 238,
                                         },
                                     ),
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 43,
-                                                end: 55,
+                                                start: 187,
+                                                end: 197,
                                             },
                                         ),
-                                        value: "is_structure",
+                                        value: "has_member",
                                     },
                                     signature: FunctionSignature {
                                         span: None,
@@ -126,8 +142,8 @@ Module {
                                                 name: Identifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 56,
-                                                            end: 57,
+                                                            start: 198,
+                                                            end: 199,
                                                         },
                                                     ),
                                                     value: "v",
@@ -147,8 +163,8 @@ Module {
                                                                 Identifier {
                                                                     span: Some(
                                                                         Span {
-                                                                            start: 61,
-                                                                            end: 62,
+                                                                            start: 203,
+                                                                            end: 204,
                                                                         },
                                                                     ),
                                                                     value: "T",
@@ -180,8 +196,8 @@ Module {
                                                             member: Identifier {
                                                                 span: Some(
                                                                     Span {
-                                                                        start: 67,
-                                                                        end: 74,
+                                                                        start: 209,
+                                                                        end: 216,
                                                                     },
                                                                 ),
                                                                 value: "boolean",
@@ -192,58 +208,40 @@ Module {
                                             },
                                         },
                                     },
-                                    body: None,
+                                    body: Some(
+                                        Simple(
+                                            Atomic(
+                                                AtomicSentence {
+                                                    span: None,
+                                                    predicate: Identifier(
+                                                        Identifier(
+                                                            Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 220,
+                                                                        end: 235,
+                                                                    },
+                                                                ),
+                                                                value: "is_product_type",
+                                                            },
+                                                        ),
+                                                    ),
+                                                    arguments: [],
+                                                },
+                                            ),
+                                        ),
+                                    ),
                                     annotations: [],
                                 },
-                                MethodDef {
+                                Identifier {
                                     span: Some(
                                         Span {
-                                            start: 79,
-                                            end: 91,
+                                            start: 100,
+                                            end: 109,
                                         },
                                     ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 83,
-                                                end: 86,
-                                            },
-                                        ),
-                                        value: "new",
-                                    },
-                                    signature: FunctionSignature {
-                                        span: None,
-                                        parameters: [],
-                                        target_type: FunctionType {
-                                            span: None,
-                                            target_cardinality: FunctionCardinality {
-                                                span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: None,
-                                            },
-                                            target_type: FunctionTypeReference {
-                                                optional: false,
-                                                inner: Reference(
-                                                    Identifier(
-                                                        Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 90,
-                                                                    end: 91,
-                                                                },
-                                                            ),
-                                                            value: "T",
-                                                        },
-                                                    ),
-                                                ),
-                                            },
-                                        },
-                                    },
-                                    body: None,
-                                    annotations: [],
-                                },
-                                MethodDef {
+                                    value: "is_entity",
+                                }: MethodDef {
                                     span: Some(
                                         Span {
                                             start: 96,
@@ -389,21 +387,29 @@ Module {
                                         ),
                                     ],
                                 },
-                                MethodDef {
+                                Identifier {
                                     span: Some(
                                         Span {
-                                            start: 183,
-                                            end: 238,
+                                            start: 43,
+                                            end: 55,
+                                        },
+                                    ),
+                                    value: "is_structure",
+                                }: MethodDef {
+                                    span: Some(
+                                        Span {
+                                            start: 39,
+                                            end: 74,
                                         },
                                     ),
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 187,
-                                                end: 197,
+                                                start: 43,
+                                                end: 55,
                                             },
                                         ),
-                                        value: "has_member",
+                                        value: "is_structure",
                                     },
                                     signature: FunctionSignature {
                                         span: None,
@@ -413,8 +419,8 @@ Module {
                                                 name: Identifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 198,
-                                                            end: 199,
+                                                            start: 56,
+                                                            end: 57,
                                                         },
                                                     ),
                                                     value: "v",
@@ -434,8 +440,8 @@ Module {
                                                                 Identifier {
                                                                     span: Some(
                                                                         Span {
-                                                                            start: 203,
-                                                                            end: 204,
+                                                                            start: 61,
+                                                                            end: 62,
                                                                         },
                                                                     ),
                                                                     value: "T",
@@ -467,8 +473,8 @@ Module {
                                                             member: Identifier {
                                                                 span: Some(
                                                                     Span {
-                                                                        start: 209,
-                                                                        end: 216,
+                                                                        start: 67,
+                                                                        end: 74,
                                                                     },
                                                                 ),
                                                                 value: "boolean",
@@ -479,36 +485,70 @@ Module {
                                             },
                                         },
                                     },
-                                    body: Some(
-                                        Simple(
-                                            Atomic(
-                                                AtomicSentence {
-                                                    span: None,
-                                                    predicate: Identifier(
-                                                        Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 220,
-                                                                        end: 235,
-                                                                    },
-                                                                ),
-                                                                value: "is_product_type",
-                                                            },
-                                                        ),
-                                                    ),
-                                                    arguments: [],
-                                                },
-                                            ),
-                                        ),
-                                    ),
+                                    body: None,
                                     annotations: [],
                                 },
-                            ],
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 83,
+                                            end: 86,
+                                        },
+                                    ),
+                                    value: "new",
+                                }: MethodDef {
+                                    span: Some(
+                                        Span {
+                                            start: 79,
+                                            end: 91,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 83,
+                                                end: 86,
+                                            },
+                                        ),
+                                        value: "new",
+                                    },
+                                    signature: FunctionSignature {
+                                        span: None,
+                                        parameters: [],
+                                        target_type: FunctionType {
+                                            span: None,
+                                            target_cardinality: FunctionCardinality {
+                                                span: None,
+                                                ordering: None,
+                                                uniqueness: None,
+                                                range: None,
+                                            },
+                                            target_type: FunctionTypeReference {
+                                                optional: false,
+                                                inner: Reference(
+                                                    Identifier(
+                                                        Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 90,
+                                                                    end: 91,
+                                                                },
+                                                            ),
+                                                            value: "T",
+                                                        },
+                                                    ),
+                                                ),
+                                            },
+                                        },
+                                    },
+                                    body: None,
+                                    annotations: [],
+                                },
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

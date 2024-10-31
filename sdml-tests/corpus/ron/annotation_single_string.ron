@@ -106,6 +106,6 @@ Module {
                 },
             ),
         ],
-        definitions: [],
+        definitions: {},
     },
 }

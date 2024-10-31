@@ -959,7 +959,7 @@ impl SExpressionGenerator {
             Value::ValueConstructor(v) => self.value_constructor_to_svalue(v),
             Value::Mapping(v) => self.mapping_value_to_svalue(v),
             Value::Reference(v) => self.identifier_reference_to_svalue(v),
-            Value::List(v) => self.list_value_to_svalue(v),
+            Value::Sequence(v) => self.list_value_to_svalue(v),
         }
     }
 

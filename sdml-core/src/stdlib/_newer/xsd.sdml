@@ -1,0 +1,63 @@
+module xsd base <http://www.w3.org/2001/XMLSchema#> is
+
+  import [ rdf_schema owl sdml skos ]
+
+  datatype anyURI <- sdml:datatype is
+    @skos:prefLabel = "anyURI"
+    @skos:altLabel = [ "URL" "URI" "IRI" "url" "uri" "iri" ]
+    @skos:definition = "The string datatype represents character strings in XML."@en
+  end
+
+  datatype base64Binary <- sdml:datatype
+  datatype boolean <- sdml:datatype
+  datatype byte <- short
+  datatype dateTime <- sdml:datatype
+  datatype decimal <- sdml:datatype
+  datatype double <- sdml:datatype
+  datatype float <- sdml:datatype
+  datatype hexBinary <- sdml:datatype
+  datatype int <- long
+  datatype integer <- decimal
+  datatype language <- token
+  datatype long <- integer
+  datatype Name <- token
+  datatype NCName <- Name
+  datatype NMTOKEN <- token
+  datatype negativeInteger <- nonPositiveInteger
+  datatype nonNegativeInteger <- integer
+  datatype nonPositiveInteger <- integer
+  datatype normalizedString <- string
+  datatype positiveInteger <- nonNegativeInteger
+  datatype short <- int
+  datatype string <- sdml:datatype
+  datatype token <- normalizeString
+  datatype unsignedByte <- unsignedShort
+  datatype unsignedInt <- unsignedLong
+  datatype unsignedLong <- nonNegativeInteger
+  datatype unsignedShort <- unsignedInt
+
+  ;; Supported in RDF, not supported in OWL
+  datatype date <- sdml:datatype
+  datatype gDay <- sdml:datatype
+  datatype gMonth <- sdml:datatype
+  datatype gMonthDay <- sdml:datatype
+  datatype gYear <- sdml:datatype
+  datatype gYearMonth <- sdml:datatype
+  datatype time <- sdml:datatype
+
+  ;; duration  -- RDF Semantics notes: “does not have a well-defined value space; this may be corrected in later revisions of XSD”
+  ;; QName     -- Requires an enclosing XML document context
+  ;; ENTITY    -- Requires an enclosing XML document context
+  ;; ID        -- For cross references within an XML document
+  ;; IDREF     -- For cross references within an XML document
+  ;; NOTATION  -- Not intended for direct use
+  ;; IDREFS    -- Sequence-valued; does not fit the RDF datatype model
+  ;; ENTITIES  -- Sequence-valued; does not fit the RDF datatype model
+  ;; NMTOKENS  -- Sequence-valued; does not fit the RDF datatype model
+
+  ;; New in XSD 1.1, not supported in RDF or OWL
+  ;; datatype dateTimeStamp
+  ;; datatype dayTimeDuration
+  ;; datatype yearMonthDuration
+  ;; datatype precisionDecimal
+end

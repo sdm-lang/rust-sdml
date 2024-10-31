@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Union(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 54,
+                        end: 66,
+                    },
+                ),
+                value: "VehicleClass",
+            }: Union(
                 UnionDef {
                     span: Some(
                         Span {
@@ -80,29 +88,16 @@ Module {
                                 },
                             ),
                             annotations: [],
-                            variants: [
-                                TypeVariant {
+                            variants: {
+                                Identifier {
                                     span: Some(
                                         Span {
-                                            start: 74,
-                                            end: 77,
+                                            start: 82,
+                                            end: 86,
                                         },
                                     ),
-                                    name_reference: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 74,
-                                                    end: 77,
-                                                },
-                                            ),
-                                            value: "Car",
-                                        },
-                                    ),
-                                    rename: None,
-                                    body: None,
-                                },
-                                TypeVariant {
+                                    value: "Boat",
+                                }: TypeVariant {
                                     span: Some(
                                         Span {
                                             start: 82,
@@ -123,11 +118,40 @@ Module {
                                     rename: None,
                                     body: None,
                                 },
-                            ],
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 74,
+                                            end: 77,
+                                        },
+                                    ),
+                                    value: "Car",
+                                }: TypeVariant {
+                                    span: Some(
+                                        Span {
+                                            start: 74,
+                                            end: 77,
+                                        },
+                                    ),
+                                    name_reference: Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 74,
+                                                    end: 77,
+                                                },
+                                            ),
+                                            value: "Car",
+                                        },
+                                    ),
+                                    rename: None,
+                                    body: None,
+                                },
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

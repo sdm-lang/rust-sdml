@@ -85,6 +85,6 @@ Module {
                 },
             ),
         ],
-        definitions: [],
+        definitions: {},
     },
 }

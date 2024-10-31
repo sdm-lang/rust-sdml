@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Entity(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 65,
+                        end: 73,
+                    },
+                ),
+                value: "Campaign",
+            }: Entity(
                 EntityDef {
                     span: Some(
                         Span {
@@ -128,8 +136,16 @@ Module {
                                 ),
                             },
                             annotations: [],
-                            members: [
-                                Member {
+                            members: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 112,
+                                            end: 113,
+                                        },
+                                    ),
+                                    value: "b",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -194,7 +210,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 133,
+                                            end: 138,
+                                        },
+                                    ),
+                                    value: "c",
+                                }: Member {
                                     span: None,
                                     kind: Reference(
                                         Identifier(
@@ -210,11 +234,11 @@ Module {
                                         ),
                                     ),
                                 },
-                            ],
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

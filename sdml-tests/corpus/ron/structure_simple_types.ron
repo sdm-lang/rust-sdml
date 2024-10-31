@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Structure(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 31,
+                        end: 39,
+                    },
+                ),
+                value: "Duration",
+            }: Structure(
                 StructureDef {
                     span: Some(
                         Span {
@@ -80,8 +88,16 @@ Module {
                                 },
                             ),
                             annotations: [],
-                            members: [
-                                Member {
+                            members: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 47,
+                                            end: 48,
+                                        },
+                                    ),
+                                    value: "a",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -141,7 +157,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 64,
+                                            end: 65,
+                                        },
+                                    ),
+                                    value: "b",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -201,7 +225,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 80,
+                                            end: 81,
+                                        },
+                                    ),
+                                    value: "c",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -261,7 +293,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 97,
+                                            end: 98,
+                                        },
+                                    ),
+                                    value: "d",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -321,7 +361,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 114,
+                                            end: 115,
+                                        },
+                                    ),
+                                    value: "e",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -381,7 +429,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 130,
+                                            end: 131,
+                                        },
+                                    ),
+                                    value: "f",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -441,7 +497,15 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 146,
+                                            end: 147,
+                                        },
+                                    ),
+                                    value: "g",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -501,11 +565,11 @@ Module {
                                         },
                                     ),
                                 },
-                            ],
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

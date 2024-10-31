@@ -20,11 +20,11 @@ use sdml_errors::diagnostics::functions::{
     module_version_not_found, IdentifierCaseConvention,
 };
 use sdml_errors::{Error, FileId};
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::hash::Hash;
 use std::path::PathBuf;
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::BTreeSet, fmt::Debug};
 use url::Url;
 
 #[cfg(feature = "serde")]
@@ -76,7 +76,7 @@ pub struct ModuleBody {
     is_library: bool,        // <- to catch errors
     imports: Vec<ImportStatement>,
     annotations: Vec<Annotation>,
-    definitions: HashMap<Identifier, Definition>,
+    definitions: BTreeMap<Identifier, Definition>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ pub struct ModuleImport {
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Modules
+// Implementations ❱ Modules ❱ Module
 // ------------------------------------------------------------------------------------------------
 
 impl HasSourceSpan for Module {
@@ -173,18 +173,18 @@ impl HasBody for Module {
 }
 
 impl References for Module {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body.referenced_types(names);
     }
 
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body.referenced_annotations(names);
     }
 }
 
 impl Module {
     // --------------------------------------------------------------------------------------------
-    // Module :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub fn empty(name: Identifier) -> Self {
@@ -207,7 +207,7 @@ impl Module {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Module :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn with_source_file(self, source_file: PathBuf) -> Self {
@@ -309,27 +309,27 @@ impl Module {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+    pub fn imported_modules(&self) -> BTreeSet<&Identifier> {
         self.body.imported_modules()
     }
 
     #[inline(always)]
-    pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&HeaderValue<Url>>> {
+    pub fn imported_module_versions(&self) -> BTreeMap<&Identifier, Option<&HeaderValue<Url>>> {
         self.body.imported_module_versions()
     }
 
     #[inline(always)]
-    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+    pub fn imported_types(&self) -> BTreeSet<&QualifiedIdentifier> {
         self.body.imported_types()
     }
 
     #[inline(always)]
-    pub fn defined_names(&self) -> HashSet<&Identifier> {
+    pub fn defined_names(&self) -> BTreeSet<&Identifier> {
         self.body.defined_names()
     }
 
     // --------------------------------------------------------------------------------------------
-    // Module :: Pseudo-Validate
+    // Pseudo-Validate
     // --------------------------------------------------------------------------------------------
 
     pub fn is_incomplete(&self, cache: &InMemoryModuleCache) -> bool {
@@ -382,7 +382,7 @@ impl Module {
     }
 
     // --------------------------------------------------------------------------------------------
-    // Module :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn is_library_module(&self) -> bool {
@@ -394,6 +394,8 @@ impl Module {
     }
 }
 
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Modules ❱ HeaderValue
 // ------------------------------------------------------------------------------------------------
 
 impl<T> AsRef<T> for HeaderValue<T> {
@@ -473,6 +475,8 @@ impl<T> HeaderValue<T> {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Modules ❱ ModuleBody
+// ------------------------------------------------------------------------------------------------
 
 impl HasSourceSpan for ModuleBody {
     fn with_source_span(self, span: Span) -> Self {
@@ -499,7 +503,7 @@ impl HasAnnotations for ModuleBody {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 
@@ -522,20 +526,18 @@ impl HasAnnotations for ModuleBody {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
+        self.annotations.extend(extension)
     }
 }
 
 impl References for ModuleBody {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.definitions
-            .iter()
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
+        self.definitions()
             .for_each(|def| def.referenced_types(names))
     }
 
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.definitions
-            .iter()
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
+        self.definitions()
             .for_each(|def| def.referenced_annotations(names));
     }
 }
@@ -572,12 +574,36 @@ impl Validate for ModuleBody {
 }
 
 impl ModuleBody {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_imports<I>(self, import_statements: I) -> Self
+    where
+        I: IntoIterator<Item = ImportStatement>,
+    {
+        let mut self_mut = self;
+        self_mut.extend_imports(import_statements);
+        self_mut
+    }
+
+    pub fn with_definitions<I>(self, definitions: I) -> Self
+    where
+        I: IntoIterator<Item = Definition>,
+    {
+        let mut self_mut = self;
+        self_mut.extend_definitions(definitions).unwrap();
+        self_mut
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
     pub fn set_library_status(&mut self, module_name: &Identifier) {
         self.is_library = Identifier::is_library_module_name(module_name);
     }
 
-    // --------------------------------------------------------------------------------------------
-    // ModuleBody :: Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn has_imports(&self) -> bool {
@@ -612,35 +638,35 @@ impl ModuleBody {
 
     // --------------------------------------------------------------------------------------------
 
-    fn has_definitions(&self) -> bool {
+    pub fn has_definitions(&self) -> bool {
         !self.definitions.is_empty()
     }
 
-    fn definition_count(&self) -> usize {
+    pub fn definition_count(&self) -> usize {
         self.definitions.len()
     }
 
-    fn contains_definition(&self, name: &Identifier) -> bool {
+    pub fn contains_definition(&self, name: &Identifier) -> bool {
         self.definitions.contains_key(name)
     }
 
-    fn definition(&self, name: &Identifier) -> Option<&Definition> {
+    pub fn definition(&self, name: &Identifier) -> Option<&Definition> {
         self.definitions.get(name)
     }
 
-    fn definition_mut(&mut self, name: &Identifier) -> Option<&mut Definition> {
+    pub fn definition_mut(&mut self, name: &Identifier) -> Option<&mut Definition> {
         self.definitions.get_mut(name)
     }
 
-    fn definitions(&self) -> impl Iterator<Item = &Definition> {
+    pub fn definitions(&self) -> impl Iterator<Item = &Definition> {
         self.definitions.values()
     }
 
-    fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
+    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut Definition> {
         self.definitions.values_mut()
     }
 
-    fn definition_names(&self) -> impl Iterator<Item = &Identifier> {
+    pub fn definition_names(&self) -> impl Iterator<Item = &Identifier> {
         self.definitions.keys()
     }
 
@@ -657,7 +683,8 @@ impl ModuleBody {
             )
             .into())
         } else {
-            self.definitions.push(definition);
+            self.definitions
+                .insert(definition.name().clone(), definition);
             Ok(())
         }
     }
@@ -674,22 +701,22 @@ impl ModuleBody {
     }
 
     // --------------------------------------------------------------------------------------------
-    // ModuleBody :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
-    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+    pub fn imported_modules(&self) -> BTreeSet<&Identifier> {
         self.imports()
             .flat_map(|stmt| stmt.imported_modules())
             .collect()
     }
 
-    pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&HeaderValue<Url>>> {
+    pub fn imported_module_versions(&self) -> BTreeMap<&Identifier, Option<&HeaderValue<Url>>> {
         self.imports()
             .flat_map(|stmt| stmt.imported_module_versions())
             .collect()
     }
 
-    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+    pub fn imported_types(&self) -> BTreeSet<&QualifiedIdentifier> {
         self.imports()
             .flat_map(|stmt| stmt.imported_types())
             .collect()
@@ -774,13 +801,13 @@ impl ModuleBody {
         })
     }
 
-    pub fn defined_names(&self) -> HashSet<&Identifier> {
+    pub fn defined_names(&self) -> BTreeSet<&Identifier> {
         self.definitions().map(|def| def.name()).collect()
     }
 }
 
 // ------------------------------------------------------------------------------------------------
-// Implementations ❱ Modules ❱ Imports
+// Implementations ❱ Modules ❱ ImportStatement
 // ------------------------------------------------------------------------------------------------
 
 impl From<Import> for ImportStatement {
@@ -923,7 +950,7 @@ impl Validate for ImportStatement {
 
 impl ImportStatement {
     // --------------------------------------------------------------------------------------------
-    // ImportStatement :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
 
     pub const fn new(imports: Vec<Import>) -> Self {
@@ -957,7 +984,7 @@ impl ImportStatement {
     }
 
     // --------------------------------------------------------------------------------------------
-    // ImportStatement :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub fn has_imports(&self) -> bool {
@@ -998,7 +1025,7 @@ impl ImportStatement {
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn imported_modules(&self) -> HashSet<&Identifier> {
+    pub fn imported_modules(&self) -> BTreeSet<&Identifier> {
         self.imports()
             .map(|imp| match imp {
                 Import::Module(v) => v.name(),
@@ -1007,14 +1034,14 @@ impl ImportStatement {
             .collect()
     }
 
-    pub fn imported_module_versions(&self) -> HashMap<&Identifier, Option<&HeaderValue<Url>>> {
-        HashMap::from_iter(self.imports().map(|imp| match imp {
+    pub fn imported_module_versions(&self) -> BTreeMap<&Identifier, Option<&HeaderValue<Url>>> {
+        BTreeMap::from_iter(self.imports().map(|imp| match imp {
             Import::Module(v) => (v.name(), v.version_uri()),
             Import::Member(v) => (v.module(), None),
         }))
     }
 
-    pub fn imported_types(&self) -> HashSet<&QualifiedIdentifier> {
+    pub fn imported_types(&self) -> BTreeSet<&QualifiedIdentifier> {
         self.imports()
             .filter_map(|imp| {
                 if let Import::Member(imp) = imp {
@@ -1128,6 +1155,8 @@ impl Import {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Implementations ❱ Modules ❱ ModuleImport
+// ------------------------------------------------------------------------------------------------
 
 impl Display for ModuleImport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -1187,7 +1216,7 @@ impl HasSourceSpan for ModuleImport {
 
 impl ModuleImport {
     // --------------------------------------------------------------------------------------------
-    // ModuleImport :: Constructors
+    // Constructors
     // --------------------------------------------------------------------------------------------
     pub const fn new(name: Identifier) -> Self {
         Self {
@@ -1205,7 +1234,7 @@ impl ModuleImport {
     }
 
     // --------------------------------------------------------------------------------------------
-    // ModuleImport :: Fields
+    // Fields
     // --------------------------------------------------------------------------------------------
 
     pub const fn name(&self) -> &Identifier {
@@ -1233,7 +1262,7 @@ impl ModuleImport {
     }
 
     // --------------------------------------------------------------------------------------------
-    // ModuleImport :: Helpers
+    // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {

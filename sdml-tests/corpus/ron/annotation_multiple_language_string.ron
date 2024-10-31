@@ -170,6 +170,6 @@ Module {
                 },
             ),
         ],
-        definitions: [],
+        definitions: {},
     },
 }

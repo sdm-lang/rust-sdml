@@ -4,7 +4,7 @@ Provide the Rust types that implement an in-memory representation of the SDML Gr
 
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use std::{
-    collections::HashSet,
+    collections::BTreeSet,
     fmt::{Debug, Display},
     hash::Hash,
     ops::Range,
@@ -108,10 +108,10 @@ pub trait HasSourceSpan {
 ///
 pub trait References {
     #[allow(unused_variables)]
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {}
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {}
 
     #[allow(unused_variables)]
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {}
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {}
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -209,9 +209,6 @@ impl Span {
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
-
-#[macro_use]
-mod macros;
 
 pub mod comments;
 

@@ -144,6 +144,6 @@ Module {
                 },
             ),
         ],
-        definitions: [],
+        definitions: {},
     },
 }

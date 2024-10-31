@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Entity(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 68,
+                        end: 76,
+                    },
+                ),
+                value: "Campaign",
+            }: Entity(
                 EntityDef {
                     span: Some(
                         Span {
@@ -116,8 +124,16 @@ Module {
                                 ),
                             },
                             annotations: [],
-                            members: [
-                                Member {
+                            members: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 113,
+                                            end: 114,
+                                        },
+                                    ),
+                                    value: "a",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -153,11 +169,11 @@ Module {
                                         },
                                     ),
                                 },
-                            ],
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

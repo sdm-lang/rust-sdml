@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Dimension(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 76,
+                        end: 85,
+                    },
+                ),
+                value: "Campaigns",
+            }: Dimension(
                 DimensionDef {
                     span: Some(
                         Span {
@@ -130,9 +138,41 @@ Module {
                                     ),
                                 },
                             ),
-                            parents: [],
-                            members: [
-                                Member {
+                            parents: {},
+                            members: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 146,
+                                            end: 156,
+                                        },
+                                    ),
+                                    value: "Target",
+                                }: Member {
+                                    span: None,
+                                    kind: Reference(
+                                        Identifier(
+                                            Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 146,
+                                                        end: 156,
+                                                    },
+                                                ),
+                                                value: "Target",
+                                            },
+                                        ),
+                                    ),
+                                },
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 129,
+                                            end: 133,
+                                        },
+                                    ),
+                                    value: "name",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -180,27 +220,11 @@ Module {
                                         },
                                     ),
                                 },
-                                Member {
-                                    span: None,
-                                    kind: Reference(
-                                        Identifier(
-                                            Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 146,
-                                                        end: 156,
-                                                    },
-                                                ),
-                                                value: "Target",
-                                            },
-                                        ),
-                                    ),
-                                },
-                            ],
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

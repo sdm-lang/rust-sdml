@@ -17,7 +17,9 @@ use url::Url;
 // ------------------------------------------------------------------------------------------------
 
 pub const MODULE_NAME: &str = "iso_4217";
-pub const MODULE_URL: &str = "https://sdml.io/modules/iso4217/2020.ttl#";
+library_module_url! { "iso", "4217-2020" }
+
+pub const MODULE_SRC: &str = include_str!("iso_4217.sdml");
 
 pub const CURRENCY_CODE_ALPHA: &str = "CurrencyCodeAlpha";
 pub const CURRENCY_CODE_NUMERIC: &str = "CurrencyCodeNumeric";

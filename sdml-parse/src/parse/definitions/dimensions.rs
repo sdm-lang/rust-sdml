@@ -8,7 +8,7 @@ use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::definitions::{
-    DimensionBody, DimensionDef, DimensionIdentity, DimensionParent, HasMembers, SourceEntity,
+    DimensionBody, DimensionDef, DimensionIdentity, DimensionParent, SourceEntity,
 };
 
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};

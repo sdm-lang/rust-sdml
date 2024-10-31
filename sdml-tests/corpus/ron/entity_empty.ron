@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Entity(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 48,
+                        end: 56,
+                    },
+                ),
+                value: "Campaign",
+            }: Entity(
                 EntityDef {
                     span: Some(
                         Span {
@@ -74,6 +82,6 @@ Module {
                     body: None,
                 },
             ),
-        ],
+        },
     },
 }

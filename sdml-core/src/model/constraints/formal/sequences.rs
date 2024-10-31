@@ -1,7 +1,7 @@
 use crate::model::{
     constraints::QuantifiedSentence, identifiers::Identifier, HasBody, HasSourceSpan, Span,
 };
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -32,7 +32,7 @@ pub enum Variables {
 pub struct NamedVariables {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    names: HashSet<Identifier>,
+    names: BTreeSet<Identifier>,
 }
 
 #[derive(Clone, Debug)]
@@ -209,14 +209,14 @@ impl FromIterator<Identifier> for NamedVariables {
     }
 }
 
-impl AsRef<HashSet<Identifier>> for NamedVariables {
-    fn as_ref(&self) -> &HashSet<Identifier> {
+impl AsRef<BTreeSet<Identifier>> for NamedVariables {
+    fn as_ref(&self) -> &BTreeSet<Identifier> {
         &self.names
     }
 }
 
-impl AsMut<HashSet<Identifier>> for NamedVariables {
-    fn as_mut(&mut self) -> &mut HashSet<Identifier> {
+impl AsMut<BTreeSet<Identifier>> for NamedVariables {
+    fn as_mut(&mut self) -> &mut BTreeSet<Identifier> {
         &mut self.names
     }
 }
@@ -226,7 +226,7 @@ impl NamedVariables {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(names: HashSet<Identifier>) -> Self {
+    pub fn new(names: BTreeSet<Identifier>) -> Self {
         Self {
             span: Default::default(),
             names,

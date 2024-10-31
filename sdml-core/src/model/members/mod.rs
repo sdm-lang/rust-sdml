@@ -1,23 +1,25 @@
 /*!
 Provide the Rust types that implement *member*-related components of the SDML Grammar.
 */
-use crate::load::ModuleLoader;
-use crate::model::annotations::{
-    AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
+
+use crate::{
+    load::ModuleLoader,
+    model::{
+        annotations::{AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations},
+        check::{find_definition, MaybeIncomplete, Validate},
+        definitions::Definition,
+        identifiers::{Identifier, IdentifierReference},
+        modules::Module,
+        values::Value,
+        HasName, HasOptionalBody, HasSourceSpan, References, Span,
+    },
+    store::ModuleStore,
 };
-use crate::model::check::{find_definition, MaybeIncomplete, Validate};
-use crate::model::definitions::Definition;
-use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::modules::Module;
-use crate::model::values::Value;
-use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References, Span};
-use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     member_is_incomplete, property_reference_not_property, type_definition_not_found,
     IdentifierCaseConvention,
 };
-use std::collections::HashSet;
-use std::fmt::Debug;
+use std::{collections::BTreeSet, fmt::Debug};
 use tracing::error;
 
 #[cfg(feature = "serde")]
@@ -162,7 +164,7 @@ impl Validate for Member {
 }
 
 impl References for Member {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match &self.kind {
             MemberKind::Reference(v) => {
                 names.insert(v);
@@ -171,7 +173,7 @@ impl References for Member {
         }
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match &self.kind {
             MemberKind::Reference(v) => {
                 names.insert(v);
@@ -232,7 +234,7 @@ impl Member {
     // Delegated
     // --------------------------------------------------------------------------------------------
 
-    pub const fn name(&self) -> &Identifier {
+    pub fn name(&self) -> &Identifier {
         match self.kind() {
             MemberKind::Reference(v) => v.member(),
             MemberKind::Definition(defn) => defn.name(),
@@ -296,7 +298,7 @@ impl MemberKind {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
-    
+
     pub const fn is_definition(&self) -> bool {
         matches!(self, Self::Definition(_))
     }
@@ -410,14 +412,14 @@ impl AnnotationBuilder for MemberDef {
 }
 
 impl References for MemberDef {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body
             .as_ref()
             .map(|b| b.referenced_annotations(names))
             .unwrap_or_default()
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.target_type.referenced_types(names);
     }
 }

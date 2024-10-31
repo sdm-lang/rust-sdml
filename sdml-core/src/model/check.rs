@@ -3,12 +3,11 @@ Provides types for model checking.
 
 */
 
-use super::HasName;
-use crate::load::ModuleLoader;
-use crate::model::definitions::Definition;
-use crate::model::identifiers::IdentifierReference;
-use crate::model::modules::Module;
-use crate::store::ModuleStore;
+use crate::{
+    load::ModuleLoader,
+    model::{definitions::Definition, identifiers::IdentifierReference, modules::Module, HasName},
+    store::ModuleStore,
+};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -69,20 +68,16 @@ pub fn find_definition<'a>(
 
 #[cfg(feature = "terms")]
 pub mod terms {
-    use std::collections::HashMap;
-
-    use crate::load::ModuleLoader;
-    use crate::model::annotations::*;
-    use crate::model::constraints::*;
-    use crate::model::definitions::*;
-    use crate::model::identifiers::*;
-    use crate::model::members::*;
-    use crate::model::modules::*;
-    use crate::model::values::*;
-    use crate::model::*;
-    use sdml_errors::diagnostics::functions::deprecated_term_used;
-    use sdml_errors::Error;
+    use crate::{
+        load::ModuleLoader,
+        model::{
+            annotations::*, constraints::*, definitions::*, identifiers::*, members::*, modules::*,
+            values::*, *,
+        },
+    };
+    use sdml_errors::{diagnostics::functions::deprecated_term_used, Error};
     use serde::{Deserialize, Serialize};
+    use std::collections::{HashMap, HashSet};
 
     // --------------------------------------------------------------------------------------------
     // Public Types
@@ -288,7 +283,7 @@ pub mod terms {
                 Self::ValueConstructor(v) => v.validate_terms(validator, top, loader),
                 Self::Mapping(v) => v.validate_terms(validator, top, loader),
                 Self::Reference(v) => v.validate_terms(validator, top, loader),
-                Self::List(v) => v.validate_terms(validator, top, loader),
+                Self::Sequence(v) => v.validate_terms(validator, top, loader),
             }
         }
     }

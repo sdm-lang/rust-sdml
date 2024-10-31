@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Dimension(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 64,
+                        end: 73,
+                    },
+                ),
+                value: "Campaigns",
+            }: Dimension(
                 DimensionDef {
                     span: Some(
                         Span {
@@ -130,12 +138,12 @@ Module {
                                     ),
                                 },
                             ),
-                            parents: [],
-                            members: [],
+                            parents: {},
+                            members: {},
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

@@ -1,0 +1,62 @@
+module sdml_names is
+
+  import skos
+
+  class Named(T) is
+
+    @skos:definition
+      = "Implemented by model elements that have a distinct name within some namespace."@en
+
+    def name(v -> T) -> Identifier := member(qualified_name(t)) is
+      @skos:definition
+        = "Return the name of the defined model element."@en
+    end
+
+    def qualified_name(v -> T) → QualifiedIdentifier is
+      @skos:description
+        = "The qualified identifier that names this type. In all cases the module portion
+           of the name will be ~sdml~."@en
+      @skos:example
+        = "~type_of(rentals:Customer) = sdml:Entity~"
+    end
+
+    def iri(v -> T) -> iri is
+      @skos:definition = "Return the IRI of the defined model element."@en
+    end
+
+  end
+
+  class Namespace(T E -> Named) is
+
+    def members(v -> T) -> {unique 0..} E is
+      @skos:definition
+        = "Return a set containing the members of this namespace."@en
+    end
+
+    def get_member(v -> T name -> Identifier) -> ?E is
+      @skos:definition
+        = "Return the member of this namespace with the name ~name~."@en
+    end
+
+    def has_member(v -> T id -> Identifier) -> boolean := has(get_member(v id)) is
+      @skos:definition
+        = "Return ~true~ if this namespace contains a member with the name ~name~."@en
+    end
+
+  end
+
+  class Member(T -> Named N -> Namespace(_ T) M -> Module) is
+
+    def container(v -> T) -> N is
+      @skos:definition
+        = "Return the container to which this member belongs."@en
+    end
+
+    def module(v -> T) -> M is
+      @skos:definition
+        = "Return the module to which this member (transitively) belongs."@en
+    end
+
+  end
+
+end

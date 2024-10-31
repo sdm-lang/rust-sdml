@@ -1,0 +1,34 @@
+module sdml_types is
+
+  import skos
+
+  class Typed(T) is
+
+    @skos:definition = "Implemented by model elements that have a type."@en
+
+    def target_cardinality(v -> T) -> ?Cardinality
+
+    def target_type(v -> T) → Type is
+      @skos:definition = "Returns the SDML type of the passed value."@en
+      @skos:example = "~type_of(rentals:Customer) = sdml:Entity~"
+    end
+
+  end
+
+  class Cardinality(T) is
+
+    def min_occurs(v -> T) -> unsigned
+
+    def max_occurs(v -> T) -> ?unsigned
+
+    def is_one(v -> T) -> boolean
+      := is(max_occurs(v) min_occurs(v))
+
+    def is_range(v -> T) -> boolean
+      := has_not(max_occurs(v)) or is_not(max_occurs(v) min_occurs(v))
+
+    def is_unbounded(v -> T) -> boolean
+      := has_not(max_occurs(v))
+  end
+
+end

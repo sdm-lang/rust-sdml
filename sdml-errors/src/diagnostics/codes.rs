@@ -43,6 +43,9 @@ pub enum ErrorCode {
     FeatureSetNotUnion = 119, // <<< deprecated
     PropertyReferenceNotProperty = 120,
     LibraryDefinitionNotAllowed = 121,
+    DimensionParentNotEntity = 122,
+    SourceEntityNotEntity = 123,
+    SourceEntityMissingMember = 124,
 
     // --------------------------------------------------------------------------------------------
     // Warnings
@@ -120,7 +123,10 @@ impl ErrorCode {
             | Self::RdfDefinitionIncompatible
             | Self::FeatureSetNotUnion
             | Self::PropertyReferenceNotProperty
-            | Self::LibraryDefinitionNotAllowed => Severity::Error,
+            | Self::LibraryDefinitionNotAllowed
+            | Self::DimensionParentNotEntity
+            | Self::SourceEntityNotEntity
+            | Self::SourceEntityMissingMember => Severity::Error,
             Self::DuplicateModuleImport
             | Self::DuplicateDefinitionImport
             | Self::ValidationIncomplete
@@ -177,6 +183,9 @@ impl ErrorCode {
             Self::FeatureSetNotUnion => i18n!("msg_featureset_not_union"),
             Self::PropertyReferenceNotProperty => i18n!("msg_property_reference_not_property"),
             Self::LibraryDefinitionNotAllowed => i18n!("msg_library_definition_not_allowed"),
+            Self::DimensionParentNotEntity => i18n!("msg_dimension_parent_not_entity"),
+            Self::SourceEntityNotEntity => i18n!("msg_source_entity_not_entity"),
+            Self::SourceEntityMissingMember => i18n!("msg_source_entity_missing_member"),
             Self::DeprecatedTermUsed => i18n!("msg_deprecated_term_used"),
             Self::DuplicateModuleImport => i18n!("msg_duplicate_module_import"),
             Self::DuplicateDefinitionImport => i18n!("msg_duplicate_definition_import"),

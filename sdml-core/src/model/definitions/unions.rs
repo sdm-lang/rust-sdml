@@ -13,7 +13,10 @@ use crate::{
     store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
-use std::{collections::{HashMap, HashSet}, fmt::Debug};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Debug,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -41,8 +44,8 @@ pub struct UnionBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
-    variants: HashMap<Identifier, TypeVariant>, // assert!(!variants.is_empty());
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
+    variants: BTreeMap<Identifier, TypeVariant>, // assert!(!variants.is_empty());
 }
 
 /// Corresponds to the grammar rule `type_variant`.
@@ -135,7 +138,7 @@ impl Validate for UnionDef {
 }
 
 impl References for UnionDef {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body
             .as_ref()
             .map(|b| b.referenced_annotations(names))
@@ -173,7 +176,7 @@ impl HasAnnotations for UnionBody {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 
@@ -251,9 +254,8 @@ impl AnnotationBuilder for UnionDef {
 }
 
 impl References for UnionBody {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.variants
-            .iter()
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
+        self.variants()
             .for_each(|v| v.referenced_annotations(names));
     }
 }
@@ -268,10 +270,7 @@ impl UnionBody {
         I: IntoIterator<Item = TypeVariant>,
     {
         let mut self_mut = self;
-        self_mut.variants = variants
-            .into_iter()
-            .map(|elem| (elem.name().clone(), elem))
-            .collect();
+        self_mut.extend_variants(variants);
         self_mut
     }
 
@@ -279,43 +278,43 @@ impl UnionBody {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_empty(&self) -> bool {
-        self.variants.is_empty()
+    pub fn has_variants(&self) -> bool {
+        !self.variants.is_empty()
     }
 
-    pub fn len(&self) -> usize {
+    pub fn variant_count(&self) -> usize {
         self.variants.len()
     }
 
-    pub fn contains(&self, name: &Identifier) -> bool {
+    pub fn contains_variant(&self, name: &Identifier) -> bool {
         self.variants.contains_key(name)
     }
 
-    pub fn get(&self, name: &Identifier) -> Option<&TypeVariant> {
+    pub fn variant(&self, name: &Identifier) -> Option<&TypeVariant> {
         self.variants.get(name)
     }
 
-    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut TypeVariant> {
+    pub fn variant_mut(&mut self, name: &Identifier) -> Option<&mut TypeVariant> {
         self.variants.get_mut(name)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &TypeVariant> {
+    pub fn variants(&self) -> impl Iterator<Item = &TypeVariant> {
         self.variants.values()
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut TypeVariant> {
+    pub fn variants_mut(&mut self) -> impl Iterator<Item = &mut TypeVariant> {
         self.variants.values_mut()
     }
 
-    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+    pub fn variant_names(&self) -> impl Iterator<Item = &Identifier> {
         self.variants.keys()
     }
 
-    pub fn insert(&mut self, value: TypeVariant) -> Option<TypeVariant> {
+    pub fn add_to_variants(&mut self, value: TypeVariant) -> Option<TypeVariant> {
         self.variants.insert(value.name().clone(), value)
     }
 
-    pub fn extend<I>(&mut self, extension: I)
+    pub fn extend_variants<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = TypeVariant>,
     {
@@ -415,7 +414,7 @@ impl Validate for TypeVariant {
 }
 
 impl References for TypeVariant {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body
             .as_ref()
             .map(|b| b.referenced_annotations(names))

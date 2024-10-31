@@ -104,6 +104,6 @@ Module {
             },
         ],
         annotations: [],
-        definitions: [],
+        definitions: {},
     },
 }

@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Dimension(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 74,
+                        end: 83,
+                    },
+                ),
+                value: "Campaigns",
+            }: Dimension(
                 DimensionDef {
                     span: Some(
                         Span {
@@ -97,8 +105,16 @@ Module {
                                     with_members: [],
                                 },
                             ),
-                            parents: [
-                                DimensionParent {
+                            parents: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 118,
+                                            end: 127,
+                                        },
+                                    ),
+                                    value: "portfolio",
+                                }: DimensionParent {
                                     span: None,
                                     name: Identifier {
                                         span: Some(
@@ -122,12 +138,12 @@ Module {
                                     ),
                                     body: None,
                                 },
-                            ],
-                            members: [],
+                            },
+                            members: {},
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

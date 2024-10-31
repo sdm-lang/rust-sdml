@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Structure(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 32,
+                        end: 37,
+                    },
+                ),
+                value: "Thing",
+            }: Structure(
                 StructureDef {
                     span: Some(
                         Span {
@@ -80,8 +88,16 @@ Module {
                                 },
                             ),
                             annotations: [],
-                            members: [
-                                Member {
+                            members: {
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 45,
+                                            end: 55,
+                                        },
+                                    ),
+                                    value: "properties",
+                                }: Member {
                                     span: None,
                                     kind: Definition(
                                         MemberDef {
@@ -181,11 +197,11 @@ Module {
                                         },
                                     ),
                                 },
-                            ],
+                            },
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

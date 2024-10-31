@@ -9,8 +9,6 @@ YYYYY
 
 */
 
-use std::collections::{HashMap, HashSet};
-
 use crate::load::ModuleLoader;
 use crate::model::annotations::{
     Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations,
@@ -22,6 +20,7 @@ use crate::model::modules::Module;
 use crate::model::values::Value;
 use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References, Span};
 use crate::store::ModuleStore;
+use std::collections::{BTreeMap, BTreeSet};
 
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
@@ -84,8 +83,8 @@ pub struct TypeClassBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
-    methods: HashMap<Identifier, MethodDef>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
+    methods: BTreeMap<Identifier, MethodDef>,
 }
 
 /// Corresponds to the grammar rule `method_def`.
@@ -178,9 +177,9 @@ impl MaybeIncomplete for TypeClassDef {
 }
 
 impl References for TypeClassDef {
-    fn referenced_types<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
+    fn referenced_types<'a>(&'a self, _names: &mut BTreeSet<&'a IdentifierReference>) {}
 
-    fn referenced_annotations<'a>(&'a self, _names: &mut HashSet<&'a IdentifierReference>) {}
+    fn referenced_annotations<'a>(&'a self, _names: &mut BTreeSet<&'a IdentifierReference>) {}
 }
 
 impl Validate for TypeClassDef {
@@ -218,11 +217,11 @@ impl TypeClassDef {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub const fn has_variables(&self) -> bool {
+    pub fn has_variables(&self) -> bool {
         !self.variables.is_empty()
     }
 
-    pub const fn variables_len(&self) -> usize {
+    pub fn variable_count(&self) -> usize {
         self.variables.len()
     }
 
@@ -336,11 +335,11 @@ impl TypeVariable {
 
     // --------------------------------------------------------------------------------------------
 
-    pub const fn has_restrictions(&self) -> bool {
+    pub fn has_restrictions(&self) -> bool {
         !self.restrictions.is_empty()
     }
 
-    pub const fn restrictions_len(&self) -> usize {
+    pub fn restrictions_len(&self) -> usize {
         self.restrictions.len()
     }
 
@@ -428,11 +427,11 @@ impl TypeClassReference {
 
     // --------------------------------------------------------------------------------------------
 
-    pub const fn has_arguments(&self) -> bool {
+    pub fn has_arguments(&self) -> bool {
         !self.arguments.is_empty()
     }
 
-    pub const fn arguments_len(&self) -> usize {
+    pub fn arguments_len(&self) -> usize {
         self.arguments.len()
     }
 
@@ -469,17 +468,11 @@ impl TypeClassArgument {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_wildcard(&self) -> bool {
-        match self {
-            Self::Wildcard => true,
-            _ => false,
-        }
+        matches!(self, Self::Wildcard)
     }
 
     pub const fn is_reference(&self) -> bool {
-        match self {
-            Self::Reference(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Reference(_))
     }
 
     pub const fn as_reference(&self) -> Option<&TypeClassReference> {
@@ -519,7 +512,7 @@ impl HasAnnotations for TypeClassBody {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 
@@ -568,43 +561,43 @@ impl TypeClassBody {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_empty(&self) -> bool {
-        self.methods.is_empty()
+    pub fn has_methods(&self) -> bool {
+        !self.methods.is_empty()
     }
 
-    pub fn len(&self) -> usize {
+    pub fn method_count(&self) -> usize {
         self.methods.len()
     }
 
-    pub fn contains(&self, name: &Identifier) -> bool {
+    pub fn contains_method(&self, name: &Identifier) -> bool {
         self.methods.contains_key(name)
     }
 
-    pub fn get(&self, name: &Identifier) -> Option<&MethodDef> {
+    pub fn method(&self, name: &Identifier) -> Option<&MethodDef> {
         self.methods.get(name)
     }
 
-    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut MethodDef> {
+    pub fn method_mut(&mut self, name: &Identifier) -> Option<&mut MethodDef> {
         self.methods.get_mut(name)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &MethodDef> {
+    pub fn methods(&self) -> impl Iterator<Item = &MethodDef> {
         self.methods.values()
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut MethodDef> {
+    pub fn methods_mut(&mut self) -> impl Iterator<Item = &mut MethodDef> {
         self.methods.values_mut()
     }
 
-    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+    pub fn method_names(&self) -> impl Iterator<Item = &Identifier> {
         self.methods.keys()
     }
 
-    pub fn insert(&mut self, value: MethodDef) -> Option<MethodDef> {
+    pub fn add_to_methods(&mut self, value: MethodDef) -> Option<MethodDef> {
         self.methods.insert(value.name().clone(), value)
     }
 
-    pub fn extend<I>(&mut self, extension: I)
+    pub fn extend_methods<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = MethodDef>,
     {
@@ -625,7 +618,7 @@ impl HasAnnotations for MethodDef {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 

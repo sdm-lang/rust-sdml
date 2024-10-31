@@ -175,6 +175,7 @@ macro_rules! test_setup {
 
         $crate::test_suite! {
             dimension => (
+                dimension_empty,
                 dimension_with_identity,
                 dimension_with_identity_and_members,
                 dimension_with_identity_and_parents,

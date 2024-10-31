@@ -1057,7 +1057,7 @@ impl RdfModelGenerator {
             Value::ValueConstructor(v) => self.value_constructor_to_string(v, module_name),
             Value::Mapping(v) => self.mapping_value_to_string(v, module_name),
             Value::Reference(v) => self.type_reference_to_string(v, module_name),
-            Value::List(v) => self.list_value_to_string(v, module_name),
+            Value::Sequence(v) => self.list_value_to_string(v, module_name),
         }
     }
 

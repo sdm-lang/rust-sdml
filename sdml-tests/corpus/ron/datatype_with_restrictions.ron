@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Datatype(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 30,
+                        end: 40,
+                    },
+                ),
+                value: "unixUserId",
+            }: Datatype(
                 DatatypeDef {
                     span: Some(
                         Span {
@@ -157,6 +165,6 @@ Module {
                     ),
                 },
             ),
-        ],
+        },
     },
 }

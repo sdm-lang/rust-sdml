@@ -228,7 +228,7 @@ pub fn value_to_value(value: &SdmlValue) -> Value {
             value_map.insert(KEY_META_TYPE.into(), KEY_TYPE_REF.into());
             value_map.insert(KEY_VALUE.into(), v.to_string().into());
         }
-        SdmlValue::List(vs) => add_value_list(vs, &mut value_map),
+        SdmlValue::Sequence(vs) => add_value_list(vs, &mut value_map),
     }
 
     value_map.into()

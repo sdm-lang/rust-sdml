@@ -110,6 +110,6 @@ Module {
             },
         ],
         annotations: [],
-        definitions: [],
+        definitions: {},
     },
 }

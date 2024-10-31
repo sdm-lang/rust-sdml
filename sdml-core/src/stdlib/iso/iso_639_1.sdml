@@ -1,0 +1,19 @@
+module iso_639_1 <https://sdml.io/stdlib/iso/639-1#> is
+
+  import [ dc rdfs skos xsd ]
+
+  @dc:title = "Codes for the representation of names of languages — Part 1: Alpha-2 code"@en
+  @dc:title = "Codes pour la représentation des noms de langue — Partie 1: Code alpha-2"@fr
+  @dc:identifier = "ISO 639-1:2002"
+  @dc:publisher = <https://www.iso.org>
+  @dc:issued = "2023-11"
+  @dc:replaces = "ISO 639-1:2002, ISO 639-2:1998, ISO 639-3:2007, ISO 639-4:2010, ISO 639-5:2008"
+  @rdfs:isDefinedBy = <https://www.iso.org/standard/74575.html>
+
+  datatype LanguageCodeAlpha2 <- xsd:string is
+    @xsd:pattern = "^[A-Z]{2}$"
+    @skos:prefLabel = "alpha-2 code"@en
+    @skos:prefLabel = "code alpha-2"@fr
+  end
+
+end

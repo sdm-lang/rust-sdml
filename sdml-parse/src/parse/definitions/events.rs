@@ -6,7 +6,7 @@ use crate::parse::{parse_comment, ParseContext};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{EventBody, EventDef, HasMembers};
+use sdml_core::model::definitions::{EventBody, EventDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,

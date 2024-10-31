@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Union(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 46,
+                        end: 58,
+                    },
+                ),
+                value: "VehicleClass",
+            }: Union(
                 UnionDef {
                     span: Some(
                         Span {
@@ -74,6 +82,6 @@ Module {
                     body: None,
                 },
             ),
-        ],
+        },
     },
 }

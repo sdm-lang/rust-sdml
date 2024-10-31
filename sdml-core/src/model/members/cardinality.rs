@@ -109,7 +109,7 @@ impl From<CardinalityRange> for Cardinality {
 
 impl From<&CardinalityRange> for Cardinality {
     fn from(range: &CardinalityRange) -> Self {
-        Self::new(None, None, *range)
+        Self::new(None, None, range.clone())
     }
 }
 

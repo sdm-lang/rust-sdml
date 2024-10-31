@@ -12,14 +12,14 @@ module dimension is
 
   entity Country
 
+  dimension ByState is
+    identity state_id -> string
+  end
+
   dimension ByLocation is
     source Sale with [ store city ]
     parent state -> ByState
     label -> string
-  end
-
-  dimension ByState is
-    identity state_id -> string
   end
 
 end

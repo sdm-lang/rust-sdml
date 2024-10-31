@@ -1,4 +1,5 @@
 use crate::load::ModuleLoader;
+use crate::model::annotations::HasAnnotations;
 use crate::model::annotations::{AnnotationBuilder, AnnotationProperty};
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
@@ -15,7 +16,7 @@ use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::{
     datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
 };
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::BTreeSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -172,11 +173,11 @@ impl Validate for DatatypeDef {
 }
 
 impl References for DatatypeDef {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         names.insert(&self.base_type);
     }
 
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body
             .as_ref()
             .map(|b| b.referenced_annotations(names))

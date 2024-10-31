@@ -153,7 +153,7 @@ impl PartialOrd for Identifier {
 
 impl Ord for Identifier {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.value.cmp(&other.value)
+        self.as_ref().cmp(other.as_ref())
     }
 }
 
@@ -365,6 +365,22 @@ impl Hash for QualifiedIdentifier {
     }
 }
 
+impl PartialOrd for QualifiedIdentifier {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for QualifiedIdentifier {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.module.as_ref().cmp(other.module.as_ref()) {
+            core::cmp::Ordering::Equal => {}
+            ord => return ord,
+        }
+        self.member.as_ref().cmp(other.member.as_ref())
+    }
+}
+
 impl Display for QualifiedIdentifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}:{}", self.module, self.member)
@@ -394,6 +410,14 @@ impl QualifiedIdentifier {
     // --------------------------------------------------------------------------------------------
     // Constructors
     // --------------------------------------------------------------------------------------------
+
+    pub fn new_unchecked(module: &str, member: &str) -> Self {
+        Self {
+            span: None,
+            module: Identifier::new_unchecked(module),
+            member: Identifier::new_unchecked(member),
+        }
+    }
 
     pub const fn new(module: Identifier, member: Identifier) -> Self {
         Self {
@@ -517,9 +541,22 @@ impl Hash for IdentifierReference {
     }
 }
 
+impl PartialOrd for IdentifierReference {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for IdentifierReference {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.to_string().cmp(&other.to_string())
+    }
+}
+
 impl std::fmt::Display for IdentifierReference {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f,
+        write!(
+            f,
             "{}",
             match self {
                 Self::Identifier(v) => v.to_string(),

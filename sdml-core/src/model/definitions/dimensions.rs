@@ -3,17 +3,26 @@ use crate::{
     model::{
         annotations::{
             Annotation, AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
-        }, check::{find_definition, MaybeIncomplete, Validate}, identifiers::{Identifier, IdentifierReference}, members::Member, modules::Module, values::Value, HasName, HasOptionalBody, HasSourceSpan, References, Span
+        },
+        check::{find_definition, MaybeIncomplete, Validate},
+        identifiers::{Identifier, IdentifierReference},
+        members::Member,
+        modules::Module,
+        values::Value,
+        HasName, HasOptionalBody, HasSourceSpan, References, Span,
     },
     stdlib::is_builtin_type_name,
     store::ModuleStore,
 };
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, BTreeSet},
     fmt::Debug,
 };
 
-use sdml_errors::diagnostics::functions::{type_definition_not_found, IdentifierCaseConvention};
+use sdml_errors::diagnostics::functions::{
+    dimension_parent_not_entity, source_entity_missing_member, source_entity_not_entity,
+    type_definition_not_found, IdentifierCaseConvention,
+};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -41,10 +50,10 @@ pub struct DimensionBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
     identity: DimensionIdentity,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
-    parents: HashMap<Identifier, DimensionParent>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
-    members: HashMap<Identifier, Member>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
+    parents: BTreeMap<Identifier, DimensionParent>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
+    members: BTreeMap<Identifier, Member>,
 }
 
 /// Corresponds to the anonymous grammar rule in `dimension_body`.
@@ -134,7 +143,7 @@ impl HasSourceSpan for DimensionDef {
 impl References for DimensionDef {
     fn referenced_annotations<'a>(
         &'a self,
-        names: &mut ::std::collections::HashSet<&'a IdentifierReference>,
+        names: &mut ::std::collections::BTreeSet<&'a IdentifierReference>,
     ) {
         if let Some(inner) = &self.body {
             inner.referenced_annotations(names);
@@ -143,7 +152,7 @@ impl References for DimensionDef {
 
     fn referenced_types<'a>(
         &'a self,
-        names: &mut ::std::collections::HashSet<&'a IdentifierReference>,
+        names: &mut ::std::collections::BTreeSet<&'a IdentifierReference>,
     ) {
         if let Some(inner) = &self.body {
             inner.referenced_types(names);
@@ -221,7 +230,7 @@ impl HasAnnotations for DimensionBody {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 
@@ -274,6 +283,7 @@ impl MaybeIncomplete for DimensionBody {
             || self.members().any(|elem| elem.is_incomplete(top, cache))
     }
 }
+
 impl Validate for DimensionBody {
     fn validate(
         &self,
@@ -292,14 +302,15 @@ impl Validate for DimensionBody {
             .for_each(|m| m.validate(top, cache, loader, check_constraints));
     }
 }
+
 impl References for DimensionBody {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.identity().referenced_types(names);
         self.parents().for_each(|m| m.referenced_types(names));
         self.members().for_each(|m| m.referenced_types(names));
     }
 
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.members().for_each(|m| m.referenced_annotations(names));
     }
 }
@@ -365,43 +376,43 @@ impl DimensionBody {
     // Members
     // --------------------------------------------------------------------------------------------
 
-    fn is_empty(&self) -> bool {
-        self.members.is_empty()
+    pub fn has_members(&self) -> bool {
+        !self.members.is_empty()
     }
 
-    fn len(&self) -> usize {
+    pub fn member_count(&self) -> usize {
         self.members.len()
     }
 
-    fn contains(&self, name: &Identifier) -> bool {
+    pub fn contains_member(&self, name: &Identifier) -> bool {
         self.members.contains_key(name)
     }
 
-    fn get(&self, name: &Identifier) -> Option<&Member> {
+    pub fn member(&self, name: &Identifier) -> Option<&Member> {
         self.members.get(name)
     }
 
-    fn get_mut(&mut self, name: &Identifier) -> Option<&mut Member> {
+    pub fn member_mut(&mut self, name: &Identifier) -> Option<&mut Member> {
         self.members.get_mut(name)
     }
 
-    fn iter(&self) -> impl Iterator<Item = &Member> {
+    pub fn members(&self) -> impl Iterator<Item = &Member> {
         self.members.values()
     }
 
-    fn iter_mut(&mut self) -> impl Iterator<Item = &mut Member> {
+    pub fn members_mut(&mut self) -> impl Iterator<Item = &mut Member> {
         self.members.values_mut()
     }
 
-    fn names(&self) -> impl Iterator<Item = &Identifier> {
+    pub fn member_names(&self) -> impl Iterator<Item = &Identifier> {
         self.members.keys()
     }
 
-    fn insert(&mut self, value: Member) -> Option<Member> {
+    pub fn add_to_members(&mut self, value: Member) -> Option<Member> {
         self.members.insert(value.name().clone(), value)
     }
 
-    fn extend<I>(&mut self, extension: I)
+    pub fn extend_member<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = Member>,
     {
@@ -416,11 +427,11 @@ impl DimensionBody {
     // Parents
     // --------------------------------------------------------------------------------------------
 
-    pub const fn has_parents(&self) -> bool {
+    pub fn has_parents(&self) -> bool {
         !self.parents.is_empty()
     }
 
-    pub const fn parent_count(&self) -> usize {
+    pub fn parent_count(&self) -> usize {
         self.parents.len()
     }
 
@@ -492,17 +503,11 @@ impl From<&Member> for DimensionIdentity {
     }
 }
 
-impl Validate for DimensionIdentity {
-    fn validate(
-        &self,
-        top: &Module,
-        cache: &impl ModuleStore,
-        loader: &impl ModuleLoader,
-        check_constraints: bool,
-    ) {
+impl References for DimensionIdentity {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match self {
-            Self::Source(src) => src.validate(top, cache, loader, check_constraints),
-            Self::Identity(member) => member.validate(top, cache, loader, check_constraints),
+            DimensionIdentity::Source(v) => v.referenced_types(names),
+            DimensionIdentity::Identity(v) => v.referenced_types(names),
         }
     }
 }
@@ -516,11 +521,17 @@ impl MaybeIncomplete for DimensionIdentity {
     }
 }
 
-impl References for DimensionIdentity {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+impl Validate for DimensionIdentity {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
         match self {
-            DimensionIdentity::Source(v) => v.referenced_types(names),
-            DimensionIdentity::Identity(v) => v.referenced_types(names),
+            Self::Source(src) => src.validate(top, cache, loader, check_constraints),
+            Self::Identity(member) => member.validate(top, cache, loader, check_constraints),
         }
     }
 }
@@ -608,8 +619,53 @@ impl HasOptionalBody for DimensionParent {
 }
 
 impl References for DimensionParent {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         names.insert(self.target_entity());
+    }
+}
+
+impl Validate for DimensionParent {
+    fn validate(
+        &self,
+        top: &Module,
+        cache: &impl ModuleStore,
+        loader: &impl ModuleLoader,
+        _: bool,
+    ) {
+        let name = self.target_entity();
+        if let Some(defn) = find_definition(name, top, cache) {
+            if !defn.is_entity() {
+                loader
+                    .report(&dimension_parent_not_entity(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap();
+            }
+        } else {
+            if !name
+                .as_identifier()
+                .map(is_builtin_type_name)
+                .unwrap_or_default()
+            {
+                loader
+                    .report(&type_definition_not_found(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap();
+            } else {
+                loader
+                    .report(&dimension_parent_not_entity(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap();
+            }
+        }
     }
 }
 
@@ -694,16 +750,46 @@ impl Validate for SourceEntity {
         top: &Module,
         cache: &impl ModuleStore,
         loader: &impl ModuleLoader,
-        check_constraints: bool,
+        _check_constraints: bool,
     ) {
         let name = self.target_entity();
         if let Some(defn) = find_definition(name, top, cache) {
             if let Some(entity) = defn.as_entity() {
-                for member in self.members() {
-                    //if !entity.member
+                match (self.has_members(), entity.body()) {
+                    (true, Some(body)) => {
+                        for member in self.members() {
+                            if !body.contains_member(member) {
+                                loader
+                                    .report(&source_entity_missing_member(
+                                        top.file_id().copied().unwrap_or_default(),
+                                        name.source_span().as_ref().map(|span| (*span).into()),
+                                        name,
+                                    ))
+                                    .unwrap();
+                            }
+                        }
+                    }
+                    (true, None) => {
+                        for name in self.members() {
+                            loader
+                                .report(&source_entity_missing_member(
+                                    top.file_id().copied().unwrap_or_default(),
+                                    name.source_span().as_ref().map(|span| (*span).into()),
+                                    name,
+                                ))
+                                .unwrap();
+                        }
+                    }
+                    (false, _) => (),
                 }
             } else {
-                panic!("source must be entity");
+                loader
+                    .report(&source_entity_not_entity(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap();
             }
         } else {
             if !name
@@ -717,16 +803,22 @@ impl Validate for SourceEntity {
                         name.source_span().as_ref().map(|span| (*span).into()),
                         name,
                     ))
-                    .unwrap()
+                    .unwrap();
             } else {
-                panic!("source must be entity");
+                loader
+                    .report(&source_entity_not_entity(
+                        top.file_id().copied().unwrap_or_default(),
+                        name.source_span().as_ref().map(|span| (*span).into()),
+                        name,
+                    ))
+                    .unwrap();
             }
         }
     }
 }
 
 impl References for SourceEntity {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         names.insert(self.target_entity());
     }
 }
@@ -777,7 +869,7 @@ impl SourceEntity {
         !self.with_members.is_empty()
     }
 
-    pub fn members_len(&self) -> usize {
+    pub fn member_count(&self) -> usize {
         self.with_members.len()
     }
 

@@ -2,8 +2,9 @@
 Provide the Rust types that implement *value*-related components of the SDML Grammar.
 */
 use crate::model::{
+    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
     members::{Ordering, Uniqueness},
-    IdentifierReference, Span,
+    HasSourceSpan, Span,
 };
 use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
@@ -19,8 +20,6 @@ use url::Url;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use super::HasSourceSpan;
-
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Values
 // ------------------------------------------------------------------------------------------------
@@ -33,7 +32,7 @@ pub enum Value {
     ValueConstructor(ValueConstructor),
     Mapping(MappingValue),
     Reference(IdentifierReference),
-    List(SequenceOfValues),
+    Sequence(SequenceOfValues),
 }
 
 /// Corresponds to the grammar rule `simple_value`.
@@ -137,75 +136,15 @@ lazy_static! {
 // Implementations ❱ Value
 // ------------------------------------------------------------------------------------------------
 
-impl From<SimpleValue> for Value {
-    fn from(v: SimpleValue) -> Self {
-        Self::Simple(v)
+impl<T: Into<SimpleValue>> From<T> for Value {
+    fn from(v: T) -> Self {
+        Self::Simple(v.into())
     }
 }
 
-impl From<LanguageString> for Value {
-    fn from(v: LanguageString) -> Self {
-        Self::Simple(SimpleValue::String(v))
-    }
-}
-
-impl From<f64> for Value {
-    fn from(v: f64) -> Self {
-        Self::Simple(SimpleValue::Double(v.into()))
-    }
-}
-
-impl From<OrderedFloat<f64>> for Value {
-    fn from(v: OrderedFloat<f64>) -> Self {
-        Self::Simple(SimpleValue::Double(v))
-    }
-}
-
-impl From<Decimal> for Value {
-    fn from(v: Decimal) -> Self {
-        Self::Simple(SimpleValue::Decimal(v))
-    }
-}
-
-impl From<i64> for Value {
-    fn from(v: i64) -> Self {
-        Self::Simple(SimpleValue::Integer(v))
-    }
-}
-
-impl From<i32> for Value {
-    fn from(v: i32) -> Self {
-        Self::Simple(SimpleValue::Integer(v as i64))
-    }
-}
-
-impl From<u64> for Value {
-    fn from(v: u64) -> Self {
-        Self::Simple(SimpleValue::Unsigned(v))
-    }
-}
-
-impl From<u32> for Value {
-    fn from(v: u32) -> Self {
-        Self::Simple(SimpleValue::Unsigned(v as u64))
-    }
-}
-
-impl From<bool> for Value {
-    fn from(v: bool) -> Self {
-        Self::Simple(SimpleValue::Boolean(v))
-    }
-}
-
-impl From<Url> for Value {
-    fn from(v: Url) -> Self {
-        Self::Simple(SimpleValue::IriReference(v))
-    }
-}
-
-impl From<Binary> for Value {
-    fn from(v: Binary) -> Self {
-        Self::Simple(SimpleValue::Binary(v))
+impl From<&ValueConstructor> for Value {
+    fn from(v: &ValueConstructor) -> Self {
+        Self::ValueConstructor(v.clone())
     }
 }
 
@@ -215,9 +154,45 @@ impl From<ValueConstructor> for Value {
     }
 }
 
+impl From<&Identifier> for Value {
+    fn from(value: &Identifier) -> Self {
+        Self::Reference(value.clone().into())
+    }
+}
+
+impl From<Identifier> for Value {
+    fn from(value: Identifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl From<&QualifiedIdentifier> for Value {
+    fn from(value: &QualifiedIdentifier) -> Self {
+        Self::Reference(value.clone().into())
+    }
+}
+
+impl From<QualifiedIdentifier> for Value {
+    fn from(value: QualifiedIdentifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl From<&IdentifierReference> for Value {
+    fn from(value: &IdentifierReference) -> Self {
+        Self::Reference(value.clone())
+    }
+}
+
 impl From<IdentifierReference> for Value {
-    fn from(v: IdentifierReference) -> Self {
-        Self::Reference(v)
+    fn from(value: IdentifierReference) -> Self {
+        Self::Reference(value)
+    }
+}
+
+impl From<&MappingValue> for Value {
+    fn from(v: &MappingValue) -> Self {
+        Self::Mapping(v.clone())
     }
 }
 
@@ -227,9 +202,15 @@ impl From<MappingValue> for Value {
     }
 }
 
+impl From<&SequenceOfValues> for Value {
+    fn from(v: &SequenceOfValues) -> Self {
+        Self::Sequence(v.clone())
+    }
+}
+
 impl From<SequenceOfValues> for Value {
     fn from(v: SequenceOfValues) -> Self {
-        Self::List(v)
+        Self::Sequence(v)
     }
 }
 
@@ -243,7 +224,7 @@ impl Display for Value {
                 Self::ValueConstructor(v) => v.to_string(),
                 Self::Reference(v) => v.to_string(),
                 Self::Mapping(v) => v.to_string(),
-                Self::List(v) => v.to_string(),
+                Self::Sequence(v) => v.to_string(),
             }
         )
     }
@@ -311,14 +292,14 @@ impl Value {
     }
     pub const fn is_sequence(&self) -> bool {
         match self {
-            Self::List(_) => true,
+            Self::Sequence(_) => true,
             _ => false,
         }
     }
 
     pub const fn as_sequence(&self) -> Option<&SequenceOfValues> {
         match self {
-            Self::List(v) => Some(v),
+            Self::Sequence(v) => Some(v),
             _ => None,
         }
     }
@@ -492,6 +473,18 @@ impl From<u64> for SimpleValue {
     }
 }
 
+impl From<&str> for SimpleValue {
+    fn from(v: &str) -> Self {
+        Self::plain(v)
+    }
+}
+
+impl From<String> for SimpleValue {
+    fn from(v: String) -> Self {
+        Self::plain(&v)
+    }
+}
+
 impl From<&LanguageString> for SimpleValue {
     fn from(v: &LanguageString) -> Self {
         Self::String(v.clone())
@@ -548,6 +541,13 @@ impl Display for SimpleValue {
 }
 
 impl SimpleValue {
+    pub fn plain<S>(content: S) -> Self
+    where
+        S: AsRef<str>,
+    {
+        LanguageString::plain(content.as_ref()).into()
+    }
+
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
@@ -737,6 +737,10 @@ impl LanguageString {
         }
     }
 
+    pub fn plain(value: &str) -> Self {
+        Self::new(value, None)
+    }
+
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
@@ -768,6 +772,10 @@ impl LanguageString {
     // --------------------------------------------------------------------------------------------
     // Helpers
     // --------------------------------------------------------------------------------------------
+
+    pub fn is_plain_literal(&self) -> bool {
+        !self.has_language()
+    }
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.value == other.value && self.language == other.language
@@ -867,6 +875,10 @@ impl LanguageTag {
     // --------------------------------------------------------------------------------------------
     // Constructors
     // --------------------------------------------------------------------------------------------
+
+    pub fn new(value: language_tags::LanguageTag) -> Self {
+        Self { span: None, value }
+    }
 
     pub fn new_unchecked(s: &str) -> Self {
         Self {
@@ -1203,15 +1215,9 @@ impl SequenceOfValues {
 // Implementations ❱ SequenceMember
 // ------------------------------------------------------------------------------------------------
 
-impl From<&SimpleValue> for SequenceMember {
-    fn from(v: &SimpleValue) -> Self {
-        Self::Simple(v.clone())
-    }
-}
-
-impl From<SimpleValue> for SequenceMember {
-    fn from(v: SimpleValue) -> Self {
-        Self::Simple(v)
+impl<T: Into<SimpleValue>> From<T> for SequenceMember {
+    fn from(value: T) -> Self {
+        Self::Simple(value.into())
     }
 }
 
@@ -1227,15 +1233,51 @@ impl From<ValueConstructor> for SequenceMember {
     }
 }
 
+impl From<&Identifier> for SequenceMember {
+    fn from(value: &Identifier) -> Self {
+        Self::Reference(value.clone().into())
+    }
+}
+
+impl From<Identifier> for SequenceMember {
+    fn from(value: Identifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
+impl From<&QualifiedIdentifier> for SequenceMember {
+    fn from(value: &QualifiedIdentifier) -> Self {
+        Self::Reference(value.clone().into())
+    }
+}
+
+impl From<QualifiedIdentifier> for SequenceMember {
+    fn from(value: QualifiedIdentifier) -> Self {
+        Self::Reference(value.into())
+    }
+}
+
 impl From<&IdentifierReference> for SequenceMember {
-    fn from(v: &IdentifierReference) -> Self {
-        Self::Reference(v.clone())
+    fn from(value: &IdentifierReference) -> Self {
+        Self::Reference(value.clone())
     }
 }
 
 impl From<IdentifierReference> for SequenceMember {
-    fn from(v: IdentifierReference) -> Self {
-        Self::Reference(v)
+    fn from(value: IdentifierReference) -> Self {
+        Self::Reference(value)
+    }
+}
+
+impl From<&MappingValue> for SequenceMember {
+    fn from(v: &MappingValue) -> Self {
+        Self::Mapping(v.clone())
+    }
+}
+
+impl From<MappingValue> for SequenceMember {
+    fn from(v: MappingValue) -> Self {
+        Self::Mapping(v)
     }
 }
 

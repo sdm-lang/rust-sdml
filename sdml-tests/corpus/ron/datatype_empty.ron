@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Datatype(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 53,
+                        end: 63,
+                    },
+                ),
+                value: "nameString",
+            }: Datatype(
                 DatatypeDef {
                     span: Some(
                         Span {
@@ -103,6 +111,6 @@ Module {
                     body: None,
                 },
             ),
-        ],
+        },
     },
 }

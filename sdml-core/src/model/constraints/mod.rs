@@ -1,8 +1,8 @@
 /*!
 Provide the Rust types that implement *constraint*-related components of the SDML Grammar.
-*/
-use std::collections::HashSet;
+ */
 
+use std::collections::BTreeSet;
 use crate::{
     load::ModuleLoader,
     model::{
@@ -97,11 +97,11 @@ impl HasSourceSpan for Constraint {
 }
 
 impl References for Constraint {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body.referenced_annotations(names);
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body.referenced_types(names);
     }
 }
@@ -164,14 +164,14 @@ impl From<FormalConstraint> for ConstraintBody {
 }
 
 impl References for ConstraintBody {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match self {
             Self::Informal(v) => v.referenced_annotations(names),
             Self::Formal(v) => v.referenced_annotations(names),
         }
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match self {
             Self::Informal(v) => v.referenced_types(names),
             Self::Formal(v) => v.referenced_types(names),

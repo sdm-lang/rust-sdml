@@ -120,6 +120,6 @@ Module {
             },
         ],
         annotations: [],
-        definitions: [],
+        definitions: {},
     },
 }

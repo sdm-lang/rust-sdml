@@ -53,8 +53,16 @@ Module {
         is_library: false,
         imports: [],
         annotations: [],
-        definitions: [
-            Event(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 52,
+                        end: 63,
+                    },
+                ),
+                value: "NameChanged",
+            }: Event(
                 EventDef {
                     span: Some(
                         Span {
@@ -95,11 +103,11 @@ Module {
                                 ),
                                 with_members: [],
                             },
-                            members: [],
+                            members: {},
                         },
                     ),
                 },
             ),
-        ],
+        },
     },
 }

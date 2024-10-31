@@ -1,0 +1,142 @@
+module rdfs <http://www.w3.org/2000/01/rdf-schema#> is
+
+  import [ owl rdf ]
+
+  @dc:title = "The RDF Schema vocabulary (RDFS)"
+  @rdfs:seeAlso = <http://www.w3.org/2000/01/rdf-schema-more>
+
+  structure Resource is
+    @rdf:type = Class
+    @isDefinedBy = rdfs
+    @label = "Resource"@en
+    @comment = "The class resource, everything."
+  end
+
+  structure Class is
+    @rdf:type = Class
+    @rdfs:subClassOf = Resource
+    @isDefinedBy = rdfs
+    @label = "Class"@en
+    @comment = "The class of classes."
+  end
+
+  structure subClassOf is
+    @rdf:type = rdf:Property
+    @domain = Class
+    @range = Class
+    @isDefinedBy = rdfs
+    @label = "subClassOf"
+    @comment = "The subject is a subclass of a class."
+  end
+
+  structure subPropertyOf is
+    @rdf:type = rdf:Property
+    @domain = rdf:Property
+    @range = rdf:Property
+    @isDefinedBy = rdfs
+    @label = "subPropertyOf"
+    @comment = "The subject is a subproperty of a property."
+  end
+
+  structure comment is
+    @rdf:type = rdf:Property
+    @rdf:type = owl:AnnotationProperty
+    @domain = Resource
+    @range = Literal
+    @isDefinedBy = rdfs
+    @label = "comment"
+    @comment = "A description of the subject resource."
+  end
+
+  structure label is
+    @rdf:type = rdf:Property
+    @rdf:type = owl:AnnotationProperty
+    @domain = Resource
+    @range = Literal
+    @isDefinedBy = rdfs
+    @label = "label"
+    @comment = "A human-readable name for the subject."
+  end
+
+  structure domain is
+    @rdf:type = rdf:Property
+    @domain = Resource
+    @range = Class
+    @isDefinedBy = rdfs
+    @label = "domain"
+    @comment = "A domain of the subject property."
+  end
+
+  structure range is
+    @rdf:type = rdf:Property
+    @domain = rdf:Property
+    @range = Class
+    @isDefinedBy = rdfs
+    @label = "range"
+    @comment = "A range of the subject property."
+  end
+
+  structure seeAlso is
+    @rdf:type = rdf:Property
+     @rdf:type = owl:AnnotationProperty
+    @domain = Resource
+    @range = Resource
+    @isDefinedBy = rdfs
+    @label = "seeAlso"
+    @comment = "Further information about the subject resource."
+  end
+
+  structure isDefinedBy is
+    @rdf:type = rdf:Property
+    @rdf:type = owl:AnnotationProperty
+    @subPropertyOf = seelAlso
+    @domain = Resource
+    @range = Resource
+    @isDefinedBy = rdfs
+    @label = "isDefinedBy"
+    @comment = "The defininition of the subject resource."
+  end
+
+  structure Literal is
+    @rdf:type = Class
+    @subClassOf = Resource
+    @isDefinedBy = rdfs
+    @label = "Literal"
+    @comment = "The class of literal values, eg. textual strings and integers."
+   end
+
+  structure Container is
+    @rdf:type = Class
+    @subClassOf = Resource
+    @isDefinedBy = rdfs
+    @label = "Container"
+    @comment = "The class of RDF containers."
+  end
+
+  structure ContainerMembershipProperty is
+    @rdf:type = Class
+    @subClassOf = Property
+    @isDefinedBy = rdfs
+    @label = "ContainerMembershipProperty"
+    @comment = "The class of container membership properties, rdf:_1, rdf:_2, ...,
+                all of which are sub-properties of 'member'."
+  end
+
+  structure member is
+    @rdf:type = Property
+    @domain = Resource
+    @range = Resource
+    @isDefinedBy = rdfs
+    @label = "member"
+    @comment = "A member of the subject resource."
+  end
+
+  structure Datatype is
+    @rdf:type = Class
+    @subClassOf = Class
+    @isDefinedBy = rdfs
+    @label = "Datatype"
+    @comment = "The class of RDF datatypes."
+  end
+
+end

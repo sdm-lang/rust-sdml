@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use std::collections::BTreeSet;
 use crate::{
     load::ModuleLoader,
     model::{
@@ -83,11 +82,11 @@ impl HasSourceSpan for RdfDef {
 }
 
 impl References for RdfDef {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body.referenced_annotations(names);
     }
 
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body.referenced_types(names);
     }
 }

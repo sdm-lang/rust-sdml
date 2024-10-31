@@ -14,7 +14,7 @@ use crate::{
 };
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, BTreeSet},
     fmt::Debug,
 };
 use tracing::warn;
@@ -45,8 +45,8 @@ pub struct EnumBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "HashMap::is_empty"))]
-    variants: HashMap<Identifier, ValueVariant>, // assert!(!variants.is_empty());
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
+    variants: BTreeMap<Identifier, ValueVariant>, // assert!(!variants.is_empty());
 }
 
 /// Corresponds to the grammar rule `enum_variant`.
@@ -153,7 +153,7 @@ impl Validate for EnumDef {
 }
 
 impl References for EnumDef {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body
             .as_ref()
             .map(|b| b.referenced_annotations(names))
@@ -190,7 +190,7 @@ impl HasAnnotations for EnumBody {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 
@@ -238,9 +238,8 @@ impl HasSourceSpan for EnumBody {
 }
 
 impl References for EnumBody {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
-        self.variants
-            .iter()
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
+        self.variants()
             .for_each(|v| v.referenced_annotations(names));
     }
 }
@@ -281,43 +280,43 @@ impl EnumBody {
     // Variants
     // --------------------------------------------------------------------------------------------
 
-    pub fn is_empty(&self) -> bool {
-        self.variants.is_empty()
+    pub fn has_variants(&self) -> bool {
+        !self.variants.is_empty()
     }
 
-    pub fn len(&self) -> usize {
+    pub fn variant_count(&self) -> usize {
         self.variants.len()
     }
 
-    pub fn contains(&self, name: &Identifier) -> bool {
+    pub fn contains_variant(&self, name: &Identifier) -> bool {
         self.variants.contains_key(name)
     }
 
-    pub fn get(&self, name: &Identifier) -> Option<&ValueVariant> {
+    pub fn variant(&self, name: &Identifier) -> Option<&ValueVariant> {
         self.variants.get(name)
     }
 
-    pub fn get_mut(&mut self, name: &Identifier) -> Option<&mut ValueVariant> {
+    pub fn variant_mut(&mut self, name: &Identifier) -> Option<&mut ValueVariant> {
         self.variants.get_mut(name)
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = &ValueVariant> {
+    pub fn variants(&self) -> impl Iterator<Item = &ValueVariant> {
         self.variants.values()
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut ValueVariant> {
+    pub fn variants_mut(&mut self) -> impl Iterator<Item = &mut ValueVariant> {
         self.variants.values_mut()
     }
 
-    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
+    pub fn variant_names(&self) -> impl Iterator<Item = &Identifier> {
         self.variants.keys()
     }
 
-    pub fn insert(&mut self, value: ValueVariant) -> Option<ValueVariant> {
+    pub fn add_to_variants(&mut self, value: ValueVariant) -> Option<ValueVariant> {
         self.variants.insert(value.name().clone(), value)
     }
 
-    pub fn extend<I>(&mut self, extension: I)
+    pub fn extend_variants<I>(&mut self, extension: I)
     where
         I: IntoIterator<Item = ValueVariant>,
     {
@@ -413,7 +412,7 @@ impl Validate for ValueVariant {
 }
 
 impl References for ValueVariant {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.body
             .as_ref()
             .map(|b| b.referenced_annotations(names))

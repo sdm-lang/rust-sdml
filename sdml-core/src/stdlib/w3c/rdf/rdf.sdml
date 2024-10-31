@@ -1,0 +1,198 @@
+module rdf <http://www.w3.org/1999/02/22-rdf-syntax-ns#> is
+
+  import [ dc rdfs xml ]
+
+  @dc:title = "The RDF Concepts Vocabulary (RDF)"
+  @dc:date = "2019-12-16"
+  @dc:description = "This is the RDF Schema for the RDF vocabulary terms in the RDF Namespace, defined in RDF 1.1 Concepts."
+
+  structure HTML is
+    @type = rdfs:Datatype
+    @rdfs:subClassOf = Literal
+    @rdfs:isDefinedBy = rdf
+    @rdfs:seeAlso = <http://www.w3.org/TR/rdf11-concepts/#section-html>
+    @rdfs:label = "HTML"
+    @rdfs:comment = "The datatype of RDF literals storing fragments of HTML content"
+  end
+
+  structure langString is
+    @type = rdfs:Datatype
+    @rdfs:subClassOf = Literal
+    @rdfs:isDefinedBy = rdf
+    @rdfs:seeAlso = <http://www.w3.org/TR/rdf11-concepts/#section-Graph-Literal>
+    @rdfs:label = "langString"
+    @rdfs:comment = "The datatype of language-tagged string values"
+  end
+
+  structure PlainLiteral is
+    @type = rdfs:Datatype
+    @rdfs:subClassOf = Literal
+    @rdfs:isDefinedBy = rdf
+    @rdfs:seeAlso = <http://www.w3.org/TR/rdf-plain-literal/>
+    @rdfs:label = "PlainLiteral"
+    @rdfs:comment = "The class of plain (i.e. untyped) literal values, as used in RIF and OWL 2"
+  end
+
+  structure type is
+    @type = Property
+    @rdfs:domain = rdfs:Resource
+    @rdfs:range = rdfs:Class
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "type"
+    @rdfs:comment = "The subject is an instance of a class."
+  end
+
+  structure Property is
+    @type = rdfs:Class
+    @rdfs:subClassOf = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "Property"
+    @rdfs:comment = "The class of RDF properties."
+  end
+
+  structure Statement is
+    @rdf:type = Class
+    @rdfs:subClassOf = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "Statement"
+    @rdfs:comment = "The class of RDF statements."
+  end
+
+  structure subject is
+    @rdf:type = Property
+    @domain = Statement
+    @range = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "subject"
+    @rdfs:comment = "The subject of the subject RDF statement."
+  end
+
+  structure predicate is
+    @rdf:type = Property
+    @domain = Statement
+    @range = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "predicate"
+    @rdfs:comment = "The predicate of the subject RDF statement."
+  end
+
+  structure object is
+    @rdf:type = Property
+    @domain = Statement
+    @range = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "object"
+    @rdfs:comment = "The object of the subject RDF statement."
+  end
+
+  structure Bag is
+    @rdf:type = Class
+    @subClassOf = rdfs:Container
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "Bag"
+    @rdfs:comment = "The class of unordered containers."
+  end
+
+  structure Seq is
+    @rdf:type = Class
+    @subClassOf = rdfs:Container
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "Seq"
+    @rdfs:comment = "The class of ordered containers."
+  end
+
+  structure Alt is
+    @rdf:type = Class
+    @subClassOf = rdfs:Container
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "Alt"
+    @rdfs:comment = "The class of unordered containers."
+  end
+
+  structure value is
+    @rdf:type = Property
+    @domain = rdfs:Resource
+    @range = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "value"
+    @rdfs:comment = "Idiomatic property used for structured values."@en
+  end
+
+  structure List is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "List"
+    @rdfs:comment = "The class of RDF Lists."
+  end
+
+  structure nil is
+    @rdf:type = List
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "nil"
+    @rdfs:comment = "The empty list, with no items in it. If the rest of a list is nil then the list has no more items in it."
+  end
+
+  structure first is
+    @rdf:type = Property
+    @domain = List
+    @range = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "first"
+    @rdfs:comment = "The first item in the subject RDF list."
+  end
+
+  structure rest is
+    @rdf:type = Property
+    @domain = List
+    @range = List
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "rest"
+    @rdfs:comment = "The rest of the subject RDF list after the first item."
+  end
+
+  structure XMLLiteral is
+    @type = rdfs:Datatype
+    @rdfs:subClassOf = Literal
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "XMLLiteral"
+    @rdfs:comment = "The datatype of XML literal values."
+  end
+
+  structure JSON is
+    @type = rdfs:Datatype
+    @rdfs:subClassOf = Literal
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "JSON"
+    @rdfs:comment = "The datatype of RDF literals storing JSON content."
+    @rdfs:seeAlso = <https://www.w3.org/TR/json-ld11/#the-rdf-json-datatype>
+  end
+
+  structure CompoundLiteral is
+    @type = rdfs:Class
+    @rdfs:subClassOf = rdfs:Resource
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "CompoundLiteral"
+    @rdfs:comment = "A class representing a compound literal."
+    @rdfs:seeAlso = <https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties>
+  end
+
+  structure language is
+    @rdf:type = Property
+    @domain = CompoundLiteral
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "language"
+    @rdfs:comment = "The language component of a CompoundLiteral."
+    @rdfs:seeAlso = <https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties>
+  end
+
+  structure direction is
+    @rdf:type = Property
+    @domain = CompoundLiteral
+    @rdfs:isDefinedBy = rdf
+    @rdfs:label = "direction"
+    @rdfs:comment = "The base direction component of a CompoundLiteral."
+    @rdfs:seeAlso = <https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties>
+  end
+
+end

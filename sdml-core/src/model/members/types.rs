@@ -1,7 +1,7 @@
 use crate::load::ModuleLoader;
 use crate::model::check::{find_definition, MaybeIncomplete, Validate};
 use crate::model::definitions::Definition;
-use crate::model::identifiers::IdentifierReference;
+use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, References, Span};
 use crate::stdlib::is_builtin_type_name;
@@ -11,7 +11,7 @@ use sdml_errors::diagnostics::functions::{
     property_incompatible_usage, rdf_definition_incompatible_usage, type_class_incompatible_usage,
     type_definition_not_found,
 };
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::fmt::{Debug, Display};
 
 #[cfg(feature = "serde")]
@@ -59,6 +59,30 @@ pub struct MappingType {
 // Implementations ❱ Members ❱ TypeReference
 // ------------------------------------------------------------------------------------------------
 
+impl From<&Identifier> for TypeReference {
+    fn from(value: &Identifier) -> Self {
+        Self::Type(value.clone().into())
+    }
+}
+
+impl From<Identifier> for TypeReference {
+    fn from(value: Identifier) -> Self {
+        Self::Type(value.into())
+    }
+}
+
+impl From<&QualifiedIdentifier> for TypeReference {
+    fn from(value: &QualifiedIdentifier) -> Self {
+        Self::Type(value.clone().into())
+    }
+}
+
+impl From<QualifiedIdentifier> for TypeReference {
+    fn from(value: QualifiedIdentifier) -> Self {
+        Self::Type(value.into())
+    }
+}
+
 impl From<&IdentifierReference> for TypeReference {
     fn from(value: &IdentifierReference) -> Self {
         Self::Type(value.clone())
@@ -104,7 +128,7 @@ impl IdentifierReference {
 }
 
 impl References for TypeReference {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         match self {
             TypeReference::Unknown => {}
             TypeReference::Type(v) => {
@@ -258,7 +282,7 @@ impl HasSourceSpan for MappingType {
 }
 
 impl References for MappingType {
-    fn referenced_types<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.domain.referenced_types(names);
         self.range.referenced_types(names);
     }

@@ -1,0 +1,963 @@
+module dcterms base <http://purl.org/dc/terms/> library is
+
+  import [ dc dcam owl rdf rdfs ]
+
+  @modified = xsd:date("2012-06-14")
+  @publisher = <http://purl.org/dc/aboutdcmi#DCMI>
+  @title = "DCMI Metadata Terms - other"@en
+
+  @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_terms.ttl>
+
+  structure Agent is
+    @rdf:type = AgentClass
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Agent"@en
+    @rdfs:comment = "A resource that acts or has the power to act."@en
+  end
+
+  structure AgentClass is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Agent Class"@en
+    @rdfs:comment = "A group of agents."@en
+  end
+
+  structure BibliographicResource is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Bibliographic Resource"@en
+    @rdfs:comment = "A book, article, or other documentary resource."@en
+  end
+
+  structure Box is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "DCMI Box"@en
+    @rdfs:comment = "The set of regions in space defined by their geographic coordinates according to the DCMI Box Encoding Scheme."@en
+    @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-box/>
+  end
+
+  structure DCMIType is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "DCMI Type Vocabulary"@en
+    @rdfs:comment = "The set of classes specified by the DCMI Type Vocabulary, used to categorize the nature or genre of the resource."@en
+    @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-box/>
+  end
+
+  structure DDC is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "DDC"@en
+    @rdfs:comment = "The set of conceptual resources specified by the Dewey Decimal Classification."@en
+    @rdfs:seeAlso = <http://www.oclc.org/dewey/>
+  end
+
+  structure FileFormat is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = MediaType
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "File Format"@en
+    @rdfs:comment = "A digital resource format.."@en
+  end
+
+  structure Frequency is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Frequency"@en
+    @rdfs:comment = "A rate at which something recurs."@en
+  end
+
+  structure IMT is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "IMT"@en
+    @rdfs:comment = "The set of media types specified by the Internet Assigned Numbers Authority."@en
+    @rdfs:seeAlso = <http://www.iana.org/assignments/media-types/>
+  end
+
+  structure ISO3166 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "ISO 3166"@en
+    @rdfs:comment = "The set of codes listed in ISO 3166-1 for the representation of names of countries."@en
+    @rdfs:seeAlso = <https://www.iso.org/obp/ui/#search>
+  end
+
+  structure ISO639_2 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "ISO 639-2"@en
+    @rdfs:comment = "The three-letter alphabetic codes listed in ISO639-2 for the representation of names of languages."@en
+    @rdfs:seeAlso = <http://lcweb.loc.gov/standards/iso639-2/langhome.html>
+  end
+
+  structure ISO639_3 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "ISO 639-3"@en
+    @rdfs:comment = "The set of three-letter codes listed in ISO 639-3 for the representation of names of languages."@en
+    @rdfs:seeAlso = <http://www.sil.org/iso639-3/>
+  end
+
+  structure Jurisdiction is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = LocationPeriodOrJurisdiction
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Jurisdiction"@en
+    @rdfs:comment = "The extent or range of judicial, law enforcement, or other authority."@en
+  end
+
+  structure LLC is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "LLC"@en
+    @rdfs:comment = "The set of conceptual resources specified by the Library of Congress Classification."@en
+    @rdfs:seeAlso = <http://lcweb.loc.gov/catdir/cpso/lcco/lcco.html>
+  end
+
+  structure LCSH is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "LCSH"@en
+    @rdfs:comment = "The set of labeled concepts specified by the Library of Congress Subject Headings."@en
+  end
+
+  structure LicenseDocument is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = RightsStatement
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "License Document"@en
+    @rdfs:comment = "A legal document giving official permission to do something with a resource."@en
+  end
+
+  structure LinguisticSystem is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Linguistic System"@en
+    @rdfs:comment = "A system of signs, symbols, sounds, gestures, or rules used in communication."@en
+    @dcterms:description = "Written, spoken, sign, and computer languages are linguistic systems."@en
+  end
+
+  structure Location is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = LocationPeriodOrJurisdiction
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Location"@en
+    @rdfs:comment = "A spatial region or named place."@en
+  end
+
+  structure LocationPeriodOrJurisdiction is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Location, Period, or Jurisdiction"@en
+    @rdfs:comment = "A location, period of time, or jurisdiction."@en
+  end
+
+  structure MESH is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "MeSH"@en
+    @rdfs:comment = "The set of labeled concepts specified by the Medical Subject Headings."@en
+    @rdfs:seeAlso = <http://www.nlm.nih.gov/mesh/meshhome.html>
+  end
+
+  structure MediaType is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = MediaTypeOrExtent
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Media Type"@en
+    @rdfs:comment = "A file format or physical medium."@en
+  end
+
+  structure MediaTypeOrExtent is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Media Type or Extent"@en
+    @rdfs:comment = "A media type or extent."@en
+  end
+
+  structure MethodOfAccrual is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Method of Accrual"@en
+    @rdfs:comment = "A method by which resources are added to a collection."@en
+  end
+
+  structure MethodOfInstruction is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Method of Instruction"@en
+    @rdfs:comment = "A process that is used to engender knowledge, attitudes, and skills."@en
+  end
+
+  structure NLM is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2005-06-13")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "NLM"@en
+    @rdfs:comment = "The set of time intervals defined by their limits according to the DCMI Period Encoding Scheme."@en
+    @rdfs:seeAlso = <http://wwwcf.nlm.nih.gov/class/>
+  end
+
+  structure Period is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "DCMI Period"@en
+    @rdfs:comment = "The set of conceptual resources specified by the National Library of Medicine Classification."@en
+    @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-period/>
+  end
+
+  structure PeriodOfTime is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = LocationPeriodOrJurisdiction
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Period of Time"@en
+    @rdfs:comment = "An interval of time that is named or defined by its start and end dates."@en
+  end
+
+  structure PhysicalMedium is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = MediaType
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Physical Medium"@en
+    @rdfs:comment = "A physical material or carrier."@en
+    @description = "Examples include paper, canvas, or DVD."@en
+  end
+
+  structure PhysicalResource is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Physical Resource"@en
+    @rdfs:comment = "A material thing."@en
+  end
+
+  structure Point is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "DCMI Point"@en
+    @rdfs:comment = "The set of points in space defined by their geographic coordinates according to the DCMI Point Encoding Scheme."@en
+  end
+
+  structure Policy is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Policy"@en
+    @rdfs:comment = "A plan or course of action by an authority, intended to influence and determine decisions, actions, and other matters."@en
+  end
+
+  structure ProvenanceStatement is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Provenance Statement"@en
+    @rdfs:comment = "Any changes in ownership and custody of a resource since its creation that are significant for its authenticity, integrity, and interpretation."@en
+  end
+
+  structure RFC1766 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "RFC 1766"@en
+    @rdfs:comment = "The set of tags, constructed according to RFC 1766, for the identification of languages."@en
+    @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc1766.txt>
+  end
+
+  structure RFC3066 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2002-07-13")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "RFC 3066"@en
+    @rdfs:comment = "The set of tags constructed according to RFC 3066 for the identification of languages."@en
+    @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3066txt>
+    @description = "RFC 3066 has been obsoleted by RFC 4646."@en
+  end
+
+  structure RFC4646 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "RFC 4646"@en
+    @rdfs:comment = "The set of tags constructed according to RFC 4646 for the identification of languages."@en
+    @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3066txt>
+    @description = "RFC 4646 obsoletes RFC 3066."@en
+  end
+
+  structure RFC5646 is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2010-10-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "RFC 5646"@en
+    @rdfs:comment = "The set of tags constructed according to RFC 5646 for the identification of languages."@en
+    @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3066txt>
+    @description = "RFC 5646 obsoletes RFC 4646."@en
+  end
+
+  structure RightsStatement is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Rights Statement"@en
+    @rdfs:comment = "A statement about the intellectual property rights (IPR) held in or over a resource, a legal document giving official permission to do something with a resource, or a statement about access rights."@en
+  end
+
+  structure SizeOrDuration is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Size or Duration"@en
+    @rdfs:comment = "A dimension or extent, or a time taken to play or execute."@en
+    @description = "Examples include a number of pages, a specification of length, width, and breadth, or a period in hours, minutes, and seconds."@en
+  end
+
+  structure Standard is
+    @rdf:type = rdfs:Class
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Standard"@en
+    @rdfs:comment = "A reference point against which other things can be evaluated or compared."@en
+  end
+
+  structure TGN is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "TGN"@en
+    @rdfs:comment = "The set of places specified by the Getty Thesaurus of Geographic Names."@en
+    @rdfs:seeAlso = <http://www.getty.edu/research/tools/vocabulary/tgn/index.html>
+  end
+
+  structure UDC is
+    @rdf:type = dcam:VocabularyEncodingScheme
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "UDC"@en
+    @rdfs:comment = "The set of conceptual resources specified by the Universal Decimal Classification."@en
+    @rdfs:seeAlso = <http://www.udcc.org/>
+  end
+
+  structure URI is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "URI"@en
+    @rdfs:comment = "The set of identifiers constructed according to the generic syntax for Uniform Resource Identifiers as specified by the Internet Engineering Task Force."@en
+    @rdfs:seeAlso = <http://www.ietf.org/rfc/rfc3986.txt>
+  end
+
+  structure WthreeCDTF is
+    @rdf:type = rdfs:Datatype
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "W3C-DTF"@en
+    @rdfs:comment = "The set of dates and times constructed according to the W3C Date and Time Formats Specification."@en
+    @rdfs:seeAlso = <http://www.w3.org/TR/NOTE-datetime>
+  end
+
+  structure abstract is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:description description ]
+    @issued = xsd:date("2000-01-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Abstract"@en
+    @rdfs:comment = "A summary of the resource."@en
+  end
+
+  structure accessRights is
+    @rdf:type = rdfs:Property
+    @rdf:type = owl:AnnotationProperty
+    @rdfs:subPropertyOf = dc:rights
+    @rdfs:subPropertyOf = rights
+    @dcam:rangeIncludes = RightsStatement
+    @issued = xsd:date("2003-02-15")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Access Rights"@en
+    @rdfs:comment = "Information about who access the resource or an indication of its security status."@en
+    @description = "Access Rights may include information regarding access or restrictions based on privacy, security, or other policies."@en
+  end
+
+  structure accrualMethod is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:domain = dcmi:Collection
+    @dcam:rangeIncludes = MethodOfAccrual
+    @issued = xsd:date("2005-06-13")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Accrual Method"@en
+    @rdfs:comment = "The method by which items are added to a collection."@en
+    @description = "Recommended practice is to use a value from the Collection Description Accrual Method Vocabulary [[DCMI-ACCRUALMETHOD](https://dublincore.org/groups/collections/accrual-method/)]."@en
+  end
+
+  structure accrualPeriodicity is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:domain = dcmi:Collection
+    @dcam:rangeIncludes = Frequency
+    @issued = xsd:date("2005-06-13")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Accrual Periodicity"@en
+    @rdfs:comment = "The frequency with which items are added to a collection."@en
+    @description = "Recommended practice is to use a value from the Collection Description Frequency Vocabulary [[DCMI-COLLFREQ](https://dublincore.org/groups/collections/frequency/)]."@en
+  end
+
+  structure accrualPolicy is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:domain = dcmi:Collection
+    @dcam:rangeIncludes = Policy
+    @issued = xsd:date("2005-06-13")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Accrual Policy"@en
+    @rdfs:comment = "The policy governing the addition of items to a collection."@en
+    @description = "Recommended practice is to use a value from the Collection Description Accrual Policy Vocabulary [[DCMI-ACCRUALPOLICY](https://dublincore.org/groups/collections/accrual-policy/)]."@en
+  end
+
+  structure alternative is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:title title ]
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Alternative Title"@en
+    @rdfs:comment = "An alternative name for the resource."@en
+    @description = "The distinction between titles and alternative titles is application-specific."@en
+  end
+
+  structure audience is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @dcam:rangeIncludes = AgentClass
+    @issued = xsd:date("2001-05-21")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Audience"@en
+    @rdfs:comment = "A class of agents for whom the resource is intended or useful."@en
+    @description = "Recommended practice is to use this property with non-literal values from a vocabulary of audience types."@en
+  end
+
+  structure available is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:date date ]
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Date Available"@en
+    @rdfs:comment = "Date that the resource became or will become available."@en
+    @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
+  end
+
+  structure bibliographicCitation is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:identifier identifier ]
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2003-02-15")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Bibliographic Citation"@en
+    @rdfs:comment = "A bibliographic reference for the resource."@en
+    @description = "Recommended practice is to include sufficient bibliographic detail to identify the resource as unambiguously as possible."@en
+  end
+
+  structure conformsTo is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @dcam:rangeIncludes = Standard
+    @issued = xsd:date("2003-02-15")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Conforms To"@en
+    @rdfs:comment = "An established standard to which the described resource conforms."@en
+    @description = "Recommended practice is to include sufficient bibliographic detail to identify the resource as unambiguously as possible."@en
+  end
+
+  structure contributor is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+   @rdfs:subPropertyOf = dc:contributor
+    @dcam:rangeIncludes = Agent
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Contributor"@en
+    @rdfs:comment = "An entity responsible for making contributions to the resource."@en
+    @description = "The guidelines for using names of persons or organizations as creators apply to contributors."@en
+  end
+
+  structure coverage is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:coverage
+    @dcam:rangeIncludes = [ Jurisdiction Location Period ]
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Coverage"@en
+    @rdfs:comment = "The spatial or temporal topic of the resource, spatial applicability of the resource, or jurisdiction under which the resource is relevant."@en
+    @description = "Spatial topic and spatial applicability may be a named place or a location specified by its geographic coordinates. Temporal topic may be a named period, date, or date range. A jurisdiction may be a named administrative entity or a geographic place to which the resource applies. Recommended practice is to use a controlled vocabulary such as the Getty Thesaurus of Geographic Names [[TGN](https://www.getty.edu/research/tools/vocabulary/tgn/index.html)]. Where appropriate, named places or time periods may be used in preference to numeric identifiers such as sets of coordinates or date ranges.  Because coverage is so broadly defined, it is preferable to use the more specific subproperties Temporal Coverage and Spatial Coverage."@en
+  end
+
+  structure created is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:date date ]
+    ;; owl:equivalentProperty <http://xmlns.com/foaf/0.1/maker>
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = dcterms
+    @rdfs:label = "Creator"@en
+    @rdfs:comment = "An entity responsible for making the resource."@en
+    @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
+  end
+
+  structure creator is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:creator contributor ]
+    @dcam:rangeIncludes = Agent
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Creator"@en
+    @description = "Recommended practice is to identify the creator with a URI.  If this is not possible or feasible, a literal value that identifies the creator may be provided."@en
+    @rdfs:comment = "An entity primarily responsible for making the resource."@en
+  end
+
+  structure date is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:date
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Date"@en
+    @rdfs:comment = "A point or period of time associated with an event in the lifecycle of the resource."@en
+    @description = "Date may be used to express temporal information at any level of granularity.  Recommended practice is to express the date, date/time, or period of time according to ISO 8601-1 [[ISO 8601-1](https://www.iso.org/iso-8601-date-and-time-format.html)] or a published profile of the ISO standard, such as the W3C Note on Date and Time Formats [[W3CDTF](https://www.w3.org/TR/NOTE-datetime)] or the Extended Date/Time Format Specification [[EDTF](http://www.loc.gov/standards/datetime/)].  If the full date is unknown, month and year (YYYY-MM) or just year (YYYY) may be used. Date ranges may be specified using ISO 8601 period of time specification in which start and end dates are separated by a '/' (slash) character.  Either the start or end date may be missing."@en
+  end
+
+  structure dateCopyrighted is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:date
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2002-07-13")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Date Copyrighted"@en
+    @rdfs:comment = "Date of copyright of the resource."@en
+    @description = "Typically a year.  Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
+  end
+
+  structure dateSubmitted is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:date
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2002-07-13")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Date Submitted"@en
+    @rdfs:comment = "Date of submission of the resource."@en
+    @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty.  Examples of resources to which a 'Date Submitted' may be relevant include a thesis (submitted to a university department) or an article (submitted to a journal)."@en
+  end
+
+  structure description is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:description
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Description"@en
+    @rdfs:comment = "An account of the resource."@en
+    @description = "Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource."@en
+  end
+
+  structure educationLevel is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = audience
+    @dcam:rangeIncludes = AgentClass
+    @issued = xsd:date("2002-07-13")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Audience Education Level"@en
+    @rdfs:comment = "A class of agents, defined in terms of progression through an educational or training context, for which the described resource is intended."@en
+  end
+
+  structure extent is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:format
+    @dcam:rangeIncludes = SizeOrDuration
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Extent"@en
+    @rdfs:comment = "The size or duration of the resource."@en
+    @description = "Recommended practice is to specify the file size in megabytes and duration in ISO 8601 format."@en
+  end
+
+  structure format is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:format
+    @dcam:rangeIncludes = [ Extent MediaType ]
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Format"@en
+    @rdfs:comment = "The file format, physical medium, or dimensions of the resource."@en
+    @description = "Recommended practice is to use a controlled vocabulary where available. For example, for file formats one could use the list of Internet Media Types [[MIME](https://www.iana.org/assignments/media-types/media-types.xhtml)].  Examples of dimensions include size and duration."@en
+  end
+
+  structure hasFormat is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ relation dc:relation ]
+    @owl:inverseOf = isFormatOf
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Has Format"@en
+    @rdfs:comment = "A related resource that is substantially the same as the pre-existing described resource, but in another format."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Is Format Of."@en
+  end
+
+  structure hasPart is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ relation dc:relation ]
+    @owl:inverseOf = isPartOf
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Has Part"@en
+    @rdfs:comment = "A related resource that is included either physically or logically in the described resource."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Is Part Of."@en
+  end
+
+  structure hasVersion is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ relation dc:relation ]
+    @owl:inverseOf = isVersionOf
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Has Version"@en
+    @rdfs:comment = "A related resource that is a version, edition, or adaptation of the described resource."@en
+    @description = "Changes in version imply substantive changes in content rather than differences in format. This property is intended to be used with non-literal values. This property is an inverse property of Is Version Of."@en
+  end
+
+  structure identifier is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:identifier
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Identifier"@en
+    @rdfs:comment = "An unambiguous reference to the resource within a given context."@en
+    @description = "Recommended practice is to identify the resource by means of a string conforming to an identification system. Examples include International Standard Book Number (ISBN), Digital Object Identifier (DOI), and Uniform Resource Name (URN).  Persistent identifiers should be provided as HTTP URIs."@en
+  end
+
+  structure instructionalMethod is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @dcam:rangeIncludes = MethodOfInstruction
+    @issued = xsd:date("2005-06-13")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Instructional Method"@en
+    @rdfs:comment = "A process, used to engender knowledge, attitudes and skills, that the described resource is designed to support."@en
+    @description = "Instructional Method typically includes ways of presenting instructional materials or conducting instructional activities, patterns of learner-to-learner and learner-to-instructor interactions, and mechanisms by which group and individual levels of learning are measured.  Instructional methods include all aspects of the instruction and learning processes from planning and implementation through evaluation and feedback."@en
+  end
+
+  structure isFormatOf is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @owl:inverseOf = hasFormat
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Is Format Of"@en
+    @rdfs:comment = "A pre-existing related resource that is substantially the same as the described resource, but in another format."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Has Format."@en
+  end
+
+  structure isPartOf is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @owl:inverseOf = hasPart
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Is Part Of"@en
+    @rdfs:comment = "A related resource in which the described resource is physically or logically included."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Has Part."@en
+  end
+
+  structure isReferencedBy is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Is Referenced By"@en
+    @rdfs:comment = "A related resource that references, cites, or otherwise points to the described resource."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of References."@en
+  end
+
+  structure isReplacedBy is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Is Replaced By"@en
+    @rdfs:comment = "A related resource that supplants, displaces, or supersedes the described resource."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Replaces."@en
+  end
+
+  structure isRequiredBy is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Is Required By"@en
+    @rdfs:comment = "A related resource that requires the described resource to support its function, delivery, or coherence."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Requires."@en
+  end
+
+  structure isVersionOf is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @owl:inverseOf = hasVersion
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Is Version Of"@en
+    @rdfs:comment = "A related resource of which the described resource is a version, edition, or adaptation."@en
+    @description = "isVersionOfChanges in version imply substantive changes in content rather than differences in format. This property is intended to be used with non-literal values. This property is an inverse property of Has Version."@en
+  end
+
+  structure issued is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:date date ]
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Date Issued"@en
+    @rdfs:comment = "Date of formal issuance of the resource."@en
+    @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
+  end
+
+  structure language is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:language
+    @dcam:rangeIncludes = LinguisticSystem
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Language"@en
+    @rdfs:comment = "A language of the resource."@en
+    @description = "Recommended practice is to use either a non-literal value representing a language from a controlled vocabulary such as ISO 639-2 or ISO 639-3, or a literal value consisting of an IETF Best Current Practice 47 [[IETF-BCP47](https://tools.ietf.org/html/bcp47)] language tag."@en
+  end
+
+  structure license is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:rights rights ]
+    @dcam:rangeIncludes = LicenseDocument
+    @issued = xsd:date("2004-06-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "License"@en
+    @rdfs:comment = "A legal document giving official permission to do something with the resource."@en
+    @description = "Recommended practice is to identify the license document with a URI. If this is not possible or feasible, a literal value that identifies the license may be provided."@en
+  end
+
+  structure mediator is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = audience
+    @dcam:rangeIncludes = AgentClass
+    @issued = xsd:date("2001-05-21")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Mediator"@en
+    @rdfs:comment = "An entity that mediates access to the resource."@en
+    @description = "In an educational context, a mediator might be a parent, teacher, teaching assistant, or care-giver."@en
+  end
+
+  structure medium is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:format format ]
+    @dcam:domainIncludes = PhysicalResource
+    @dcam:rangeIncludes = PhysicalMedium
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Medium"@en
+    @rdfs:comment = "The material or physical carrier of the resource."@en
+  end
+
+  structure modified is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:date date ]
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Date Modified"@en
+    @rdfs:comment = "Date on which the resource was changed."@en
+    @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
+  end
+
+  structure provenance is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @dcam:rangeIncludes = ProvenanceStatement
+    @issued = xsd:date("2004-09-20")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Provenance"@en
+    @rdfs:comment = "A statement of any changes in ownership and custody of the resource since its creation that are significant for its authenticity, integrity, and interpretation."@en
+    @description = "The statement may include a description of any changes successive custodians made to the resource."@en
+  end
+
+  structure publisher is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:publisher
+    @dcam:rangeIncludes = Agent
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Publisher"@en
+    @rdfs:comment = "An entity responsible for making the resource available."@en
+  end
+
+  structure references is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @owl:InverseOf = isReferencedBy
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "References"@en
+    @rdfs:comment = "A related resource that is referenced, cited, or otherwise pointed to by the described resource."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Is Referenced By."@en
+  end
+
+  structure relation is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:relation
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Relation"@en
+    @rdfs:comment = "A related resource."@en
+    @description = "Recommended practice is to identify the related resource by means of a URI.  If this is not possible or feasible, a string conforming to a formal identification system may be provided."@en
+  end
+
+  structure replaces is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @owl:inverseOf = isReplacedBy
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Replaces"@en
+    @rdfs:comment = "A related resource that is supplanted, displaced, or superseded by the described resource."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Is Replaced By."@en
+  end
+
+  structure requires is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:relation relation ]
+    @owl:inverseOf = isRequiredBy
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Requires"@en
+    @rdfs:comment = "A related resource that is required by the described resource to support its function, delivery, or coherence."@en
+    @description = "This property is intended to be used with non-literal values. This property is an inverse property of Is Required By."@en
+  end
+
+  structure rights is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:rights
+    @dcam:rangeIncludes = RightsStatement
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Rights"@en
+    @rdfs:comment = "Information about rights held in and over the resource."@en
+    @description = "Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights.  Recommended practice is to refer to a rights statement with a URI.  If this is not possible or feasible, a literal value (name, label, or short text) may be provided."@en
+  end
+
+  structure rightsHolder is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @dcam:rangeIncludes = Agent
+    @issued = xsd:date("2004-06-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Rights Holder"@en
+    @rdfs:comment = "A person or organization owning or managing rights over the resource."@en
+    @description = "Recommended practice is to refer to the rights holder with a URI. If this is not possible or feasible, a literal value that identifies the rights holder may be provided."@en
+  end
+
+  structure source is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:source relation ]
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Source"@en
+    @rdfs:comment = "A related resource from which the described resource is derived."@en
+    @description = "This property is intended to be used with non-literal values. The described resource may be derived from the related resource in whole or in part. Best practice is to identify the related resource by means of a URI or a string conforming to a formal identification system."@en
+  end
+
+  structure spatial is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:coverage coverage ]
+    @dcam:rangeIncludes = Location
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Spatial Coverage"@en
+    @rdfs:comment = "Spatial characteristics of the resource."@en
+  end
+
+  structure subject is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:subject
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Subject"@en
+    @rdfs:comment = "A topic of the resource."@en
+    @description = "Recommended practice is to refer to the subject with a URI. If this is not possible or feasible, a literal value that identifies the subject may be provided. Both should preferably refer to a subject in a controlled vocabulary."@en
+  end
+
+  structure tableOfContents is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:description description ]
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Table Of Contents"@en
+    @rdfs:comment = "A list of subunits of the resource."@en
+  end
+
+  structure temporal is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:coverage coverage ]
+    @dcam:rangeIncludes = PeriodOfTime
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Temporal Coverage"@en
+    @rdfs:comment = "Temporal characteristics of the resource."@en
+  end
+
+  structure title is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:title
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Title"@en
+    @rdfs:comment = "A name given to the resource."@en
+  end
+
+  structure type is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = dc:type
+    @issued = xsd:date("2008-01-14")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Type"@en
+    @description = "Recommended practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [[DCMI-TYPE](http://dublincore.org/documents/dcmi-type-vocabulary/)]. To describe the file format, physical medium, or dimensions of the resource, use the property Format."@en
+    @rdfs:comment = "The nature or genre of the resource."@en
+  end
+
+  structure valid is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @rdfs:subPropertyOf = [ dc:date date ]
+    @rdfs:range = rdfs:Literal
+    @issued = xsd:date("2000-07-11")
+    @rdfs:isDefinedBy = <http://purl.org/dc/elements/1.1/>
+    @rdfs:label = "Date Valid"@en
+    @rdfs:comment = "Date (often a range) of validity of a resource."@en
+    @description = "Recommended practice is to describe the date, date/time, or period of time as recommended for the property Date, of which this is a subproperty."@en
+  end
+
+end

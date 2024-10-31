@@ -53,8 +53,16 @@ Module {
         is_library: true,
         imports: [],
         annotations: [],
-        definitions: [
-            TypeClass(
+        definitions: {
+            Identifier {
+                span: Some(
+                    Span {
+                        start: 24,
+                        end: 27,
+                    },
+                ),
+                value: "Any",
+            }: TypeClass(
                 TypeClassDef {
                     span: Some(
                         Span {
@@ -95,6 +103,6 @@ Module {
                     body: None,
                 },
             ),
-        ],
+        },
     },
 }

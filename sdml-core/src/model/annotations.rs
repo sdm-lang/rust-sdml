@@ -14,7 +14,7 @@ use crate::model::{
 use crate::model::{HasName, References};
 use crate::stdlib;
 use crate::store::ModuleStore;
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::BTreeSet, fmt::Debug};
 use tracing::trace;
 use url::Url;
 
@@ -28,9 +28,19 @@ use super::HasSourceSpan;
 // ------------------------------------------------------------------------------------------------
 
 pub trait HasAnnotations {
+    fn with_annotations<I>(self, annotations: I) -> Self
+    where
+        I: IntoIterator<Item = Annotation>,
+        Self: Sized,
+    {
+        let mut self_mut = self;
+        self_mut.extend_annotations(annotations);
+        self_mut
+    }
+
     fn has_annotations(&self) -> bool;
 
-    fn annotations_len(&self) -> usize;
+    fn annotation_count(&self) -> usize;
 
     fn annotations(&self) -> impl Iterator<Item = &Annotation>;
 
@@ -81,7 +91,7 @@ pub trait HasAnnotations {
             .filter_map(|ann| ann.value().as_string())
     }
 
-    fn definitions(&self) -> impl Iterator<Item = &LanguageString> {
+    fn skos_definitions(&self) -> impl Iterator<Item = &LanguageString> {
         self.annotation_properties()
             .filter(|ann| ann.name_reference() == "skos:definition")
             .filter_map(|ann| ann.value().as_string())
@@ -502,11 +512,15 @@ impl AnnotationProperty {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(name_reference: IdentifierReference, value: Value) -> Self {
+    pub fn new<I, V>(name_reference: I, value: V) -> Self
+    where
+        I: Into<IdentifierReference>,
+        V: Into<Value>,
+    {
         Self {
             span: None,
-            name_reference,
-            value,
+            name_reference: name_reference.into(),
+            value: value.into(),
         }
     }
 
@@ -550,6 +564,27 @@ impl AnnotationProperty {
 // Implementations ❱ AnnotationOnlyBody
 // ------------------------------------------------------------------------------------------------
 
+impl From<Vec<Annotation>> for AnnotationOnlyBody {
+    fn from(annotations: Vec<Annotation>) -> Self {
+        Self {
+            span: Default::default(),
+            annotations,
+        }
+    }
+}
+
+impl From<AnnotationOnlyBody> for Vec<Annotation> {
+    fn from(value: AnnotationOnlyBody) -> Self {
+        value.annotations
+    }
+}
+
+impl FromIterator<Annotation> for AnnotationOnlyBody {
+    fn from_iter<T: IntoIterator<Item = Annotation>>(iter: T) -> Self {
+        Self::from(Vec::from_iter(iter))
+    }
+}
+
 impl HasSourceSpan for AnnotationOnlyBody {
     fn with_source_span(self, span: Span) -> Self {
         let mut self_mut = self;
@@ -575,7 +610,7 @@ impl HasAnnotations for AnnotationOnlyBody {
         !self.annotations.is_empty()
     }
 
-    fn annotations_len(&self) -> usize {
+    fn annotation_count(&self) -> usize {
         self.annotations.len()
     }
 
@@ -602,23 +637,8 @@ impl HasAnnotations for AnnotationOnlyBody {
     }
 }
 
-impl From<Vec<Annotation>> for AnnotationOnlyBody {
-    fn from(annotations: Vec<Annotation>) -> Self {
-        Self {
-            span: Default::default(),
-            annotations,
-        }
-    }
-}
-
-impl From<AnnotationOnlyBody> for Vec<Annotation> {
-    fn from(value: AnnotationOnlyBody) -> Self {
-        value.annotations
-    }
-}
-
 impl References for AnnotationOnlyBody {
-    fn referenced_annotations<'a>(&'a self, names: &mut HashSet<&'a IdentifierReference>) {
+    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         names.extend(self.annotation_properties().map(|ann| ann.name_reference()));
     }
 }
