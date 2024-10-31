@@ -1,0 +1,7 @@
+module gs1 is
+
+  import [ xsd ]
+
+  datatype GlobalTradeItemNumber <- xsd:string is end
+
+end

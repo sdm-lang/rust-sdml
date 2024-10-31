@@ -1,2 +1,0 @@
-module xsd base <http://www.w3.org/2001/XMLSchema#> library is
-end

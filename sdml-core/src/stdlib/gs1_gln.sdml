@@ -4,7 +4,4 @@ module gs1 is
 
   datatype GlobalLocationNumber <- xsd:string is end
 
-  datatype GlobalTradeItemNumber <- xsd:string is end
-
-
 end
