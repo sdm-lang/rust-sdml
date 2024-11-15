@@ -144,7 +144,10 @@ where
     S: Into<String>,
 {
     new_diagnostic!(ModuleNotFound, |diagnostic: Diagnostic| diagnostic
-        .with_notes(vec![i18n!("lbl_module_name", name = name.into())]))
+        .with_notes(vec![
+            i18n!("lbl_module_name", name = name.into()),
+            i18n!("help_check_resolver_path")
+        ]))
 }
 
 #[inline]
@@ -156,11 +159,16 @@ where
     new_diagnostic!(
         ImportedModuleNotFound,
         |diagnostic: Diagnostic| if let Some(location) = location {
-            diagnostic.with_labels(vec![
-                Label::primary(file_id, location).with_message(i18n!("lbl_this_import"))
-            ])
+            diagnostic
+                .with_labels(vec![
+                    Label::primary(file_id, location).with_message(i18n!("lbl_this_import"))
+                ])
+                .with_notes(vec![i18n!("help_check_resolver_path")])
         } else {
-            diagnostic.with_notes(vec![i18n!("lbl_module_name", name = name.into())])
+            diagnostic.with_notes(vec![
+                i18n!("lbl_module_name", name = name.into()),
+                i18n!("help_check_resolver_path"),
+            ])
         }
     )
 }
@@ -593,10 +601,15 @@ where
 {
     new_diagnostic!(SourceEntityNotEntity, |diagnostic: Diagnostic| {
         if let Some(reference_location) = reference_location {
-            diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
-                .with_message(i18n!("lbl_this_reference"))])
+            diagnostic
+                .with_labels(vec![Label::primary(file_id, reference_location)
+                    .with_message(i18n!("lbl_this_reference"))])
+                .with_notes(vec![i18n!("help_source_reference_not_entity")])
         } else {
-            diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
+            diagnostic.with_notes(vec![
+                i18n!("lbl_type_name", name = name.into()),
+                i18n!("help_source_reference_not_entity"),
+            ])
         }
     })
 }
@@ -614,9 +627,9 @@ where
     new_diagnostic!(SourceEntityMissingMember, |diagnostic: Diagnostic| {
         if let Some(reference_location) = reference_location {
             diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
-                .with_message(i18n!("lbl_this_reference"))])
+                .with_message(i18n!("lbl_this_member_name"))])
         } else {
-            diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
+            diagnostic.with_notes(vec![i18n!("lbl_member_name", name = name.into())])
         }
     })
 }

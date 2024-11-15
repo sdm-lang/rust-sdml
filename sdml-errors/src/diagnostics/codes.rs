@@ -18,6 +18,7 @@ pub enum ErrorCode {
     TreeSitterErrorNode = 1,
     TreeSitterUnexpectedNode = 2,
     TreeSitterMissingNode = 3,
+    TreeSitterMissingVariable = 4,
 
     // --------------------------------------------------------------------------------------------
     // Errors
@@ -102,7 +103,8 @@ impl ErrorCode {
         match self {
             Self::TreeSitterErrorNode
             | Self::TreeSitterUnexpectedNode
-            | Self::TreeSitterMissingNode => Severity::Bug,
+            | Self::TreeSitterMissingNode
+            | Self::TreeSitterMissingVariable => Severity::Bug,
             Self::ModuleNotFound
             | Self::ImportedModuleNotFound
             | Self::ModuleVersionNotFound
@@ -148,6 +150,7 @@ impl ErrorCode {
             Self::TreeSitterErrorNode => i18n!("msg_treesitter_error_node"),
             Self::TreeSitterUnexpectedNode => i18n!("msg_treesitter_unexpected_node"),
             Self::TreeSitterMissingNode => i18n!("msg_treesitter_missing_node"),
+            Self::TreeSitterMissingVariable => i18n!("msg_treesitter_missing_variable"),
             Self::ModuleNotFound => i18n!("msg_module_not_found"),
             Self::ImportedModuleNotFound => i18n!("msg_imported_module_not_found"),
             Self::ModuleVersionNotFound => i18n!("msg_module_version_not_found"),
