@@ -1,0 +1,6 @@
+module example <https://example.com/api> is
+
+  import owl:Class
+  import [ dc xsd owl:Class ]
+
+end

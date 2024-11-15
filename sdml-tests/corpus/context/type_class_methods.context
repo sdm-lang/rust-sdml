@@ -1,0 +1,136 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_methods.sdm/",
+  "definitions": [
+    {
+      "__type": "type_class_def",
+      "methods": [
+        {
+          "__type": "method_def",
+          "body": {
+            "__type": "atomic_sentence",
+            "function": {
+              "__type": "identifier",
+              "value": "is_product_type"
+            }
+          },
+          "name": "has_member",
+          "signature": {
+            "__type": "function_signature",
+            "parameters": [
+              {
+                "__type": "function_parameter",
+                "name": "v",
+                "type": {
+                  "__type": "function_type",
+                  "type": {
+                    "__type": "identifier",
+                    "value": "T"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "__type": "function_type",
+              "type": {
+                "__type": "qualified_identifier",
+                "member": "boolean",
+                "module": "sdml"
+              }
+            }
+          }
+        },
+        {
+          "__type": "method_def",
+          "annotations": [
+            {
+              "__type": "annotation_property",
+              "name": "skos:prefLabel",
+              "value": {
+                "__type": "string",
+                "value": "is an entity"
+              }
+            }
+          ],
+          "name": "is_entity",
+          "signature": {
+            "__type": "function_signature",
+            "parameters": [
+              {
+                "__type": "function_parameter",
+                "name": "v",
+                "type": {
+                  "__type": "function_type",
+                  "type": {
+                    "__type": "identifier",
+                    "value": "T"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "__type": "function_type",
+              "type": {
+                "__type": "qualified_identifier",
+                "member": "boolean",
+                "module": "sdml"
+              }
+            }
+          }
+        },
+        {
+          "__type": "method_def",
+          "name": "is_structure",
+          "signature": {
+            "__type": "function_signature",
+            "parameters": [
+              {
+                "__type": "function_parameter",
+                "name": "v",
+                "type": {
+                  "__type": "function_type",
+                  "type": {
+                    "__type": "identifier",
+                    "value": "T"
+                  }
+                }
+              }
+            ],
+            "type": {
+              "__type": "function_type",
+              "type": {
+                "__type": "qualified_identifier",
+                "member": "boolean",
+                "module": "sdml"
+              }
+            }
+          }
+        },
+        {
+          "__type": "method_def",
+          "name": "new",
+          "signature": {
+            "__type": "function_signature",
+            "type": {
+              "__type": "function_type",
+              "type": {
+                "__type": "identifier",
+                "value": "T"
+              }
+            }
+          }
+        }
+      ],
+      "name": "Any",
+      "variables": [
+        {
+          "__type": "type_variable",
+          "name": "T"
+        }
+      ]
+    }
+  ],
+  "is_library_module": true,
+  "name": "sdml",
+  "source_file": "MANIFEST_PATH/corpus/type_class_methods.sdm"
+}

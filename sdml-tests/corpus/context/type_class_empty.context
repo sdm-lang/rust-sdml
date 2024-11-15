@@ -1,0 +1,19 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_empty.sdm/",
+  "definitions": [
+    {
+      "__type": "type_class_def",
+      "name": "Any",
+      "variables": [
+        {
+          "__type": "type_variable",
+          "name": "T"
+        }
+      ]
+    }
+  ],
+  "is_library_module": true,
+  "name": "sdml",
+  "source_file": "MANIFEST_PATH/corpus/type_class_empty.sdm"
+}

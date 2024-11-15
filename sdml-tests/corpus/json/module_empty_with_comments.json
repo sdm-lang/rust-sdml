@@ -1,0 +1,18 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_empty_with_comments.sdm/",
+  "body": {
+    "__type": "module_body"
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/module_empty_with_comments.sdm",
+  "span": {
+    "__type": "span",
+    "end": 251,
+    "start": 0
+  }
+}

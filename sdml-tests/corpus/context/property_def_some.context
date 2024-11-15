@@ -1,0 +1,34 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/property_def_some.sdm/",
+  "definitions": [
+    {
+      "__type": "property_def",
+      "member": {
+        "__type": "member_def",
+        "annotations": [
+          {
+            "__type": "annotation_property",
+            "name": "skos:definition",
+            "value": {
+              "__type": "string",
+              "language": "en",
+              "value": "a"
+            }
+          }
+        ],
+        "cardinality": {
+          "max": 2,
+          "min": 2
+        },
+        "name": "identifier",
+        "type": {
+          "reference": "account:AccountId"
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": "ddict",
+  "source_file": "MANIFEST_PATH/corpus/property_def_some.sdm"
+}

@@ -1,0 +1,565 @@
+{
+  "__type": "module",
+  "base_uri": "http://www.w3.org/2000/01/rdf-schema#",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "rdf": {
+          "__type": "rdf_def",
+          "body": {
+            "__type": "annotation_only_body",
+            "annotations": [
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "isDefinedBy"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 119,
+                    "start": 100
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "rdfs"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "label"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 146,
+                    "start": 124
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "language": "en",
+                      "value": "Resource"
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "comment"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 195,
+                    "start": 151
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "value": "The class resource, everything."
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "Resource"
+          },
+          "span": {
+            "__type": "span",
+            "end": 201,
+            "start": 80
+          }
+        }
+      },
+      {
+        "__type": "definition",
+        "rdf": {
+          "__type": "rdf_def",
+          "body": {
+            "__type": "annotation_only_body",
+            "annotations": [
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "domain"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 476,
+                    "start": 458
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "Resource"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "range"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 497,
+                    "start": 481
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "Literal"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "isDefinedBy"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 521,
+                    "start": 502
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "rdfs"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "label"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 544,
+                    "start": 526
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "value": "comment"
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "comment"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 600,
+                    "start": 549
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "value": "A description of the subject resource."
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "type"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "rdf"
+                      }
+                    }
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "Property"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "rdf"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "type"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "rdf"
+                      }
+                    }
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "AnnotationProperty"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "owl"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "comment"
+          },
+          "span": {
+            "__type": "span",
+            "end": 606,
+            "start": 394
+          }
+        }
+      },
+      {
+        "__type": "definition",
+        "rdf": {
+          "__type": "rdf_def",
+          "body": {
+            "__type": "annotation_only_body",
+            "annotations": [
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "domain"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 260,
+                    "start": 245
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "Class"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "range"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 279,
+                    "start": 265
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "Class"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "isDefinedBy"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 303,
+                    "start": 284
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "rdfs"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "label"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 329,
+                    "start": 308
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "value": "subClassOf"
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "comment"
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 384,
+                    "start": 334
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "value": "The subject is a subclass of a class."
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "type"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "rdf"
+                      }
+                    }
+                  },
+                  "value": {
+                    "__type": "value",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "Property"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "rdf"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "subClassOf"
+          },
+          "span": {
+            "__type": "span",
+            "end": 390,
+            "start": 205
+          }
+        }
+      }
+    ],
+    "imports": [
+      {
+        "__type": "import_statement",
+        "imports": [
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "owl"
+              }
+            }
+          },
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "rdf"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "is_library_module": true,
+  "name": {
+    "__type": "identifier",
+    "value": "rdfs"
+  },
+  "source_file": "MANIFEST_PATH/corpus/rdf_definitions.sdm",
+  "span": {
+    "__type": "span",
+    "end": 612,
+    "start": 0
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_binary.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "author"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 163,
+            "start": 22
+          },
+          "value": {
+            "__type": "value",
+            "simple": {
+              "__type": "binary",
+              "value": [
+                82,
+                50,
+                57,
+                118,
+                90,
+                67,
+                66,
+                67,
+                101,
+                87,
+                85,
+                103,
+                81,
+                51,
+                74,
+                49,
+                90,
+                87,
+                119,
+                103,
+                86,
+                50,
+                57,
+                121,
+                98,
+                71,
+                81,
+                75
+              ]
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_binary.sdm",
+  "span": {
+    "__type": "span",
+    "end": 169,
+    "start": 0
+  }
+}

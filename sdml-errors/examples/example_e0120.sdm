@@ -1,0 +1,9 @@
+module example <https://example.com/api> is
+
+  structure Foo
+
+  structure Bar is
+    ref Foo
+  end
+
+end

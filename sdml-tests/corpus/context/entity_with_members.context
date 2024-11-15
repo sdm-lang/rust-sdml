@@ -1,0 +1,36 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_members.sdm/",
+  "definitions": [
+    {
+      "__type": "entity_def",
+      "identity": {
+        "__type": "member_def",
+        "name": "id",
+        "type": {
+          "reference": "xs:string"
+        }
+      },
+      "members": [
+        {
+          "__type": "member_def",
+          "name": "a",
+          "type": {
+            "reference": "xsd:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "b",
+          "type": {
+            "reference": "xsd:integer"
+          }
+        }
+      ],
+      "name": "Campaign"
+    }
+  ],
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/entity_with_members.sdm"
+}

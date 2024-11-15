@@ -1,0 +1,31 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_subtype.sdm/",
+  "definitions": [
+    {
+      "__type": "type_class_def",
+      "name": "Any",
+      "variables": [
+        {
+          "__type": "type_variable",
+          "name": "T",
+          "restrictions": [
+            {
+              "__type": "type_class_reference",
+              "arguments": [
+                {
+                  "__type": "type_class_reference",
+                  "name": "T"
+                }
+              ],
+              "name": "None"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "is_library_module": true,
+  "name": "sdml",
+  "source_file": "MANIFEST_PATH/corpus/type_class_subtype.sdm"
+}

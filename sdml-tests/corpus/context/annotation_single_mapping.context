@@ -1,0 +1,28 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:published",
+      "value": {
+        "__type": "mapping_value",
+        "domain": {
+          "__type": "string",
+          "value": "date"
+        },
+        "range": {
+          "__type": "value_constructor",
+          "type": "xsd:date",
+          "value": {
+            "__type": "string",
+            "value": "2023-08-04"
+          }
+        }
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_mapping.sdm/",
+  "is_library_module": false,
+  "name": "Campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_mapping.sdm"
+}

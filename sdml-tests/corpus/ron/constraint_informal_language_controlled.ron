@@ -73,11 +73,16 @@ Module {
                                     end: 83,
                                 },
                             ),
-                            value: " \"This module has no definitions\"@en-AC",
+                            value: "This module has no definitions",
                             language: Some(
                                 ControlledLanguageTag {
-                                    span: None,
-                                    value: "= \"This module has no definitions\"@en-ACE",
+                                    span: Some(
+                                        Span {
+                                            start: 76,
+                                            end: 83,
+                                        },
+                                    ),
+                                    value: "en-ACE",
                                 },
                             ),
                         },

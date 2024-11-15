@@ -1,0 +1,311 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_methods.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "type_class": {
+          "__type": "type_class_def",
+          "body": {
+            "__type": "type_class_body",
+            "methods": [
+              {
+                "__type": "method_def",
+                "body": {
+                  "__type": "constraint_sentence",
+                  "simple": {
+                    "__type": "simple_sentence",
+                    "atomic": {
+                      "__type": "atomic_sentence",
+                      "function": {
+                        "__type": "term",
+                        "identifier": {
+                          "__type": "identifier_reference",
+                          "identifier": {
+                            "__type": "identifier",
+                            "value": "is_product_type"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "has_member"
+                },
+                "signature": {
+                  "__type": "function_signature",
+                  "parameters": [
+                    {
+                      "__type": "function_parameter",
+                      "name": {
+                        "__type": "identifier",
+                        "value": "v"
+                      },
+                      "type": {
+                        "__type": "function_type",
+                        "type": {
+                          "__type": "function_type_reference",
+                          "reference": {
+                            "__type": "identifier_reference",
+                            "identifier": {
+                              "__type": "identifier",
+                              "value": "T"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "__type": "function_type",
+                    "type": {
+                      "__type": "function_type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "boolean"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 238,
+                  "start": 183
+                }
+              },
+              {
+                "__type": "method_def",
+                "annotations": [
+                  {
+                    "__type": "annotation",
+                    "property": {
+                      "__type": "annotation_property",
+                      "name": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "prefLabel"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "skos"
+                          }
+                        }
+                      },
+                      "span": {
+                        "__type": "span",
+                        "end": 170,
+                        "start": 138
+                      },
+                      "value": {
+                        "__type": "value",
+                        "simple": {
+                          "__type": "string",
+                          "value": "is an entity"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "name": {
+                  "__type": "identifier",
+                  "value": "is_entity"
+                },
+                "signature": {
+                  "__type": "function_signature",
+                  "parameters": [
+                    {
+                      "__type": "function_parameter",
+                      "name": {
+                        "__type": "identifier",
+                        "value": "v"
+                      },
+                      "type": {
+                        "__type": "function_type",
+                        "type": {
+                          "__type": "function_type_reference",
+                          "reference": {
+                            "__type": "identifier_reference",
+                            "identifier": {
+                              "__type": "identifier",
+                              "value": "T"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "__type": "function_type",
+                    "type": {
+                      "__type": "function_type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "boolean"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 178,
+                  "start": 96
+                }
+              },
+              {
+                "__type": "method_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "is_structure"
+                },
+                "signature": {
+                  "__type": "function_signature",
+                  "parameters": [
+                    {
+                      "__type": "function_parameter",
+                      "name": {
+                        "__type": "identifier",
+                        "value": "v"
+                      },
+                      "type": {
+                        "__type": "function_type",
+                        "type": {
+                          "__type": "function_type_reference",
+                          "reference": {
+                            "__type": "identifier_reference",
+                            "identifier": {
+                              "__type": "identifier",
+                              "value": "T"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "type": {
+                    "__type": "function_type",
+                    "type": {
+                      "__type": "function_type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "boolean"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 74,
+                  "start": 39
+                }
+              },
+              {
+                "__type": "method_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "new"
+                },
+                "signature": {
+                  "__type": "function_signature",
+                  "type": {
+                    "__type": "function_type",
+                    "type": {
+                      "__type": "function_type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "identifier": {
+                          "__type": "identifier",
+                          "value": "T"
+                        }
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 91,
+                  "start": 79
+                }
+              }
+            ],
+            "span": {
+              "__type": "span",
+              "end": 244,
+              "start": 32
+            }
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "Any"
+          },
+          "span": {
+            "__type": "span",
+            "end": 244,
+            "start": 18
+          },
+          "variables": [
+            {
+              "__type": "type_variable",
+              "name": {
+                "__type": "identifier",
+                "value": "T"
+              },
+              "span": {
+                "__type": "span",
+                "end": 30,
+                "start": 29
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "is_library_module": true,
+  "name": {
+    "__type": "identifier",
+    "value": "sdml"
+  },
+  "source_file": "MANIFEST_PATH/corpus/type_class_methods.sdm",
+  "span": {
+    "__type": "span",
+    "end": 250,
+    "start": 0
+  }
+}

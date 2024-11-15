@@ -1,0 +1,85 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_identity_and_parents.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "dimension": {
+          "__type": "dimension_def",
+          "body": {
+            "__type": "dimension_body",
+            "identity": {
+              "__type": "dimension_identity",
+              "identity": {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "campaign"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 124,
+                      "start": 102
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "identifier": {
+                          "__type": "identifier",
+                          "value": "CampaignId"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "parents": [
+              {
+                "__type": "dimension_parent",
+                "entity": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "Portfolio"
+                  }
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "portfolio"
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "Campaigns"
+          },
+          "span": {
+            "__type": "span",
+            "end": 164,
+            "start": 66
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "dimensions"
+  },
+  "source_file": "MANIFEST_PATH/corpus/dimension_with_identity_and_parents.sdm",
+  "span": {
+    "__type": "span",
+    "end": 170,
+    "start": 0
+  }
+}

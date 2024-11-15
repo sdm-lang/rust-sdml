@@ -1,0 +1,5 @@
+module Campaign is
+
+  import xsd as schema
+
+end

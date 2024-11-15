@@ -1,0 +1,64 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_simple_types.sdm/",
+  "definitions": [
+    {
+      "__type": "structure_def",
+      "members": [
+        {
+          "__type": "member_def",
+          "name": "a",
+          "type": {
+            "reference": "sdml:boolean"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "b",
+          "type": {
+            "reference": "sdml:double"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "c",
+          "type": {
+            "reference": "sdml:decimal"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "d",
+          "type": {
+            "reference": "sdml:integer"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "e",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "f",
+          "type": {
+            "reference": "sdml:binary"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "g",
+          "type": {
+            "reference": "sdml:iri"
+          }
+        }
+      ],
+      "name": "Duration"
+    }
+  ],
+  "is_library_module": false,
+  "name": "example",
+  "source_file": "MANIFEST_PATH/corpus/structure_simple_types.sdm"
+}

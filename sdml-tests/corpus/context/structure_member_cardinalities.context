@@ -1,0 +1,117 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_member_cardinalities.sdm/",
+  "definitions": [
+    {
+      "__type": "structure_def",
+      "members": [
+        {
+          "__type": "member_def",
+          "name": "default",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "one",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "min": 1
+          },
+          "name": "one_or_more",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "min": 1,
+            "ordering": "unordered",
+            "uniqueness": "unique"
+          },
+          "name": "seq_nonempty_set",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "min": 0,
+            "uniqueness": "nonunique"
+          },
+          "name": "seq_nonunique",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "min": 0,
+            "ordering": "ordered"
+          },
+          "name": "seq_ordered",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "min": 0,
+            "uniqueness": "unique"
+          },
+          "name": "seq_unique",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "min": 0,
+            "ordering": "unordered"
+          },
+          "name": "seq_unordered",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "max": 2,
+            "min": 2
+          },
+          "name": "two",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "cardinality": {
+            "max": 1,
+            "min": 0
+          },
+          "name": "zero_or_one",
+          "type": {
+            "reference": "sdml:string"
+          }
+        }
+      ],
+      "name": "Example"
+    }
+  ],
+  "is_library_module": false,
+  "name": "example",
+  "source_file": "MANIFEST_PATH/corpus/structure_member_cardinalities.sdm"
+}

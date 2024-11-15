@@ -1,0 +1,17 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:version",
+      "value": {
+        "__type": "integer",
+        "value": 2
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_integer.sdm/",
+  "is_library_module": false,
+  "name": "Campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_integer.sdm"
+}

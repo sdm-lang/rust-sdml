@@ -1,0 +1,52 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_double.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "some"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 71,
+            "start": 53
+          },
+          "value": {
+            "__type": "value",
+            "simple": {
+              "__type": "double",
+              "value": 1.2e-10
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_double.sdm",
+  "span": {
+    "__type": "span",
+    "end": 77,
+    "start": 0
+  }
+}

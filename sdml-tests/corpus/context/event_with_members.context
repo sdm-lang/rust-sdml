@@ -1,0 +1,33 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/event_with_members.sdm/",
+  "definitions": [
+    {
+      "__type": "event_def",
+      "members": [
+        {
+          "__type": "member_def",
+          "name": "new_name",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "name": "old_name",
+          "type": {
+            "reference": "sdml:string"
+          }
+        }
+      ],
+      "name": "NameChanged",
+      "source": {
+        "__type": "source_entity",
+        "entity": "Campaign"
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/event_with_members.sdm"
+}

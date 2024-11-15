@@ -1,0 +1,6 @@
+module example <https://example.com/api> is
+
+  import owl
+  import [ dc xsd owl owl ]
+
+end

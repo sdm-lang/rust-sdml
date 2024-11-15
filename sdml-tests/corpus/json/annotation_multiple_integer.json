@@ -1,0 +1,79 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_integer.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "version"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 80,
+            "start": 57
+          },
+          "value": {
+            "__type": "value",
+            "sequence": {
+              "__type": "sequence_of_values",
+              "members": [
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "integer",
+                    "value": 1
+                  }
+                },
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "integer",
+                    "value": 2
+                  }
+                },
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "integer",
+                    "value": 3
+                  }
+                }
+              ],
+              "span": {
+                "__type": "span",
+                "end": 80,
+                "start": 71
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_integer.sdm",
+  "span": {
+    "__type": "span",
+    "end": 86,
+    "start": 0
+  }
+}

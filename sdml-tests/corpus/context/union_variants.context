@@ -1,0 +1,21 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/union_variants.sdm/",
+  "definitions": [
+    {
+      "__type": "union_def",
+      "name": "VehicleClass",
+      "variants": [
+        {
+          "name": "Boat"
+        },
+        {
+          "name": "Car"
+        }
+      ]
+    }
+  ],
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/union_variants.sdm"
+}

@@ -1,0 +1,26 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:seeAlso",
+      "value": {
+        "__type": "sequence_of_values",
+        "members": [
+          {
+            "__type": "iri",
+            "value": "https://www.dublincore.org/"
+          },
+          {
+            "__type": "iri",
+            "value": "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/"
+          }
+        ]
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_iri.sdm/",
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_iri.sdm"
+}

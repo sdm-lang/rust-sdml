@@ -1,0 +1,33 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_source_and_members.sdm/",
+  "definitions": [
+    {
+      "__type": "dimension_def",
+      "identity": {
+        "__type": "source_entity",
+        "entity": "Campaign",
+        "members": [
+          "status"
+        ]
+      },
+      "members": [
+        {
+          "__type": "identifier",
+          "value": "Target"
+        },
+        {
+          "__type": "member_def",
+          "name": "name",
+          "type": {
+            "reference": "Name"
+          }
+        }
+      ],
+      "name": "Campaigns"
+    }
+  ],
+  "is_library_module": false,
+  "name": "dimensions",
+  "source_file": "MANIFEST_PATH/corpus/dimension_with_source_and_members.sdm"
+}

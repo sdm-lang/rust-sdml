@@ -156,22 +156,19 @@ Module {
                                                         uniqueness: None,
                                                         range: None,
                                                     },
-                                                    target_type: FunctionTypeReference {
-                                                        optional: false,
-                                                        inner: Reference(
-                                                            Identifier(
-                                                                Identifier {
-                                                                    span: Some(
-                                                                        Span {
-                                                                            start: 203,
-                                                                            end: 204,
-                                                                        },
-                                                                    ),
-                                                                    value: "T",
-                                                                },
-                                                            ),
+                                                    target_type: Reference(
+                                                        Identifier(
+                                                            Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 203,
+                                                                        end: 204,
+                                                                    },
+                                                                ),
+                                                                value: "T",
+                                                            },
                                                         ),
-                                                    },
+                                                    ),
                                                 },
                                             },
                                         ],
@@ -183,29 +180,26 @@ Module {
                                                 uniqueness: None,
                                                 range: None,
                                             },
-                                            target_type: FunctionTypeReference {
-                                                optional: false,
-                                                inner: Reference(
-                                                    QualifiedIdentifier(
-                                                        QualifiedIdentifier {
+                                            target_type: Reference(
+                                                QualifiedIdentifier(
+                                                    QualifiedIdentifier {
+                                                        span: None,
+                                                        module: Identifier {
                                                             span: None,
-                                                            module: Identifier {
-                                                                span: None,
-                                                                value: "sdml",
-                                                            },
-                                                            member: Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 209,
-                                                                        end: 216,
-                                                                    },
-                                                                ),
-                                                                value: "boolean",
-                                                            },
+                                                            value: "sdml",
                                                         },
-                                                    ),
+                                                        member: Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 209,
+                                                                    end: 216,
+                                                                },
+                                                            ),
+                                                            value: "boolean",
+                                                        },
+                                                    },
                                                 ),
-                                            },
+                                            ),
                                         },
                                     },
                                     body: Some(
@@ -279,22 +273,19 @@ Module {
                                                         uniqueness: None,
                                                         range: None,
                                                     },
-                                                    target_type: FunctionTypeReference {
-                                                        optional: false,
-                                                        inner: Reference(
-                                                            Identifier(
-                                                                Identifier {
-                                                                    span: Some(
-                                                                        Span {
-                                                                            start: 115,
-                                                                            end: 116,
-                                                                        },
-                                                                    ),
-                                                                    value: "T",
-                                                                },
-                                                            ),
+                                                    target_type: Reference(
+                                                        Identifier(
+                                                            Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 115,
+                                                                        end: 116,
+                                                                    },
+                                                                ),
+                                                                value: "T",
+                                                            },
                                                         ),
-                                                    },
+                                                    ),
                                                 },
                                             },
                                         ],
@@ -306,29 +297,26 @@ Module {
                                                 uniqueness: None,
                                                 range: None,
                                             },
-                                            target_type: FunctionTypeReference {
-                                                optional: false,
-                                                inner: Reference(
-                                                    QualifiedIdentifier(
-                                                        QualifiedIdentifier {
+                                            target_type: Reference(
+                                                QualifiedIdentifier(
+                                                    QualifiedIdentifier {
+                                                        span: None,
+                                                        module: Identifier {
                                                             span: None,
-                                                            module: Identifier {
-                                                                span: None,
-                                                                value: "sdml",
-                                                            },
-                                                            member: Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 121,
-                                                                        end: 128,
-                                                                    },
-                                                                ),
-                                                                value: "boolean",
-                                                            },
+                                                            value: "sdml",
                                                         },
-                                                    ),
+                                                        member: Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 121,
+                                                                    end: 128,
+                                                                },
+                                                            ),
+                                                            value: "boolean",
+                                                        },
+                                                    },
                                                 ),
-                                            },
+                                            ),
                                         },
                                     },
                                     body: None,
@@ -433,22 +421,19 @@ Module {
                                                         uniqueness: None,
                                                         range: None,
                                                     },
-                                                    target_type: FunctionTypeReference {
-                                                        optional: false,
-                                                        inner: Reference(
-                                                            Identifier(
-                                                                Identifier {
-                                                                    span: Some(
-                                                                        Span {
-                                                                            start: 61,
-                                                                            end: 62,
-                                                                        },
-                                                                    ),
-                                                                    value: "T",
-                                                                },
-                                                            ),
+                                                    target_type: Reference(
+                                                        Identifier(
+                                                            Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 61,
+                                                                        end: 62,
+                                                                    },
+                                                                ),
+                                                                value: "T",
+                                                            },
                                                         ),
-                                                    },
+                                                    ),
                                                 },
                                             },
                                         ],
@@ -460,29 +445,26 @@ Module {
                                                 uniqueness: None,
                                                 range: None,
                                             },
-                                            target_type: FunctionTypeReference {
-                                                optional: false,
-                                                inner: Reference(
-                                                    QualifiedIdentifier(
-                                                        QualifiedIdentifier {
+                                            target_type: Reference(
+                                                QualifiedIdentifier(
+                                                    QualifiedIdentifier {
+                                                        span: None,
+                                                        module: Identifier {
                                                             span: None,
-                                                            module: Identifier {
-                                                                span: None,
-                                                                value: "sdml",
-                                                            },
-                                                            member: Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 67,
-                                                                        end: 74,
-                                                                    },
-                                                                ),
-                                                                value: "boolean",
-                                                            },
+                                                            value: "sdml",
                                                         },
-                                                    ),
+                                                        member: Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 67,
+                                                                    end: 74,
+                                                                },
+                                                            ),
+                                                            value: "boolean",
+                                                        },
+                                                    },
                                                 ),
-                                            },
+                                            ),
                                         },
                                     },
                                     body: None,
@@ -523,22 +505,19 @@ Module {
                                                 uniqueness: None,
                                                 range: None,
                                             },
-                                            target_type: FunctionTypeReference {
-                                                optional: false,
-                                                inner: Reference(
-                                                    Identifier(
-                                                        Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 90,
-                                                                    end: 91,
-                                                                },
-                                                            ),
-                                                            value: "T",
-                                                        },
-                                                    ),
+                                            target_type: Reference(
+                                                Identifier(
+                                                    Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 90,
+                                                                end: 91,
+                                                            },
+                                                        ),
+                                                        value: "T",
+                                                    },
                                                 ),
-                                            },
+                                            ),
                                         },
                                     },
                                     body: None,

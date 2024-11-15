@@ -73,7 +73,7 @@ Module {
                                     end: 76,
                                 },
                             ),
-                            value: " \"This module has no definitions",
+                            value: "This module has no definitions",
                             language: None,
                         },
                     ),

@@ -1,0 +1,76 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/datatype_with_restrictions.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "datatype": {
+          "__type": "data_type_def",
+          "base": "xsd:string",
+          "body": {
+            "body": {
+              "__type": "annotation_only_body",
+              "annotations": [
+                {
+                  "__type": "annotation",
+                  "property": {
+                    "__type": "annotation_property",
+                    "name": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "maxLength"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "xsd"
+                        }
+                      }
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 80,
+                      "start": 62
+                    },
+                    "value": {
+                      "__type": "value",
+                      "simple": {
+                        "__type": "integer",
+                        "value": 8
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "is_opaque": false,
+          "name": {
+            "__type": "identifier",
+            "value": "unixUserId"
+          },
+          "span": {
+            "__type": "span",
+            "end": 86,
+            "start": 21
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "example"
+  },
+  "source_file": "MANIFEST_PATH/corpus/datatype_with_restrictions.sdm",
+  "span": {
+    "__type": "span",
+    "end": 92,
+    "start": 0
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_unknowns.sdm/",
+  "definitions": [
+    {
+      "__type": "entity_def",
+      "identity": {
+        "__type": "member_def",
+        "name": "id",
+        "type": {
+          "unknown": true
+        }
+      },
+      "members": [
+        {
+          "__type": "member_def",
+          "name": "a",
+          "type": {
+            "unknown": true
+          }
+        }
+      ],
+      "name": "Campaign"
+    }
+  ],
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/entity_with_unknowns.sdm"
+}

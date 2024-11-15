@@ -1,0 +1,18 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:title",
+      "value": {
+        "__type": "string",
+        "language": "en-US",
+        "value": "a test"
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_language_string.sdm/",
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_language_string.sdm"
+}

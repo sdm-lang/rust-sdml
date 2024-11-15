@@ -1,0 +1,17 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:some",
+      "value": {
+        "__type": "decimal",
+        "value": "102.201"
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_decimal.sdm/",
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_decimal.sdm"
+}

@@ -1,0 +1,120 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/event_with_members.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "event": {
+          "__type": "event_def",
+          "body": {
+            "__type": "event_body",
+            "members": [
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "new_name"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 133,
+                      "start": 115
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "old_name"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 110,
+                      "start": 92
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "source": {
+              "__type": "source_entity",
+              "entity": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Campaign"
+                }
+              }
+            }
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "NameChanged"
+          },
+          "span": {
+            "__type": "span",
+            "end": 139,
+            "start": 47
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/event_with_members.sdm",
+  "span": {
+    "__type": "span",
+    "end": 145,
+    "start": 0
+  }
+}

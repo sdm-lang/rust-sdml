@@ -1,0 +1,38 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "constraint": {
+          "__type": "constraint",
+          "body": {
+            "__type": "constraint_body",
+            "informal": {
+              "__type": "informal_constraint",
+              "language": "en-ACE",
+              "value": "This module has no definitions"
+            }
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "no_definitions"
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Example"
+  },
+  "source_file": "MANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm",
+  "span": {
+    "__type": "span",
+    "end": 88,
+    "start": 0
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:published",
+      "value": {
+        "__type": "boolean",
+        "value": false
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_boolean.sdm/",
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_boolean.sdm"
+}

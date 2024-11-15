@@ -1,0 +1,15 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/datatype_from_string.sdm/",
+  "definitions": [
+    {
+      "__type": "data_type_def",
+      "base": "sdml:string",
+      "is_opaque": false,
+      "name": "nameString"
+    }
+  ],
+  "is_library_module": false,
+  "name": "example",
+  "source_file": "MANIFEST_PATH/corpus/datatype_from_string.sdm"
+}

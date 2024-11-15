@@ -1,0 +1,30 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:some",
+      "value": {
+        "__type": "sequence_of_values",
+        "members": [
+          {
+            "__type": "double",
+            "value": 3.1e101
+          },
+          {
+            "__type": "double",
+            "value": 1.2e-10
+          },
+          {
+            "__type": "double",
+            "value": 100000000.0
+          }
+        ]
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_double.sdm/",
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_double.sdm"
+}

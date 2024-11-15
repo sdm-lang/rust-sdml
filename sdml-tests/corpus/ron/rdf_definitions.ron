@@ -85,6 +85,7 @@ Module {
                                 value: "owl",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                     Module(
@@ -105,6 +106,7 @@ Module {
                                 value: "rdf",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                 ],

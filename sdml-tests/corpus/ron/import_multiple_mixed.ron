@@ -78,62 +78,81 @@ Module {
                                 value: "target",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                     Member(
-                        QualifiedIdentifier {
+                        MemberImport {
                             span: Some(
                                 Span {
                                     start: 65,
                                     end: 73,
                                 },
                             ),
-                            module: Identifier {
+                            name: QualifiedIdentifier {
                                 span: Some(
                                     Span {
                                         start: 65,
-                                        end: 68,
-                                    },
-                                ),
-                                value: "xsd",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 69,
                                         end: 73,
                                     },
                                 ),
-                                value: "base",
+                                module: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 65,
+                                            end: 68,
+                                        },
+                                    ),
+                                    value: "xsd",
+                                },
+                                member: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 69,
+                                            end: 73,
+                                        },
+                                    ),
+                                    value: "base",
+                                },
                             },
+                            renamed_as: None,
                         },
                     ),
                     Member(
-                        QualifiedIdentifier {
+                        MemberImport {
                             span: Some(
                                 Span {
                                     start: 74,
                                     end: 82,
                                 },
                             ),
-                            module: Identifier {
+                            name: QualifiedIdentifier {
                                 span: Some(
                                     Span {
                                         start: 74,
-                                        end: 77,
-                                    },
-                                ),
-                                value: "xml",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 78,
                                         end: 82,
                                     },
                                 ),
-                                value: "lang",
+                                module: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 74,
+                                            end: 77,
+                                        },
+                                    ),
+                                    value: "xml",
+                                },
+                                member: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 78,
+                                            end: 82,
+                                        },
+                                    ),
+                                    value: "lang",
+                                },
                             },
+                            renamed_as: None,
                         },
                     ),
                     Module(
@@ -154,6 +173,7 @@ Module {
                                 value: "skos",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                 ],

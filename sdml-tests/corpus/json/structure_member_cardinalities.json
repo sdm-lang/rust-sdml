@@ -1,0 +1,430 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_member_cardinalities.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "structure": {
+          "__type": "structure_def",
+          "body": {
+            "__type": "structure_body",
+            "members": [
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "default"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 63,
+                      "start": 46
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "one"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 85,
+                      "start": 68
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "min": 1
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "one_or_more"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 172,
+                      "start": 145
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "min": 1,
+                      "ordering": "unordered",
+                      "uniqueness": "unique"
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "seq_nonempty_set"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 392,
+                      "start": 343
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "min": 0,
+                      "uniqueness": "nonunique"
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "seq_nonunique"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 338,
+                      "start": 299
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "min": 0,
+                      "ordering": "ordered"
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "seq_ordered"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 212,
+                      "start": 177
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "min": 0,
+                      "uniqueness": "unique"
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "seq_unique"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 294,
+                      "start": 261
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "min": 0,
+                      "ordering": "unordered"
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "seq_unordered"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 256,
+                      "start": 217
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "max": 2,
+                      "min": 2
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "two"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 107,
+                      "start": 90
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "cardinality": {
+                      "__type": "cardinality_expression",
+                      "max": 1,
+                      "min": 0
+                    },
+                    "name": {
+                      "__type": "identifier",
+                      "value": "zero_or_one"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 140,
+                      "start": 112
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "Example"
+          },
+          "span": {
+            "__type": "span",
+            "end": 398,
+            "start": 21
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "example"
+  },
+  "source_file": "MANIFEST_PATH/corpus/structure_member_cardinalities.sdm",
+  "span": {
+    "__type": "span",
+    "end": 404,
+    "start": 0
+  }
+}

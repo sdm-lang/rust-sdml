@@ -1,0 +1,117 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_separate.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "prefLabel"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "skos"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 77,
+            "start": 57
+          },
+          "value": {
+            "__type": "value",
+            "simple": {
+              "__type": "string",
+              "value": ""
+            }
+          }
+        }
+      },
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "altLabel"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "skos"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 103,
+            "start": 81
+          },
+          "value": {
+            "__type": "value",
+            "simple": {
+              "__type": "string",
+              "language": "en",
+              "value": ""
+            }
+          }
+        }
+      },
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "version"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 122,
+            "start": 107
+          },
+          "value": {
+            "__type": "value",
+            "simple": {
+              "__type": "integer",
+              "value": 3
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_separate.sdm",
+  "span": {
+    "__type": "span",
+    "end": 128,
+    "start": 0
+  }
+}

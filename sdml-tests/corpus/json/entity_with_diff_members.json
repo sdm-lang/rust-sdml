@@ -1,0 +1,116 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_diff_members.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "entity": {
+          "__type": "entity_def",
+          "body": {
+            "__type": "entity_body",
+            "identity": {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "name": {
+                    "__type": "identifier",
+                    "value": "a"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 106,
+                    "start": 91
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "CampaignId"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "members": [
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "b"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 127,
+                      "start": 112
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "xsd"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "c"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "Campaign"
+          },
+          "span": {
+            "__type": "span",
+            "end": 145,
+            "start": 58
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/entity_with_diff_members.sdm",
+  "span": {
+    "__type": "span",
+    "end": 151,
+    "start": 0
+  }
+}

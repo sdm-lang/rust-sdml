@@ -88,7 +88,7 @@ Module {
                                 },
                             ),
                             annotations: [],
-                            event_source: SourceEntity {
+                            source_entity: SourceEntity {
                                 span: None,
                                 target_entity: Identifier(
                                     Identifier {

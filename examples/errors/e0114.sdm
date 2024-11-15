@@ -1,9 +1,0 @@
-module example <https://example.com/api> is
-
-  import [ dc skos xsd ]
-
-  structure Foo is
-    name -> Bar
-  end
-
-end

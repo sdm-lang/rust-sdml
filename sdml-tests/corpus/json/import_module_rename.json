@@ -1,0 +1,39 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/import_module_rename.sdm/",
+  "body": {
+    "__type": "module_body",
+    "imports": [
+      {
+        "__type": "import_statement",
+        "imports": [
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "xsd"
+              },
+              "rename": {
+                "__type": "identifier",
+                "value": "schema"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/import_module_rename.sdm",
+  "span": {
+    "__type": "span",
+    "end": 48,
+    "start": 0
+  }
+}

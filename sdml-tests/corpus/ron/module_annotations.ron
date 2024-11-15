@@ -189,7 +189,7 @@ Module {
                             },
                         },
                     ),
-                    value: List(
+                    value: Sequence(
                         SequenceOfValues {
                             span: Some(
                                 Span {

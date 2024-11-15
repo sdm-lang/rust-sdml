@@ -1,0 +1,49 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_empty.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "type_class": {
+          "__type": "type_class_def",
+          "name": {
+            "__type": "identifier",
+            "value": "Any"
+          },
+          "span": {
+            "__type": "span",
+            "end": 31,
+            "start": 18
+          },
+          "variables": [
+            {
+              "__type": "type_variable",
+              "name": {
+                "__type": "identifier",
+                "value": "T"
+              },
+              "span": {
+                "__type": "span",
+                "end": 30,
+                "start": 29
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "is_library_module": true,
+  "name": {
+    "__type": "identifier",
+    "value": "sdml"
+  },
+  "source_file": "MANIFEST_PATH/corpus/type_class_empty.sdm",
+  "span": {
+    "__type": "span",
+    "end": 37,
+    "start": 0
+  }
+}

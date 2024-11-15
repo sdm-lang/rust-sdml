@@ -1,6 +1,6 @@
 Module {
     source_file: Some(
-        "MANIFEST_PATH/corpus/import_module_only.sdm",
+        "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/import_module_only.sdm",
     ),
     file_id: Some(
         0,
@@ -34,7 +34,7 @@ Module {
                     ),
                 ),
                 port: None,
-                path: "MANIFEST_PATH/corpus/import_module_only.sdm/",
+                path: "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/import_module_only.sdm/",
                 query: None,
                 fragment: None,
             },
@@ -78,6 +78,7 @@ Module {
                                 value: "xsd",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                 ],

@@ -1,0 +1,35 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/import_module_only.sdm/",
+  "body": {
+    "__type": "module_body",
+    "imports": [
+      {
+        "__type": "import_statement",
+        "imports": [
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "xsd"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/import_module_only.sdm",
+  "span": {
+    "__type": "span",
+    "end": 69,
+    "start": 0
+  }
+}

@@ -30,7 +30,6 @@ macro_rules! test_case {
                 }
                 let module = cache.get(&module.unwrap()).unwrap();
                 println!("Module {} loaded.", module.name());
-                //println!("{:?}", module);
 
                 let expected = ::std::path::PathBuf::from(
                     format!(
@@ -103,7 +102,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             import => (
                 import_member_only,
+                import_member_rename,
                 import_module_only,
+                import_module_rename,
                 import_module_version,
                 import_multiple_members,
                 import_multiple_mixed,
@@ -189,12 +190,14 @@ macro_rules! test_setup {
             event => (
                 event_empty,
                 event_with_members,
-                event_with_source
+                event_with_source,
+                event_with_source_and_members
             )
         }
 
         $crate::test_suite! {
             property => (
+                property_def_empty,
                 property_def_some,
                 property_def_used
             )
@@ -204,7 +207,8 @@ macro_rules! test_setup {
             structure => (
                 structure_empty,
                 structure_mapping_type,
-                structure_simple_types
+                structure_simple_types,
+                structure_member_cardinalities
             )
         }
 

@@ -1,0 +1,21 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/enum_variants.sdm/",
+  "definitions": [
+    {
+      "__type": "enum_def",
+      "name": "NameKind",
+      "variants": [
+        {
+          "name": "External"
+        },
+        {
+          "name": "Internal"
+        }
+      ]
+    }
+  ],
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/enum_variants.sdm"
+}

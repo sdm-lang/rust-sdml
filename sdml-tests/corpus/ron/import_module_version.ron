@@ -104,6 +104,7 @@ Module {
                                     },
                                 },
                             ),
+                            renamed_as: None,
                         },
                     ),
                 ],

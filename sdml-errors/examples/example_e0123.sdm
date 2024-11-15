@@ -1,0 +1,9 @@
+module example is
+
+  structure Foo
+
+  dimension Bar is
+    source Foo
+  end
+
+end

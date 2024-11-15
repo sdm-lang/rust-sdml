@@ -1,0 +1,12 @@
+module example is
+
+  entity Foo is
+    identity id -> long
+    name -> string
+  end
+
+  dimension Bar is
+    source Foo with [ name title ]
+  end
+
+end

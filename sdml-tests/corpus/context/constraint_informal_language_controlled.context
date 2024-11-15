@@ -1,0 +1,15 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "informal_constraint",
+      "language": "en-ACE",
+      "name": "no_definitions",
+      "value": "This module has no definitions"
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm/",
+  "is_library_module": false,
+  "name": "Example",
+  "source_file": "MANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm"
+}

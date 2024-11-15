@@ -1,0 +1,43 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "xml:base",
+      "value": {
+        "__type": "iri",
+        "value": "https://example.org/"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "dc:version",
+      "value": {
+        "__type": "integer",
+        "value": 2
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "skos:prefLang",
+      "value": {
+        "__type": "sequence_of_values",
+        "members": [
+          {
+            "__type": "string",
+            "language": "en",
+            "value": "aa"
+          },
+          {
+            "__type": "string",
+            "value": "bb"
+          }
+        ]
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_annotations.sdm/",
+  "is_library_module": false,
+  "name": "annx",
+  "source_file": "MANIFEST_PATH/corpus/module_annotations.sdm"
+}

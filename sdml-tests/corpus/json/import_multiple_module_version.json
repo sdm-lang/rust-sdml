@@ -1,0 +1,66 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/import_multiple_module_version.sdm/",
+  "body": {
+    "__type": "module_body",
+    "imports": [
+      {
+        "__type": "import_statement",
+        "imports": [
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "sdml"
+              }
+            }
+          },
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "customer"
+              },
+              "version_uri": "https://example.org/v2/Customer#"
+            }
+          },
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "rdf"
+              }
+            }
+          },
+          {
+            "__type": "import",
+            "module": {
+              "__type": "module_import",
+              "module": {
+                "__type": "identifier",
+                "value": "skos"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/import_multiple_module_version.sdm",
+  "span": {
+    "__type": "span",
+    "end": 110,
+    "start": 0
+  }
+}

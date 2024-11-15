@@ -1,0 +1,167 @@
+{
+  "__type": "module",
+  "base_uri": "http://www.w3.org/2000/01/rdf-schema#",
+  "definitions": [
+    {
+      "__type": "rdf_def",
+      "annotations": [
+        {
+          "__type": "annotation_property",
+          "name": "isDefinedBy",
+          "value": {
+            "__type": "identifier",
+            "value": "rdfs"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "label",
+          "value": {
+            "__type": "string",
+            "language": "en",
+            "value": "Resource"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "comment",
+          "value": {
+            "__type": "string",
+            "value": "The class resource, everything."
+          }
+        }
+      ],
+      "name": "Resource"
+    },
+    {
+      "__type": "rdf_def",
+      "annotations": [
+        {
+          "__type": "annotation_property",
+          "name": "domain",
+          "value": {
+            "__type": "identifier",
+            "value": "Resource"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "range",
+          "value": {
+            "__type": "identifier",
+            "value": "Literal"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "isDefinedBy",
+          "value": {
+            "__type": "identifier",
+            "value": "rdfs"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "label",
+          "value": {
+            "__type": "string",
+            "value": "comment"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "comment",
+          "value": {
+            "__type": "string",
+            "value": "A description of the subject resource."
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "rdf:type",
+          "value": {
+            "__type": "qualified_identifier",
+            "member": "Property",
+            "module": "rdf"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "rdf:type",
+          "value": {
+            "__type": "qualified_identifier",
+            "member": "AnnotationProperty",
+            "module": "owl"
+          }
+        }
+      ],
+      "name": "comment"
+    },
+    {
+      "__type": "rdf_def",
+      "annotations": [
+        {
+          "__type": "annotation_property",
+          "name": "domain",
+          "value": {
+            "__type": "identifier",
+            "value": "Class"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "range",
+          "value": {
+            "__type": "identifier",
+            "value": "Class"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "isDefinedBy",
+          "value": {
+            "__type": "identifier",
+            "value": "rdfs"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "label",
+          "value": {
+            "__type": "string",
+            "value": "subClassOf"
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "comment",
+          "value": {
+            "__type": "string",
+            "value": "The subject is a subclass of a class."
+          }
+        },
+        {
+          "__type": "annotation_property",
+          "name": "rdf:type",
+          "value": {
+            "__type": "qualified_identifier",
+            "member": "Property",
+            "module": "rdf"
+          }
+        }
+      ],
+      "name": "subClassOf"
+    }
+  ],
+  "imports": [
+    {
+      "module": "owl"
+    },
+    {
+      "module": "rdf"
+    }
+  ],
+  "is_library_module": true,
+  "name": "rdfs",
+  "source_file": "MANIFEST_PATH/corpus/rdf_definitions.sdm"
+}

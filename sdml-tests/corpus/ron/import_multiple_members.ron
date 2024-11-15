@@ -61,59 +61,77 @@ Module {
                 ),
                 imports: [
                     Member(
-                        QualifiedIdentifier {
+                        MemberImport {
                             span: Some(
                                 Span {
                                     start: 31,
                                     end: 39,
                                 },
                             ),
-                            module: Identifier {
+                            name: QualifiedIdentifier {
                                 span: Some(
                                     Span {
                                         start: 31,
-                                        end: 34,
-                                    },
-                                ),
-                                value: "xsd",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 35,
                                         end: 39,
                                     },
                                 ),
-                                value: "base",
+                                module: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 31,
+                                            end: 34,
+                                        },
+                                    ),
+                                    value: "xsd",
+                                },
+                                member: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 35,
+                                            end: 39,
+                                        },
+                                    ),
+                                    value: "base",
+                                },
                             },
+                            renamed_as: None,
                         },
                     ),
                     Member(
-                        QualifiedIdentifier {
+                        MemberImport {
                             span: Some(
                                 Span {
                                     start: 40,
                                     end: 48,
                                 },
                             ),
-                            module: Identifier {
+                            name: QualifiedIdentifier {
                                 span: Some(
                                     Span {
                                         start: 40,
-                                        end: 43,
-                                    },
-                                ),
-                                value: "xml",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 44,
                                         end: 48,
                                     },
                                 ),
-                                value: "lang",
+                                module: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 40,
+                                            end: 43,
+                                        },
+                                    ),
+                                    value: "xml",
+                                },
+                                member: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 44,
+                                            end: 48,
+                                        },
+                                    ),
+                                    value: "lang",
+                                },
                             },
+                            renamed_as: None,
                         },
                     ),
                 ],

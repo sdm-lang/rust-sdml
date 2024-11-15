@@ -1,0 +1,79 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_string.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "author"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 89,
+            "start": 56
+          },
+          "value": {
+            "__type": "value",
+            "sequence": {
+              "__type": "sequence_of_values",
+              "members": [
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "string",
+                    "value": "me"
+                  }
+                },
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "string",
+                    "value": "and"
+                  }
+                },
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "string",
+                    "value": "you"
+                  }
+                }
+              ],
+              "span": {
+                "__type": "span",
+                "end": 89,
+                "start": 69
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_string.sdm",
+  "span": {
+    "__type": "span",
+    "end": 95,
+    "start": 0
+  }
+}

@@ -1,0 +1,285 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_simple_types.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "structure": {
+          "__type": "structure_def",
+          "body": {
+            "__type": "structure_body",
+            "members": [
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "a"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 59,
+                      "start": 47
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "boolean"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "b"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 75,
+                      "start": 64
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "double"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "c"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 92,
+                      "start": 80
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "decimal"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "d"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 109,
+                      "start": 97
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "integer"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "e"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 125,
+                      "start": 114
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "f"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 141,
+                      "start": 130
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "binary"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "__type": "member",
+                "kind": {
+                  "__type": "member",
+                  "definition": {
+                    "__type": "member_def",
+                    "name": {
+                      "__type": "identifier",
+                      "value": "g"
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 154,
+                      "start": 146
+                    },
+                    "type": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "iri"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "Duration"
+          },
+          "span": {
+            "__type": "span",
+            "end": 160,
+            "start": 21
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "example"
+  },
+  "source_file": "MANIFEST_PATH/corpus/structure_simple_types.sdm",
+  "span": {
+    "__type": "span",
+    "end": 166,
+    "start": 0
+  }
+}

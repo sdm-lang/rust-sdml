@@ -1,0 +1,52 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_integer.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "version"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 69,
+            "start": 54
+          },
+          "value": {
+            "__type": "value",
+            "simple": {
+              "__type": "integer",
+              "value": 2
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_integer.sdm",
+  "span": {
+    "__type": "span",
+    "end": 75,
+    "start": 0
+  }
+}

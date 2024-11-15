@@ -1,0 +1,21 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "dc:author",
+      "value": {
+        "__type": "value_constructor",
+        "type": "xsd:positiveInteger",
+        "value": {
+          "__type": "integer",
+          "value": 1
+        }
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_constructor.sdm/",
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/annotation_single_constructor.sdm"
+}

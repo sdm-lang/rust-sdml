@@ -1,0 +1,35 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/union_empty.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "union": {
+          "__type": "union_def",
+          "name": {
+            "__type": "identifier",
+            "value": "VehicleClass"
+          },
+          "span": {
+            "__type": "span",
+            "end": 58,
+            "start": 40
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/union_empty.sdm",
+  "span": {
+    "__type": "span",
+    "end": 64,
+    "start": 0
+  }
+}

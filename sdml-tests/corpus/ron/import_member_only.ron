@@ -61,31 +61,40 @@ Module {
                 ),
                 imports: [
                     Member(
-                        QualifiedIdentifier {
+                        MemberImport {
                             span: Some(
                                 Span {
                                     start: 55,
                                     end: 63,
                                 },
                             ),
-                            module: Identifier {
+                            name: QualifiedIdentifier {
                                 span: Some(
                                     Span {
                                         start: 55,
-                                        end: 58,
-                                    },
-                                ),
-                                value: "xsd",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 59,
                                         end: 63,
                                     },
                                 ),
-                                value: "base",
+                                module: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 55,
+                                            end: 58,
+                                        },
+                                    ),
+                                    value: "xsd",
+                                },
+                                member: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 59,
+                                            end: 63,
+                                        },
+                                    ),
+                                    value: "base",
+                                },
                             },
+                            renamed_as: None,
                         },
                     ),
                 ],

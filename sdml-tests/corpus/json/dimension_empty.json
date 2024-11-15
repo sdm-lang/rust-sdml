@@ -1,0 +1,35 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_empty.sdm/",
+  "body": {
+    "__type": "module_body",
+    "definitions": [
+      {
+        "__type": "definition",
+        "dimension": {
+          "__type": "dimension_def",
+          "name": {
+            "__type": "identifier",
+            "value": "Campaigns"
+          },
+          "span": {
+            "__type": "span",
+            "end": 63,
+            "start": 44
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/dimension_empty.sdm",
+  "span": {
+    "__type": "span",
+    "end": 69,
+    "start": 0
+  }
+}

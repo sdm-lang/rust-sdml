@@ -1,0 +1,100 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_module_rename.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 48,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 7,
+                end: 15,
+            },
+        ),
+        value: "Campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_module_rename.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    body: ModuleBody {
+        span: Some(
+            Span {
+                start: 16,
+                end: 47,
+            },
+        ),
+        file_id: None,
+        is_library: false,
+        imports: [
+            ImportStatement {
+                span: Some(
+                    Span {
+                        start: 22,
+                        end: 42,
+                    },
+                ),
+                imports: [
+                    Module(
+                        ModuleImport {
+                            span: Some(
+                                Span {
+                                    start: 29,
+                                    end: 42,
+                                },
+                            ),
+                            name: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 29,
+                                        end: 32,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            version_uri: None,
+                            renamed_as: Some(
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 36,
+                                            end: 42,
+                                        },
+                                    ),
+                                    value: "schema",
+                                },
+                            ),
+                        },
+                    ),
+                ],
+            },
+        ],
+        annotations: [],
+        definitions: {},
+    },
+}

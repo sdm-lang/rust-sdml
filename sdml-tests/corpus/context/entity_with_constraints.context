@@ -1,0 +1,69 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_constraints.sdm/",
+  "definitions": [
+    {
+      "__type": "entity_def",
+      "identity": {
+        "__type": "member_def",
+        "name": "a",
+        "type": {
+          "reference": "CampaignId"
+        }
+      },
+      "members": [
+        {
+          "__type": "member_def",
+          "annotations": [
+            {
+              "__type": "informal_constraint",
+              "name": "not_null",
+              "value": "self is not null"
+            }
+          ],
+          "name": "b",
+          "type": {
+            "reference": "xsd:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "annotations": [
+            {
+              "__type": "formal_constraint",
+              "body": {
+                "__type": "quantified_sentence",
+                "binding": {
+                  "__type": "quantified_variable_binding",
+                  "quantifier": "∀"
+                },
+                "sentence": {
+                  "__type": "atomic_sentence",
+                  "function": {
+                    "__type": "function_composition",
+                    "functions": [
+                      "tags",
+                      "contains"
+                    ],
+                    "subject": {
+                      "self": true
+                    }
+                  }
+                }
+              },
+              "name": "tagged_with_foo"
+            }
+          ],
+          "name": "c",
+          "type": {
+            "reference": "Target"
+          }
+        }
+      ],
+      "name": "Campaign"
+    }
+  ],
+  "is_library_module": false,
+  "name": "Campaign",
+  "source_file": "MANIFEST_PATH/corpus/entity_with_constraints.sdm"
+}

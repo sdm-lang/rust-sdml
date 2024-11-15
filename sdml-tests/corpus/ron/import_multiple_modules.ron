@@ -78,6 +78,7 @@ Module {
                                 value: "xsd",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                     Module(
@@ -98,6 +99,7 @@ Module {
                                 value: "skos",
                             },
                             version_uri: None,
+                            renamed_as: None,
                         },
                     ),
                 ],

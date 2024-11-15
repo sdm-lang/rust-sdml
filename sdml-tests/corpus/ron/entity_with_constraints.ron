@@ -235,7 +235,7 @@ Module {
                                                                                 end: 137,
                                                                             },
                                                                         ),
-                                                                        value: " \"self is not null",
+                                                                        value: "self is not null",
                                                                         language: None,
                                                                     },
                                                                 ),

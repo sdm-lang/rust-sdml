@@ -1,0 +1,79 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_decimal.sdm/",
+  "body": {
+    "__type": "module_body",
+    "annotations": [
+      {
+        "__type": "annotation",
+        "property": {
+          "__type": "annotation_property",
+          "name": {
+            "__type": "identifier_reference",
+            "qualified_identifier": {
+              "__type": "qualified_identifier",
+              "member": {
+                "__type": "identifier",
+                "value": "some"
+              },
+              "module": {
+                "__type": "identifier",
+                "value": "dc"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 89,
+            "start": 57
+          },
+          "value": {
+            "__type": "value",
+            "sequence": {
+              "__type": "sequence_of_values",
+              "members": [
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "decimal",
+                    "value": "101.0"
+                  }
+                },
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "decimal",
+                    "value": "102.201"
+                  }
+                },
+                {
+                  "__type": "sequence_member",
+                  "simple": {
+                    "__type": "decimal",
+                    "value": "0.1"
+                  }
+                }
+              ],
+              "span": {
+                "__type": "span",
+                "end": 89,
+                "start": 68
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "campaign"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_decimal.sdm",
+  "span": {
+    "__type": "span",
+    "end": 95,
+    "start": 0
+  }
+}
