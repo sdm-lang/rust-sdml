@@ -4,16 +4,16 @@ use super::ParseContext;
 use crate::parse::annotations::parse_annotation;
 use crate::parse::definitions::parse_definition;
 use crate::parse::identifiers::{parse_identifier, parse_qualified_identifier};
-use crate::parse::{parse_comment};
+use crate::parse::parse_comment;
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::{HeaderValue, Import, ImportStatement, ModuleImport};
+use sdml_core::model::modules::{HeaderValue, Import, ImportStatement, MemberImport, ModuleImport};
 use sdml_core::model::modules::{Module, ModuleBody};
 use sdml_core::model::HasSourceSpan;
 use sdml_core::syntax::{
-    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_VERSION_INFO,
+    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_RENAME, FIELD_NAME_VERSION_INFO,
     FIELD_NAME_VERSION_URI, NODE_KIND_ANNOTATION, NODE_KIND_DEFINITION, NODE_KIND_IDENTIFIER,
     NODE_KIND_IMPORT_STATEMENT, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER_IMPORT,
     NODE_KIND_MODULE_BODY, NODE_KIND_MODULE_IMPORT,
@@ -157,16 +157,38 @@ fn parse_import_statement<'a>(
                     imported.set_version_uri(HeaderValue::from(uri).with_source_span(child.into()));
                 }
 
-                let imported: Import = imported.into();
+                if let Some(child) = optional_node_field_named!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    FIELD_NAME_RENAME,
+                    NODE_KIND_IDENTIFIER
+                ) {
+                    imported.set_rename_as(parse_identifier(context, &child)?)
+                }
 
+                let imported: Import = imported.into();
                 context.add_import(&imported)?;
                 import.add_to_imports(imported);
             }
             NODE_KIND_MEMBER_IMPORT => {
-                let node = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
-                context.check_if_error(&node, RULE_NAME)?;
-                let imported: Import =
-                    parse_qualified_identifier(context, &mut node.walk())?.into();
+                let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
+                context.check_if_error(&child, RULE_NAME)?;
+                let mut imported: MemberImport =
+                    parse_qualified_identifier(context, &mut child.walk())?.into();
+                imported.set_source_span(child.into());
+
+                if let Some(child) = optional_node_field_named!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    FIELD_NAME_RENAME,
+                    NODE_KIND_IDENTIFIER
+                ) {
+                    imported.set_rename_as(parse_identifier(context, &child)?)
+                }
+
+                let imported: Import = imported.into();
                 context.add_import(&imported)?;
                 import.add_to_imports(imported);
             }

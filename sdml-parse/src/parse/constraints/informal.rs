@@ -18,13 +18,14 @@ pub(crate) fn parse_informal_constraint<'a>(
 
     let child = node.child_by_field_name(FIELD_NAME_VALUE).unwrap();
     context.check_if_error(&child, RULE_NAME)?;
-    let node_value = context.node_source(&node)?;
+    let node_value = context.node_source(&child)?;
     let value = node_value[1..(node_value.len() - 1)].to_string();
 
     let constraint = if let Some(child) = node.child_by_field_name(FIELD_NAME_LANGUAGE) {
         context.check_if_error(&child, RULE_NAME)?;
-        let node_value = context.node_source(&node)?;
-        let language = ControlledLanguageTag::new_unchecked(node_value);
+        let node_value = context.node_source(&child)?;
+        let language =
+            ControlledLanguageTag::new_unchecked(&node_value[1..]).with_source_span(child.into());
         ControlledLanguageString::new(value, language)
     } else {
         ControlledLanguageString::from(value)

@@ -5,7 +5,7 @@ use crate::parse::ParseContext;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::{
     FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionTypeReferenceInner,
+    FunctionTypeReference,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use sdml_core::model::members::{CardinalityRange, Ordering, Uniqueness};
@@ -14,7 +14,8 @@ use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_MAX, FIELD_NAME_MIN, FIELD_NAME_NAME,
     FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_SIGNATURE, FIELD_NAME_TARGET,
     FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_TYPE,
+    NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
 };
 use sdml_errors::diagnostics::functions::invalid_value_for_type_named;
 use sdml_errors::Error;
@@ -161,40 +162,58 @@ fn parse_function_type_reference<'a>(
     let node = cursor.node();
     rule_fn!("function_type_reference", node);
 
-    let child = node.named_child(0).unwrap();
+    for node in node.named_children(cursor) {
+        context.check_if_error(&node, RULE_NAME)?;
 
-    match child.kind() {
-        NODE_KIND_WILDCARD => Ok(FunctionTypeReferenceInner::Wildcard.into()),
-        NODE_KIND_IDENTIFIER_REFERENCE => {
-            let ident = parse_identifier_reference(context, &mut child.walk())?;
-            Ok(FunctionTypeReferenceInner::Reference(ident).into())
-        }
-        NODE_KIND_BUILTIN_SIMPLE_TYPE => {
-            let module = Identifier::new_unchecked(NAME_SDML);
-            let member = parse_identifier(context, &child)?.with_source_span(child.into());
-            let ident =
-                IdentifierReference::QualifiedIdentifier(QualifiedIdentifier::new(module, member));
-            Ok(FunctionTypeReferenceInner::Reference(ident).into())
-        }
-        NODE_KIND_MAPPING_TYPE => {
-            let mapping_type = parse_mapping_type(context, &mut child.walk())?;
-            Ok(FunctionTypeReferenceInner::MappingType(mapping_type).into())
-        }
-        //        NODE_KIND_LINE_COMMENT => {}
-        _ => {
-            unexpected_node!(
-                context,
-                RULE_NAME,
-                child,
-                [
-                    NODE_KIND_WILDCARD,
-                    NODE_KIND_IDENTIFIER_REFERENCE,
-                    NODE_KIND_BUILTIN_SIMPLE_TYPE,
-                    NODE_KIND_MAPPING_TYPE,
-                ]
-            );
+        match node.kind() {
+            NODE_KIND_WILDCARD => {
+                return Ok(FunctionTypeReference::Wildcard.into());
+            }
+            NODE_KIND_IDENTIFIER_REFERENCE => {
+                let ident = parse_identifier_reference(context, &mut node.walk())?;
+                return Ok(FunctionTypeReference::Reference(ident).into());
+            }
+            NODE_KIND_BUILTIN_SIMPLE_TYPE => {
+                let module = Identifier::new_unchecked(NAME_SDML);
+                let member = parse_identifier(context, &node)?.with_source_span(node.into());
+                let ident = IdentifierReference::QualifiedIdentifier(QualifiedIdentifier::new(
+                    module, member,
+                ));
+                return Ok(FunctionTypeReference::Reference(ident).into());
+            }
+            NODE_KIND_MAPPING_TYPE => {
+                let mapping_type = parse_mapping_type(context, &mut node.walk())?;
+                return Ok(FunctionTypeReference::MappingType(mapping_type).into());
+            }
+            NODE_KIND_LINE_COMMENT => {}
+            _ => {
+                unexpected_node!(
+                    context,
+                    RULE_NAME,
+                    node,
+                    [
+                        NODE_KIND_WILDCARD,
+                        NODE_KIND_IDENTIFIER_REFERENCE,
+                        NODE_KIND_BUILTIN_SIMPLE_TYPE,
+                        NODE_KIND_MAPPING_TYPE,
+                    ]
+                );
+            }
         }
     }
+    missing_node!(
+        context,
+        RULE_NAME,
+        node,
+        [
+            NODE_KIND_WILDCARD,
+            NODE_KIND_IDENTIFIER_REFERENCE,
+            NODE_KIND_BUILTIN_SIMPLE_TYPE,
+            NODE_KIND_MAPPING_TYPE,
+        ]
+        .join(" | "),
+        "type"
+    );
 }
 
 // ------------------------------------------------------------------------------------------------

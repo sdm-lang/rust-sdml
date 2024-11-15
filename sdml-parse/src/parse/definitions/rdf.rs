@@ -41,8 +41,8 @@ pub(super) fn parse_rdf_def<'a>(
             rdf_def
                 .body_mut()
                 .add_to_annotations(AnnotationProperty::new(
-                    rdf_type.into(),
-                    parse_identifier_reference(context, &mut child.walk())?.into(),
+                    rdf_type,
+                    parse_identifier_reference(context, &mut child.walk())?,
                 ))
         }
     }

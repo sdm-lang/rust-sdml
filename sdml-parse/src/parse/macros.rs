@@ -132,3 +132,17 @@ macro_rules! node_field_named {
         }
     };
 }
+
+macro_rules! optional_node_field_named {
+    ($context:expr, $rule_name:expr, $node:expr, $field:expr, $node_type:expr) => {
+        if let Some(child) = $node.child_by_field_name($field) {
+            $context.check_if_error(&child, $rule_name)?;
+            if child.kind() != $node_type {
+                unexpected_node!($context, $rule_name, $node, [$node_type,]);
+            }
+            Some(child)
+        } else {
+            None
+        }
+    };
+}
