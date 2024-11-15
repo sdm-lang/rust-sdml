@@ -1,0 +1,27 @@
+[package]
+name = "sdml-json"
+version = "0.1.0"
+description = "Simple Domain Modeling Language (SDML) JSON I/O."
+authors = ["Simon Johnston <johnstonskj@gmail.com>"]
+repository = "https://github.com/johnstonskj/rust-sdml.git"
+license-file = "../LICENSE"
+readme = "README.md"
+edition = "2021"
+publish = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+all-features = true
+
+[dependencies]
+objio = "0.1.1"
+serde_json = { version = "1.0.128" }
+sdml-core = { version = "0.4.0", features = ["serde"], path = "../sdml-core" }
+sdml-errors = { version = "0.3.2", path = "../sdml-errors" }
+tracing = "0.1.40"
+
+[dev-dependencies]
+paste = "1.0.15"
+pretty_assertions = "1.4"
+sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
+sdml-tests = { version = "0.1", path = "../sdml-tests" }
