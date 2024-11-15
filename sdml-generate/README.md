@@ -14,6 +14,10 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+### Version 0.4.0
+
+* Update version to be consistent with new core language.
+
 ### Version 0.3.1
 
 - Fix: update dev-dependency for `sdml-parse`.

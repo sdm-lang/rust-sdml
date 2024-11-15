@@ -17,6 +17,10 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
+### Version 0.4.0
+
+* Update version to be consistent with new core language.
+
 ### Version 0.3.2
 
 * Feature: add Tree-Sitter missing node error.
