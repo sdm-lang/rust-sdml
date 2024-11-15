@@ -19,7 +19,7 @@ fn test_render_very_empty_module() {
     let engine = make_engine_from("tests/templates/**/*.md");
     assert!(engine.is_ok());
 
-    let result = render_module(&engine.unwrap(), module.unwrap(), &cache, None, "module.md");
+    let result = render_module(&engine.unwrap(), module.unwrap(), None, "module.md");
     assert!(result.is_ok());
 
     println!(">>>\n{}\n<<<", result.unwrap());
@@ -42,7 +42,7 @@ fn test_render_empty_module() {
     let engine = make_engine_from("tests/templates/**/*.md");
     assert!(engine.is_ok());
 
-    let result = render_module(&engine.unwrap(), module.unwrap(), &cache, None, "module.md");
+    let result = render_module(&engine.unwrap(), module.unwrap(), None, "module.md");
     assert!(result.is_ok());
 
     println!(">>>\n{}\n<<<", result.unwrap());
@@ -65,7 +65,7 @@ fn test_render_module_with_version() {
     let engine = make_engine_from("tests/templates/**/*.md");
     assert!(engine.is_ok());
 
-    let result = render_module(&engine.unwrap(), module.unwrap(), &cache, None, "module.md");
+    let result = render_module(&engine.unwrap(), module.unwrap(), None, "module.md");
     assert!(result.is_ok());
 
     println!(">>>\n{}\n<<<", result.unwrap());
@@ -93,7 +93,7 @@ end",
     let engine = make_engine_from("tests/templates/**/*.md");
     assert!(engine.is_ok());
 
-    let result = render_module(&engine.unwrap(), module.unwrap(), &cache, None, "module.md");
+    let result = render_module(&engine.unwrap(), module.unwrap(), None, "module.md");
     assert!(result.is_ok());
 
     println!(">>>\n{}\n<<<", result.unwrap());
@@ -122,7 +122,7 @@ end",
     let engine = make_engine_from("tests/templates/**/*.md");
     assert!(engine.is_ok());
 
-    let result = render_module(&engine.unwrap(), module.unwrap(), &cache, None, "module.md");
+    let result = render_module(&engine.unwrap(), module.unwrap(), None, "module.md");
     assert!(result.is_ok());
 
     println!(">>>\n{}\n<<<", result.unwrap());

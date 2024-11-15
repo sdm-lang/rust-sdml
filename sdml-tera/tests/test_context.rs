@@ -1,7 +1,8 @@
 use sdml_core::store::InMemoryModuleCache;
 use sdml_core::store::ModuleStore;
+use sdml_json::generate::module_to_value;
+use sdml_json::generate::JsonFlavor;
 use sdml_parse::load::FsModuleLoader;
-use sdml_tera::context::module_to_value;
 use std::io::Cursor;
 
 #[test]
@@ -15,7 +16,7 @@ fn test_context_from_very_empty_module() {
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let (_, value) = module_to_value(module.unwrap(), &cache);
+    let value = module_to_value(module.unwrap(), JsonFlavor::Context);
     let result = serde_json::to_writer_pretty(std::io::stdout(), &value);
     assert!(result.is_ok());
 }
@@ -34,7 +35,7 @@ fn test_context_from_empty_module() {
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let (_, value) = module_to_value(module.unwrap(), &cache);
+    let value = module_to_value(module.unwrap(), JsonFlavor::Context);
     let result = serde_json::to_writer_pretty(std::io::stdout(), &value);
     assert!(result.is_ok());
 }
@@ -53,7 +54,7 @@ fn test_context_from_module_with_version() {
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let (_, value) = module_to_value(module.unwrap(), &cache);
+    let value = module_to_value(module.unwrap(), JsonFlavor::Context);
     let result = serde_json::to_writer_pretty(std::io::stdout(), &value);
     assert!(result.is_ok());
 }
@@ -77,7 +78,7 @@ end",
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let (_, value) = module_to_value(module.unwrap(), &cache);
+    let value = module_to_value(module.unwrap(), JsonFlavor::Context);
     let result = serde_json::to_writer_pretty(std::io::stdout(), &value);
     assert!(result.is_ok());
 }
@@ -102,7 +103,7 @@ end",
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let (_, value) = module_to_value(module.unwrap(), &cache);
+    let value = module_to_value(module.unwrap(), JsonFlavor::Context);
     let result = serde_json::to_writer_pretty(std::io::stdout(), &value);
     assert!(result.is_ok());
 }

@@ -104,7 +104,7 @@ fn print_module(module: &Module, cache: &impl ModuleStore) {
         .expect("Could not parse template files");
 
 
-    let rendered = render_module(&engine, module, cache, None, "outline.md")
+    let rendered = render_module(&engine, module, None, "outline.md")
         .expect("Issue in template rendering");
 
     println!("{}", rendered);
@@ -193,11 +193,11 @@ Error: A template error occurred; source:
     dyn_drop,
 )]
 
-use context::module_to_value;
-use sdml_core::{model::modules::Module, store::ModuleStore};
+use sdml_core::model::modules::Module;
 use sdml_errors::Error;
+use sdml_json::generate::{module_list_to_value, module_to_value, JsonFlavor};
 use std::{fs::OpenOptions, io::Write, path::Path};
-use tera::{Context, Map, Tera, Value};
+use tera::{Context, Tera};
 
 // ------------------------------------------------------------------------------------------------
 // Private Macros
@@ -240,11 +240,10 @@ pub fn make_engine_from(glob: &str) -> Result<Tera, Error> {
 pub fn render_module(
     engine: &Tera,
     module: &Module,
-    cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
 ) -> Result<String, Error> {
-    let context = make_context_from(module, cache, context);
+    let context = make_context_from(module, context);
     let result = engine.render(template_name, &context)?;
     Ok(result)
 }
@@ -266,12 +265,11 @@ pub fn render_module(
 pub fn render_module_to<W: Write>(
     engine: &Tera,
     module: &Module,
-    cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
     w: &mut W,
 ) -> Result<(), Error> {
-    let context = make_context_from(module, cache, context);
+    let context = make_context_from(module, context);
     engine.render_to(template_name, &context, w)?;
     Ok(())
 }
@@ -293,7 +291,6 @@ pub fn render_module_to<W: Write>(
 pub fn render_module_to_file<P: AsRef<Path>>(
     engine: &Tera,
     module: &Module,
-    cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
     path: P,
@@ -303,7 +300,7 @@ pub fn render_module_to_file<P: AsRef<Path>>(
         .truncate(true)
         .open(path.as_ref())?;
 
-    render_module_to(engine, module, cache, context, template_name, &mut file)?;
+    render_module_to(engine, module, context, template_name, &mut file)?;
     Ok(())
 }
 
@@ -330,11 +327,10 @@ pub fn render_module_to_file<P: AsRef<Path>>(
 pub fn render_modules(
     engine: &Tera,
     modules: Vec<&Module>,
-    cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
 ) -> Result<String, Error> {
-    let context = make_context_from_all(modules, cache, context);
+    let context = make_context_from_all(modules, context);
     let result = engine.render(template_name, &context)?;
     Ok(result)
 }
@@ -357,12 +353,11 @@ pub fn render_modules(
 pub fn render_modules_to<W: Write>(
     engine: &Tera,
     modules: Vec<&Module>,
-    cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
     w: &mut W,
 ) -> Result<(), Error> {
-    let context = make_context_from_all(modules, cache, context);
+    let context = make_context_from_all(modules, context);
     engine.render_to(template_name, &context, w)?;
     Ok(())
 }
@@ -386,7 +381,6 @@ pub fn render_modules_to<W: Write>(
 pub fn render_modules_to_file<P: AsRef<Path>>(
     engine: &Tera,
     modules: Vec<&Module>,
-    cache: &impl ModuleStore,
     context: Option<Context>,
     template_name: &str,
     path: P,
@@ -395,7 +389,7 @@ pub fn render_modules_to_file<P: AsRef<Path>>(
         .write(true)
         .truncate(true)
         .open(path.as_ref())?;
-    render_modules_to(engine, modules, cache, context, template_name, &mut file)?;
+    render_modules_to(engine, modules, context, template_name, &mut file)?;
     Ok(())
 }
 
@@ -403,27 +397,16 @@ pub fn render_modules_to_file<P: AsRef<Path>>(
 // Private Functions
 // ------------------------------------------------------------------------------------------------
 
-fn make_context_from(
-    module: &Module,
-    cache: &impl ModuleStore,
-    context: Option<Context>,
-) -> Context {
-    let (_, value) = module_to_value(module, cache);
+fn make_context_from(module: &Module, context: Option<Context>) -> Context {
+    let value = module_to_value(module, JsonFlavor::Context);
 
     let mut context = context.unwrap_or_default();
     context.insert("module", &value);
     context
 }
 
-fn make_context_from_all(
-    modules: Vec<&Module>,
-    cache: &impl ModuleStore,
-    context: Option<Context>,
-) -> Context {
-    let values: Map<String, Value> = modules
-        .iter()
-        .map(|module| module_to_value(module, cache))
-        .collect();
+fn make_context_from_all(modules: Vec<&Module>, context: Option<Context>) -> Context {
+    let values = module_list_to_value(&modules, JsonFlavor::Context);
 
     let mut context = context.unwrap_or_default();
     context.insert("modules", &values);
@@ -435,5 +418,3 @@ fn make_context_from_all(
 // ------------------------------------------------------------------------------------------------
 
 mod add_ons;
-
-pub mod context;
