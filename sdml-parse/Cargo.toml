@@ -23,10 +23,10 @@ serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.128"
 tracing = "0.1.40"
 tree-sitter = "0.24.4"
-tree-sitter-sdml = { version = "0.4.", path = "../../tree-sitter-sdml" }
+tree-sitter-sdml = { version = "0.4.0", path = "../../tree-sitter-sdml" }
 url = { version = "2.5", features = ["serde"] }
 
 [dev-dependencies]
 paste = "1.0.15"
 pretty_assertions = "1.4"
-sdml-tests = { version = "0.1", path = "../sdml-tests" }
+sdml-tests = { path = "../sdml-tests" }
