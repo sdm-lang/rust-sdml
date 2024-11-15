@@ -23,5 +23,5 @@ tracing = "0.1.40"
 [dev-dependencies]
 paste = "1.0.15"
 pretty_assertions = "1.4"
-sdml-parse = { version = "0.3.0", path = "../sdml-parse" }
-sdml-tests = { version = "0.1", path = "../sdml-tests" }
+sdml-parse = { version = "0.3.1", path = "../sdml-parse" }
+sdml-tests = { path = "../sdml-tests" }
