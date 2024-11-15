@@ -207,7 +207,7 @@ impl HasAnnotations for StructureBody {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
+        self.annotations.extend(extension)
     }
 }
 
@@ -281,7 +281,7 @@ impl StructureBody {
     // --------------------------------------------------------------------------------------------
 
     pub fn has_members(&self) -> bool {
-        self.members.is_empty()
+        !self.members.is_empty()
     }
 
     pub fn member_count(&self) -> usize {

@@ -1,4 +1,3 @@
-use std::collections::BTreeSet;
 use crate::{
     load::ModuleLoader,
     model::{
@@ -13,6 +12,7 @@ use crate::{
     store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
+use std::collections::BTreeSet;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

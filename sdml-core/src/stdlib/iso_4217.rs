@@ -5,7 +5,7 @@ This Rust module contains the SDML model of the SDML library module `iso_3166` f
 use crate::model::annotations::HasAnnotations;
 use crate::model::modules::Module;
 use crate::model::HasBody;
-use crate::stdlib::{dc::terms as dc_terms, rdfs, skos, xsd};
+use crate::stdlib::{dc_terms, rdfs, skos, xsd};
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------

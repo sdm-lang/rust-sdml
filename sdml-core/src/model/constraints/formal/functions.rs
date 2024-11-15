@@ -68,14 +68,7 @@ pub struct FunctionCardinality {
 
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct FunctionTypeReference {
-    optional: bool,
-    inner: FunctionTypeReferenceInner,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum FunctionTypeReferenceInner {
+pub enum FunctionTypeReference {
     Wildcard,
     Reference(IdentifierReference),
     // builtin_simple_type is converted into a reference
@@ -579,6 +572,13 @@ impl FunctionCardinality {
 
     // --------------------------------------------------------------------------------------------
 
+    #[inline(always)]
+    pub fn is_default(&self) -> bool {
+        self.ordering.is_none()
+            && self.uniqueness.is_none()
+            && self.range.is_none()
+    }
+
     pub fn is_wildcard(&self) -> bool {
         self.range.is_none()
     }
@@ -588,90 +588,37 @@ impl FunctionCardinality {
 // Implementations ❱ Constraints ❱ FunctionTypeReference
 // ------------------------------------------------------------------------------------------------
 
-impl From<&FunctionTypeReferenceInner> for FunctionTypeReference {
-    fn from(inner: &FunctionTypeReferenceInner) -> Self {
-        Self::from(inner.clone())
-    }
-}
-
-impl From<FunctionTypeReferenceInner> for FunctionTypeReference {
-    fn from(inner: FunctionTypeReferenceInner) -> Self {
-        Self {
-            optional: false,
-            inner,
-        }
-    }
-}
-
-impl AsRef<FunctionTypeReferenceInner> for FunctionTypeReference {
-    fn as_ref(&self) -> &FunctionTypeReferenceInner {
-        &self.inner
-    }
-}
-
-impl FunctionTypeReference {
-    // --------------------------------------------------------------------------------------------
-    // Constructors
-    // --------------------------------------------------------------------------------------------
-
-    pub fn optional(inner: FunctionTypeReferenceInner) -> Self {
-        Self {
-            optional: true,
-            inner,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_optional(&self) -> bool {
-        self.optional
-    }
-
-    pub fn inner(&self) -> &FunctionTypeReferenceInner {
-        &self.inner
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Constraints ❱ FunctionTypeReferenceInner
-// ------------------------------------------------------------------------------------------------
-
-impl From<&IdentifierReference> for FunctionTypeReferenceInner {
+impl From<&IdentifierReference> for FunctionTypeReference {
     fn from(value: &IdentifierReference) -> Self {
         Self::Reference(value.clone())
     }
 }
 
-impl From<IdentifierReference> for FunctionTypeReferenceInner {
+impl From<IdentifierReference> for FunctionTypeReference {
     fn from(value: IdentifierReference) -> Self {
         Self::Reference(value)
     }
 }
 
-impl From<&MappingType> for FunctionTypeReferenceInner {
+impl From<&MappingType> for FunctionTypeReference {
     fn from(value: &MappingType) -> Self {
         Self::MappingType(value.clone())
     }
 }
 
-impl From<MappingType> for FunctionTypeReferenceInner {
+impl From<MappingType> for FunctionTypeReference {
     fn from(value: MappingType) -> Self {
         Self::MappingType(value)
     }
 }
 
-impl FunctionTypeReferenceInner {
+impl FunctionTypeReference {
     // --------------------------------------------------------------------------------------------
     // Variants
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_reference(&self) -> bool {
-        match self {
-            Self::Reference(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Reference(_))
     }
 
     pub const fn as_reference(&self) -> Option<&IdentifierReference> {
@@ -684,10 +631,7 @@ impl FunctionTypeReferenceInner {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_mapping_type(&self) -> bool {
-        match self {
-            Self::MappingType(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::MappingType(_))
     }
 
     pub const fn as_mapping_type(&self) -> Option<&MappingType> {
@@ -700,9 +644,6 @@ impl FunctionTypeReferenceInner {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_wildcard(&self) -> bool {
-        match self {
-            Self::Wildcard => true,
-            _ => false,
-        }
+        matches!(self, Self::Wildcard)
     }
 }

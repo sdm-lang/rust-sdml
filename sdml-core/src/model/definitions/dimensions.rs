@@ -4,7 +4,7 @@ use crate::{
         annotations::{
             Annotation, AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
         },
-        check::{find_definition, MaybeIncomplete, Validate},
+        check::{find_definition, validate_multiple_method_duplicates, MaybeIncomplete, Validate},
         identifiers::{Identifier, IdentifierReference},
         members::Member,
         modules::Module,
@@ -25,6 +25,8 @@ use sdml_errors::diagnostics::functions::{
 };
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use super::HasMultiMembers;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Definitions ❱ Dimensions
@@ -253,7 +255,7 @@ impl HasAnnotations for DimensionBody {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
+        self.annotations.extend(extension)
     }
 }
 
@@ -292,10 +294,12 @@ impl Validate for DimensionBody {
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
-        self.annotations()
-            .for_each(|a| a.validate(top, cache, loader, check_constraints));
+        validate_multiple_method_duplicates(self, top, cache, loader);
+
         self.identity()
             .validate(top, cache, loader, check_constraints);
+        self.annotations()
+            .for_each(|m| m.validate(top, cache, loader, check_constraints));
         self.parents()
             .for_each(|m| m.validate(top, cache, loader, check_constraints));
         self.members()
@@ -312,6 +316,25 @@ impl References for DimensionBody {
 
     fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.members().for_each(|m| m.referenced_annotations(names));
+    }
+}
+
+impl HasMultiMembers for DimensionBody {
+    fn has_any_members(&self) -> bool {
+        !(self.has_identity() || self.has_parents() || self.has_members())
+    }
+
+    fn contains_any_member(&self, name: &Identifier) -> bool {
+        self.contains_identity(name) || self.contains_parent(name) || self.contains_member(name)
+    }
+
+    fn all_member_count(&self) -> usize {
+        self.identity_count() + self.parent_count() + self.members.len()
+    }
+
+    fn all_member_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.identity_names()
+            .chain(self.parent_names().chain(self.member_names()))
     }
 }
 
@@ -370,6 +393,31 @@ impl DimensionBody {
         T: Into<DimensionIdentity>,
     {
         self.identity = identity.into();
+    }
+
+    fn has_identity(&self) -> bool {
+        matches!(self.identity, DimensionIdentity::Identity(_))
+    }
+
+    fn identity_count(&self) -> usize {
+        match self.identity() {
+            DimensionIdentity::Source(src) => src.member_count(),
+            DimensionIdentity::Identity(_) => 1,
+        }
+    }
+
+    fn identity_names<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Identifier> + 'a> {
+        match self.identity() {
+            DimensionIdentity::Source(src) => Box::new(src.members()),
+            DimensionIdentity::Identity(id) => Box::new(std::iter::once(id.name())),
+        }
+    }
+
+    fn contains_identity(&self, name: &Identifier) -> bool {
+        match self.identity() {
+            DimensionIdentity::Source(src) => src.contains_member(name),
+            DimensionIdentity::Identity(id) => name == id.name(),
+        }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -871,6 +919,10 @@ impl SourceEntity {
 
     pub fn member_count(&self) -> usize {
         self.with_members.len()
+    }
+
+    pub fn contains_member(&self, name: &Identifier) -> bool {
+        self.members().any(|n| n == name)
     }
 
     pub fn members(&self) -> impl Iterator<Item = &Identifier> {

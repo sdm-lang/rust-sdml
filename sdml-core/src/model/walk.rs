@@ -33,7 +33,7 @@ use crate::model::definitions::{
     DatatypeDef, Definition, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef, StructureDef,
     TypeVariant, UnionDef, ValueVariant,
 };
-use crate::model::identifiers::{IdentifierReference, QualifiedIdentifier};
+use crate::model::identifiers::IdentifierReference;
 use crate::model::members::{Member, MemberDef, MemberKind};
 use crate::model::modules::{Import, ModuleImport};
 use crate::model::modules::{ImportStatement, Module};
@@ -41,6 +41,7 @@ use crate::model::{HasBody, HasOptionalBody};
 use tracing::info;
 
 use super::definitions::{DimensionDef, DimensionIdentity, DimensionParent, SourceEntity};
+use super::modules::MemberImport;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -133,7 +134,7 @@ pub trait SimpleModuleVisitor {
     ///
     /// None.
     ///
-    fn member_import(&mut self, _thing: &QualifiedIdentifier) -> Result<(), Error> {
+    fn member_import(&mut self, _thing: &MemberImport) -> Result<(), Error> {
         info!("SimpleModuleWalker::member_import(..) -- skipped");
         Ok(())
     }

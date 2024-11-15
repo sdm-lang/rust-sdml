@@ -1,6 +1,7 @@
+use super::HasMultiMembers;
 use crate::load::ModuleLoader;
 use crate::model::annotations::{AnnotationBuilder, AnnotationProperty, HasAnnotations};
-use crate::model::check::MaybeIncomplete;
+use crate::model::check::{validate_multiple_method_duplicates, MaybeIncomplete};
 use crate::model::values::Value;
 use crate::model::{
     annotations::Annotation,
@@ -235,6 +236,8 @@ impl Validate for EntityBody {
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
+        validate_multiple_method_duplicates(self, top, cache, loader);
+
         self.identity
             .validate(top, cache, loader, check_constraints);
         for annotation in &self.annotations {
@@ -248,11 +251,31 @@ impl Validate for EntityBody {
 
 impl References for EntityBody {
     fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
-        self.members().for_each(|m| m.referenced_annotations(names))
+        self.identity().referenced_annotations(names);
+        self.members().for_each(|m| m.referenced_annotations(names));
     }
 
     fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
-        self.members().for_each(|m| m.referenced_types(names))
+        self.identity().referenced_types(names);
+        self.members().for_each(|m| m.referenced_types(names));
+    }
+}
+
+impl HasMultiMembers for EntityBody {
+    fn has_any_members(&self) -> bool {
+        !(self.has_identity() || self.has_members())
+    }
+
+    fn contains_any_member(&self, name: &Identifier) -> bool {
+        self.contains_identity(name) || self.contains_member(name)
+    }
+
+    fn all_member_count(&self) -> usize {
+        self.identity_count() + self.members.len()
+    }
+
+    fn all_member_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.identity_names().chain(self.member_names())
     }
 }
 
@@ -289,6 +312,26 @@ impl EntityBody {
 
     pub fn set_identity(&mut self, identity: Member) {
         self.identity = identity;
+    }
+
+    #[inline(always)]
+    const fn has_identity(&self) -> bool {
+        true
+    }
+
+    #[inline(always)]
+    const fn identity_count(&self) -> usize {
+        1
+    }
+
+    #[inline(always)]
+    fn identity_names(&self) -> impl Iterator<Item = &Identifier> {
+        std::iter::once(self.identity.name())
+    }
+
+    #[inline(always)]
+    fn contains_identity(&self, name: &Identifier) -> bool {
+        self.identity.name() == name
     }
 
     // --------------------------------------------------------------------------------------------

@@ -3,11 +3,13 @@ Provides types for model checking.
 
 */
 
+use super::{definitions::HasMultiMembers, identifiers::Identifier, HasSourceSpan};
 use crate::{
     load::ModuleLoader,
     model::{definitions::Definition, identifiers::IdentifierReference, modules::Module, HasName},
     store::ModuleStore,
 };
+use sdml_errors::diagnostics::functions::{duplicate_member, member_is_incomplete};
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -37,6 +39,67 @@ pub fn find_definition<'a>(
     cache: &'a impl ModuleStore,
 ) -> Option<&'a Definition> {
     cache.resolve_or_in(name, current.name())
+}
+
+pub fn validate_is_incomplete<E>(
+    model_element: &E,
+    top: &Module,
+    cache: &impl ModuleStore,
+    loader: &impl ModuleLoader,
+) where
+    E: HasName + HasSourceSpan + MaybeIncomplete,
+{
+    validate_is_incomplete_named(model_element, model_element.name(), top, cache, loader)
+}
+
+pub fn validate_is_incomplete_named<E, S>(
+    model_element: &E,
+    name: S,
+    top: &Module,
+    cache: &impl ModuleStore,
+    loader: &impl ModuleLoader,
+) where
+    E: HasSourceSpan + MaybeIncomplete,
+    S: Into<String>,
+{
+    if model_element.is_incomplete(top, cache) {
+        loader
+            .report(&member_is_incomplete(
+                top.file_id().copied().unwrap_or_default(),
+                model_element.source_span().map(|span| span.byte_range()),
+                name.into(),
+            ))
+            .unwrap()
+    }
+}
+
+pub fn validate_multiple_method_duplicates<E>(
+    model_element: &E,
+    top: &Module,
+    _cache: &impl ModuleStore,
+    loader: &impl ModuleLoader,
+) where
+    E: HasSourceSpan + HasMultiMembers,
+{
+    let mut all_names: Vec<&Identifier> = model_element.all_member_names().collect();
+    all_names.sort();
+    for pair in all_names.windows(2) {
+        if pair[0] == pair[1] {
+            loader
+                .report(&duplicate_member(
+                    top.file_id().copied().unwrap_or_default(),
+                    pair[0]
+                        .source_span()
+                        .map(|span| span.byte_range())
+                        .unwrap_or_default(),
+                    pair[1]
+                        .source_span()
+                        .map(|span| span.byte_range())
+                        .unwrap_or_default(),
+                ))
+                .unwrap()
+        }
+    }
 }
 
 // TODO: need a new version of this --v

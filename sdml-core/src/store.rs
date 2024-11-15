@@ -295,12 +295,12 @@ impl InMemoryModuleCache {
     /// Construct a cache with all of the standard library modules pre-inserted.
     ///
     pub fn with_stdlib(self) -> Self {
-        self.with(stdlib::dc::module())
-            // NYI .with(stdlib::dc::am::module())
-            .with(stdlib::dc::terms::module())
-            // NYI .with(stdlib::dc::types::module())
-            .with(stdlib::iso::i3166::module())
-            .with(stdlib::iso::i4217::module())
+        self.with(stdlib::dc_elements::module())
+            // NYI .with(stdlib::dc_am::module())
+            .with(stdlib::dc_terms::module())
+            // NYI .with(stdlib::dc_types::module())
+            .with(stdlib::iso_3166::module())
+            .with(stdlib::iso_4217::module())
             .with(stdlib::owl::module())
             .with(stdlib::rdf::module())
             .with(stdlib::rdfs::module())

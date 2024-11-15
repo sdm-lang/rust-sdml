@@ -18,6 +18,20 @@ use std::{collections::BTreeSet, fmt::Debug};
 use serde::{Deserialize, Serialize};
 
 // ------------------------------------------------------------------------------------------------
+// Public Types ❱ Traits ❱  Multi-Methods
+// ------------------------------------------------------------------------------------------------
+
+pub trait HasMultiMembers {
+    fn has_any_members(&self) -> bool;
+
+    fn contains_any_member(&self, name: &Identifier) -> bool;
+
+    fn all_member_count(&self) -> usize;
+
+    fn all_member_names(&self) -> impl Iterator<Item = &Identifier>;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Public Types ❱ Definitions ❱  Definition
 // ------------------------------------------------------------------------------------------------
 

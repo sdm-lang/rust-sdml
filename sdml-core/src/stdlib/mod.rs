@@ -25,10 +25,10 @@ macro_rules! library_module_url {
 
 pub fn is_library_module(name: &Identifier) -> bool {
     [
-        dc::MODULE_NAME,
-        dc::terms::MODULE_NAME,
-        iso::i3166::MODULE_NAME,
-        iso::i4217::MODULE_NAME,
+        dc_elements::MODULE_NAME,
+        dc_terms::MODULE_NAME,
+        iso_3166::MODULE_NAME,
+        iso_4217::MODULE_NAME,
         owl::MODULE_NAME,
         rdf::MODULE_NAME,
         rdfs::MODULE_NAME,
@@ -56,10 +56,10 @@ pub fn is_builtin_type_name(name: &Identifier) -> bool {
 
 pub fn library_module(name: &Identifier) -> Option<Module> {
     match name.as_ref() {
-        dc::MODULE_NAME => Some(dc::module()),
-        dc::terms::MODULE_NAME => Some(dc::terms::module()),
-        iso::i3166::MODULE_NAME => Some(iso::i3166::module()),
-        iso::i4217::MODULE_NAME => Some(iso::i4217::module()),
+        dc_elements::MODULE_NAME => Some(dc_elements::module()),
+        dc_terms::MODULE_NAME => Some(dc_terms::module()),
+        iso_3166::MODULE_NAME => Some(iso_3166::module()),
+        iso_4217::MODULE_NAME => Some(iso_4217::module()),
         owl::MODULE_NAME => Some(owl::module()),
         rdf::MODULE_NAME => Some(rdf::module()),
         rdfs::MODULE_NAME => Some(rdfs::module()),
@@ -270,9 +270,13 @@ macro_rules! rdf {
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-pub mod dc;
+pub mod dc_am;
+pub mod dc_elements;
+pub mod dc_terms;
+pub mod dc_types;
 
-pub mod iso;
+pub mod iso_3166;
+pub mod iso_4217;
 
 pub mod owl;
 

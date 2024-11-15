@@ -151,7 +151,7 @@ pub use environments::{EnvironmentDef, EnvironmentDefBody};
 mod functions;
 pub use functions::{
     FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionTypeReferenceInner,
+    FunctionTypeReference,
 };
 
 mod sentences;

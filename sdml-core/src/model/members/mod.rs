@@ -16,8 +16,7 @@ use crate::{
     store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::{
-    member_is_incomplete, property_reference_not_property, type_definition_not_found,
-    IdentifierCaseConvention,
+    property_reference_not_property, type_definition_not_found, IdentifierCaseConvention,
 };
 use std::{collections::BTreeSet, fmt::Debug};
 use tracing::error;
@@ -149,17 +148,9 @@ impl Validate for Member {
             }
             MemberKind::Definition(v) => {
                 v.validate(top, cache, loader, check_constraints);
-                if self.is_incomplete(top, cache) {
-                    loader
-                        .report(&member_is_incomplete(
-                            top.file_id().copied().unwrap_or_default(),
-                            self.source_span().map(|span| span.byte_range()),
-                            v.name(),
-                        ))
-                        .unwrap()
-                }
             }
         }
+        validate_is_incomplete_named(self, self.name(), top, cache, loader);
     }
 }
 
@@ -527,3 +518,5 @@ pub use cardinality::{
 
 mod types;
 pub use types::{HasType, MappingType, TypeReference};
+
+use super::check::validate_is_incomplete_named;

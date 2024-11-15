@@ -2,7 +2,7 @@ use crate::{
     load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations},
-        check::{MaybeIncomplete, Validate},
+        check::{validate_multiple_method_duplicates, MaybeIncomplete, Validate},
         definitions::SourceEntity,
         identifiers::{Identifier, IdentifierReference},
         members::Member,
@@ -20,6 +20,8 @@ use std::{
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+
+use super::HasMultiMembers;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Definitions ❱ Events
@@ -44,7 +46,7 @@ pub struct EventBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
-    event_source: SourceEntity,
+    source_entity: SourceEntity,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
     members: BTreeMap<Identifier, Member>,
 }
@@ -248,8 +250,10 @@ impl Validate for EventBody {
         loader: &impl ModuleLoader,
         check_constraints: bool,
     ) {
-        // TODO: need to include event_source in validation!!
+        validate_multiple_method_duplicates(self, top, cache, loader);
 
+        self.source_entity()
+            .validate(top, cache, loader, check_constraints);
         self.annotations()
             .for_each(|a| a.validate(top, cache, loader, check_constraints));
         self.members()
@@ -259,11 +263,31 @@ impl Validate for EventBody {
 
 impl References for EventBody {
     fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
+        self.source_entity().referenced_types(names);
         self.members().for_each(|m| m.referenced_types(names));
     }
 
     fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
+        self.source_entity().referenced_annotations(names);
         self.members().for_each(|m| m.referenced_annotations(names));
+    }
+}
+
+impl HasMultiMembers for EventBody {
+    fn has_any_members(&self) -> bool {
+        !(self.has_source_members() || self.has_members())
+    }
+
+    fn contains_any_member(&self, name: &Identifier) -> bool {
+        self.contains_source_member(name) || self.contains_member(name)
+    }
+
+    fn all_member_count(&self) -> usize {
+        self.source_member_count() + self.members.len()
+    }
+
+    fn all_member_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.source_member_names().chain(self.member_names())
     }
 }
 
@@ -272,11 +296,12 @@ impl EventBody {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(event_source: SourceEntity) -> Self {
+    /// Creates a new [`EventBody`] with the provided, and required, [`SourceEntity`].
+    pub fn new(source_entity: SourceEntity) -> Self {
         Self {
             span: Default::default(),
             annotations: Default::default(),
-            event_source,
+            source_entity,
             members: Default::default(),
         }
     }
@@ -294,12 +319,32 @@ impl EventBody {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub const fn event_source(&self) -> &SourceEntity {
-        &self.event_source
+    /// Returns a reference to the source entity of this [`EventBody`].
+    pub const fn source_entity(&self) -> &SourceEntity {
+        &self.source_entity
     }
 
-    pub fn set_event_source(&mut self, event_source: SourceEntity) {
-        self.event_source = event_source;
+    /// Sets the source entity of this [`EventBody`].
+    pub fn set_source_entity(&mut self, source_entity: SourceEntity) {
+        self.source_entity = source_entity;
+    }
+
+    /// Returns the has source *members* of this [`EventBody`].
+    fn has_source_members(&self) -> bool {
+        self.source_entity.has_members()
+    }
+
+    /// Returns the source *member* count of this [`EventBody`].
+    fn source_member_count(&self) -> usize {
+        self.source_entity.member_count()
+    }
+
+    fn source_member_names(&self) -> impl Iterator<Item = &Identifier> {
+        self.source_entity.members()
+    }
+
+    fn contains_source_member(&self, name: &Identifier) -> bool {
+        self.source_entity.contains_member(name)
     }
 
     // --------------------------------------------------------------------------------------------
@@ -307,7 +352,7 @@ impl EventBody {
     // --------------------------------------------------------------------------------------------
 
     pub fn has_members(&self) -> bool {
-        self.members.is_empty()
+        !self.members.is_empty()
     }
 
     pub fn member_count(&self) -> usize {

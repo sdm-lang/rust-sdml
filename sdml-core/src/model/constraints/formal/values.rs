@@ -59,10 +59,7 @@ impl PredicateValue {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_simple(&self) -> bool {
-        match self {
-            Self::Simple(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Simple(_))
     }
 
     pub const fn as_simple(&self) -> Option<&SimpleValue> {
@@ -75,10 +72,7 @@ impl PredicateValue {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_sequence(&self) -> bool {
-        match self {
-            Self::Sequence(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Sequence(_))
     }
 
     pub const fn as_sequence(&self) -> Option<&SequenceOfPredicateValues> {
@@ -211,10 +205,7 @@ impl PredicateSequenceMember {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_simple(&self) -> bool {
-        match self {
-            Self::Simple(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Simple(_))
     }
 
     pub const fn as_simple(&self) -> Option<&SimpleValue> {
@@ -227,10 +218,7 @@ impl PredicateSequenceMember {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_reference(&self) -> bool {
-        match self {
-            Self::Reference(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Reference(_))
     }
 
     pub const fn as_reference(&self) -> Option<&IdentifierReference> {

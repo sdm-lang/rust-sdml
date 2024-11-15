@@ -2,7 +2,6 @@
 Provide the Rust types that implement *constraint*-related components of the SDML Grammar.
  */
 
-use std::collections::BTreeSet;
 use crate::{
     load::ModuleLoader,
     model::{
@@ -11,6 +10,7 @@ use crate::{
     },
     store::ModuleStore,
 };
+use std::collections::BTreeSet;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -200,10 +200,7 @@ impl ConstraintBody {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_informal(&self) -> bool {
-        match self {
-            Self::Informal(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Informal(_))
     }
 
     pub const fn as_informal(&self) -> Option<&ControlledLanguageString> {
@@ -214,10 +211,7 @@ impl ConstraintBody {
     }
 
     pub const fn is_formal(&self) -> bool {
-        match self {
-            Self::Formal(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Formal(_))
     }
 
     pub const fn as_formal(&self) -> Option<&FormalConstraint> {
@@ -237,9 +231,9 @@ pub use formal::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
     EnvironmentDef, EnvironmentDefBody, Equation, FormalConstraint, FunctionCardinality,
     FunctionComposition, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionTypeReferenceInner, FunctionalTerm, InequalityRelation,
-    Inequation, MappingVariable, NamedVariables, PredicateSequenceMember, PredicateValue,
-    QuantifiedSentence, QuantifiedVariable, QuantifiedVariableBinding, Quantifier, SequenceBuilder,
+    FunctionTypeReference, FunctionalTerm, InequalityRelation, Inequation, MappingVariable,
+    NamedVariables, PredicateSequenceMember, PredicateValue, QuantifiedSentence,
+    QuantifiedVariable, QuantifiedVariableBinding, Quantifier, SequenceBuilder,
     SequenceOfPredicateValues, SimpleSentence, Subject, Term, UnaryBooleanSentence, Variables,
 };
 

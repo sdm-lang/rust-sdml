@@ -103,7 +103,7 @@ pub enum Import {
     /// Corresponds to the grammar rule `module_import`.
     Module(ModuleImport),
     /// Corresponds to the grammar rule `member_import`.
-    Member(QualifiedIdentifier),
+    Member(MemberImport),
 }
 
 ///
@@ -117,6 +117,21 @@ pub struct ModuleImport {
     name: Identifier,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     version_uri: Option<HeaderValue<Url>>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    renamed_as: Option<Identifier>,
+}
+
+///
+/// Corresponds the grammar rule `member_import`.
+///
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct MemberImport {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    span: Option<Span>,
+    name: QualifiedIdentifier,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    renamed_as: Option<Identifier>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -878,9 +893,11 @@ impl Validate for ImportStatement {
         for import in self.imports() {
             match import {
                 Import::Module(module_ref) => {
-                    module_ref
-                        .name()
-                        .validate(top, loader, Some(IdentifierCaseConvention::Module));
+                    module_ref.effective_name().validate(
+                        top,
+                        loader,
+                        Some(IdentifierCaseConvention::Module),
+                    );
                     if let Some(actual_module) = cache.get(module_ref.name()) {
                         match (module_ref.version_uri(), actual_module.version_uri()) {
                             (None, _) => {}
@@ -921,8 +938,10 @@ impl Validate for ImportStatement {
                             .unwrap();
                     }
                 }
-                Import::Member(id_ref) => {
-                    id_ref.validate(top, loader);
+                Import::Member(member_ref) => {
+                    let id_ref = member_ref.name();
+                    //let id_ref = member_ref.effective_name();
+                    // TODO: check if this ir correct: id_ref.validate(top, loader);
                     if let Some(actual_module) = cache.get(id_ref.module()) {
                         if actual_module.resolve_local(id_ref.member()).is_none() {
                             loader
@@ -1045,7 +1064,7 @@ impl ImportStatement {
         self.imports()
             .filter_map(|imp| {
                 if let Import::Member(imp) = imp {
-                    Some(imp)
+                    Some(imp.name())
                 } else {
                     None
                 }
@@ -1082,12 +1101,24 @@ impl From<ModuleImport> for Import {
 
 impl From<&QualifiedIdentifier> for Import {
     fn from(v: &QualifiedIdentifier) -> Self {
-        Self::Member(v.clone())
+        Self::Member(MemberImport::from(v.clone()))
     }
 }
 
 impl From<QualifiedIdentifier> for Import {
     fn from(v: QualifiedIdentifier) -> Self {
+        Self::Member(MemberImport::from(v))
+    }
+}
+
+impl From<&MemberImport> for Import {
+    fn from(v: &MemberImport) -> Self {
+        Self::Member(v.clone())
+    }
+}
+
+impl From<MemberImport> for Import {
+    fn from(v: MemberImport) -> Self {
         Self::Member(v)
     }
 }
@@ -1158,17 +1189,9 @@ impl Import {
 // Implementations ❱ Modules ❱ ModuleImport
 // ------------------------------------------------------------------------------------------------
 
-impl Display for ModuleImport {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            if let Some(version_uri) = self.version_uri() {
-                format!("{} version {}", self.name(), version_uri)
-            } else {
-                self.name().to_string()
-            }
-        )
+impl From<&Identifier> for ModuleImport {
+    fn from(value: &Identifier) -> Self {
+        Self::new(value.clone())
     }
 }
 
@@ -1180,7 +1203,9 @@ impl From<Identifier> for ModuleImport {
 
 impl PartialEq for ModuleImport {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name && self.version_uri == other.version_uri
+        self.name == other.name
+            && self.version_uri == other.version_uri
+            && self.renamed_as == other.renamed_as
     }
 }
 
@@ -1191,6 +1216,26 @@ impl Hash for ModuleImport {
         // ignore: self.span.hash(state);
         self.name.hash(state);
         self.version_uri.hash(state);
+        self.renamed_as.hash(state);
+    }
+}
+
+impl Display for ModuleImport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}{}",
+            if let Some(version_uri) = self.version_uri() {
+                format!("{} version {}", self.name(), version_uri)
+            } else {
+                self.name().to_string()
+            },
+            if let Some(renamed_as) = &self.renamed_as {
+                format!(" as {renamed_as}")
+            } else {
+                String::new()
+            }
+        )
     }
 }
 
@@ -1223,14 +1268,20 @@ impl ModuleImport {
             span: None,
             name,
             version_uri: None,
+            renamed_as: None,
         }
     }
 
     pub fn with_version_uri(self, version_uri: HeaderValue<Url>) -> Self {
-        Self {
-            version_uri: Some(version_uri),
-            ..self
-        }
+        let mut self_mut = self;
+        self_mut.version_uri = Some(version_uri);
+        self_mut
+    }
+
+    pub fn with_rename(self, renamed_as: Identifier) -> Self {
+        let mut self_mut = self;
+        self_mut.renamed_as = Some(renamed_as);
+        self_mut
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1244,6 +1295,8 @@ impl ModuleImport {
     pub fn set_name(&mut self, name: Identifier) {
         self.name = name;
     }
+
+    // --------------------------------------------------------------------------------------------
 
     pub const fn has_version_uri(&self) -> bool {
         self.version_uri.is_some()
@@ -1262,10 +1315,185 @@ impl ModuleImport {
     }
 
     // --------------------------------------------------------------------------------------------
+
+    pub fn effective_name(&self) -> Identifier {
+        if let Some(rename) = self.renamed_as() {
+            rename.clone()
+        } else {
+            self.name().clone()
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_been_renamed(&self) -> bool {
+        self.renamed_as.is_some()
+    }
+
+    pub const fn renamed_as(&self) -> Option<&Identifier> {
+        self.renamed_as.as_ref()
+    }
+
+    pub fn set_rename_as(&mut self, renamed_as: Identifier) {
+        self.renamed_as = Some(renamed_as);
+    }
+
+    pub fn unset_rename_as(&mut self) {
+        self.renamed_as = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
     // Helpers
     // --------------------------------------------------------------------------------------------
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
-        self.span == other.span && self.name == other.name && self.version_uri == other.version_uri
+        self.span == other.span
+            && self.name == other.name
+            && self.version_uri == other.version_uri
+            && self.renamed_as == other.renamed_as
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Modules ❱ MemberImport
+// ------------------------------------------------------------------------------------------------
+
+impl From<&QualifiedIdentifier> for MemberImport {
+    fn from(value: &QualifiedIdentifier) -> Self {
+        Self::new(value.clone())
+    }
+}
+
+impl From<QualifiedIdentifier> for MemberImport {
+    fn from(value: QualifiedIdentifier) -> Self {
+        Self::new(value)
+    }
+}
+
+impl PartialEq for MemberImport {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name && self.renamed_as == other.renamed_as
+    }
+}
+
+impl Eq for MemberImport {}
+
+impl Hash for MemberImport {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // ignore: self.span.hash(state);
+        self.name.hash(state);
+        self.renamed_as.hash(state);
+    }
+}
+
+impl Display for MemberImport {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}{}",
+            self.name().to_string(),
+            if let Some(renamed_as) = &self.renamed_as {
+                format!(" as {renamed_as}")
+            } else {
+                String::new()
+            }
+        )
+    }
+}
+
+impl HasSourceSpan for MemberImport {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl MemberImport {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+    pub const fn new(name: QualifiedIdentifier) -> Self {
+        Self {
+            span: None,
+            name,
+            renamed_as: None,
+        }
+    }
+
+    pub fn with_rename(self, renamed_as: Identifier) -> Self {
+        let mut self_mut = self;
+        self_mut.renamed_as = Some(renamed_as);
+        self_mut
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn name(&self) -> &QualifiedIdentifier {
+        &self.name
+    }
+
+    pub fn set_name(&mut self, name: QualifiedIdentifier) {
+        self.name = name;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn module(&self) -> &Identifier {
+        self.name().module()
+    }
+
+    pub const fn member(&self) -> &Identifier {
+        &self.name().member()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn effective_name(&self) -> IdentifierReference {
+        if let Some(rename) = self.renamed_as() {
+            rename.clone().into()
+        } else {
+            self.name().clone().into()
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_been_renamed(&self) -> bool {
+        self.renamed_as.is_some()
+    }
+
+    pub const fn renamed_as(&self) -> Option<&Identifier> {
+        self.renamed_as.as_ref()
+    }
+
+    pub fn set_rename_as(&mut self, renamed_as: Identifier) {
+        self.renamed_as = Some(renamed_as);
+    }
+
+    pub fn unset_rename_as(&mut self) {
+        self.renamed_as = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Helpers
+    // --------------------------------------------------------------------------------------------
+
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.name == other.name && self.renamed_as == other.renamed_as
     }
 }

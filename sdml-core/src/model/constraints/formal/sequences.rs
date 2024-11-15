@@ -151,10 +151,7 @@ impl Variables {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_named_set(&self) -> bool {
-        match self {
-            Self::Named(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Named(_))
     }
 
     pub const fn as_named_set(&self) -> Option<&NamedVariables> {
@@ -165,10 +162,7 @@ impl Variables {
     }
 
     pub const fn is_mapping(&self) -> bool {
-        match self {
-            Self::Mapping(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Mapping(_))
     }
 
     pub const fn as_mapping(&self) -> Option<&MappingVariable> {

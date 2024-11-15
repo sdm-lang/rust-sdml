@@ -324,6 +324,11 @@ impl Cardinality {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
+    pub fn is_default(&self) -> bool {
+        self.ordering.is_none() && self.uniqueness.is_none() && self.range.is_exactly(1)
+    }
+
+    #[inline(always)]
     pub fn is_optional(&self) -> bool {
         self.range.is_optional()
     }

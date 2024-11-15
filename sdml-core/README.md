@@ -16,6 +16,88 @@ Note that other tools can use the =sdml_core= API to create or manipulate models
 
 ## Changes
 
+### Version 0.4.0
+
+The primary aim of this release is to introduce a new definition type, a
+*dimension*. This may be seen as a violation of SDML's goal of being technology or
+implementation independent however it is a pragmatic decision based on usage
+experience. Modeling the data managed by a business in terms of entities solves
+many operational purposes but ignores a major purpose of this data -- reporting.
+
+```sdml
+module example is
+
+  import [ sales stores xsd ]
+
+  dimension Region is
+    ;; define an identifier for this dimension
+    identity region -> long
+
+    ;; add members
+    name -> string
+  end
+  
+  dimension Location is
+    ;; tightly bind this dimension to the Sale entity
+    source sales:Sale
+
+    ;; define a hierarchy by noting one or more parent dimensions
+    parent region -> Region
+
+    ;; reuse members from the source entity
+    store from sales:Sale
+    city from sales:Sale
+
+    ;; add additional members not on the source entity
+    state -> stores:State
+    country -> stores:Country
+  end
+
+end
+```
+
+Detailed Changes:
+
+* Add new `DimensionDef` to the model which has a source clause, set of parents
+  and set of members.
+* Add a `source` claused based on, but extending, the one on an event definition.
+* Add new `DimensionParent` structure with name and entity name reference.
+
+The new syntax for the `source` keyword also allows the inclusion of members from
+the source entity rather than requiring duplicate members. This new source
+clause has been added to the event definition as a part of the body of an event
+thus allowing incomplete event definitions.
+
+``` sdml
+module example is
+
+  entity Thing is
+    identity id -> long
+    name -> string
+  end
+  
+  event Empty
+
+  event NewThing is
+    source Thing with name
+  end
+
+end
+
+Additionally, this version of the grammar allows module's to rename imports,
+both modules and members. This allows then client module to avoid always using
+qualified names, and to use short, or more meaningful, names as appropriate.
+
+``` sdml
+module example is
+
+  import rentals_billing as billing
+
+  import billing:Invoice as Invoice
+
+end
+```
+
 ### Version 0.3.1
 
 - Feature: move use of tree-sitter crate behind a feature.
