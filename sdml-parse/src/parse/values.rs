@@ -273,7 +273,7 @@ fn parse_binary<'a>(
     {
         context.check_if_error(&node, RULE_NAME)?;
         let value = context.node_source(&node)?;
-        let value = u8::from_str(value).expect("Invalid value for Byte");
+        let value = u8::from_str_radix(value, 16).expect("Invalid value for Byte");
         result.push(value);
     }
 
