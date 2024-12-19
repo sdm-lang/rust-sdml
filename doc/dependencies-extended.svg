@@ -1,0 +1,335 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1257pt" height="406pt" viewBox="0.00 0.00 1257.00 405.92">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 401.92)">
+<title>G</title>
+<g id="clust1" class="cluster">
+<title>cluster_0</title>
+<polygon fill="none" stroke="black" points="8,-224 8,-389.92 556,-389.92 556,-224 8,-224"/>
+<text text-anchor="middle" x="282" y="-373.32" font-family="Times,serif" font-size="14.00">tree-sitter-sdml</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_1</title>
+<polygon fill="none" stroke="black" points="583,-8 583,-384.16 1241,-384.16 1241,-8 583,-8"/>
+<text text-anchor="middle" x="912" y="-367.56" font-family="Times,serif" font-size="14.00">rust-sdml</text>
+</g>
+<!-- grammar -->
+<g id="node1" class="node">
+<title>grammar</title>
+<polygon fill="none" stroke="black" points="319.2,-357.12 238.8,-357.12 238.8,-309.6 325.2,-309.6 325.2,-351.12 319.2,-357.12"/>
+<polyline fill="none" stroke="black" points="319.2,-357.12 319.2,-351.12"/>
+<polyline fill="none" stroke="black" points="325.2,-351.12 319.2,-351.12"/>
+<text text-anchor="middle" x="282" y="-337.56" font-family="Times,serif" font-size="14.00">grammar</text>
+<text text-anchor="middle" x="282" y="-320.76" font-family="Times,serif" font-size="14.00">Syntax(js)</text>
+</g>
+<!-- ts_go -->
+<g id="node2" class="node">
+<title>ts_go</title>
+<polygon fill="none" stroke="black" points="203,-273.6 135,-273.6 131,-269.6 131,-232 199,-232 203,-236 203,-273.6"/>
+<polyline fill="none" stroke="black" points="199,-269.6 131,-269.6"/>
+<polyline fill="none" stroke="black" points="199,-269.6 199,-232"/>
+<polyline fill="none" stroke="black" points="199,-269.6 203,-273.6"/>
+<text text-anchor="middle" x="167" y="-257" font-family="Times,serif" font-size="14.00">Go</text>
+<text text-anchor="middle" x="167" y="-240.2" font-family="Times,serif" font-size="14.00">Binding</text>
+</g>
+<!-- grammar&#45;&gt;ts_go -->
+<g id="edge1" class="edge">
+<title>grammar-&gt;ts_go</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M242.4,-297.68C242.4,-297.68 242.4,-252.8 242.4,-252.8 242.4,-252.8 222.66,-252.8 203.37,-252.8"/>
+<polygon fill="gray" stroke="gray" points="238.9,-297.68 242.4,-307.68 245.9,-297.68 238.9,-297.68"/>
+</g>
+<!-- ts_npm -->
+<g id="node3" class="node">
+<title>ts_npm</title>
+<polygon fill="none" stroke="black" points="318,-273.6 250,-273.6 246,-269.6 246,-232 314,-232 318,-236 318,-273.6"/>
+<polyline fill="none" stroke="black" points="314,-269.6 246,-269.6"/>
+<polyline fill="none" stroke="black" points="314,-269.6 314,-232"/>
+<polyline fill="none" stroke="black" points="314,-269.6 318,-273.6"/>
+<text text-anchor="middle" x="282" y="-257" font-family="Times,serif" font-size="14.00">node</text>
+<text text-anchor="middle" x="282" y="-240.2" font-family="Times,serif" font-size="14.00">Binding</text>
+</g>
+<!-- grammar&#45;&gt;ts_npm -->
+<g id="edge2" class="edge">
+<title>grammar-&gt;ts_npm</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M282,-297.68C282,-297.68 282,-273.95 282,-273.95"/>
+<polygon fill="gray" stroke="gray" points="278.5,-297.68 282,-307.68 285.5,-297.68 278.5,-297.68"/>
+</g>
+<!-- ts_python -->
+<g id="node4" class="node">
+<title>ts_python</title>
+<polygon fill="none" stroke="black" points="433,-273.6 365,-273.6 361,-269.6 361,-232 429,-232 433,-236 433,-273.6"/>
+<polyline fill="none" stroke="black" points="429,-269.6 361,-269.6"/>
+<polyline fill="none" stroke="black" points="429,-269.6 429,-232"/>
+<polyline fill="none" stroke="black" points="429,-269.6 433,-273.6"/>
+<text text-anchor="middle" x="397" y="-257" font-family="Times,serif" font-size="14.00">Python</text>
+<text text-anchor="middle" x="397" y="-240.2" font-family="Times,serif" font-size="14.00">Binding</text>
+</g>
+<!-- grammar&#45;&gt;ts_python -->
+<g id="edge3" class="edge">
+<title>grammar-&gt;ts_python</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M321.6,-297.68C321.6,-297.68 321.6,-252.8 321.6,-252.8 321.6,-252.8 341.34,-252.8 360.63,-252.8"/>
+<polygon fill="gray" stroke="gray" points="318.1,-297.68 321.6,-307.68 325.1,-297.68 318.1,-297.68"/>
+</g>
+<!-- ts_rust -->
+<g id="node5" class="node">
+<title>ts_rust</title>
+<polygon fill="none" stroke="black" points="548,-273.6 480,-273.6 476,-269.6 476,-232 544,-232 548,-236 548,-273.6"/>
+<polyline fill="none" stroke="black" points="544,-269.6 476,-269.6"/>
+<polyline fill="none" stroke="black" points="544,-269.6 544,-232"/>
+<polyline fill="none" stroke="black" points="544,-269.6 548,-273.6"/>
+<text text-anchor="middle" x="512" y="-257" font-family="Times,serif" font-size="14.00">Rust</text>
+<text text-anchor="middle" x="512" y="-240.2" font-family="Times,serif" font-size="14.00">Binding</text>
+</g>
+<!-- grammar&#45;&gt;ts_rust -->
+<g id="edge4" class="edge">
+<title>grammar-&gt;ts_rust</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M337.05,-329.76C337.05,-329.76 512,-329.76 512,-329.76 512,-329.76 512,-296.62 512,-273.83"/>
+<polygon fill="gray" stroke="gray" points="337.05,-326.26 327.05,-329.76 337.05,-333.26 337.05,-326.26"/>
+</g>
+<!-- ts_swift -->
+<g id="node6" class="node">
+<title>ts_swift</title>
+<polygon fill="none" stroke="black" points="88,-273.6 20,-273.6 16,-269.6 16,-232 84,-232 88,-236 88,-273.6"/>
+<polyline fill="none" stroke="black" points="84,-269.6 16,-269.6"/>
+<polyline fill="none" stroke="black" points="84,-269.6 84,-232"/>
+<polyline fill="none" stroke="black" points="84,-269.6 88,-273.6"/>
+<text text-anchor="middle" x="52" y="-257" font-family="Times,serif" font-size="14.00">Swift</text>
+<text text-anchor="middle" x="52" y="-240.2" font-family="Times,serif" font-size="14.00">Binding</text>
+</g>
+<!-- grammar&#45;&gt;ts_swift -->
+<g id="edge5" class="edge">
+<title>grammar-&gt;ts_swift</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M226.95,-333.36C226.95,-333.36 52,-333.36 52,-333.36 52,-333.36 52,-297.83 52,-273.97"/>
+<polygon fill="gray" stroke="gray" points="226.95,-336.86 236.95,-333.36 226.95,-329.86 226.95,-336.86"/>
+</g>
+<!-- parse -->
+<g id="node14" class="node">
+<title>parse</title>
+<polygon fill="none" stroke="black" points="663,-196 595,-196 591,-192 591,-160 659,-160 663,-164 663,-196"/>
+<polyline fill="none" stroke="black" points="659,-192 591,-192"/>
+<polyline fill="none" stroke="black" points="659,-192 659,-160"/>
+<polyline fill="none" stroke="black" points="659,-192 663,-196"/>
+<text text-anchor="middle" x="627" y="-173.8" font-family="Times,serif" font-size="14.00">parse</text>
+</g>
+<!-- ts_rust&#45;&gt;parse -->
+<g id="edge27" class="edge">
+<title>ts_rust-&gt;parse</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M559.86,-252.8C559.86,-252.8 606,-252.8 606,-252.8 606,-252.8 606,-218.64 606,-196.49"/>
+<polygon fill="gray" stroke="gray" points="559.86,-249.3 549.86,-252.8 559.86,-256.3 559.86,-249.3"/>
+</g>
+<!-- cli -->
+<g id="node7" class="node">
+<title>cli</title>
+<polygon fill="none" stroke="black" points="948,-351.36 880,-351.36 876,-347.36 876,-315.36 944,-315.36 948,-319.36 948,-351.36"/>
+<polyline fill="none" stroke="black" points="944,-347.36 876,-347.36"/>
+<polyline fill="none" stroke="black" points="944,-347.36 944,-315.36"/>
+<polyline fill="none" stroke="black" points="944,-347.36 948,-351.36"/>
+<text text-anchor="middle" x="912" y="-329.16" font-family="Times,serif" font-size="14.00">cli</text>
+</g>
+<!-- core -->
+<g id="node8" class="node">
+<title>core</title>
+<polygon fill="lightgray" stroke="black" points="948,-124 880,-124 876,-120 876,-88 944,-88 948,-92 948,-124"/>
+<polyline fill="none" stroke="black" points="944,-120 876,-120"/>
+<polyline fill="none" stroke="black" points="944,-120 944,-88"/>
+<polyline fill="none" stroke="black" points="944,-120 948,-124"/>
+<text text-anchor="middle" x="912" y="-101.8" font-family="Times,serif" font-size="14.00">core</text>
+</g>
+<!-- cli&#45;&gt;core -->
+<g id="edge6" class="edge">
+<title>cli-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M919.2,-315.14C919.2,-315.14 919.2,-135.53 919.2,-135.53"/>
+<polygon fill="gray" stroke="gray" points="919.2,-125.53 923.7,-135.53 919.2,-129.31 919.2,-135.53 919.2,-135.53 919.2,-135.53 919.2,-129.31 914.7,-135.53 919.2,-125.53"/>
+</g>
+<!-- document -->
+<g id="node9" class="node">
+<title>document</title>
+<polygon fill="none" stroke="black" points="1028,-270.8 960,-270.8 956,-266.8 956,-234.8 1024,-234.8 1028,-238.8 1028,-270.8"/>
+<polyline fill="none" stroke="black" points="1024,-266.8 956,-266.8"/>
+<polyline fill="none" stroke="black" points="1024,-266.8 1024,-234.8"/>
+<polyline fill="none" stroke="black" points="1024,-266.8 1028,-270.8"/>
+<text text-anchor="middle" x="992" y="-248.6" font-family="Times,serif" font-size="14.00">document</text>
+</g>
+<!-- cli&#45;&gt;document -->
+<g id="edge7" class="edge">
+<title>cli-&gt;document</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M948.25,-324.36C969.42,-324.36 992,-324.36 992,-324.36 992,-324.36 992,-282.45 992,-282.45"/>
+<polygon fill="gray" stroke="gray" points="992,-272.45 996.5,-282.45 992,-276.23 992,-282.45 992,-282.45 992,-282.45 992,-276.23 987.5,-282.45 992,-272.45"/>
+</g>
+<!-- draw -->
+<g id="node10" class="node">
+<title>draw</title>
+<polygon fill="none" stroke="black" points="1073,-196 1005,-196 1001,-192 1001,-160 1069,-160 1073,-164 1073,-196"/>
+<polyline fill="none" stroke="black" points="1069,-192 1001,-192"/>
+<polyline fill="none" stroke="black" points="1069,-192 1069,-160"/>
+<polyline fill="none" stroke="black" points="1069,-192 1073,-196"/>
+<text text-anchor="middle" x="1037" y="-173.8" font-family="Times,serif" font-size="14.00">draw</text>
+</g>
+<!-- cli&#45;&gt;draw -->
+<g id="edge8" class="edge">
+<title>cli-&gt;draw</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M933.6,-315.12C933.6,-275.88 933.6,-187 933.6,-187 933.6,-187 989.33,-187 989.33,-187"/>
+<polygon fill="gray" stroke="gray" points="999.33,-187 989.33,-191.5 995.55,-187 989.33,-187 989.33,-187 989.33,-187 995.55,-187 989.33,-182.5 999.33,-187"/>
+</g>
+<!-- generate -->
+<g id="node12" class="node">
+<title>generate</title>
+<polygon fill="none" stroke="black" points="1188,-270.8 1120,-270.8 1116,-266.8 1116,-234.8 1184,-234.8 1188,-238.8 1188,-270.8"/>
+<polyline fill="none" stroke="black" points="1184,-266.8 1116,-266.8"/>
+<polyline fill="none" stroke="black" points="1184,-266.8 1184,-234.8"/>
+<polyline fill="none" stroke="black" points="1184,-266.8 1188,-270.8"/>
+<text text-anchor="middle" x="1152" y="-248.6" font-family="Times,serif" font-size="14.00">generate</text>
+</g>
+<!-- cli&#45;&gt;generate -->
+<g id="edge9" class="edge">
+<title>cli-&gt;generate</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M948.45,-333.36C1015.59,-333.36 1152,-333.36 1152,-333.36 1152,-333.36 1152,-282.3 1152,-282.3"/>
+<polygon fill="gray" stroke="gray" points="1152,-272.3 1156.5,-282.3 1152,-276.08 1152,-282.3 1152,-282.3 1152,-282.3 1152,-276.08 1147.5,-282.3 1152,-272.3"/>
+</g>
+<!-- json -->
+<g id="node13" class="node">
+<title>json</title>
+<polygon fill="none" stroke="black" points="823,-196 755,-196 751,-192 751,-160 819,-160 823,-164 823,-196"/>
+<polyline fill="none" stroke="black" points="819,-192 751,-192"/>
+<polyline fill="none" stroke="black" points="819,-192 819,-160"/>
+<polyline fill="none" stroke="black" points="819,-192 823,-196"/>
+<text text-anchor="middle" x="787" y="-173.8" font-family="Times,serif" font-size="14.00">json</text>
+</g>
+<!-- cli&#45;&gt;json -->
+<g id="edge10" class="edge">
+<title>cli-&gt;json</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M890.4,-314.93C890.4,-273.77 890.4,-178 890.4,-178 890.4,-178 834.67,-178 834.67,-178"/>
+<polygon fill="gray" stroke="gray" points="824.67,-178 834.67,-173.5 828.45,-178 834.67,-178 834.67,-178 834.67,-178 828.45,-178 834.67,-182.5 824.67,-178"/>
+</g>
+<!-- cli&#45;&gt;parse -->
+<g id="edge11" class="edge">
+<title>cli-&gt;parse</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M875.73,-344.16C797.73,-344.16 621,-344.16 621,-344.16 621,-344.16 621,-207.64 621,-207.64"/>
+<polygon fill="gray" stroke="gray" points="621,-197.64 625.5,-207.64 621,-201.42 621,-207.64 621,-207.64 621,-207.64 621,-201.42 616.5,-207.64 621,-197.64"/>
+</g>
+<!-- rdf -->
+<g id="node15" class="node">
+<title>rdf</title>
+<polygon fill="none" stroke="black" points="1233,-196 1165,-196 1161,-192 1161,-160 1229,-160 1233,-164 1233,-196"/>
+<polyline fill="none" stroke="black" points="1229,-192 1161,-192"/>
+<polyline fill="none" stroke="black" points="1229,-192 1229,-160"/>
+<polyline fill="none" stroke="black" points="1229,-192 1233,-196"/>
+<text text-anchor="middle" x="1197" y="-173.8" font-family="Times,serif" font-size="14.00">rdf</text>
+</g>
+<!-- cli&#45;&gt;rdf -->
+<g id="edge12" class="edge">
+<title>cli-&gt;rdf</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M948.3,-342.36C1027.85,-342.36 1210.5,-342.36 1210.5,-342.36 1210.5,-342.36 1210.5,-207.44 1210.5,-207.44"/>
+<polygon fill="gray" stroke="gray" points="1210.5,-197.44 1215,-207.44 1210.5,-201.22 1210.5,-207.44 1210.5,-207.44 1210.5,-207.44 1210.5,-201.22 1206,-207.44 1210.5,-197.44"/>
+</g>
+<!-- src -->
+<g id="node16" class="node">
+<title>src</title>
+<polygon fill="none" stroke="black" points="868,-270.8 800,-270.8 796,-266.8 796,-234.8 864,-234.8 868,-238.8 868,-270.8"/>
+<polyline fill="none" stroke="black" points="864,-266.8 796,-266.8"/>
+<polyline fill="none" stroke="black" points="864,-266.8 864,-234.8"/>
+<polyline fill="none" stroke="black" points="864,-266.8 868,-270.8"/>
+<text text-anchor="middle" x="832" y="-248.6" font-family="Times,serif" font-size="14.00">src</text>
+</g>
+<!-- cli&#45;&gt;src -->
+<g id="edge13" class="edge">
+<title>cli-&gt;src</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M875.75,-322.56C854.58,-322.56 832,-322.56 832,-322.56 832,-322.56 832,-282.35 832,-282.35"/>
+<polygon fill="gray" stroke="gray" points="832,-272.35 836.5,-282.35 832,-276.13 832,-282.35 832,-282.35 832,-282.35 832,-276.13 827.5,-282.35 832,-272.35"/>
+</g>
+<!-- tera -->
+<g id="node17" class="node">
+<title>tera</title>
+<polygon fill="none" stroke="black" points="708,-270.8 640,-270.8 636,-266.8 636,-234.8 704,-234.8 708,-238.8 708,-270.8"/>
+<polyline fill="none" stroke="black" points="704,-266.8 636,-266.8"/>
+<polyline fill="none" stroke="black" points="704,-266.8 704,-234.8"/>
+<polyline fill="none" stroke="black" points="704,-266.8 708,-270.8"/>
+<text text-anchor="middle" x="672" y="-248.6" font-family="Times,serif" font-size="14.00">tera</text>
+</g>
+<!-- cli&#45;&gt;tera -->
+<g id="edge14" class="edge">
+<title>cli-&gt;tera</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M875.55,-336.96C808.41,-336.96 672,-336.96 672,-336.96 672,-336.96 672,-282.28 672,-282.28"/>
+<polygon fill="gray" stroke="gray" points="672,-272.28 676.5,-282.28 672,-276.06 672,-282.28 672,-282.28 672,-282.28 672,-276.06 667.5,-282.28 672,-272.28"/>
+</g>
+<!-- errors -->
+<g id="node11" class="node">
+<title>errors</title>
+<polygon fill="none" stroke="black" points="948,-52 880,-52 876,-48 876,-16 944,-16 948,-20 948,-52"/>
+<polyline fill="none" stroke="black" points="944,-48 876,-48"/>
+<polyline fill="none" stroke="black" points="944,-48 944,-16"/>
+<polyline fill="none" stroke="black" points="944,-48 948,-52"/>
+<text text-anchor="middle" x="912" y="-29.8" font-family="Times,serif" font-size="14.00">errors</text>
+</g>
+<!-- core&#45;&gt;errors -->
+<g id="edge15" class="edge">
+<title>core-&gt;errors</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M912,-87.83C912,-87.83 912,-63.63 912,-63.63"/>
+<polygon fill="gray" stroke="gray" points="912,-53.63 916.5,-63.63 912,-57.41 912,-63.63 912,-63.63 912,-63.63 912,-57.41 907.5,-63.63 912,-53.63"/>
+</g>
+<!-- document&#45;&gt;core -->
+<g id="edge16" class="edge">
+<title>document-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M978.5,-234.46C978.5,-197.34 978.5,-116.8 978.5,-116.8 978.5,-116.8 978.5,-128.02 978.5,-128.02"/>
+<polygon fill="gray" stroke="gray" points="949.51,-117.23 960.45,-116.5 953.05,-118.54 958.88,-120.71 958.88,-120.71 958.88,-120.71 953.05,-118.54 957.31,-124.93 949.51,-117.23"/>
+</g>
+<!-- draw&#45;&gt;core -->
+<g id="edge17" class="edge">
+<title>draw-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M1037,-159.67C1037,-139.41 1037,-109.6 1037,-109.6 1037,-109.6 959.71,-109.6 959.71,-109.6"/>
+<polygon fill="gray" stroke="gray" points="949.71,-109.6 959.71,-105.1 953.49,-109.6 959.71,-109.6 959.71,-109.6 959.71,-109.6 953.49,-109.6 959.71,-114.1 949.71,-109.6"/>
+</g>
+<!-- generate&#45;&gt;core -->
+<g id="edge18" class="edge">
+<title>generate-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M1138.5,-234.36C1138.5,-194.2 1138.5,-102.4 1138.5,-102.4 1138.5,-102.4 959.61,-102.4 959.61,-102.4"/>
+<polygon fill="gray" stroke="gray" points="949.61,-102.4 959.61,-97.9 953.39,-102.4 959.61,-102.4 959.61,-102.4 959.61,-102.4 953.39,-102.4 959.61,-106.9 949.61,-102.4"/>
+</g>
+<!-- generate&#45;&gt;rdf -->
+<g id="edge19" class="edge">
+<title>generate-&gt;rdf</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M1174.5,-234.31C1174.5,-234.31 1174.5,-207.5 1174.5,-207.5"/>
+<polygon fill="gray" stroke="gray" points="1174.5,-197.5 1179,-207.5 1174.5,-201.28 1174.5,-207.5 1174.5,-207.5 1174.5,-207.5 1174.5,-201.28 1170,-207.5 1174.5,-197.5"/>
+</g>
+<!-- json&#45;&gt;core -->
+<g id="edge20" class="edge">
+<title>json-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M823.31,-169C857.92,-169 904.8,-169 904.8,-169 904.8,-169 904.8,-135.44 904.8,-135.44"/>
+<polygon fill="gray" stroke="gray" points="904.8,-125.44 909.3,-135.44 904.8,-129.22 904.8,-135.44 904.8,-135.44 904.8,-135.44 904.8,-129.22 900.3,-135.44 904.8,-125.44"/>
+</g>
+<!-- parse&#45;&gt;core -->
+<g id="edge21" class="edge">
+<title>parse-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M627,-159.62C627,-135.72 627,-97 627,-97 627,-97 864.4,-97 864.4,-97"/>
+<polygon fill="gray" stroke="gray" points="874.4,-97 864.4,-101.5 870.62,-97 864.4,-97 864.4,-97 864.4,-97 870.62,-97 864.4,-92.5 874.4,-97"/>
+</g>
+<!-- rdf&#45;&gt;core -->
+<g id="edge22" class="edge">
+<title>rdf-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M1197,-159.62C1197,-135.23 1197,-95.2 1197,-95.2 1197,-95.2 959.6,-95.2 959.6,-95.2"/>
+<polygon fill="gray" stroke="gray" points="949.6,-95.2 959.6,-90.7 953.38,-95.2 959.6,-95.2 959.6,-95.2 959.6,-95.2 953.38,-95.2 959.6,-99.7 949.6,-95.2"/>
+</g>
+<!-- src&#45;&gt;core -->
+<g id="edge23" class="edge">
+<title>src-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M845.5,-234.5C845.5,-197.02 845.5,-115 845.5,-115 845.5,-115 864.42,-115 864.42,-115"/>
+<polygon fill="gray" stroke="gray" points="874.42,-115 864.42,-119.5 870.64,-115 864.42,-115 864.42,-115 864.42,-115 870.64,-115 864.42,-110.5 874.42,-115"/>
+</g>
+<!-- tera&#45;&gt;core -->
+<g id="edge24" class="edge">
+<title>tera-&gt;core</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M685.5,-234.5C685.5,-195.15 685.5,-106 685.5,-106 685.5,-106 864.39,-106 864.39,-106"/>
+<polygon fill="gray" stroke="gray" points="874.39,-106 864.39,-110.5 870.61,-106 864.39,-106 864.39,-106 864.39,-106 870.61,-106 864.39,-101.5 874.39,-106"/>
+</g>
+<!-- tera&#45;&gt;json -->
+<g id="edge25" class="edge">
+<title>tera-&gt;json</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M708.36,-252.8C737.48,-252.8 773.5,-252.8 773.5,-252.8 773.5,-252.8 773.5,-207.71 773.5,-207.71"/>
+<polygon fill="gray" stroke="gray" points="773.5,-197.71 778,-207.71 773.5,-201.49 773.5,-207.71 773.5,-207.71 773.5,-207.71 773.5,-201.49 769,-207.71 773.5,-197.71"/>
+</g>
+<!-- tera&#45;&gt;parse -->
+<g id="edge26" class="edge">
+<title>tera-&gt;parse</title>
+<path fill="none" stroke="gray" stroke-dasharray="5,2" d="M649.5,-234.31C649.5,-234.31 649.5,-207.5 649.5,-207.5"/>
+<polygon fill="gray" stroke="gray" points="649.5,-197.5 654,-207.5 649.5,-201.28 649.5,-207.5 649.5,-207.5 649.5,-207.5 649.5,-201.28 645,-207.5 649.5,-197.5"/>
+</g>
+</g>
+</svg>

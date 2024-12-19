@@ -1,0 +1,69 @@
+digraph G {
+    compound=true;
+    bgcolor="transparent";
+    rankdir="TD";
+    nodesep=0.6;
+    ranksep=0.5;
+    splines="ortho";
+
+    node [shape="box3d"; width=1.0];
+    // [style="filled"; fillcolor="lightgray"]
+    edge [arrowhead="vee"; style="dashed"; color="gray"];
+    // ; style="filled"; fillcolor="lightgray"
+
+    subgraph cluster_0 {
+        label="tree-sitter-sdml";
+
+        grammar [label="grammar\nSyntax(js)"; shape="note"; width=1.2; height=0.66];
+        ts_go [label="Go\nBinding"];
+        ts_npm [label="node\nBinding"];
+        ts_python [label="Python\nBinding"];
+        ts_rust [label="Rust\nBinding"];
+        ts_swift [label="Swift\nBinding"];
+
+        grammar -> ts_go [dir="back"];
+        grammar -> ts_npm [dir="back"];
+        grammar -> ts_python  [dir="back"];
+        grammar -> ts_rust [dir="back"];
+        grammar -> ts_swift [dir="back"];
+    }
+
+    subgraph cluster_1 {
+        label="rust-sdml";
+        cli;
+        core [style="filled"; fillcolor="lightgray"];
+        document;
+        draw;
+        errors;
+        generate;
+        json;
+        parse;
+        rdf;
+        src;
+        tera;
+
+        cli -> core;
+        cli -> document;
+        cli -> draw;
+        cli -> generate;
+        cli -> json;
+        cli -> parse;
+        cli -> rdf;
+        cli -> src;
+        cli -> tera
+        core -> errors;
+        document -> core;
+        draw -> core;
+        generate -> core;
+        generate -> rdf;
+        json -> core;
+        parse -> core;
+        rdf -> core;
+        src -> core;
+        tera -> core;
+        tera -> json;
+        tera -> parse;
+    }
+
+    ts_rust -> parse [dir="back"];
+}
