@@ -4,7 +4,7 @@
 
 Rust Library and Tools for the Simple Domain Modeling Language (SDML).
 
-[![License-Apache_2.0]([https://img.shields.io/badge/License-Apache_2.0-blue.svg])](https://opensource.org/licenses/Apache-2.0)
+[![License-Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Rust Workflow](https://github.com/johnstonskj/rust-sdml/actions/workflows/rust.yml/badge.svg)](https://github.com/johnstonskj/rust-sdml/actions/workflows/rust.yml)
 [![Security Audit Workflow](https://github.com/johnstonskj/rust-sdml/actions/workflows/security-audit.yml/badge.svg)](https://github.com/johnstonskj/rust-sdml/actions/workflows/security-audit.yml)
 [![Coverage Status](https://codecov.io/gh/johnstonskj/rust-sdml/branch/main/graph/badge.svg?token=1HGN6M4KIT)](https://codecov.io/gh/johnstonskj/rust-sdml)
@@ -36,20 +36,23 @@ This [package](./sdml-core/README.md) contains the in-memory model of an sdml
 module, the major component of the project itself. It also has traits
 (`ModuleLoader`, `ModuleResolver`, `ModuleStore`) that are required by packages
 that follow.
-                                                            
+      
+[![crates.io](https://img.shields.io/crates/v/sdml_core.svg)](https://crates.io/crates/sdml_core)
+[![docs.rs](https://docs.rs/sdml-core/badge.svg)](https://docs.rs/sdml-core)
+
 ## Crate sdml-document
 
 TBD
 
 [![crates.io](https://img.shields.io/crates/v/sdml_document.svg)](https://crates.io/crates/sdml_document)
-[![docs.rs](https://docs.rs/sdml_document/badge.svg)](https://docs.rs/sdml_document)
+[![docs.rs](https://docs.rs/sdml-document/badge.svg)](https://docs.rs/sdml-document)
 
 ## Crate sdml-draw
 
 TBD
 
 [![crates.io](https://img.shields.io/crates/v/sdml_draw.svg)](https://crates.io/crates/sdml_draw)
-[![docs.rs](https://docs.rs/sdml_draw/badge.svg)](https://docs.rs/sdml_draw)
+[![docs.rs](https://docs.rs/sdml-draw/badge.svg)](https://docs.rs/sdml-draw)
 
 ## Crate sdml-errors
 
@@ -57,7 +60,7 @@ This [package](./sdml-errors/README.md) contains the common `Error` type as well
 as a diagnostic set for reporting language parse and model issues.
 
 [![crates.io](https://img.shields.io/crates/v/sdml_errors.svg)](https://crates.io/crates/sdml_errors)
-[![docs.rs](https://docs.rs/sdml_errors/badge.svg)](https://docs.rs/sdml_errors)
+[![docs.rs](https://docs.rs/sdml-errors/badge.svg)](https://docs.rs/sdml-errors)
 
 ## Crate sdml-generate
 
@@ -66,14 +69,14 @@ alternative representations of an in-memory module as well as related actions
 for the CLI.
 
 [![crates.io](https://img.shields.io/crates/v/sdml_generate.svg)](https://crates.io/crates/sdml_generate)
-[![docs.rs](https://docs.rs/sdml_generate/badge.svg)](https://docs.rs/sdml_generate)
+[![docs.rs](https://docs.rs/sdml-generate/badge.svg)](https://docs.rs/sdml-generate)
 
 ## Crate sdml-json
 
 TBD
 
 [![crates.io](https://img.shields.io/crates/v/sdml_json.svg)](https://crates.io/crates/sdml_json)
-[![docs.rs](https://docs.rs/sdml_json/badge.svg)](https://docs.rs/sdml_json)
+[![docs.rs](https://docs.rs/sdml-json/badge.svg)](https://docs.rs/sdml-json)
 
 ## Crate sdml-parse
 
@@ -81,21 +84,21 @@ This [package](./sdml-parse/README.md) contains the bridge from the
 tree-sitter SDML library to the in-memory model in `sdml_corez.
 
 [![crates.io](https://img.shields.io/crates/v/sdml_parse.svg)](https://crates.io/crates/sdml_parse)
-[![docs.rs](https://docs.rs/sdml_parse/badge.svg)](https://docs.rs/sdml_parse)
+[![docs.rs](https://docs.rs/sdml-parse/badge.svg)](https://docs.rs/sdml-parse)
 
 ## Crate sdml-src
 
 TBD
 
 [![crates.io](https://img.shields.io/crates/v/sdml_src.svg)](https://crates.io/crates/sdml_src)
-[![docs.rs](https://docs.rs/sdml_src/badge.svg)](https://docs.rs/sdml_src)
+[![docs.rs](https://docs.rs/sdml-src/badge.svg)](https://docs.rs/sdml-src)
 
 ## Crate sdml-tera
 
 TBD
 
 [![crates.io](https://img.shields.io/crates/v/sdml_tera.svg)](https://crates.io/crates/sdml_tera)
-[![docs.rs](https://docs.rs/sdml_tera/badge.svg)](https://docs.rs/sdml_tera)
+[![docs.rs](https://docs.rs/sdml-tera/badge.svg)](https://docs.rs/sdml-tera)
 
 # License
 
