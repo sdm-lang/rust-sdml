@@ -215,12 +215,12 @@ fn add_source_span(
             graph.insert(Statement::new(
                 blank.clone(),
                 sdml_url(LOCATION_START_BYTE),
-                Literal::from(span.start() as u64),
+                Literal::from(span.start().byte() as u64),
             ));
             graph.insert(Statement::new(
                 blank,
                 sdml_url(LOCATION_END_BYTE),
-                Literal::from(span.end() as u64),
+                Literal::from(span.end().byte() as u64),
             ));
         }
     }

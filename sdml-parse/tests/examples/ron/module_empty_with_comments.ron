@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 251,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 251,
+                line: 9,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 214,
-                end: 222,
+                start: SpanPosition {
+                    byte: 214,
+                    line: 8,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 222,
+                    line: 8,
+                    column: 16,
+                },
             },
         ),
         value: "campaign",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 223,
-                end: 229,
+                start: SpanPosition {
+                    byte: 223,
+                    line: 8,
+                    column: 17,
+                },
+                end: SpanPosition {
+                    byte: 229,
+                    line: 8,
+                    column: 23,
+                },
             },
         ),
         file_id: None,

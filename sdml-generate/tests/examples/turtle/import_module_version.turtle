@@ -4,6 +4,14 @@
 @prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
 
 campaign:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 6 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 78 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;

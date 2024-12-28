@@ -96,7 +96,7 @@ impl Validate for DatatypeDef {
             loader
                 .report(&type_definition_not_found(
                     top.file_id().copied().unwrap_or_default(),
-                    self.span.as_ref().map(|span| span.clone().into()),
+                    self.span.as_ref().map(|span| span.into()),
                     self.base_type(),
                 ))
                 .unwrap();

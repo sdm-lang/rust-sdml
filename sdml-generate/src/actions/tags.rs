@@ -123,7 +123,7 @@ fn ctag_line_from(name: &Identifier, file_name: &str) -> (String, String) {
             "{}\t{}go",
             file_name,
             name.source_span()
-                .map(|span| span.start() + 1)
+                .map(|span| span.start().byte() + 1)
                 .unwrap_or_default()
         ),
     )

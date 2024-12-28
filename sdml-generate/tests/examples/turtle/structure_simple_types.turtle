@@ -4,12 +4,28 @@
 @prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
 
 example:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 14 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 166 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;
     sdml:srcLabel "example" .
 
 example:Duration
+    sdml:hasSourceLocation [
+        sdml:startLine 3 ;
+        sdml:endLine 11 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 6 ;
+        sdml:startByte 21 ;
+        sdml:endByte 160 ;
+    ] ;
     rdf:type
         owl:Class ,
         sdml:Structure ;

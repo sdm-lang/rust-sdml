@@ -4,12 +4,28 @@
 @prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
 
 campaign:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 11 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 117 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;
     sdml:srcLabel "campaign" .
 
 campaign:VehicleClass
+    sdml:hasSourceLocation [
+        sdml:startLine 5 ;
+        sdml:endLine 8 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 6 ;
+        sdml:startByte 55 ;
+        sdml:endByte 111 ;
+    ] ;
     rdf:type
         owl:Class ,
         sdml:Union ;
@@ -20,6 +36,14 @@ campaign:VehicleClass
     rdfs:isDefinedBy campaign: .
 
 campaign:VehicleClass__Car
+    sdml:hasSourceLocation [
+        sdml:startLine 6 ;
+        sdml:endLine 6 ;
+        sdml:startColumn 5 ;
+        sdml:endColumn 8 ;
+        sdml:startByte 81 ;
+        sdml:endByte 84 ;
+    ] ;
     rdf:type
         owl:Class ,
         sdml:TypeVariant ;
@@ -29,6 +53,14 @@ campaign:VehicleClass__Car
     rdfs:isDefinedBy campaign: .
 
 campaign:VehicleClass__WaterCar
+    sdml:hasSourceLocation [
+        sdml:startLine 7 ;
+        sdml:endLine 7 ;
+        sdml:startColumn 5 ;
+        sdml:endColumn 21 ;
+        sdml:startByte 89 ;
+        sdml:endByte 105 ;
+    ] ;
     rdf:type
         owl:Class ,
         sdml:TypeVariant ;

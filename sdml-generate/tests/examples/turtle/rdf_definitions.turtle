@@ -4,12 +4,28 @@
 @prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
 
 rdfs:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 28 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 612 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;
     sdml:srcLabel "rdfs" .
 
 rdfs:Resource
+    sdml:hasSourceLocation [
+        sdml:startLine 5 ;
+        sdml:endLine 9 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 6 ;
+        sdml:startByte 80 ;
+        sdml:endByte 201 ;
+    ] ;
     rdfs:isDefinedBy rdfs:rdfs ;
     rdfs:label "Resource"@en ;
     rdfs:comment "The class resource, everything." ;
@@ -17,6 +33,14 @@ rdfs:Resource
     rdfs:isDefinedBy rdfs: .
 
 rdfs:subClassOf
+    sdml:hasSourceLocation [
+        sdml:startLine 11 ;
+        sdml:endLine 17 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 6 ;
+        sdml:startByte 205 ;
+        sdml:endByte 390 ;
+    ] ;
     rdfs:domain rdfs:Class ;
     rdfs:range rdfs:Class ;
     rdfs:isDefinedBy rdfs:rdfs ;
@@ -27,6 +51,14 @@ rdfs:subClassOf
     rdfs:isDefinedBy rdfs: .
 
 rdfs:comment
+    sdml:hasSourceLocation [
+        sdml:startLine 19 ;
+        sdml:endLine 25 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 6 ;
+        sdml:startByte 394 ;
+        sdml:endByte 606 ;
+    ] ;
     rdfs:domain rdfs:Resource ;
     rdfs:range rdfs:Literal ;
     rdfs:isDefinedBy rdfs:rdfs ;

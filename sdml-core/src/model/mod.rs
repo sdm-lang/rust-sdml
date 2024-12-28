@@ -13,6 +13,12 @@ use std::{
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+/// ------------------------------------------------------------------------------------------------
+/// Load the macros
+/// ------------------------------------------------------------------------------------------------
+#[macro_use]
+mod macros;
+
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Traits
 // ------------------------------------------------------------------------------------------------
@@ -179,9 +185,20 @@ pub trait References {
 /// The source location information from the tree-sitter `Node` type. The location is stored as
 /// a start and end position, where the positions are byte indices.
 ///
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct Span(Range<usize>);
+pub struct Span {
+    start: SpanPosition,
+    end: SpanPosition,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct SpanPosition {
+    byte: usize,
+    line: usize,
+    column: usize,
+}
 
 // ------------------------------------------------------------------------------------------------
 // Implementations
@@ -190,7 +207,10 @@ pub struct Span(Range<usize>);
 #[cfg(feature = "tree-sitter")]
 impl From<&tree_sitter::Node<'_>> for Span {
     fn from(node: &tree_sitter::Node<'_>) -> Self {
-        Self(node.byte_range())
+        Self {
+            start: SpanPosition::from(node.start_position(), node.start_byte()),
+            end: SpanPosition::from(node.end_position(), node.end_byte()),
+        }
     }
 }
 
@@ -201,30 +221,21 @@ impl From<tree_sitter::Node<'_>> for Span {
     }
 }
 
+impl From<&Span> for sdml_errors::Span {
+    fn from(value: &Span) -> Self {
+        value.byte_range()
+    }
+}
+
 impl From<Span> for sdml_errors::Span {
     fn from(value: Span) -> Self {
         value.byte_range()
     }
 }
 
-impl From<&Span> for sdml_errors::Span {
-    fn from(value: &Span) -> Self {
-        sdml_errors::Span::from(value.clone())
-    }
-}
-
-impl Debug for Span {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Span")
-            .field("start", &self.0.start)
-            .field("end", &self.0.end)
-            .finish()
-    }
-}
-
 impl Display for Span {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}..{}", self.0.start, self.0.end)
+        write!(f, "{}..{}", self.start.byte, self.end.byte)
     }
 }
 
@@ -235,9 +246,12 @@ impl Span {
 
     /// Create a new span from the `start` byte and `end` byte indices.
     #[inline(always)]
-    pub fn new(start: usize, end: usize) -> Self {
-        assert!(start <= end);
-        Self(start..end)
+    pub fn new(start: SpanPosition, end: SpanPosition) -> Self {
+        assert!(start.byte <= end.byte);
+        assert!(start.line <= end.line);
+        assert!(start.column <= end.column || end.line > start.line);
+
+        Self { start, end }
     }
 
     // --------------------------------------------------------------------------------------------
@@ -246,29 +260,56 @@ impl Span {
 
     /// Return the starting byte index of this span.
     #[inline(always)]
-    pub fn start(&self) -> usize {
-        self.0.start
+    pub fn start(&self) -> SpanPosition {
+        self.start
     }
 
     /// Return the ending byte index of this span.
     #[inline(always)]
-    pub fn end(&self) -> usize {
-        self.0.end
+    pub fn end(&self) -> SpanPosition {
+        self.end
     }
 
     /// Return this span as a `start..end` range.
     #[inline(always)]
     pub fn byte_range(&self) -> Range<usize> {
-        self.0.clone()
+        self.start.byte..self.end.byte
+    }
+}
+
+impl SpanPosition {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    /// Create a new span position from the `byte`, `line`, and `column` indices.
+    #[inline(always)]
+    pub fn new(byte: usize, line: usize, column: usize) -> Self {
+        Self { byte, line, column }
+    }
+
+    /// Create a new span position from the `byte` and tree-sitter point.
+    #[cfg(feature = "tree-sitter")]
+    pub fn from(node_point: tree_sitter::Point, byte: usize) -> Self {
+        Self::new(byte, node_point.row + 1, node_point.column + 1)
+    }
+
+    pub const fn byte(&self) -> usize {
+        self.byte
+    }
+
+    pub const fn line(&self) -> usize {
+        self.line
+    }
+
+    pub const fn column(&self) -> usize {
+        self.column
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
-
-#[macro_use]
-mod macros;
 
 pub mod annotations;
 

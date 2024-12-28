@@ -24,13 +24,12 @@ use sdml_core::{
             PropertyDef, RdfDef, StructureDef, TypeClassDef, TypeVariant, UnionDef, ValueVariant,
         },
         identifiers::{Identifier, IdentifierReference},
-        members::TypeReference,
-        members::{Member, Ordering, Uniqueness, DEFAULT_CARDINALITY},
+        members::{Member, Ordering, TypeReference, Uniqueness, DEFAULT_CARDINALITY},
         modules::Module,
         values::{
             MappingValue, SequenceMember, SequenceOfValues, SimpleValue, Value, ValueConstructor,
         },
-        HasBody, HasName, HasNameReference, HasOptionalBody,
+        HasBody, HasName, HasNameReference, HasOptionalBody, HasSourceSpan,
     },
     stdlib,
     store::ModuleStore,
@@ -73,6 +72,59 @@ macro_rules! write_annotations {
                 }
                 Annotation::Constraint(me) => $self.write_constraint(me, $module_name, $writer)?,
             }
+        }
+    };
+}
+
+macro_rules! write_compiler_location {
+    ($self:expr, $writer:expr) => {
+        if let Some(span) = $self.source_span() {
+            $writer.write_all(
+                format!(
+                    "{} {}{}",
+                    predicate_no_value(
+                        stdlib::sdml::MODULE_NAME,
+                        stdlib::sdml::HAS_SOURCE_LOCATION,
+                        Separator::InlineNone,
+                    ),
+                    start_bnode(),
+                    Separator::None,
+                )
+                .as_bytes(),
+            )?;
+
+            for locations in [
+                (stdlib::sdml::LOCATION_START_LINE, span.start().line()),
+                (stdlib::sdml::LOCATION_END_LINE, span.end().line()),
+                (stdlib::sdml::LOCATION_START_COL, span.start().column()),
+                (stdlib::sdml::LOCATION_END_COL, span.end().column()),
+                (stdlib::sdml::LOCATION_START_BYTE, span.start().byte()),
+                (stdlib::sdml::LOCATION_END_BYTE, span.end().byte()),
+            ] {
+                $writer.write_all(
+                    format!(
+                        "{}{}",
+                        INDENT_PREDICATE,
+                        predicate_with_value(
+                            stdlib::sdml::MODULE_NAME,
+                            locations.0,
+                            color::format_number(locations.1.to_string()),
+                            Separator::Predicate,
+                        ),
+                    )
+                    .as_bytes(),
+                )?;
+            }
+
+            $writer.write_all(
+                format!(
+                    "{}{}{}",
+                    INDENT_PREDICATE,
+                    end_bnode(),
+                    Separator::Predicate,
+                )
+                .as_bytes(),
+            )?;
         }
     };
 }
@@ -145,6 +197,9 @@ impl Generator for RdfModelGenerator {
         writer.write_all(b"\n")?;
 
         writer.write_all(module_subject(module_name).as_bytes())?;
+
+        write_compiler_location!(module, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -239,6 +294,9 @@ impl RdfModelGenerator {
         let name = me.name();
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value(
                 stdlib::rdf::MODULE_NAME,
@@ -327,6 +385,9 @@ impl RdfModelGenerator {
         let name = me.name();
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -381,6 +442,8 @@ impl RdfModelGenerator {
         let name = me.name();
 
         writer.write_all(property_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
 
         let more = if let Some(_property) = me.as_property_reference() {
             writer.write_all(
@@ -575,6 +638,9 @@ impl RdfModelGenerator {
         */
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -629,6 +695,9 @@ impl RdfModelGenerator {
         let name = mv_name(parent, me.name());
 
         writer.write_all(thing_subject(module_name, name.clone()).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -661,6 +730,9 @@ impl RdfModelGenerator {
         let name = me.name();
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -725,6 +797,9 @@ impl RdfModelGenerator {
         let name = me.name();
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -788,6 +863,9 @@ impl RdfModelGenerator {
          */
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -842,6 +920,9 @@ impl RdfModelGenerator {
         let name = format!("{parent}__{}", me.name());
 
         writer.write_all(type_subject(module_name, name.clone()).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -893,6 +974,9 @@ impl RdfModelGenerator {
         let name = me.name();
 
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,
@@ -923,6 +1007,8 @@ impl RdfModelGenerator {
 
         writer.write_all(thing_subject(module_name, name).as_bytes())?;
 
+        write_compiler_location!(me, writer);
+
         write_annotations!(self, me.body().annotations(), module_name, writer);
 
         self.write_defn_end(module_name, name, writer)?;
@@ -938,6 +1024,9 @@ impl RdfModelGenerator {
     ) -> Result<(), Error> {
         let name = me.name();
         writer.write_all(type_subject(module_name, name).as_bytes())?;
+
+        write_compiler_location!(me, writer);
+
         writer.write_all(
             predicate_with_value_list(
                 stdlib::rdf::MODULE_NAME,

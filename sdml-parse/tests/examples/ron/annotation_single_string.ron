@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 76,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 76,
+                line: 8,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 38,
-                end: 46,
+                start: SpanPosition {
+                    byte: 38,
+                    line: 3,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 46,
+                    line: 3,
+                    column: 16,
+                },
             },
         ),
         value: "campaign",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 47,
-                end: 75,
+                start: SpanPosition {
+                    byte: 47,
+                    line: 3,
+                    column: 17,
+                },
+                end: SpanPosition {
+                    byte: 75,
+                    line: 7,
+                    column: 4,
+                },
             },
         ),
         file_id: None,
@@ -38,23 +62,47 @@ Module {
                 AnnotationProperty {
                     span: Some(
                         Span {
-                            start: 53,
-                            end: 70,
+                            start: SpanPosition {
+                                byte: 53,
+                                line: 5,
+                                column: 3,
+                            },
+                            end: SpanPosition {
+                                byte: 70,
+                                line: 5,
+                                column: 20,
+                            },
                         },
                     ),
                     name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 54,
-                                    end: 63,
+                                    start: SpanPosition {
+                                        byte: 54,
+                                        line: 5,
+                                        column: 4,
+                                    },
+                                    end: SpanPosition {
+                                        byte: 63,
+                                        line: 5,
+                                        column: 13,
+                                    },
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 54,
-                                        end: 56,
+                                        start: SpanPosition {
+                                            byte: 54,
+                                            line: 5,
+                                            column: 4,
+                                        },
+                                        end: SpanPosition {
+                                            byte: 56,
+                                            line: 5,
+                                            column: 6,
+                                        },
                                     },
                                 ),
                                 value: "dc",
@@ -62,8 +110,16 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 57,
-                                        end: 63,
+                                        start: SpanPosition {
+                                            byte: 57,
+                                            line: 5,
+                                            column: 7,
+                                        },
+                                        end: SpanPosition {
+                                            byte: 63,
+                                            line: 5,
+                                            column: 13,
+                                        },
                                     },
                                 ),
                                 value: "author",
@@ -75,8 +131,16 @@ Module {
                             LanguageString {
                                 span: Some(
                                     Span {
-                                        start: 66,
-                                        end: 70,
+                                        start: SpanPosition {
+                                            byte: 66,
+                                            line: 5,
+                                            column: 16,
+                                        },
+                                        end: SpanPosition {
+                                            byte: 70,
+                                            line: 5,
+                                            column: 20,
+                                        },
                                     },
                                 ),
                                 value: "me",

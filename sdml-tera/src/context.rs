@@ -790,8 +790,14 @@ fn add_module_body(body: &ModuleBody, value: &mut Map<String, Value>) {
 fn add_source_span(annotated: &impl HasSourceSpan, value: &mut Map<String, Value>) {
     if let Some(source_span) = annotated.source_span() {
         let mut span_value = Map::default();
-        span_value.insert(KEY_START.into(), Value::Number(source_span.start().into()));
-        span_value.insert(KEY_END.into(), Value::Number(source_span.end().into()));
+        span_value.insert(
+            KEY_START.into(),
+            Value::Number(source_span.start().byte().into()),
+        );
+        span_value.insert(
+            KEY_END.into(),
+            Value::Number(source_span.end().byte().into()),
+        );
         value.insert(KEY_SOURCE_SPAN.into(), span_value.into());
     }
 }

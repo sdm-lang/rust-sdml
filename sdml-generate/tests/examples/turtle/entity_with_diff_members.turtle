@@ -4,12 +4,28 @@
 @prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
 
 campaign:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 16 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 151 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;
     sdml:srcLabel "campaign" .
 
 campaign:Campaign
+    sdml:hasSourceLocation [
+        sdml:startLine 5 ;
+        sdml:endLine 13 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 6 ;
+        sdml:startByte 58 ;
+        sdml:endByte 145 ;
+    ] ;
     rdf:type
         owl:Class ,
         sdml:Entity ;
