@@ -206,7 +206,7 @@ impl Identifier {
             loader
                 .report(&invalid_identifier(
                     top.file_id().copied().unwrap_or_default(),
-                    self.span.clone().map(|s| s.into()),
+                    self.span.map(|s| s.into()),
                     &self.value,
                 ))
                 .unwrap();

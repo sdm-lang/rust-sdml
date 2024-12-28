@@ -50,6 +50,29 @@ macro_rules! generator {
     };
 }
 
+const UPDATE_EXAMPLES_OUTPUT_ENV: &str = "UPDATE_EXAMPLES_OUTPUT";
+
+pub fn verify_example_output(result_string: &str, expected_path: &std::path::PathBuf) {
+    match std::env::var(UPDATE_EXAMPLES_OUTPUT_ENV) {
+        Ok(val) if val == "1" => {
+            println!("Updating results in file {:?}", expected_path);
+
+            if let Err(e) = ::std::fs::write(expected_path, result_string) {
+                panic!("IO error writing expected: {}", e);
+            }
+        }
+        _ => {
+            println!("Comparing to result in file {:?}", expected_path);
+            let expected_string = ::std::fs::read_to_string(expected_path);
+            if let Err(e) = expected_string {
+                panic!("IO error reading expected: {}", e);
+            }
+
+            pretty_assertions::assert_eq!(result_string, expected_string.unwrap());
+        }
+    }
+}
+
 #[macro_export]
 macro_rules! test_example {
     ($test_name: ident, $result_ext: literal, $transform: expr) => {
@@ -87,13 +110,7 @@ macro_rules! test_example {
 
                 let result_string = $transform(module, &cache);
 
-                println!("Comparing to result in file {:?}", expected);
-                let expected_string = ::std::fs::read_to_string(expected);
-                if let Err(e) = expected_string {
-                    panic!("IO error reading expected: {}", e);
-                }
-
-                pretty_assertions::assert_eq!(result_string, expected_string.unwrap());
+                crate::common::verify_example_output(&result_string, &expected);
             }
         }
     };

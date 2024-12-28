@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 106,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 106,
+                line: 4,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 7,
-                end: 15,
+                start: SpanPosition {
+                    byte: 7,
+                    line: 1,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 15,
+                    line: 1,
+                    column: 16,
+                },
             },
         ),
         value: "Campaign",
@@ -24,8 +40,16 @@ Module {
         HeaderValue {
             span: Some(
                 Span {
-                    start: 16,
-                    end: 49,
+                    start: SpanPosition {
+                        byte: 16,
+                        line: 1,
+                        column: 17,
+                    },
+                    end: SpanPosition {
+                        byte: 49,
+                        line: 1,
+                        column: 50,
+                    },
                 },
             ),
             value: Url {
@@ -51,8 +75,16 @@ Module {
         HeaderValue {
             span: Some(
                 Span {
-                    start: 60,
-                    end: 63,
+                    start: SpanPosition {
+                        byte: 60,
+                        line: 2,
+                        column: 11,
+                    },
+                    end: SpanPosition {
+                        byte: 63,
+                        line: 2,
+                        column: 14,
+                    },
                 },
             ),
             value: "2",
@@ -62,8 +94,16 @@ Module {
         HeaderValue {
             span: Some(
                 Span {
-                    start: 64,
-                    end: 98,
+                    start: SpanPosition {
+                        byte: 64,
+                        line: 2,
+                        column: 15,
+                    },
+                    end: SpanPosition {
+                        byte: 98,
+                        line: 2,
+                        column: 49,
+                    },
                 },
             ),
             value: Url {
@@ -88,8 +128,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 99,
-                end: 105,
+                start: SpanPosition {
+                    byte: 99,
+                    line: 2,
+                    column: 50,
+                },
+                end: SpanPosition {
+                    byte: 105,
+                    line: 3,
+                    column: 4,
+                },
             },
         ),
         file_id: None,

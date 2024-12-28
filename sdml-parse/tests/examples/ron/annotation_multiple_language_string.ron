@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 135,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 135,
+                line: 8,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 57,
-                end: 65,
+                start: SpanPosition {
+                    byte: 57,
+                    line: 3,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 65,
+                    line: 3,
+                    column: 16,
+                },
             },
         ),
         value: "campaign",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 66,
-                end: 134,
+                start: SpanPosition {
+                    byte: 66,
+                    line: 3,
+                    column: 17,
+                },
+                end: SpanPosition {
+                    byte: 134,
+                    line: 7,
+                    column: 4,
+                },
             },
         ),
         file_id: None,
@@ -38,23 +62,47 @@ Module {
                 AnnotationProperty {
                     span: Some(
                         Span {
-                            start: 72,
-                            end: 129,
+                            start: SpanPosition {
+                                byte: 72,
+                                line: 5,
+                                column: 3,
+                            },
+                            end: SpanPosition {
+                                byte: 129,
+                                line: 5,
+                                column: 60,
+                            },
                         },
                     ),
                     name_reference: QualifiedIdentifier(
                         QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 73,
-                                    end: 81,
+                                    start: SpanPosition {
+                                        byte: 73,
+                                        line: 5,
+                                        column: 4,
+                                    },
+                                    end: SpanPosition {
+                                        byte: 81,
+                                        line: 5,
+                                        column: 12,
+                                    },
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 73,
-                                        end: 75,
+                                        start: SpanPosition {
+                                            byte: 73,
+                                            line: 5,
+                                            column: 4,
+                                        },
+                                        end: SpanPosition {
+                                            byte: 75,
+                                            line: 5,
+                                            column: 6,
+                                        },
                                     },
                                 ),
                                 value: "dc",
@@ -62,8 +110,16 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 76,
-                                        end: 81,
+                                        start: SpanPosition {
+                                            byte: 76,
+                                            line: 5,
+                                            column: 7,
+                                        },
+                                        end: SpanPosition {
+                                            byte: 81,
+                                            line: 5,
+                                            column: 12,
+                                        },
                                     },
                                 ),
                                 value: "title",
@@ -74,8 +130,16 @@ Module {
                         SequenceOfValues {
                             span: Some(
                                 Span {
-                                    start: 84,
-                                    end: 129,
+                                    start: SpanPosition {
+                                        byte: 84,
+                                        line: 5,
+                                        column: 15,
+                                    },
+                                    end: SpanPosition {
+                                        byte: 129,
+                                        line: 5,
+                                        column: 60,
+                                    },
                                 },
                             ),
                             ordering: None,
@@ -86,8 +150,16 @@ Module {
                                         LanguageString {
                                             span: Some(
                                                 Span {
-                                                    start: 86,
-                                                    end: 112,
+                                                    start: SpanPosition {
+                                                        byte: 86,
+                                                        line: 5,
+                                                        column: 17,
+                                                    },
+                                                    end: SpanPosition {
+                                                        byte: 112,
+                                                        line: 5,
+                                                        column: 43,
+                                                    },
                                                 },
                                             ),
                                             value: "a rather good test",
@@ -95,8 +167,16 @@ Module {
                                                 LanguageTag {
                                                     span: Some(
                                                         Span {
-                                                            start: 106,
-                                                            end: 112,
+                                                            start: SpanPosition {
+                                                                byte: 106,
+                                                                line: 5,
+                                                                column: 37,
+                                                            },
+                                                            end: SpanPosition {
+                                                                byte: 112,
+                                                                line: 5,
+                                                                column: 43,
+                                                            },
                                                         },
                                                     ),
                                                     value: LanguageTag {
@@ -118,8 +198,16 @@ Module {
                                         LanguageString {
                                             span: Some(
                                                 Span {
-                                                    start: 113,
-                                                    end: 127,
+                                                    start: SpanPosition {
+                                                        byte: 113,
+                                                        line: 5,
+                                                        column: 44,
+                                                    },
+                                                    end: SpanPosition {
+                                                        byte: 127,
+                                                        line: 5,
+                                                        column: 58,
+                                                    },
                                                 },
                                             ),
                                             value: "a test",
@@ -127,8 +215,16 @@ Module {
                                                 LanguageTag {
                                                     span: Some(
                                                         Span {
-                                                            start: 121,
-                                                            end: 127,
+                                                            start: SpanPosition {
+                                                                byte: 121,
+                                                                line: 5,
+                                                                column: 52,
+                                                            },
+                                                            end: SpanPosition {
+                                                                byte: 127,
+                                                                line: 5,
+                                                                column: 58,
+                                                            },
                                                         },
                                                     ),
                                                     value: LanguageTag {

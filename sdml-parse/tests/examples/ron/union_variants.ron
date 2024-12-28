@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 98,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 98,
+                line: 11,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 33,
-                end: 41,
+                start: SpanPosition {
+                    byte: 33,
+                    line: 3,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 41,
+                    line: 3,
+                    column: 16,
+                },
             },
         ),
         value: "campaign",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 42,
-                end: 97,
+                start: SpanPosition {
+                    byte: 42,
+                    line: 3,
+                    column: 17,
+                },
+                end: SpanPosition {
+                    byte: 97,
+                    line: 10,
+                    column: 4,
+                },
             },
         ),
         file_id: None,
@@ -39,15 +63,31 @@ Module {
                 UnionDef {
                     span: Some(
                         Span {
-                            start: 48,
-                            end: 92,
+                            start: SpanPosition {
+                                byte: 48,
+                                line: 5,
+                                column: 3,
+                            },
+                            end: SpanPosition {
+                                byte: 92,
+                                line: 8,
+                                column: 6,
+                            },
                         },
                     ),
                     name: Identifier {
                         span: Some(
                             Span {
-                                start: 54,
-                                end: 66,
+                                start: SpanPosition {
+                                    byte: 54,
+                                    line: 5,
+                                    column: 9,
+                                },
+                                end: SpanPosition {
+                                    byte: 66,
+                                    line: 5,
+                                    column: 21,
+                                },
                             },
                         ),
                         value: "VehicleClass",
@@ -56,8 +96,16 @@ Module {
                         UnionBody {
                             span: Some(
                                 Span {
-                                    start: 67,
-                                    end: 92,
+                                    start: SpanPosition {
+                                        byte: 67,
+                                        line: 5,
+                                        column: 22,
+                                    },
+                                    end: SpanPosition {
+                                        byte: 92,
+                                        line: 8,
+                                        column: 6,
+                                    },
                                 },
                             ),
                             annotations: [],
@@ -65,16 +113,32 @@ Module {
                                 TypeVariant {
                                     span: Some(
                                         Span {
-                                            start: 74,
-                                            end: 77,
+                                            start: SpanPosition {
+                                                byte: 74,
+                                                line: 6,
+                                                column: 5,
+                                            },
+                                            end: SpanPosition {
+                                                byte: 77,
+                                                line: 6,
+                                                column: 8,
+                                            },
                                         },
                                     ),
                                     name_reference: Identifier(
                                         Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 74,
-                                                    end: 77,
+                                                    start: SpanPosition {
+                                                        byte: 74,
+                                                        line: 6,
+                                                        column: 5,
+                                                    },
+                                                    end: SpanPosition {
+                                                        byte: 77,
+                                                        line: 6,
+                                                        column: 8,
+                                                    },
                                                 },
                                             ),
                                             value: "Car",
@@ -86,16 +150,32 @@ Module {
                                 TypeVariant {
                                     span: Some(
                                         Span {
-                                            start: 82,
-                                            end: 86,
+                                            start: SpanPosition {
+                                                byte: 82,
+                                                line: 7,
+                                                column: 5,
+                                            },
+                                            end: SpanPosition {
+                                                byte: 86,
+                                                line: 7,
+                                                column: 9,
+                                            },
                                         },
                                     ),
                                     name_reference: Identifier(
                                         Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 82,
-                                                    end: 86,
+                                                    start: SpanPosition {
+                                                        byte: 82,
+                                                        line: 7,
+                                                        column: 5,
+                                                    },
+                                                    end: SpanPosition {
+                                                        byte: 86,
+                                                        line: 7,
+                                                        column: 9,
+                                                    },
                                                 },
                                             ),
                                             value: "Boat",

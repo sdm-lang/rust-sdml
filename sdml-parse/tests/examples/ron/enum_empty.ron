@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 58,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 58,
+                line: 8,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 24,
-                end: 32,
+                start: SpanPosition {
+                    byte: 24,
+                    line: 3,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 32,
+                    line: 3,
+                    column: 16,
+                },
             },
         ),
         value: "campaign",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 33,
-                end: 57,
+                start: SpanPosition {
+                    byte: 33,
+                    line: 3,
+                    column: 17,
+                },
+                end: SpanPosition {
+                    byte: 57,
+                    line: 7,
+                    column: 4,
+                },
             },
         ),
         file_id: None,
@@ -39,15 +63,31 @@ Module {
                 EnumDef {
                     span: Some(
                         Span {
-                            start: 39,
-                            end: 52,
+                            start: SpanPosition {
+                                byte: 39,
+                                line: 5,
+                                column: 3,
+                            },
+                            end: SpanPosition {
+                                byte: 52,
+                                line: 5,
+                                column: 16,
+                            },
                         },
                     ),
                     name: Identifier {
                         span: Some(
                             Span {
-                                start: 44,
-                                end: 52,
+                                start: SpanPosition {
+                                    byte: 44,
+                                    line: 5,
+                                    column: 8,
+                                },
+                                end: SpanPosition {
+                                    byte: 52,
+                                    line: 5,
+                                    column: 16,
+                                },
                             },
                         ),
                         value: "NameKind",

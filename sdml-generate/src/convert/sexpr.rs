@@ -1554,9 +1554,9 @@ impl SExpressionGenerator {
             NODE_KIND_SPAN,
             [
                 SValue::keyword("start", self.options.style),
-                me.start().into(),
+                me.start().byte().into(),
                 SValue::keyword("end", self.options.style),
-                me.end().into(),
+                me.end().byte().into(),
             ],
         )
     }

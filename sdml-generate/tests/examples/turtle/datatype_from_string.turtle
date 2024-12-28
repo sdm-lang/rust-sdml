@@ -4,12 +4,28 @@
 @prefix sdml: <http://sdml.io/sdml-owl.ttl#> .
 
 example:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 6 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 56 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;
     sdml:srcLabel "example" .
 
 example:nameString
+    sdml:hasSourceLocation [
+        sdml:startLine 3 ;
+        sdml:endLine 3 ;
+        sdml:startColumn 3 ;
+        sdml:endColumn 32 ;
+        sdml:startByte 21 ;
+        sdml:endByte 50 ;
+    ] ;
     rdf:type rdfs:Datatype ;
     owl:onDatatype sdml:string ;
     sdml:srcLabel "nameString" ;

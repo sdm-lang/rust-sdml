@@ -26,6 +26,36 @@ macro_rules! test_examples {
         )+
     };
 }
+
+const UPDATE_EXAMPLES_OUTPUT_ENV: &str = "UPDATE_EXAMPLES_OUTPUT";
+
+fn verify_example_output(result_string: &str, expected_path: &std::path::PathBuf) {
+    match std::env::var(UPDATE_EXAMPLES_OUTPUT_ENV) {
+        Ok(val) if val == "1" => {
+            println!("Updating results in file {:?}", expected_path);
+
+            let cleaned_result_string = result_string.replace(MANIFEST_PATH, "MANIFEST_PATH");
+
+            if let Err(e) = ::std::fs::write(expected_path, cleaned_result_string) {
+                panic!("IO error writing expected: {}", e);
+            }
+        }
+        _ => {
+            println!("Comparing to result in file {:?}", expected_path);
+            let expected_string = ::std::fs::read_to_string(expected_path);
+            if let Err(e) = expected_string {
+                panic!("IO error reading expected: {}", e);
+            }
+
+            let expected_string = expected_string
+                .unwrap()
+                .replace("MANIFEST_PATH", MANIFEST_PATH);
+
+            pretty_assertions::assert_eq!(result_string, expected_string);
+        }
+    }
+}
+
 macro_rules! test_example {
     ($test_name: ident) => {
         paste! {
@@ -61,16 +91,7 @@ macro_rules! test_example {
 
                 let module_as_string = format!("{:#?}\n", module);
 
-                println!("Comparing to result in file {:?}", expected);
-                let expected_string = ::std::fs::read_to_string(expected);
-                if let Err(e) = expected_string {
-                    panic!("IO error reading expected: {}", e);
-                }
-                let expected_string = expected_string
-                    .unwrap()
-                    .replace("MANIFEST_PATH", MANIFEST_PATH);
-
-                pretty_assertions::assert_eq!(module_as_string, expected_string);
+                verify_example_output(&module_as_string, &expected);
             }
         }
     };

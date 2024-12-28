@@ -2,6 +2,14 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 campaign:
+    sdml:hasSourceLocation [
+        sdml:startLine 1 ;
+        sdml:endLine 10 ;
+        sdml:startColumn 1 ;
+        sdml:endColumn 1 ;
+        sdml:startByte 0 ;
+        sdml:endByte 110 ;
+    ] ;
     rdf:type
         owl:Ontology ,
         sdml:Module ;

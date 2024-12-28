@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 39,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 39,
+                line: 4,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 26,
-                end: 31,
+                start: SpanPosition {
+                    byte: 26,
+                    line: 3,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 31,
+                    line: 3,
+                    column: 13,
+                },
             },
         ),
         value: "empty",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 32,
-                end: 38,
+                start: SpanPosition {
+                    byte: 32,
+                    line: 3,
+                    column: 14,
+                },
+                end: SpanPosition {
+                    byte: 38,
+                    line: 3,
+                    column: 20,
+                },
             },
         ),
         file_id: None,

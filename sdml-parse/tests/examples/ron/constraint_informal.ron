@@ -7,15 +7,31 @@ Module {
     ),
     span: Some(
         Span {
-            start: 0,
-            end: 81,
+            start: SpanPosition {
+                byte: 0,
+                line: 1,
+                column: 1,
+            },
+            end: SpanPosition {
+                byte: 81,
+                line: 4,
+                column: 1,
+            },
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 7,
-                end: 14,
+                start: SpanPosition {
+                    byte: 7,
+                    line: 1,
+                    column: 8,
+                },
+                end: SpanPosition {
+                    byte: 14,
+                    line: 1,
+                    column: 15,
+                },
             },
         ),
         value: "Example",
@@ -26,8 +42,16 @@ Module {
     body: ModuleBody {
         span: Some(
             Span {
-                start: 15,
-                end: 80,
+                start: SpanPosition {
+                    byte: 15,
+                    line: 1,
+                    column: 16,
+                },
+                end: SpanPosition {
+                    byte: 80,
+                    line: 3,
+                    column: 4,
+                },
             },
         ),
         file_id: None,
@@ -40,8 +64,16 @@ Module {
                     name: Identifier {
                         span: Some(
                             Span {
-                                start: 27,
-                                end: 41,
+                                start: SpanPosition {
+                                    byte: 27,
+                                    line: 2,
+                                    column: 10,
+                                },
+                                end: SpanPosition {
+                                    byte: 41,
+                                    line: 2,
+                                    column: 24,
+                                },
                             },
                         ),
                         value: "no_definitions",
@@ -50,8 +82,16 @@ Module {
                         ControlledLanguageString {
                             span: Some(
                                 Span {
-                                    start: 42,
-                                    end: 76,
+                                    start: SpanPosition {
+                                        byte: 42,
+                                        line: 2,
+                                        column: 25,
+                                    },
+                                    end: SpanPosition {
+                                        byte: 76,
+                                        line: 2,
+                                        column: 59,
+                                    },
                                 },
                             ),
                             value: " \"This module has no definitions",
