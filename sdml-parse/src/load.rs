@@ -19,6 +19,7 @@ use sdml_errors::{Error, FileId};
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::env;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -50,6 +51,9 @@ pub const SDML_FILE_EXTENSION_LONG: &str = "sdml";
 
 /// The name used for resolver catalog files.
 pub const SDML_CATALOG_FILE_NAME: &str = "sdml-catalog.json";
+
+/// The environment variable used to override resolver catalog file location.
+pub const SDML_CATALOG_FILE_VARIABLE: &str = "SDML_CATALOG_FILE";
 
 ///
 /// The loader is used to manage the process of creating an in-memory model from file-system resources.
@@ -149,8 +153,20 @@ impl Default for FsModuleResolver {
         // 2. Add the current directory to the search path
         search_path.prepend_cwd();
 
-        // 3. Load any catalog file found in the search path
-        let catalog = ModuleCatalog::load_from_current(true);
+        // 3. Load catalog file
+        let catalog = match env::var(SDML_CATALOG_FILE_VARIABLE) {
+            // If the environment variable is provided, load it from the location provided
+            Ok(catalog_file) => {
+                let catalog_file_path = PathBuf::from(catalog_file);
+                let module_catalog = ModuleCatalog::load_from_file(catalog_file_path.as_path());
+                if module_catalog.is_none() {
+                    error!("The path to module catalog was provided through environment variable, yet it failed to load.");
+                }
+                module_catalog
+            }
+            // If the environment variable is not provided, load it from the current directory (or any parent directory)
+            _ => ModuleCatalog::load_from_current(true),
+        };
 
         let _self = Self {
             catalog,
@@ -435,6 +451,7 @@ impl ModuleCatalog {
     /// exist.
     ///
     fn load_from_file(file: &Path) -> Option<Self> {
+        trace!("ModuleCatalog::load_from_file({file:?})");
         match std::fs::read_to_string(file) {
             Ok(source) => match serde_json::from_str::<ModuleCatalog>(&source) {
                 Ok(mut catalog) => {
