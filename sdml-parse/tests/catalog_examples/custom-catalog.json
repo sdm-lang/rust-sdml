@@ -1,0 +1,11 @@
+{
+    "base": "https://examples.sdml.io/",
+    "entries": {
+        "campaign": {
+            "item": {
+                "relative_url": "campaign#",
+                "relative_path": "../examples/entity_empty.sdm"
+            }
+        }
+    }
+}
