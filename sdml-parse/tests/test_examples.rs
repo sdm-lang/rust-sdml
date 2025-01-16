@@ -42,7 +42,7 @@ macro_rules! test_example {
                     ));
                 let expected = ::std::path::PathBuf::from(
                     format!(
-                        "{}/{}/{}.ron",
+                        "{}/{}/ron/{}.ron",
                         MANIFEST_PATH,
                         TEST_PATH,
                         test_name
