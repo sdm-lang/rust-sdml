@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FormalConstraint {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     environment: Vec<EnvironmentDef>,
     body: ConstraintSentence,

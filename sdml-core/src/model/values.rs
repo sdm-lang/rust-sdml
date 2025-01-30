@@ -66,7 +66,7 @@ pub struct Binary(Vec<u8>);
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LanguageString {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     /// Corresponds to the grammar rule `quoted_string`.
     value: String,
     language: Option<LanguageTag>,
@@ -77,7 +77,7 @@ pub struct LanguageString {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct LanguageTag {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     value: language_tags::LanguageTag,
 }
 
@@ -86,7 +86,7 @@ pub struct LanguageTag {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MappingValue {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     domain: SimpleValue,
     range: Box<Value>,
 }
@@ -96,7 +96,7 @@ pub struct MappingValue {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct SequenceOfValues {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     ordering: Option<Ordering>,
     uniqueness: Option<Uniqueness>,
     values: Vec<SequenceMember>,
@@ -117,7 +117,7 @@ pub enum SequenceMember {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ValueConstructor {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     type_name: IdentifierReference,
     value: SimpleValue,
 }

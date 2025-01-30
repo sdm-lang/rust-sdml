@@ -28,7 +28,7 @@ pub trait HasCardinality {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Cardinality {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     ordering: Option<Ordering>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
@@ -38,21 +38,20 @@ pub struct Cardinality {
 
 pub const DEFAULT_CARDINALITY: Cardinality = Cardinality::one();
 
-pub const TYPE_BAG_CARDINALITY: Cardinality = Cardinality::zero_or_more();
+pub const TYPE_BAG_CARDINALITY: Cardinality = Cardinality::zero_or_more(None, None);
 pub const TYPE_LIST_CARDINALITY: Cardinality =
-    Cardinality::zero_or_more().with_ordering(Some(Ordering::Ordered));
+    Cardinality::zero_or_more(Some(Ordering::Ordered), None);
 pub const TYPE_SET_CARDINALITY: Cardinality =
-    Cardinality::zero_or_more().with_uniqueness(Some(Uniqueness::Unique));
-pub const TYPE_ORDERED_SET_CARDINALITY: Cardinality = Cardinality::zero_or_more()
-    .with_ordering(Some(Ordering::Ordered))
-    .with_uniqueness(Some(Uniqueness::Unique));
+    Cardinality::zero_or_more(None, Some(Uniqueness::Unique));
+pub const TYPE_ORDERED_SET_CARDINALITY: Cardinality =
+    Cardinality::zero_or_more(Some(Ordering::Ordered), Some(Uniqueness::Unique));
 pub const TYPE_MAYBE_CARDINALITY: Cardinality = Cardinality::zero_or_one();
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct CardinalityRange {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     min: u32,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     max: Option<u32>,
@@ -162,11 +161,15 @@ impl Cardinality {
         }
     }
 
-    pub const fn new_unbounded(min: u32) -> Self {
+    pub const fn new_unbounded(
+        min: u32,
+        ordering: Option<Ordering>,
+        uniqueness: Option<Uniqueness>,
+    ) -> Self {
         Self {
             span: None,
-            ordering: None,
-            uniqueness: None,
+            ordering,
+            uniqueness,
             range: CardinalityRange::new_unbounded(min),
         }
     }
@@ -191,20 +194,20 @@ impl Cardinality {
     }
 
     #[inline(always)]
-    pub const fn one_or_more() -> Self {
-        Self::new_unbounded(1)
+    pub const fn one_or_more(ordering: Option<Ordering>, uniqueness: Option<Uniqueness>) -> Self {
+        Self::new_unbounded(1, ordering, uniqueness)
     }
 
     #[inline(always)]
-    pub const fn zero_or_more() -> Self {
-        Self::new_unbounded(0)
+    pub const fn zero_or_more(ordering: Option<Ordering>, uniqueness: Option<Uniqueness>) -> Self {
+        Self::new_unbounded(0, ordering, uniqueness)
     }
 
     // --------------------------------------------------------------------------------------------
     // Cardinality :: Fields
     // --------------------------------------------------------------------------------------------
 
-    pub const fn with_ordering(self, ordering: Option<Ordering>) -> Self {
+    pub fn with_ordering(self, ordering: Option<Ordering>) -> Self {
         Self { ordering, ..self }
     }
 
@@ -231,7 +234,7 @@ impl Cardinality {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub const fn with_uniqueness(self, uniqueness: Option<Uniqueness>) -> Self {
+    pub fn with_uniqueness(self, uniqueness: Option<Uniqueness>) -> Self {
         Self { uniqueness, ..self }
     }
 

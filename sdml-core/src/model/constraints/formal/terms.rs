@@ -44,7 +44,7 @@ pub enum Term {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionComposition {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     subject: Subject,                // assert!(!is_empty())
     function_names: Vec<Identifier>, // ditto
 }
@@ -63,7 +63,7 @@ pub enum Subject {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionalTerm {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     function: Term,
     arguments: Vec<Term>,
 }

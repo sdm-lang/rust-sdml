@@ -325,7 +325,7 @@ pub enum Annotation {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationProperty {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name_reference: IdentifierReference,
     value: Value,
 }
@@ -335,7 +335,7 @@ pub struct AnnotationProperty {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct AnnotationOnlyBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     annotations: Vec<Annotation>, // assert!(!annotations.is_empty());
 }
 

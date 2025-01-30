@@ -29,7 +29,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Member {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     kind: MemberKind,
 }
 
@@ -45,7 +45,7 @@ pub enum MemberKind {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MemberDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     target_cardinality: Cardinality,
     target_type: TypeReference,

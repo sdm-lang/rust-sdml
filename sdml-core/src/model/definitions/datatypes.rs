@@ -27,7 +27,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct DatatypeDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     opaque: bool,
     /// Corresponds to the grammar rule `data_type_base`.
@@ -96,7 +96,7 @@ impl Validate for DatatypeDef {
             loader
                 .report(&type_definition_not_found(
                     top.file_id().copied().unwrap_or_default(),
-                    self.span.as_ref().map(|span| span.into()),
+                    self.span.as_ref().map(|span| span.as_ref().into()),
                     self.base_type(),
                 ))
                 .unwrap();

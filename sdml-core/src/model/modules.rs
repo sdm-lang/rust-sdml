@@ -45,7 +45,7 @@ pub struct Module {
     #[cfg_attr(feature = "serde", serde(skip))]
     file_id: Option<FileId>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     base_uri: Option<HeaderValue<Url>>,
@@ -60,7 +60,7 @@ pub struct Module {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct HeaderValue<T> {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     value: T,
 }
 
@@ -71,7 +71,7 @@ pub struct HeaderValue<T> {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ModuleBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     file_id: Option<FileId>, // <- to report errors
     is_library: bool,        // <- to catch errors
     imports: Vec<ImportStatement>,
@@ -90,7 +90,7 @@ pub struct ModuleBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ImportStatement {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     imports: Vec<Import>,
 }
 
@@ -113,7 +113,7 @@ pub enum Import {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ModuleImport {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     version_uri: Option<HeaderValue<Url>>,
@@ -345,17 +345,20 @@ impl<T: Hash> Hash for HeaderValue<T> {
 impl<T> HasSourceSpan for HeaderValue<T> {
     fn with_source_span(self, span: Span) -> Self {
         Self {
-            span: Some(span),
+            span: Some(Box::new(span)),
             ..self
         }
     }
 
     fn source_span(&self) -> Option<&Span> {
-        self.span.as_ref()
+        match &self.span {
+            Some(v) => Some(v.as_ref()),
+            None => None,
+        }
     }
 
     fn set_source_span(&mut self, span: Span) {
-        self.span = Some(span);
+        self.span = Some(Box::new(span));
     }
 
     fn unset_source_span(&mut self) {
