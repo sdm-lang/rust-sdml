@@ -39,7 +39,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ControlledLanguageString {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     /// Corresponds to the grammar rule `quoted_string`.
     value: String,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
@@ -65,7 +65,7 @@ pub struct ControlledLanguageString {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct ControlledLanguageTag {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     value: String,
 }
 

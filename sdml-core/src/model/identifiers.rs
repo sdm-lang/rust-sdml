@@ -31,7 +31,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Identifier {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     value: String,
 }
 
@@ -42,7 +42,7 @@ pub struct Identifier {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QualifiedIdentifier {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     module: Identifier,
     member: Identifier,
 }
@@ -206,7 +206,7 @@ impl Identifier {
             loader
                 .report(&invalid_identifier(
                     top.file_id().copied().unwrap_or_default(),
-                    self.span.map(|s| s.into()),
+                    self.span.as_ref().map(|s| s.as_ref().into()),
                     &self.value,
                 ))
                 .unwrap();

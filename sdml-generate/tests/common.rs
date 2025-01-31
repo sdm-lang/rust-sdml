@@ -110,7 +110,7 @@ macro_rules! test_example {
 
                 let result_string = $transform(module, &cache);
 
-                crate::common::verify_example_output(&result_string, &expected);
+                $crate::common::verify_example_output(&result_string, &expected);
             }
         }
     };

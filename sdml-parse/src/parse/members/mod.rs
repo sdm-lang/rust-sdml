@@ -68,7 +68,7 @@ pub(crate) fn parse_cardinality_expression<'a>(
             })?;
             Cardinality::new_range(min, max)
         } else {
-            Cardinality::new_unbounded(min)
+            Cardinality::new_unbounded(min, None, None)
         }
     } else {
         Cardinality::new_single(min)

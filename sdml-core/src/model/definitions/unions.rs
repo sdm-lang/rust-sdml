@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<UnionBody>,
@@ -36,7 +36,7 @@ pub struct UnionDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct UnionBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
@@ -48,7 +48,7 @@ pub struct UnionBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeVariant {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name_reference: IdentifierReference,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     rename: Option<Identifier>,

@@ -15,16 +15,19 @@ macro_rules! impl_has_source_span_for {
        impl $crate::model::HasSourceSpan for $type {
             fn with_source_span(self, span: $crate::model::Span) -> Self {
                 let mut self_mut = self;
-                self_mut.span = Some(span);
+                self_mut.span = Some(Box::new(span));
                 self_mut
             }
 
             fn source_span(&self) -> Option<&$crate::model::Span> {
-                self.$inner.as_ref()
+                match &self.$inner {
+                    Some(v) => Some(v.as_ref()),
+                    None => None,
+                }
             }
 
             fn set_source_span(&mut self, span: $crate::model::Span) {
-                self.$inner = Some(span);
+                self.$inner = Some(Box::new(span));
             }
 
             fn unset_source_span(&mut self) {

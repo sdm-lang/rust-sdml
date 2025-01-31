@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     signature: FunctionSignature,
     body: ConstraintSentence,
 }
@@ -29,7 +29,7 @@ pub struct FunctionDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionSignature {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     parameters: Vec<FunctionParameter>,
     target_type: FunctionType,
 }
@@ -38,7 +38,7 @@ pub struct FunctionSignature {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionParameter {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     target_type: FunctionType,
 }
@@ -47,7 +47,7 @@ pub struct FunctionParameter {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionType {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     target_cardinality: FunctionCardinality,
     target_type: FunctionTypeReference,
 }
@@ -57,7 +57,7 @@ pub struct FunctionType {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct FunctionCardinality {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     ordering: Option<Ordering>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
@@ -333,7 +333,7 @@ impl FunctionCardinality {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub const fn with_ordering(self, ordering: Ordering) -> Self {
+    pub fn with_ordering(self, ordering: Ordering) -> Self {
         Self {
             ordering: Some(ordering),
             ..self
@@ -350,7 +350,7 @@ impl FunctionCardinality {
     // --------------------------------------------------------------------------------------------
 
     #[inline(always)]
-    pub const fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
+    pub fn with_uniqueness(self, uniqueness: Uniqueness) -> Self {
         Self {
             uniqueness: Some(uniqueness),
             ..self

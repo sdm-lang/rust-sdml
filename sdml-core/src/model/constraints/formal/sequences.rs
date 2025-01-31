@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct SequenceBuilder {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     variables: Variables,
     body: QuantifiedSentence,
 }
@@ -29,7 +29,7 @@ pub enum Variables {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct NamedVariables {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     names: HashSet<Identifier>,
 }
 
@@ -37,7 +37,7 @@ pub struct NamedVariables {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MappingVariable {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     domain: Identifier,
     range: Identifier,
 }

@@ -30,7 +30,7 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeClassDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     variables: Vec<TypeVariable>, // assert 1..
@@ -43,7 +43,7 @@ pub struct TypeClassDef {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeVariable {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     cardinality: Option<FunctionCardinality>,
@@ -56,7 +56,7 @@ pub struct TypeVariable {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeClassReference {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: IdentifierReference,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     arguments: Vec<TypeClassArgument>, // 0..
@@ -75,7 +75,7 @@ pub enum TypeClassArgument {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct TypeClassBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
@@ -87,7 +87,7 @@ pub struct TypeClassBody {
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct MethodDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
+    span: Option<Box<Span>>,
     name: Identifier,
     signature: FunctionSignature,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
