@@ -131,7 +131,7 @@ or convert into s-expressions, etc.
   - Remove `base` keyword.
   - Add new optional `version` keyword after module URI with:
     - optional version string that becomes `owl:versionInfo`.
-    - version URI that becomes `owl:verionIRI`.
+    - version URI that becomes `owl:versionIRI`.
 - Feature: Add new RDF structure/property definitions.
   - Add new keyword `rdf` followed by either =structure= or =property= with name and annotation body.
   - Extended `SimpleModuleWalker` with support for RDF class/property definitions.

@@ -210,7 +210,7 @@ package "{name}" as {} <<module>> {{
             .draw_definition_named(DefinitionKind::Datatype, name)
         {
             self.buffer
-                .push_str(&start_type_with_sterotype("class", name, "datatype"));
+                .push_str(&start_type_with_stereotype("class", name, "datatype"));
 
             // TODO: add opaque as stereotype on restriction
 
@@ -253,7 +253,7 @@ package "{name}" as {} <<module>> {{
             .content_filter
             .draw_definition_named(DefinitionKind::Entity, name)
         {
-            self.buffer.push_str(&start_type_with_sterotype(
+            self.buffer.push_str(&start_type_with_stereotype(
                 if entity.has_body() {
                     "class"
                 } else {
@@ -282,7 +282,7 @@ package "{name}" as {} <<module>> {{
             .draw_definition_named(DefinitionKind::Enum, name)
         {
             self.buffer
-                .push_str(&start_type_with_sterotype("class", an_enum.name(), "enum"));
+                .push_str(&start_type_with_stereotype("class", an_enum.name(), "enum"));
         }
         Self::INCLUDE_NESTED
     }
@@ -303,7 +303,7 @@ package "{name}" as {} <<module>> {{
         {
             let source = event.event_source();
             self.buffer
-                .push_str(&start_type_with_sterotype("class", name, "event"));
+                .push_str(&start_type_with_stereotype("class", name, "event"));
             self.assoc_src = Some(name.to_string());
             let reference = format!("  {} ..> {}: <<source>>\n", make_id(name), make_id(source));
             self.refs = Some(
@@ -330,8 +330,11 @@ package "{name}" as {} <<module>> {{
             .content_filter
             .draw_definition_named(DefinitionKind::Enum, defn.name())
         {
-            self.buffer
-                .push_str(&start_type_with_sterotype("class", defn.name(), "property"));
+            self.buffer.push_str(&start_type_with_stereotype(
+                "class",
+                defn.name(),
+                "property",
+            ));
         }
         Self::INCLUDE_NESTED
     }
@@ -351,7 +354,7 @@ package "{name}" as {} <<module>> {{
             .draw_definition_named(DefinitionKind::Enum, name)
         {
             self.buffer
-                .push_str(&start_type_with_sterotype("class", name, "structure"));
+                .push_str(&start_type_with_stereotype("class", name, "structure"));
             self.assoc_src = Some(name.to_string());
         }
         Self::INCLUDE_NESTED
@@ -372,7 +375,7 @@ package "{name}" as {} <<module>> {{
             .draw_definition_named(DefinitionKind::Enum, name)
         {
             self.buffer
-                .push_str(&start_type_with_sterotype("class", name, "rdf"));
+                .push_str(&start_type_with_stereotype("class", name, "rdf"));
             self.assoc_src = Some(name.to_string());
         }
         Self::INCLUDE_NESTED
@@ -392,7 +395,7 @@ package "{name}" as {} <<module>> {{
             .draw_definition_named(DefinitionKind::Enum, name)
         {
             self.buffer
-                .push_str(&start_type_with_sterotype("class", name, "union"));
+                .push_str(&start_type_with_stereotype("class", name, "union"));
             self.assoc_src = Some(name.to_string());
         }
         Self::INCLUDE_NESTED
@@ -510,7 +513,7 @@ where
     format!("s_{}", id.into().replace(':', "__"))
 }
 
-fn start_type_with_sterotype(
+fn start_type_with_stereotype(
     type_class: &str,
     type_name: &Identifier,
     stereo_name: &str,

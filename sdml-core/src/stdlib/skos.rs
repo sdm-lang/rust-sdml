@@ -139,7 +139,7 @@ pairwise disjoint properties."@en))
             .with_predicate(
                 id!(EXAMPLE),
                 lstr!("Acronyms, abbreviations, spelling variants, and irregular plural/singular
-forms may be included among the alternative labels for a concept. Mis-spelled terms are normally
+forms may be included among the alternative labels for a concept. Misspelled terms are normally
  included as hidden labels (see skos:hiddenLabel)"@en)
             )
             .into(),

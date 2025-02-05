@@ -311,8 +311,8 @@ pub const PC_BINARY_START: &str = "#[";
 pub const PC_CARDINALITY_END: &str = "}";
 pub const PC_CARDINALITY_START: &str = "{";
 
-pub const PC_CONSTRAINT_EXRESSION_GROUP_END: &str = ")";
-pub const PC_CONSTRAINT_EXRESSION_GROUP_START: &str = "(";
+pub const PC_CONSTRAINT_EXPRESSION_GROUP_END: &str = ")";
+pub const PC_CONSTRAINT_EXPRESSION_GROUP_START: &str = "(";
 
 pub const PC_FUNCTION_COMPOSITION_SEPARATOR: &str = ".";
 
