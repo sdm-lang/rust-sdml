@@ -1,2 +1,7 @@
 [files]
 extend-exclude = ["*/data/*"]
+
+[default]
+extend-ignore-re = [
+  "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$"
+]

@@ -576,7 +576,7 @@ pub trait SimpleModuleVisitor {
     }
 
     ///
-    /// Called to denote the start of a `TypeVarian` instance.
+    /// Called to denote the start of a `TypeVariant` instance.
     ///
     /// # Nested
     ///
