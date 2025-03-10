@@ -1,10 +1,10 @@
 [package]
 name = "sdml-tera"
-version = "0.1.0"
+version = "0.1.1"
 description = "Simple Domain Modeling Language (SDML) Tera Integration"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
-license-file = "../LICENSE"
+license = "Apache-2.0"
 readme = "README.md"
 edition = "2021"
 publish = true
@@ -26,9 +26,9 @@ cli = ["clap", "clio", "human-panic", "sdml-parse"]
 clap = { version = "4.5", features = ["derive", "env", "wrap_help"], optional = true }
 clio = { version = "0.3.5", features = ["clap-parse"], optional = true }
 human-panic = { version = "2.0.2", optional = true }
-sdml-core = { version = "0.3.1", features = ["serde"], path = "../sdml-core" }
-sdml-errors = { version = "0.3.1", features = ["templates"], path = "../sdml-errors" }
-sdml-parse = { version = "0.3.0", path = "../sdml-parse", optional = true }
+sdml-core = { version = "0.3.2", features = ["serde"], path = "../sdml-core" }
+sdml-errors = { version = "0.3.3", features = ["templates"], path = "../sdml-errors" }
+sdml-parse = { version = "0.3.2", path = "../sdml-parse", optional = true }
 tera = "1.20.0"
 
 [dev-dependencies]

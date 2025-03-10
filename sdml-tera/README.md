@@ -18,13 +18,14 @@ The following figure demonstrates this package in the broader project context.
 
 ![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview-tera.png)
 
-# Example
+## Example
 
 We wish to produce an output such as the following, a bulleted outline of a
 module.
 
 ```markdown
-# Module `campaign` Outline
+
+## Module `campaign` Outline
 
 * **campaign** (Module)
   * **Name** <- *xsd:string* (Datatype)
@@ -126,8 +127,14 @@ fn print_module(module: &Module, cache: &impl ModuleStore) {
 }
 ```
 
-# Changes
+-----
 
-## Version 0.1.0
+## Changes
+
+### Version 0.1.1
+
+* Style: Changed cargo file to use license key instead of license-file.
+
+### Version 0.1.0
 
 Initial release.
