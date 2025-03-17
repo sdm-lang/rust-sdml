@@ -386,7 +386,7 @@ impl CardinalityRange {
 
     pub const fn new_range(min: u32, max: u32) -> Self {
         assert!(
-            max > 0 && max > min,
+            max > 0 && max >= min,
             "Zero, or negative, cardinality range is not allowed."
         );
         Self {
