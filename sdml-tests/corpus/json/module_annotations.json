@@ -1,137 +1,134 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_annotations.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "base"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "xml"
-              }
-            }
-          },
-          "span": {
-            "__type": "span",
-            "end": 52,
-            "start": 18
-          },
-          "value": {
-            "__type": "value",
-            "simple": {
-              "__type": "iri",
-              "value": "https://example.org/"
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "base"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "xml"
             }
           }
-        }
-      },
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "version"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "dc"
-              }
-            }
-          },
-          "span": {
-            "__type": "span",
-            "end": 71,
-            "start": 56
-          },
-          "value": {
-            "__type": "value",
-            "simple": {
-              "__type": "integer",
-              "value": 2
-            }
+        },
+        "span": {
+          "__type": "span",
+          "end": 66,
+          "start": 32
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "iri",
+            "value": "https://example.org/"
           }
         }
-      },
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "prefLang"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "skos"
-              }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "version"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
             }
-          },
-          "span": {
-            "__type": "span",
-            "end": 118,
-            "start": 75
-          },
-          "value": {
-            "__type": "value",
-            "sequence": {
-              "__type": "sequence_of_values",
-              "members": [
-                {
-                  "__type": "sequence_member",
-                  "simple": {
-                    "__type": "string",
-                    "language": "en",
-                    "value": "aa"
-                  }
-                },
-                {
-                  "__type": "sequence_member",
-                  "simple": {
-                    "__type": "string",
-                    "value": "bb"
-                  }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 85,
+          "start": 70
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "integer",
+            "value": 2
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "prefLang"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "skos"
+            }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 132,
+          "start": 89
+        },
+        "value": {
+          "__type": "value",
+          "sequence": {
+            "__type": "sequence_of_values",
+            "members": [
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "string",
+                  "language": "en",
+                  "value": "aa"
                 }
-              ],
-              "span": {
-                "__type": "span",
-                "end": 118,
-                "start": 92
+              },
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "string",
+                  "value": "bb"
+                }
               }
+            ],
+            "span": {
+              "__type": "span",
+              "end": 132,
+              "start": 106
             }
           }
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_annotations.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "annx"
+    "value": "corpus_test_module"
   },
   "source_file": "MANIFEST_PATH/corpus/module_annotations.sdm",
   "span": {
     "__type": "span",
-    "end": 124,
+    "end": 138,
     "start": 0
   }
 }

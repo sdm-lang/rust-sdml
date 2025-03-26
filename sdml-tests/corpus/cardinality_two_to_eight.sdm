@@ -1,0 +1,10 @@
+;;; Structure, Cardinality two to eight
+
+module corpus_test_cardinality is
+
+  structure Things is
+    thing -> {2..8} integer
+  end
+
+end
+

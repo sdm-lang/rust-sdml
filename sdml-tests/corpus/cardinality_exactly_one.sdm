@@ -1,0 +1,11 @@
+;;; Structure, Cardinality exactly one
+
+module corpus_test_cardinality is
+
+  structure Things is
+    thing_1 -> integer
+    thing_2 -> {1} integer
+  end
+
+end
+

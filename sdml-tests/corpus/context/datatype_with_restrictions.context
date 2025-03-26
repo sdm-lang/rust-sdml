@@ -4,19 +4,20 @@
   "definitions": [
     {
       "__type": "data_type_def",
-      "annotations": [
-        {
-          "__type": "annotation_property",
-          "name": "xsd:maxLength",
-          "value": {
-            "__type": "integer",
-            "value": 8
-          }
-        }
-      ],
-      "base": "xsd:string",
+      "base": "sdml:string",
       "is_opaque": false,
-      "name": "unixUserId"
+      "name": "unixUserId",
+      "restriction": {
+        "__type": "datatype_def_restriction",
+        "maxLength": {
+          "is_fixed": false,
+          "value": 8
+        },
+        "minLength": {
+          "is_fixed": false,
+          "value": 1
+        }
+      }
     }
   ],
   "is_library_module": false,

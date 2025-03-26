@@ -1,0 +1,267 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_a"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 92,
+          "start": 71
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\a"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_b"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 116,
+          "start": 95
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\b"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_e"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 140,
+          "start": 119
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\e"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_f"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 164,
+          "start": 143
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\f"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_n"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 188,
+          "start": 167
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\n"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_r"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 212,
+          "start": 191
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\r"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_t"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 236,
+          "start": 215
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\t"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_v"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 260,
+          "start": 239
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\a"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_backslash"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 292,
+          "start": 263
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\\\"
+          }
+        }
+      }
+    },
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "identifier": {
+            "__type": "identifier",
+            "value": "char_escape_doublequote"
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 326,
+          "start": 295
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "\\\""
+          }
+        }
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_escaped_strings.sdm/",
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_annotation"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_escaped_strings.sdm",
+  "span": {
+    "__type": "span",
+    "end": 333,
+    "start": 0
+  }
+}

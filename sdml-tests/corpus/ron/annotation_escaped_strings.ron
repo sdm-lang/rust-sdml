@@ -1,0 +1,399 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/annotation_escaped_strings.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 333,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 42,
+                end: 64,
+            },
+        ),
+        value: "corpus_test_annotation",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/annotation_escaped_strings.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 71,
+                        end: 92,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 72,
+                                end: 85,
+                            },
+                        ),
+                        value: "char_escape_a",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 88,
+                                    end: 92,
+                                },
+                            ),
+                            value: "\\a",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 95,
+                        end: 116,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 96,
+                                end: 109,
+                            },
+                        ),
+                        value: "char_escape_b",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 112,
+                                    end: 116,
+                                },
+                            ),
+                            value: "\\b",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 119,
+                        end: 140,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 120,
+                                end: 133,
+                            },
+                        ),
+                        value: "char_escape_e",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 136,
+                                    end: 140,
+                                },
+                            ),
+                            value: "\\e",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 143,
+                        end: 164,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 144,
+                                end: 157,
+                            },
+                        ),
+                        value: "char_escape_f",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 160,
+                                    end: 164,
+                                },
+                            ),
+                            value: "\\f",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 167,
+                        end: 188,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 168,
+                                end: 181,
+                            },
+                        ),
+                        value: "char_escape_n",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 184,
+                                    end: 188,
+                                },
+                            ),
+                            value: "\\n",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 191,
+                        end: 212,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 192,
+                                end: 205,
+                            },
+                        ),
+                        value: "char_escape_r",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 208,
+                                    end: 212,
+                                },
+                            ),
+                            value: "\\r",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 215,
+                        end: 236,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 216,
+                                end: 229,
+                            },
+                        ),
+                        value: "char_escape_t",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 232,
+                                    end: 236,
+                                },
+                            ),
+                            value: "\\t",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 239,
+                        end: 260,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 240,
+                                end: 253,
+                            },
+                        ),
+                        value: "char_escape_v",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 256,
+                                    end: 260,
+                                },
+                            ),
+                            value: "\\a",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 263,
+                        end: 292,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 264,
+                                end: 285,
+                            },
+                        ),
+                        value: "char_escape_backslash",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 288,
+                                    end: 292,
+                                },
+                            ),
+                            value: "\\\\",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 295,
+                        end: 326,
+                    },
+                ),
+                name_reference: Identifier(
+                    Identifier {
+                        span: Some(
+                            Span {
+                                start: 296,
+                                end: 319,
+                            },
+                        ),
+                        value: "char_escape_doublequote",
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 322,
+                                    end: 326,
+                                },
+                            ),
+                            value: "\\\"",
+                            language: None,
+                        },
+                    ),
+                ),
+            },
+        ),
+    ],
+    definitions: {},
+}

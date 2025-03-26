@@ -1,6 +1,6 @@
 ;;; Annotation, Multiple Language-Tagged Strings
 
-module campaign is
+module corpus_test_annotation is
 
   @dc:title = [ "a rather good test"@en-GB "a test"@en-US ]
 

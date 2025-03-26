@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 86,
+            end: 100,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 42,
-                end: 50,
+                end: 64,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_annotation",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,85 +42,75 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 51,
-                end: 85,
+    imports: [],
+    annotations: [
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 71,
+                        end: 94,
+                    },
+                ),
+                name_reference: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: Some(
+                            Span {
+                                start: 72,
+                                end: 82,
+                            },
+                        ),
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 72,
+                                    end: 74,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 75,
+                                    end: 82,
+                                },
+                            ),
+                            value: "version",
+                        },
+                    },
+                ),
+                value: Sequence(
+                    SequenceOfValues {
+                        span: Some(
+                            Span {
+                                start: 85,
+                                end: 94,
+                            },
+                        ),
+                        ordering: None,
+                        uniqueness: None,
+                        values: [
+                            Simple(
+                                Integer(
+                                    1,
+                                ),
+                            ),
+                            Simple(
+                                Integer(
+                                    2,
+                                ),
+                            ),
+                            Simple(
+                                Integer(
+                                    3,
+                                ),
+                            ),
+                        ],
+                    },
+                ),
             },
         ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 57,
-                            end: 80,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
-                            span: Some(
-                                Span {
-                                    start: 58,
-                                    end: 68,
-                                },
-                            ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 58,
-                                        end: 60,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 61,
-                                        end: 68,
-                                    },
-                                ),
-                                value: "version",
-                            },
-                        },
-                    ),
-                    value: Sequence(
-                        SequenceOfValues {
-                            span: Some(
-                                Span {
-                                    start: 71,
-                                    end: 80,
-                                },
-                            ),
-                            ordering: None,
-                            uniqueness: None,
-                            values: [
-                                Simple(
-                                    Integer(
-                                        1,
-                                    ),
-                                ),
-                                Simple(
-                                    Integer(
-                                        2,
-                                    ),
-                                ),
-                                Simple(
-                                    Integer(
-                                        3,
-                                    ),
-                                ),
-                            ],
-                        },
-                    ),
-                },
-            ),
-        ],
-        definitions: {},
-    },
+    ],
+    definitions: {},
 }

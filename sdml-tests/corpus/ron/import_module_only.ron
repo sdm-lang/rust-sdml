@@ -1,6 +1,6 @@
 Module {
     source_file: Some(
-        "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/import_module_only.sdm",
+        "MANIFEST_PATH/corpus/import_module_only.sdm",
     ),
     file_id: Some(
         0,
@@ -34,7 +34,7 @@ Module {
                     ),
                 ),
                 port: None,
-                path: "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/import_module_only.sdm/",
+                path: "MANIFEST_PATH/corpus/import_module_only.sdm/",
                 query: None,
                 fragment: None,
             },
@@ -42,49 +42,40 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 47,
-                end: 68,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [
-            ImportStatement {
-                span: Some(
-                    Span {
-                        start: 53,
-                        end: 63,
-                    },
-                ),
-                imports: [
-                    Module(
-                        ModuleImport {
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 53,
+                    end: 63,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 60,
+                                end: 63,
+                            },
+                        ),
+                        name: Identifier {
                             span: Some(
                                 Span {
                                     start: 60,
                                     end: 63,
                                 },
                             ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 60,
-                                        end: 63,
-                                    },
-                                ),
-                                value: "xsd",
-                            },
-                            version_uri: None,
-                            renamed_as: None,
+                            value: "xsd",
                         },
-                    ),
-                ],
-            },
-        ],
-        annotations: [],
-        definitions: {},
-    },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
 }

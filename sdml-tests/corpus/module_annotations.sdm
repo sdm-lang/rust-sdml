@@ -1,4 +1,4 @@
-module annx is
+module corpus_test_module is
 
   @xml:base = <https://example.org/>
 

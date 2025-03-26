@@ -1,53 +1,50 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/event_with_source_and_members.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "event": {
-          "__type": "event_def",
-          "body": {
-            "__type": "event_body",
-            "source": {
-              "__type": "source_entity",
-              "entity": {
-                "__type": "identifier_reference",
-                "identifier": {
-                  "__type": "identifier",
-                  "value": "Campaign"
-                }
+  "definitions": [
+    {
+      "__type": "definition",
+      "event": {
+        "__type": "event_def",
+        "body": {
+          "__type": "event_body",
+          "source": {
+            "__type": "source_entity",
+            "entity": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Campaign"
+              }
+            },
+            "members": [
+              {
+                "__type": "identifier",
+                "value": "name"
               },
-              "members": [
-                {
-                  "__type": "identifier",
-                  "value": "name"
-                },
-                {
-                  "__type": "identifier",
-                  "value": "title"
-                },
-                {
-                  "__type": "identifier",
-                  "value": "status"
-                }
-              ]
-            }
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "NameChanged"
-          },
-          "span": {
-            "__type": "span",
-            "end": 119,
-            "start": 46
+              {
+                "__type": "identifier",
+                "value": "title"
+              },
+              {
+                "__type": "identifier",
+                "value": "status"
+              }
+            ]
           }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "NameChanged"
+        },
+        "span": {
+          "__type": "span",
+          "end": 119,
+          "start": 46
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

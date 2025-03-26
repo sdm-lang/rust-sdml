@@ -42,166 +42,156 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 58,
-                end: 161,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 74,
+                    end: 83,
+                },
+            ),
+            value: "Campaigns",
+        }: Dimension(
+            DimensionDef {
                 span: Some(
                     Span {
-                        start: 74,
-                        end: 83,
+                        start: 64,
+                        end: 156,
                     },
                 ),
-                value: "Campaigns",
-            }: Dimension(
-                DimensionDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 64,
-                            end: 156,
+                            start: 74,
+                            end: 83,
                         },
                     ),
-                    name: Identifier {
+                    value: "Campaigns",
+                },
+                body: Some(
+                    DimensionBody {
                         span: Some(
                             Span {
-                                start: 74,
-                                end: 83,
+                                start: 84,
+                                end: 156,
                             },
                         ),
-                        value: "Campaigns",
-                    },
-                    body: Some(
-                        DimensionBody {
-                            span: Some(
-                                Span {
-                                    start: 84,
-                                    end: 156,
-                                },
-                            ),
-                            annotations: [],
-                            identity: Source(
-                                SourceEntity {
-                                    span: None,
-                                    target_entity: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 98,
-                                                    end: 106,
-                                                },
-                                            ),
-                                            value: "Campaign",
-                                        },
-                                    ),
-                                    with_members: [
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 112,
-                                                    end: 118,
-                                                },
-                                            ),
-                                            value: "status",
-                                        },
-                                    ],
-                                },
-                            ),
-                            parents: {},
-                            members: {
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 140,
-                                            end: 150,
-                                        },
-                                    ),
-                                    value: "Target",
-                                }: Member {
-                                    span: None,
-                                    kind: Reference(
-                                        Identifier(
-                                            Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 140,
-                                                        end: 150,
-                                                    },
-                                                ),
-                                                value: "Target",
+                        annotations: [],
+                        identity: Source(
+                            SourceEntity {
+                                span: None,
+                                target_entity: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 98,
+                                                end: 106,
                                             },
                                         ),
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 123,
-                                            end: 127,
+                                        value: "Campaign",
+                                    },
+                                ),
+                                with_members: [
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 112,
+                                                end: 118,
+                                            },
+                                        ),
+                                        value: "status",
+                                    },
+                                ],
+                            },
+                        ),
+                        parents: {},
+                        members: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 140,
+                                        end: 150,
+                                    },
+                                ),
+                                value: "Target",
+                            }: Member {
+                                span: None,
+                                kind: Reference(
+                                    Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 140,
+                                                    end: 150,
+                                                },
+                                            ),
+                                            value: "Target",
                                         },
                                     ),
-                                    value: "name",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 123,
+                                        end: 127,
+                                    },
+                                ),
+                                value: "name",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 123,
+                                                end: 135,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 123,
-                                                    end: 135,
+                                                    end: 127,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 123,
-                                                        end: 127,
-                                                    },
-                                                ),
-                                                value: "name",
-                                            },
-                                            target_cardinality: Cardinality {
-                                                span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
-                                            },
-                                            target_type: Type(
-                                                Identifier(
-                                                    Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 131,
-                                                                end: 135,
-                                                            },
-                                                        ),
-                                                        value: "Name",
-                                                    },
-                                                ),
-                                            ),
-                                            body: None,
+                                            value: "name",
                                         },
-                                    ),
-                                },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
+                                            },
+                                        },
+                                        target_type: Type(
+                                            Identifier(
+                                                Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 131,
+                                                            end: 135,
+                                                        },
+                                                    ),
+                                                    value: "Name",
+                                                },
+                                            ),
+                                        ),
+                                        body: None,
+                                    },
+                                ),
                             },
                         },
-                    ),
-                },
-            ),
-        },
+                    },
+                ),
+            },
+        ),
     },
 }

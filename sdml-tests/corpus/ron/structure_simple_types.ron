@@ -42,534 +42,524 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 15,
-                end: 165,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 31,
+                    end: 39,
+                },
+            ),
+            value: "Duration",
+        }: Structure(
+            StructureDef {
                 span: Some(
                     Span {
-                        start: 31,
-                        end: 39,
+                        start: 21,
+                        end: 160,
                     },
                 ),
-                value: "Duration",
-            }: Structure(
-                StructureDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 21,
-                            end: 160,
+                            start: 31,
+                            end: 39,
                         },
                     ),
-                    name: Identifier {
+                    value: "Duration",
+                },
+                body: Some(
+                    StructureBody {
                         span: Some(
                             Span {
-                                start: 31,
-                                end: 39,
+                                start: 40,
+                                end: 160,
                             },
                         ),
-                        value: "Duration",
-                    },
-                    body: Some(
-                        StructureBody {
-                            span: Some(
-                                Span {
-                                    start: 40,
-                                    end: 160,
-                                },
-                            ),
-                            annotations: [],
-                            members: {
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 47,
-                                            end: 48,
-                                        },
-                                    ),
-                                    value: "a",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                        annotations: [],
+                        members: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 47,
+                                        end: 48,
+                                    },
+                                ),
+                                value: "a",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 47,
+                                                end: 59,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 47,
-                                                    end: 59,
+                                                    end: 48,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 47,
-                                                        end: 48,
-                                                    },
-                                                ),
-                                                value: "a",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "a",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 52,
+                                                            end: 59,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 52,
                                                                 end: 59,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 52,
-                                                                    end: 59,
-                                                                },
-                                                            ),
-                                                            value: "boolean",
-                                                        },
+                                                        value: "boolean",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 64,
-                                            end: 65,
-                                        },
-                                    ),
-                                    value: "b",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 64,
+                                        end: 65,
+                                    },
+                                ),
+                                value: "b",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 64,
+                                                end: 75,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 64,
-                                                    end: 75,
+                                                    end: 65,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 64,
-                                                        end: 65,
-                                                    },
-                                                ),
-                                                value: "b",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "b",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 69,
+                                                            end: 75,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 69,
                                                                 end: 75,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 69,
-                                                                    end: 75,
-                                                                },
-                                                            ),
-                                                            value: "double",
-                                                        },
+                                                        value: "double",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 80,
-                                            end: 81,
-                                        },
-                                    ),
-                                    value: "c",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 80,
+                                        end: 81,
+                                    },
+                                ),
+                                value: "c",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 80,
+                                                end: 92,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 80,
-                                                    end: 92,
+                                                    end: 81,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 80,
-                                                        end: 81,
-                                                    },
-                                                ),
-                                                value: "c",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "c",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 85,
+                                                            end: 92,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 85,
                                                                 end: 92,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 85,
-                                                                    end: 92,
-                                                                },
-                                                            ),
-                                                            value: "decimal",
-                                                        },
+                                                        value: "decimal",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 97,
-                                            end: 98,
-                                        },
-                                    ),
-                                    value: "d",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 97,
+                                        end: 98,
+                                    },
+                                ),
+                                value: "d",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 97,
+                                                end: 109,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 97,
-                                                    end: 109,
+                                                    end: 98,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 97,
-                                                        end: 98,
-                                                    },
-                                                ),
-                                                value: "d",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "d",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 102,
+                                                            end: 109,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 102,
                                                                 end: 109,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 102,
-                                                                    end: 109,
-                                                                },
-                                                            ),
-                                                            value: "integer",
-                                                        },
+                                                        value: "integer",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 114,
-                                            end: 115,
-                                        },
-                                    ),
-                                    value: "e",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 114,
+                                        end: 115,
+                                    },
+                                ),
+                                value: "e",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 114,
+                                                end: 125,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 114,
-                                                    end: 125,
+                                                    end: 115,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 114,
-                                                        end: 115,
-                                                    },
-                                                ),
-                                                value: "e",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "e",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 119,
+                                                            end: 125,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 119,
                                                                 end: 125,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 119,
-                                                                    end: 125,
-                                                                },
-                                                            ),
-                                                            value: "string",
-                                                        },
+                                                        value: "string",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 130,
-                                            end: 131,
-                                        },
-                                    ),
-                                    value: "f",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 130,
+                                        end: 131,
+                                    },
+                                ),
+                                value: "f",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 130,
+                                                end: 141,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 130,
-                                                    end: 141,
+                                                    end: 131,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 130,
-                                                        end: 131,
-                                                    },
-                                                ),
-                                                value: "f",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "f",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 135,
+                                                            end: 141,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 135,
                                                                 end: 141,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 135,
-                                                                    end: 141,
-                                                                },
-                                                            ),
-                                                            value: "binary",
-                                                        },
+                                                        value: "binary",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 146,
-                                            end: 147,
-                                        },
-                                    ),
-                                    value: "g",
-                                }: Member {
-                                    span: None,
-                                    kind: Definition(
-                                        MemberDef {
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 146,
+                                        end: 147,
+                                    },
+                                ),
+                                value: "g",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 146,
+                                                end: 154,
+                                            },
+                                        ),
+                                        name: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 146,
-                                                    end: 154,
+                                                    end: 147,
                                                 },
                                             ),
-                                            name: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 146,
-                                                        end: 147,
-                                                    },
-                                                ),
-                                                value: "g",
-                                            },
-                                            target_cardinality: Cardinality {
+                                            value: "g",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
                                                 span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: CardinalityRange {
-                                                    span: None,
-                                                    min: 1,
-                                                    max: Some(
-                                                        1,
-                                                    ),
-                                                },
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
                                             },
-                                            target_type: Type(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 151,
+                                                            end: 154,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
                                                         span: Some(
                                                             Span {
                                                                 start: 151,
                                                                 end: 154,
                                                             },
                                                         ),
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 151,
-                                                                    end: 154,
-                                                                },
-                                                            ),
-                                                            value: "iri",
-                                                        },
+                                                        value: "iri",
                                                     },
-                                                ),
+                                                },
                                             ),
-                                            body: None,
-                                        },
-                                    ),
-                                },
+                                        ),
+                                        body: None,
+                                    },
+                                ),
                             },
                         },
-                    ),
-                },
-            ),
-        },
+                    },
+                ),
+            },
+        ),
     },
 }

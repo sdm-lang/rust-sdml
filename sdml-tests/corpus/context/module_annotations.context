@@ -38,6 +38,6 @@
   ],
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_annotations.sdm/",
   "is_library_module": false,
-  "name": "annx",
+  "name": "corpus_test_module",
   "source_file": "MANIFEST_PATH/corpus/module_annotations.sdm"
 }

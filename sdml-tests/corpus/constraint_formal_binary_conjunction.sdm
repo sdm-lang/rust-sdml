@@ -1,0 +1,22 @@
+;;; Constraint, formal binary conjunction
+
+module Example is
+
+  structure Outer is
+
+    inner -> string is
+      assert not_empty is
+        inner = "hi" and inner_sym = "bye"
+      end
+    end
+
+    inner_sym -> string is
+      assert not_empty is
+        inner = "hi" ∧ inner_sym = "bye"
+      end
+    end
+
+  end
+
+end
+

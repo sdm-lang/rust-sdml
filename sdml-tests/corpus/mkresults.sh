@@ -25,7 +25,7 @@ function make_result {
     new_file_path="./${format}/${file_no_suffix}.${format}"
 
     if [[ -f "${new_file_path}" ]]; then
-        if [[ force_empty -eq 1 ]]; then
+        if [[ ${force_empty} -eq 1 ]]; then
             success "file ${new_file_path} exists, clearing content"
             echo "" > "${new_file_path}"
         else
@@ -63,11 +63,14 @@ Usage:
 
     ${SCRIPT_NAME} [ARG...] --result-format FORMAT [FILE...]
 
+    Create missing result files in the result-format directory for
+    test cases in the corpus directory.
+
 Arguments:
 
-    --force | -f          .
-    --all   | -a          .
-    --result-format | -r  .
+    --force | -f          Overwrite existing result files.
+    --all   | -a          Create files for all test cases.
+    --result-format | -r  Result format/directory name.
 
 Notes:
 

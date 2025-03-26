@@ -1,0 +1,28 @@
+;;; Constraint, formal binary implication
+
+module Example is
+
+  structure Outer is
+
+    inner -> string is
+      assert not_empty is
+        inner = "hi" implies inner_sym = "bye"
+      end
+    end
+
+    inner_alt -> string is
+      assert not_empty is
+        inner = "hi" ==> inner_sym = "bye"
+      end
+    end
+
+    inner_sym -> string is
+      assert not_empty is
+        inner = "hi" ⇒ inner_sym = "bye"
+      end
+    end
+
+  end
+
+end
+

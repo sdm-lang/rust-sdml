@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 64,
+            end: 73,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 25,
-                end: 33,
+                end: 42,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_union",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,46 +42,36 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 34,
-                end: 63,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
-                span: Some(
-                    Span {
-                        start: 46,
-                        end: 58,
-                    },
-                ),
-                value: "VehicleClass",
-            }: Union(
-                UnionDef {
-                    span: Some(
-                        Span {
-                            start: 40,
-                            end: 58,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 46,
-                                end: 58,
-                            },
-                        ),
-                        value: "VehicleClass",
-                    },
-                    body: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 55,
+                    end: 67,
                 },
             ),
-        },
+            value: "VehicleClass",
+        }: Union(
+            UnionDef {
+                span: Some(
+                    Span {
+                        start: 49,
+                        end: 67,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 55,
+                            end: 67,
+                        },
+                    ),
+                    value: "VehicleClass",
+                },
+                body: None,
+            },
+        ),
     },
 }

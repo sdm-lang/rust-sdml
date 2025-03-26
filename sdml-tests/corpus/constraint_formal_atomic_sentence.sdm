@@ -1,0 +1,15 @@
+;;; Constraint, formal function composition
+
+module corpus_test_constraint is
+
+  structure Outer is
+
+    inner -> string is
+      assert not_empty is
+        is_empty(self)
+      end
+    end
+
+  end
+
+end

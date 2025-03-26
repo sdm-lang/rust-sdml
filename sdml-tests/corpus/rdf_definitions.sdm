@@ -1,4 +1,4 @@
-module rdfs <http://www.w3.org/2000/01/rdf-schema#> is
+module example_rdf_defs <http://www.w3.org/2000/01/exrdf-schema#> is
 
   import [ owl rdf ]
 

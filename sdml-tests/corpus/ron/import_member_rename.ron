@@ -42,75 +42,66 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 16,
-                end: 50,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [
-            ImportStatement {
-                span: Some(
-                    Span {
-                        start: 22,
-                        end: 45,
-                    },
-                ),
-                imports: [
-                    Member(
-                        MemberImport {
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 22,
+                    end: 45,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 29,
+                                end: 37,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
                             span: Some(
                                 Span {
                                     start: 29,
                                     end: 37,
                                 },
                             ),
-                            name: QualifiedIdentifier {
+                            module: Identifier {
                                 span: Some(
                                     Span {
                                         start: 29,
+                                        end: 32,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 33,
                                         end: 37,
                                     },
                                 ),
-                                module: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 29,
-                                            end: 32,
-                                        },
-                                    ),
-                                    value: "xsd",
-                                },
-                                member: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 33,
-                                            end: 37,
-                                        },
-                                    ),
-                                    value: "base",
-                                },
+                                value: "base",
                             },
-                            renamed_as: Some(
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 41,
-                                            end: 45,
-                                        },
-                                    ),
-                                    value: "base",
-                                },
-                            ),
                         },
-                    ),
-                ],
-            },
-        ],
-        annotations: [],
-        definitions: {},
-    },
+                        renamed_as: Some(
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 41,
+                                        end: 45,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        ),
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
 }

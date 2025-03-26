@@ -1,0 +1,17 @@
+;;; Constraint, formal with environment
+
+module example is
+
+  structure Outer is
+
+    inner -> string is
+      assert tagged_with_foo_path with
+        def foo -> string := "foo"
+      is
+        self.tags.contains(foo)
+      end
+    end
+
+  end
+
+end

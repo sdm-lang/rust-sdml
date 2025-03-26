@@ -1,55 +1,52 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/enum_variants.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "enum": {
-          "__type": "enum_def",
-          "body": {
-            "__type": "enum_body",
-            "variants": [
-              {
-                "__type": "value_variant",
-                "name": {
-                  "__type": "identifier",
-                  "value": "External"
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 89,
-                  "start": 81
-                }
+  "definitions": [
+    {
+      "__type": "definition",
+      "enum": {
+        "__type": "enum_def",
+        "body": {
+          "__type": "enum_body",
+          "variants": [
+            {
+              "__type": "value_variant",
+              "name": {
+                "__type": "identifier",
+                "value": "External"
               },
-              {
-                "__type": "value_variant",
-                "name": {
-                  "__type": "identifier",
-                  "value": "Internal"
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 76,
-                  "start": 68
-                }
+              "span": {
+                "__type": "span",
+                "end": 89,
+                "start": 81
               }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "NameKind"
-          },
-          "span": {
-            "__type": "span",
-            "end": 95,
-            "start": 47
-          }
+            },
+            {
+              "__type": "value_variant",
+              "name": {
+                "__type": "identifier",
+                "value": "Internal"
+              },
+              "span": {
+                "__type": "span",
+                "end": 76,
+                "start": 68
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "NameKind"
+        },
+        "span": {
+          "__type": "span",
+          "end": 95,
+          "start": 47
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

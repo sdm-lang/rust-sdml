@@ -1,0 +1,67 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_with_environment.sdm/",
+  "definitions": [
+    {
+      "__type": "structure_def",
+      "members": [
+        {
+          "__type": "member_def",
+          "annotations": [
+            {
+              "__type": "formal_constraint",
+              "body": {
+                "__type": "atomic_sentence",
+                "arguments": [
+                  {
+                    "__type": "identifier",
+                    "value": "foo"
+                  }
+                ],
+                "predicate": {
+                  "__type": "function_composition",
+                  "functions": [
+                    "tags",
+                    "contains"
+                  ],
+                  "subject": {
+                    "self": true
+                  }
+                }
+              },
+              "environment": [
+                {
+                  "__type": "function_def",
+                  "body": {
+                    "__type": "string",
+                    "value": "foo"
+                  },
+                  "signature": {
+                    "__type": "function_signature",
+                    "type": {
+                      "__type": "function_type",
+                      "type": {
+                        "__type": "qualified_identifier",
+                        "member": "string",
+                        "module": "sdml"
+                      }
+                    }
+                  }
+                }
+              ],
+              "name": "tagged_with_foo_path"
+            }
+          ],
+          "name": "inner",
+          "type": {
+            "reference": "sdml:string"
+          }
+        }
+      ],
+      "name": "Outer"
+    }
+  ],
+  "is_library_module": false,
+  "name": "example",
+  "source_file": "MANIFEST_PATH/corpus/constraint_formal_with_environment.sdm"
+}

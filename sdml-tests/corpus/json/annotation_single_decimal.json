@@ -1,52 +1,49 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_decimal.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "some"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "dc"
-              }
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "some"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
             }
-          },
-          "span": {
-            "__type": "span",
-            "end": 72,
-            "start": 54
-          },
-          "value": {
-            "__type": "value",
-            "simple": {
-              "__type": "decimal",
-              "value": "102.201"
-            }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 86,
+          "start": 68
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "decimal",
+            "value": "102.201"
           }
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_decimal.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_annotation"
   },
   "source_file": "MANIFEST_PATH/corpus/annotation_single_decimal.sdm",
   "span": {
     "__type": "span",
-    "end": 78,
+    "end": 92,
     "start": 0
   }
 }

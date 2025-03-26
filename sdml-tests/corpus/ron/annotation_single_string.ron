@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 76,
+            end: 90,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 38,
-                end: 46,
+                end: 60,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_annotation",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,70 +42,60 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 47,
-                end: 75,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 53,
-                            end: 70,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
-                            span: Some(
-                                Span {
-                                    start: 54,
-                                    end: 63,
-                                },
-                            ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 54,
-                                        end: 56,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 57,
-                                        end: 63,
-                                    },
-                                ),
-                                value: "author",
-                            },
-                        },
-                    ),
-                    value: Simple(
-                        String(
-                            LanguageString {
-                                span: Some(
-                                    Span {
-                                        start: 66,
-                                        end: 70,
-                                    },
-                                ),
-                                value: "me",
-                                language: None,
+    imports: [],
+    annotations: [
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 67,
+                        end: 84,
+                    },
+                ),
+                name_reference: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: Some(
+                            Span {
+                                start: 68,
+                                end: 77,
                             },
                         ),
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 68,
+                                    end: 70,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 71,
+                                    end: 77,
+                                },
+                            ),
+                            value: "author",
+                        },
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 80,
+                                    end: 84,
+                                },
+                            ),
+                            value: "me",
+                            language: None,
+                        },
                     ),
-                },
-            ),
-        ],
-        definitions: {},
-    },
+                ),
+            },
+        ),
+    ],
+    definitions: {},
 }

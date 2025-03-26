@@ -42,46 +42,36 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 35,
-                end: 61,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 48,
+                    end: 56,
+                },
+            ),
+            value: "Campaign",
+        }: Entity(
+            EntityDef {
                 span: Some(
                     Span {
-                        start: 48,
+                        start: 41,
                         end: 56,
                     },
                 ),
-                value: "Campaign",
-            }: Entity(
-                EntityDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 41,
+                            start: 48,
                             end: 56,
                         },
                     ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 48,
-                                end: 56,
-                            },
-                        ),
-                        value: "Campaign",
-                    },
-                    body: None,
+                    value: "Campaign",
                 },
-            ),
-        },
+                body: None,
+            },
+        ),
     },
 }

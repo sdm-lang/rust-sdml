@@ -1,52 +1,49 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_string.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "author"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "dc"
-              }
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "author"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
             }
-          },
-          "span": {
-            "__type": "span",
-            "end": 70,
-            "start": 53
-          },
-          "value": {
-            "__type": "value",
-            "simple": {
-              "__type": "string",
-              "value": "me"
-            }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 84,
+          "start": 67
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "value": "me"
           }
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_string.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_annotation"
   },
   "source_file": "MANIFEST_PATH/corpus/annotation_single_string.sdm",
   "span": {
     "__type": "span",
-    "end": 76,
+    "end": 90,
     "start": 0
   }
 }

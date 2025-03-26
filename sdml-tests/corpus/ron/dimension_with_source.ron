@@ -42,92 +42,82 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 46,
-                end: 112,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 62,
+                    end: 71,
+                },
+            ),
+            value: "Campaigns",
+        }: Dimension(
+            DimensionDef {
                 span: Some(
                     Span {
-                        start: 62,
-                        end: 71,
+                        start: 52,
+                        end: 107,
                     },
                 ),
-                value: "Campaigns",
-            }: Dimension(
-                DimensionDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 52,
-                            end: 107,
+                            start: 62,
+                            end: 71,
                         },
                     ),
-                    name: Identifier {
+                    value: "Campaigns",
+                },
+                body: Some(
+                    DimensionBody {
                         span: Some(
                             Span {
-                                start: 62,
-                                end: 71,
+                                start: 72,
+                                end: 107,
                             },
                         ),
-                        value: "Campaigns",
-                    },
-                    body: Some(
-                        DimensionBody {
-                            span: Some(
-                                Span {
-                                    start: 72,
-                                    end: 107,
-                                },
-                            ),
-                            annotations: [],
-                            identity: Source(
-                                SourceEntity {
-                                    span: None,
-                                    target_entity: QualifiedIdentifier(
-                                        QualifiedIdentifier {
+                        annotations: [],
+                        identity: Source(
+                            SourceEntity {
+                                span: None,
+                                target_entity: QualifiedIdentifier(
+                                    QualifiedIdentifier {
+                                        span: Some(
+                                            Span {
+                                                start: 86,
+                                                end: 101,
+                                            },
+                                        ),
+                                        module: Identifier {
                                             span: Some(
                                                 Span {
                                                     start: 86,
+                                                    end: 92,
+                                                },
+                                            ),
+                                            value: "entity",
+                                        },
+                                        member: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 93,
                                                     end: 101,
                                                 },
                                             ),
-                                            module: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 86,
-                                                        end: 92,
-                                                    },
-                                                ),
-                                                value: "entity",
-                                            },
-                                            member: Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 93,
-                                                        end: 101,
-                                                    },
-                                                ),
-                                                value: "Campaign",
-                                            },
+                                            value: "Campaign",
                                         },
-                                    ),
-                                    with_members: [],
-                                },
-                            ),
-                            parents: {},
-                            members: {},
-                        },
-                    ),
-                },
-            ),
-        },
+                                    },
+                                ),
+                                with_members: [],
+                            },
+                        ),
+                        parents: {},
+                        members: {},
+                    },
+                ),
+            },
+        ),
     },
 }

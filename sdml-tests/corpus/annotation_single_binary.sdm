@@ -1,4 +1,4 @@
-module Campaign is
+module corpus_test_annotation is
 
   @dc:author = #[
     52  32  39  76  5a  43  42  43    65  57  55  67  51  33  4a  31

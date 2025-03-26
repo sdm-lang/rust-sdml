@@ -1,79 +1,76 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_double.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "some"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "dc"
-              }
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "some"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
             }
-          },
-          "span": {
-            "__type": "span",
-            "end": 96,
-            "start": 56
-          },
-          "value": {
-            "__type": "value",
-            "sequence": {
-              "__type": "sequence_of_values",
-              "members": [
-                {
-                  "__type": "sequence_member",
-                  "simple": {
-                    "__type": "double",
-                    "value": 3.1e101
-                  }
-                },
-                {
-                  "__type": "sequence_member",
-                  "simple": {
-                    "__type": "double",
-                    "value": 1.2e-10
-                  }
-                },
-                {
-                  "__type": "sequence_member",
-                  "simple": {
-                    "__type": "double",
-                    "value": 100000000.0
-                  }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 110,
+          "start": 70
+        },
+        "value": {
+          "__type": "value",
+          "sequence": {
+            "__type": "sequence_of_values",
+            "members": [
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "double",
+                  "value": 3.1e101
                 }
-              ],
-              "span": {
-                "__type": "span",
-                "end": 96,
-                "start": 67
+              },
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "double",
+                  "value": 1.2e-10
+                }
+              },
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "double",
+                  "value": 100000000.0
+                }
               }
+            ],
+            "span": {
+              "__type": "span",
+              "end": 110,
+              "start": 81
             }
           }
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_double.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_annotation"
   },
   "source_file": "MANIFEST_PATH/corpus/annotation_multiple_double.sdm",
   "span": {
     "__type": "span",
-    "end": 102,
+    "end": 116,
     "start": 0
   }
 }

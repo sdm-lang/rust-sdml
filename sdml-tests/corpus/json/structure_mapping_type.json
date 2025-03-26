@@ -1,99 +1,96 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_mapping_type.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "structure": {
-          "__type": "structure_def",
-          "body": {
-            "__type": "structure_body",
-            "members": [
-              {
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
                 "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "definition": {
-                    "__type": "member_def",
-                    "cardinality": {
-                      "__type": "cardinality_expression",
-                      "min": 1,
-                      "uniqueness": "unique"
-                    },
-                    "name": {
-                      "__type": "identifier",
-                      "value": "properties"
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 91,
-                      "start": 45
-                    },
-                    "type": {
-                      "__type": "type_reference",
-                      "mapping": {
-                        "__type": "mapping_type",
-                        "domain": {
-                          "__type": "type_reference",
-                          "reference": {
-                            "__type": "identifier_reference",
-                            "qualified_identifier": {
-                              "__type": "qualified_identifier",
-                              "member": {
-                                "__type": "identifier",
-                                "value": "string"
-                              },
-                              "module": {
-                                "__type": "identifier",
-                                "value": "sdml"
-                              }
+                "definition": {
+                  "__type": "member_def",
+                  "cardinality": {
+                    "__type": "cardinality_expression",
+                    "min": 1,
+                    "uniqueness": "unique"
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "properties"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 91,
+                    "start": 45
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "mapping": {
+                      "__type": "mapping_type",
+                      "domain": {
+                        "__type": "type_reference",
+                        "reference": {
+                          "__type": "identifier_reference",
+                          "qualified_identifier": {
+                            "__type": "qualified_identifier",
+                            "member": {
+                              "__type": "identifier",
+                              "value": "string"
+                            },
+                            "module": {
+                              "__type": "identifier",
+                              "value": "sdml"
                             }
                           }
-                        },
-                        "range": {
-                          "__type": "type_reference",
-                          "reference": {
-                            "__type": "identifier_reference",
-                            "qualified_identifier": {
-                              "__type": "qualified_identifier",
-                              "member": {
-                                "__type": "identifier",
-                                "value": "integer"
-                              },
-                              "module": {
-                                "__type": "identifier",
-                                "value": "sdml"
-                              }
-                            }
-                          }
-                        },
-                        "span": {
-                          "__type": "span",
-                          "end": 91,
-                          "start": 72
                         }
+                      },
+                      "range": {
+                        "__type": "type_reference",
+                        "reference": {
+                          "__type": "identifier_reference",
+                          "qualified_identifier": {
+                            "__type": "qualified_identifier",
+                            "member": {
+                              "__type": "identifier",
+                              "value": "integer"
+                            },
+                            "module": {
+                              "__type": "identifier",
+                              "value": "sdml"
+                            }
+                          }
+                        }
+                      },
+                      "span": {
+                        "__type": "span",
+                        "end": 91,
+                        "start": 72
                       }
                     }
                   }
                 }
               }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Thing"
-          },
-          "span": {
-            "__type": "span",
-            "end": 97,
-            "start": 22
-          }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Thing"
+        },
+        "span": {
+          "__type": "span",
+          "end": 97,
+          "start": 22
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

@@ -17,6 +17,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "campaign",
+  "name": "corpus_test_union",
   "source_file": "MANIFEST_PATH/corpus/union_rename_variant.sdm"
 }

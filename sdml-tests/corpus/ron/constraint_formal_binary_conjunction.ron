@@ -1,0 +1,447 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/constraint_formal_binary_conjunction.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 322,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 50,
+                end: 57,
+            },
+        ),
+        value: "Example",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/constraint_formal_binary_conjunction.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 74,
+                    end: 79,
+                },
+            ),
+            value: "Outer",
+        }: Structure(
+            StructureDef {
+                span: Some(
+                    Span {
+                        start: 64,
+                        end: 315,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 74,
+                            end: 79,
+                        },
+                    ),
+                    value: "Outer",
+                },
+                body: Some(
+                    StructureBody {
+                        span: Some(
+                            Span {
+                                start: 80,
+                                end: 315,
+                            },
+                        ),
+                        annotations: [],
+                        members: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 88,
+                                        end: 93,
+                                    },
+                                ),
+                                value: "inner",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 88,
+                                                end: 193,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 88,
+                                                    end: 93,
+                                                },
+                                            ),
+                                            value: "inner",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
+                                            },
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 97,
+                                                            end: 103,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 97,
+                                                                end: 103,
+                                                            },
+                                                        ),
+                                                        value: "string",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                        body: Some(
+                                            AnnotationOnlyBody {
+                                                span: Some(
+                                                    Span {
+                                                        start: 104,
+                                                        end: 193,
+                                                    },
+                                                ),
+                                                annotations: [
+                                                    Constraint(
+                                                        Constraint {
+                                                            span: None,
+                                                            name: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 120,
+                                                                        end: 129,
+                                                                    },
+                                                                ),
+                                                                value: "not_empty",
+                                                            },
+                                                            body: Formal(
+                                                                FormalConstraint {
+                                                                    span: None,
+                                                                    environment: [],
+                                                                    body: Boolean(
+                                                                        Binary(
+                                                                            BinaryBooleanSentence {
+                                                                                span: None,
+                                                                                left_operand: Simple(
+                                                                                    Equation(
+                                                                                        Equation {
+                                                                                            span: None,
+                                                                                            left_operand: Identifier(
+                                                                                                Identifier(
+                                                                                                    Identifier {
+                                                                                                        span: Some(
+                                                                                                            Span {
+                                                                                                                start: 141,
+                                                                                                                end: 146,
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        value: "inner",
+                                                                                                    },
+                                                                                                ),
+                                                                                            ),
+                                                                                            right_operand: Value(
+                                                                                                Simple(
+                                                                                                    String(
+                                                                                                        LanguageString {
+                                                                                                            span: Some(
+                                                                                                                Span {
+                                                                                                                    start: 149,
+                                                                                                                    end: 153,
+                                                                                                                },
+                                                                                                            ),
+                                                                                                            value: "hi",
+                                                                                                            language: None,
+                                                                                                        },
+                                                                                                    ),
+                                                                                                ),
+                                                                                            ),
+                                                                                        },
+                                                                                    ),
+                                                                                ),
+                                                                                operator: Conjunction,
+                                                                                right_operand: Simple(
+                                                                                    Equation(
+                                                                                        Equation {
+                                                                                            span: None,
+                                                                                            left_operand: Identifier(
+                                                                                                Identifier(
+                                                                                                    Identifier {
+                                                                                                        span: Some(
+                                                                                                            Span {
+                                                                                                                start: 158,
+                                                                                                                end: 167,
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        value: "inner_sym",
+                                                                                                    },
+                                                                                                ),
+                                                                                            ),
+                                                                                            right_operand: Value(
+                                                                                                Simple(
+                                                                                                    String(
+                                                                                                        LanguageString {
+                                                                                                            span: Some(
+                                                                                                                Span {
+                                                                                                                    start: 170,
+                                                                                                                    end: 175,
+                                                                                                                },
+                                                                                                            ),
+                                                                                                            value: "bye",
+                                                                                                            language: None,
+                                                                                                        },
+                                                                                                    ),
+                                                                                                ),
+                                                                                            ),
+                                                                                        },
+                                                                                    ),
+                                                                                ),
+                                                                            },
+                                                                        ),
+                                                                    ),
+                                                                },
+                                                            ),
+                                                        },
+                                                    ),
+                                                ],
+                                            },
+                                        ),
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 199,
+                                        end: 208,
+                                    },
+                                ),
+                                value: "inner_sym",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 199,
+                                                end: 308,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 199,
+                                                    end: 208,
+                                                },
+                                            ),
+                                            value: "inner_sym",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
+                                            },
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 212,
+                                                            end: 218,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 212,
+                                                                end: 218,
+                                                            },
+                                                        ),
+                                                        value: "string",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                        body: Some(
+                                            AnnotationOnlyBody {
+                                                span: Some(
+                                                    Span {
+                                                        start: 219,
+                                                        end: 308,
+                                                    },
+                                                ),
+                                                annotations: [
+                                                    Constraint(
+                                                        Constraint {
+                                                            span: None,
+                                                            name: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 235,
+                                                                        end: 244,
+                                                                    },
+                                                                ),
+                                                                value: "not_empty",
+                                                            },
+                                                            body: Formal(
+                                                                FormalConstraint {
+                                                                    span: None,
+                                                                    environment: [],
+                                                                    body: Boolean(
+                                                                        Binary(
+                                                                            BinaryBooleanSentence {
+                                                                                span: None,
+                                                                                left_operand: Simple(
+                                                                                    Equation(
+                                                                                        Equation {
+                                                                                            span: None,
+                                                                                            left_operand: Identifier(
+                                                                                                Identifier(
+                                                                                                    Identifier {
+                                                                                                        span: Some(
+                                                                                                            Span {
+                                                                                                                start: 256,
+                                                                                                                end: 261,
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        value: "inner",
+                                                                                                    },
+                                                                                                ),
+                                                                                            ),
+                                                                                            right_operand: Value(
+                                                                                                Simple(
+                                                                                                    String(
+                                                                                                        LanguageString {
+                                                                                                            span: Some(
+                                                                                                                Span {
+                                                                                                                    start: 264,
+                                                                                                                    end: 268,
+                                                                                                                },
+                                                                                                            ),
+                                                                                                            value: "hi",
+                                                                                                            language: None,
+                                                                                                        },
+                                                                                                    ),
+                                                                                                ),
+                                                                                            ),
+                                                                                        },
+                                                                                    ),
+                                                                                ),
+                                                                                operator: Conjunction,
+                                                                                right_operand: Simple(
+                                                                                    Equation(
+                                                                                        Equation {
+                                                                                            span: None,
+                                                                                            left_operand: Identifier(
+                                                                                                Identifier(
+                                                                                                    Identifier {
+                                                                                                        span: Some(
+                                                                                                            Span {
+                                                                                                                start: 273,
+                                                                                                                end: 282,
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        value: "inner_sym",
+                                                                                                    },
+                                                                                                ),
+                                                                                            ),
+                                                                                            right_operand: Value(
+                                                                                                Simple(
+                                                                                                    String(
+                                                                                                        LanguageString {
+                                                                                                            span: Some(
+                                                                                                                Span {
+                                                                                                                    start: 285,
+                                                                                                                    end: 290,
+                                                                                                                },
+                                                                                                            ),
+                                                                                                            value: "bye",
+                                                                                                            language: None,
+                                                                                                        },
+                                                                                                    ),
+                                                                                                ),
+                                                                                            ),
+                                                                                        },
+                                                                                    ),
+                                                                                ),
+                                                                            },
+                                                                        ),
+                                                                    ),
+                                                                },
+                                                            ),
+                                                        },
+                                                    ),
+                                                ],
+                                            },
+                                        ),
+                                    },
+                                ),
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    },
+}

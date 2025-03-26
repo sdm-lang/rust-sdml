@@ -42,71 +42,72 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 58,
-                end: 151,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 74,
+                    end: 83,
+                },
+            ),
+            value: "Campaigns",
+        }: Dimension(
+            DimensionDef {
                 span: Some(
                     Span {
-                        start: 74,
-                        end: 83,
+                        start: 64,
+                        end: 146,
                     },
                 ),
-                value: "Campaigns",
-            }: Dimension(
-                DimensionDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 64,
-                            end: 146,
+                            start: 74,
+                            end: 83,
                         },
                     ),
-                    name: Identifier {
+                    value: "Campaigns",
+                },
+                body: Some(
+                    DimensionBody {
                         span: Some(
                             Span {
-                                start: 74,
-                                end: 83,
+                                start: 84,
+                                end: 146,
                             },
                         ),
-                        value: "Campaigns",
-                    },
-                    body: Some(
-                        DimensionBody {
-                            span: Some(
-                                Span {
-                                    start: 84,
-                                    end: 146,
-                                },
-                            ),
-                            annotations: [],
-                            identity: Source(
-                                SourceEntity {
-                                    span: None,
-                                    target_entity: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 98,
-                                                    end: 106,
-                                                },
-                                            ),
-                                            value: "Campaign",
-                                        },
-                                    ),
-                                    with_members: [],
-                                },
-                            ),
-                            parents: {
-                                Identifier {
+                        annotations: [],
+                        identity: Source(
+                            SourceEntity {
+                                span: None,
+                                target_entity: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 98,
+                                                end: 106,
+                                            },
+                                        ),
+                                        value: "Campaign",
+                                    },
+                                ),
+                                with_members: [],
+                            },
+                        ),
+                        parents: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 118,
+                                        end: 127,
+                                    },
+                                ),
+                                value: "portfolio",
+                            }: DimensionParent {
+                                span: None,
+                                name: Identifier {
                                     span: Some(
                                         Span {
                                             start: 118,
@@ -114,36 +115,25 @@ Module {
                                         },
                                     ),
                                     value: "portfolio",
-                                }: DimensionParent {
-                                    span: None,
-                                    name: Identifier {
+                                },
+                                target_entity: Identifier(
+                                    Identifier {
                                         span: Some(
                                             Span {
-                                                start: 118,
-                                                end: 127,
+                                                start: 131,
+                                                end: 140,
                                             },
                                         ),
-                                        value: "portfolio",
+                                        value: "Portfolio",
                                     },
-                                    target_entity: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 131,
-                                                    end: 140,
-                                                },
-                                            ),
-                                            value: "Portfolio",
-                                        },
-                                    ),
-                                    body: None,
-                                },
+                                ),
+                                body: None,
                             },
-                            members: {},
                         },
-                    ),
-                },
-            ),
-        },
+                        members: {},
+                    },
+                ),
+            },
+        ),
     },
 }

@@ -10,6 +10,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "campaign",
+  "name": "corpus_test_import",
   "source_file": "MANIFEST_PATH/corpus/import_multiple_modules.sdm"
 }

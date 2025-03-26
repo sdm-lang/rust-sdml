@@ -1,75 +1,72 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/union_variants.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "union": {
-          "__type": "union_def",
-          "body": {
-            "__type": "union_body",
-            "span": {
-              "__type": "span",
-              "end": 92,
-              "start": 67
-            },
-            "variants": [
-              {
-                "__type": "type_variant",
-                "name": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Boat"
-                  }
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 86,
-                  "start": 82
-                }
-              },
-              {
-                "__type": "type_variant",
-                "name": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Car"
-                  }
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 77,
-                  "start": 74
-                }
-              }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "VehicleClass"
-          },
+  "definitions": [
+    {
+      "__type": "definition",
+      "union": {
+        "__type": "union_def",
+        "body": {
+          "__type": "union_body",
           "span": {
             "__type": "span",
-            "end": 92,
-            "start": 48
-          }
+            "end": 101,
+            "start": 76
+          },
+          "variants": [
+            {
+              "__type": "type_variant",
+              "name": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Boat"
+                }
+              },
+              "span": {
+                "__type": "span",
+                "end": 95,
+                "start": 91
+              }
+            },
+            {
+              "__type": "type_variant",
+              "name": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Car"
+                }
+              },
+              "span": {
+                "__type": "span",
+                "end": 86,
+                "start": 83
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "VehicleClass"
+        },
+        "span": {
+          "__type": "span",
+          "end": 101,
+          "start": 57
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_union"
   },
   "source_file": "MANIFEST_PATH/corpus/union_variants.sdm",
   "span": {
     "__type": "span",
-    "end": 98,
+    "end": 107,
     "start": 0
   }
 }

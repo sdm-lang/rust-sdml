@@ -1,0 +1,40 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_atomic_sentence.sdm/",
+  "definitions": [
+    {
+      "__type": "structure_def",
+      "members": [
+        {
+          "__type": "member_def",
+          "annotations": [
+            {
+              "__type": "formal_constraint",
+              "body": {
+                "__type": "atomic_sentence",
+                "arguments": [
+                  {
+                    "self": true
+                  }
+                ],
+                "predicate": {
+                  "__type": "identifier",
+                  "value": "is_empty"
+                }
+              },
+              "name": "not_empty"
+            }
+          ],
+          "name": "inner",
+          "type": {
+            "reference": "sdml:string"
+          }
+        }
+      ],
+      "name": "Outer"
+    }
+  ],
+  "is_library_module": false,
+  "name": "corpus_test_constraint",
+  "source_file": "MANIFEST_PATH/corpus/constraint_formal_atomic_sentence.sdm"
+}

@@ -1,0 +1,120 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_atomic_sentence.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "body": {
+                    "body": {
+                      "__type": "annotation_only_body",
+                      "annotations": [
+                        {
+                          "__type": "annotation",
+                          "constraint": {
+                            "__type": "constraint",
+                            "body": {
+                              "__type": "constraint_body",
+                              "formal": {
+                                "__type": "formal_constraint",
+                                "body": {
+                                  "__type": "constraint_sentence",
+                                  "simple": {
+                                    "__type": "simple_sentence",
+                                    "atomic": {
+                                      "__type": "atomic_sentence",
+                                      "arguments": [
+                                        {
+                                          "__type": "term",
+                                          "self": true
+                                        }
+                                      ],
+                                      "predicate": {
+                                        "__type": "term",
+                                        "identifier": {
+                                          "__type": "identifier_reference",
+                                          "identifier": {
+                                            "__type": "identifier",
+                                            "value": "is_empty"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "name": {
+                              "__type": "identifier",
+                              "value": "not_empty"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "inner"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 190,
+                    "start": 105
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "string"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "sdml"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Outer"
+        },
+        "span": {
+          "__type": "span",
+          "end": 197,
+          "start": 81
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_constraint"
+  },
+  "source_file": "MANIFEST_PATH/corpus/constraint_formal_atomic_sentence.sdm",
+  "span": {
+    "__type": "span",
+    "end": 203,
+    "start": 0
+  }
+}

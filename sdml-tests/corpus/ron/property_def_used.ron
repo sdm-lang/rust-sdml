@@ -42,82 +42,72 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 13,
-                end: 66,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
-                span: Some(
-                    Span {
-                        start: 28,
-                        end: 35,
-                    },
-                ),
-                value: "Account",
-            }: Structure(
-                StructureDef {
-                    span: Some(
-                        Span {
-                            start: 18,
-                            end: 62,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 28,
-                                end: 35,
-                            },
-                        ),
-                        value: "Account",
-                    },
-                    body: Some(
-                        StructureBody {
-                            span: Some(
-                                Span {
-                                    start: 36,
-                                    end: 62,
-                                },
-                            ),
-                            annotations: [],
-                            members: {
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 43,
-                                            end: 56,
-                                        },
-                                    ),
-                                    value: "accountId",
-                                }: Member {
-                                    span: None,
-                                    kind: Reference(
-                                        Identifier(
-                                            Identifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 43,
-                                                        end: 56,
-                                                    },
-                                                ),
-                                                value: "accountId",
-                                            },
-                                        ),
-                                    ),
-                                },
-                            },
-                        },
-                    ),
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 28,
+                    end: 35,
                 },
             ),
-        },
+            value: "Account",
+        }: Structure(
+            StructureDef {
+                span: Some(
+                    Span {
+                        start: 18,
+                        end: 62,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 28,
+                            end: 35,
+                        },
+                    ),
+                    value: "Account",
+                },
+                body: Some(
+                    StructureBody {
+                        span: Some(
+                            Span {
+                                start: 36,
+                                end: 62,
+                            },
+                        ),
+                        annotations: [],
+                        members: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 43,
+                                        end: 56,
+                                    },
+                                ),
+                                value: "accountId",
+                            }: Member {
+                                span: None,
+                                kind: Reference(
+                                    Identifier(
+                                        Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 43,
+                                                    end: 56,
+                                                },
+                                            ),
+                                            value: "accountId",
+                                        },
+                                    ),
+                                ),
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
     },
 }

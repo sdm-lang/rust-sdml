@@ -1,6 +1,6 @@
 ;;; Union, Empty
 
-module campaign is
+module corpus_test_union is
 
   union VehicleClass
 

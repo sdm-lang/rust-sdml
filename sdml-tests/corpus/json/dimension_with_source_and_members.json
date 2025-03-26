@@ -1,91 +1,88 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_source_and_members.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "dimension": {
-          "__type": "dimension_def",
-          "body": {
-            "__type": "dimension_body",
-            "identity": {
-              "__type": "dimension_identity",
-              "source": {
-                "__type": "source_entity",
-                "entity": {
+  "definitions": [
+    {
+      "__type": "definition",
+      "dimension": {
+        "__type": "dimension_def",
+        "body": {
+          "__type": "dimension_body",
+          "identity": {
+            "__type": "dimension_identity",
+            "source": {
+              "__type": "source_entity",
+              "entity": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Campaign"
+                }
+              },
+              "members": [
+                {
+                  "__type": "identifier",
+                  "value": "status"
+                }
+              ]
+            }
+          },
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "reference": {
                   "__type": "identifier_reference",
                   "identifier": {
                     "__type": "identifier",
-                    "value": "Campaign"
-                  }
-                },
-                "members": [
-                  {
-                    "__type": "identifier",
-                    "value": "status"
-                  }
-                ]
-              }
-            },
-            "members": [
-              {
-                "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "reference": {
-                    "__type": "identifier_reference",
-                    "identifier": {
-                      "__type": "identifier",
-                      "value": "Target"
-                    }
+                    "value": "Target"
                   }
                 }
-              },
-              {
+              }
+            },
+            {
+              "__type": "member",
+              "kind": {
                 "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "definition": {
-                    "__type": "member_def",
-                    "name": {
-                      "__type": "identifier",
-                      "value": "name"
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 135,
-                      "start": 123
-                    },
-                    "type": {
-                      "__type": "type_reference",
-                      "reference": {
-                        "__type": "identifier_reference",
-                        "identifier": {
-                          "__type": "identifier",
-                          "value": "Name"
-                        }
+                "definition": {
+                  "__type": "member_def",
+                  "name": {
+                    "__type": "identifier",
+                    "value": "name"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 135,
+                    "start": 123
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "Name"
                       }
                     }
                   }
                 }
               }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Campaigns"
-          },
-          "span": {
-            "__type": "span",
-            "end": 156,
-            "start": 64
-          }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Campaigns"
+        },
+        "span": {
+          "__type": "span",
+          "end": 156,
+          "start": 64
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

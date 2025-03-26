@@ -1,0 +1,355 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 228,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 32,
+                end: 40,
+            },
+        ),
+        value: "campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 47,
+                    end: 65,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 56,
+                                end: 59,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 56,
+                                    end: 59,
+                                },
+                            ),
+                            value: "owl",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 60,
+                                end: 63,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 60,
+                                    end: 63,
+                                },
+                            ),
+                            value: "rdf",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 74,
+                    end: 82,
+                },
+            ),
+            value: "NameKind",
+        }: Enum(
+            EnumDef {
+                span: Some(
+                    Span {
+                        start: 69,
+                        end: 221,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 74,
+                            end: 82,
+                        },
+                    ),
+                    value: "NameKind",
+                },
+                body: Some(
+                    EnumBody {
+                        span: Some(
+                            Span {
+                                start: 83,
+                                end: 221,
+                            },
+                        ),
+                        annotations: [
+                            Property(
+                                AnnotationProperty {
+                                    span: Some(
+                                        Span {
+                                            start: 91,
+                                            end: 122,
+                                        },
+                                    ),
+                                    name_reference: QualifiedIdentifier(
+                                        QualifiedIdentifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 92,
+                                                    end: 111,
+                                                },
+                                            ),
+                                            module: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 92,
+                                                        end: 95,
+                                                    },
+                                                ),
+                                                value: "owl",
+                                            },
+                                            member: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 96,
+                                                        end: 111,
+                                                    },
+                                                ),
+                                                value: "equivalentClass",
+                                            },
+                                        },
+                                    ),
+                                    value: Reference(
+                                        Identifier(
+                                            Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 114,
+                                                        end: 122,
+                                                    },
+                                                ),
+                                                value: "unsigned",
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ),
+                        ],
+                        variants: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 174,
+                                        end: 182,
+                                    },
+                                ),
+                                value: "External",
+                            }: ValueVariant {
+                                span: Some(
+                                    Span {
+                                        start: 174,
+                                        end: 214,
+                                    },
+                                ),
+                                name: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 174,
+                                            end: 182,
+                                        },
+                                    ),
+                                    value: "External",
+                                },
+                                body: Some(
+                                    AnnotationOnlyBody {
+                                        span: Some(
+                                            Span {
+                                                start: 183,
+                                                end: 214,
+                                            },
+                                        ),
+                                        annotations: [
+                                            Property(
+                                                AnnotationProperty {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 192,
+                                                            end: 206,
+                                                        },
+                                                    ),
+                                                    name_reference: QualifiedIdentifier(
+                                                        QualifiedIdentifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 193,
+                                                                    end: 202,
+                                                                },
+                                                            ),
+                                                            module: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 193,
+                                                                        end: 196,
+                                                                    },
+                                                                ),
+                                                                value: "rdf",
+                                                            },
+                                                            member: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 197,
+                                                                        end: 202,
+                                                                    },
+                                                                ),
+                                                                value: "value",
+                                                            },
+                                                        },
+                                                    ),
+                                                    value: Simple(
+                                                        Integer(
+                                                            2,
+                                                        ),
+                                                    ),
+                                                },
+                                            ),
+                                        ],
+                                    },
+                                ),
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 128,
+                                        end: 136,
+                                    },
+                                ),
+                                value: "Internal",
+                            }: ValueVariant {
+                                span: Some(
+                                    Span {
+                                        start: 128,
+                                        end: 168,
+                                    },
+                                ),
+                                name: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 128,
+                                            end: 136,
+                                        },
+                                    ),
+                                    value: "Internal",
+                                },
+                                body: Some(
+                                    AnnotationOnlyBody {
+                                        span: Some(
+                                            Span {
+                                                start: 137,
+                                                end: 168,
+                                            },
+                                        ),
+                                        annotations: [
+                                            Property(
+                                                AnnotationProperty {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 146,
+                                                            end: 160,
+                                                        },
+                                                    ),
+                                                    name_reference: QualifiedIdentifier(
+                                                        QualifiedIdentifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 147,
+                                                                    end: 156,
+                                                                },
+                                                            ),
+                                                            module: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 147,
+                                                                        end: 150,
+                                                                    },
+                                                                ),
+                                                                value: "rdf",
+                                                            },
+                                                            member: Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 151,
+                                                                        end: 156,
+                                                                    },
+                                                                ),
+                                                                value: "value",
+                                                            },
+                                                        },
+                                                    ),
+                                                    value: Simple(
+                                                        Integer(
+                                                            1,
+                                                        ),
+                                                    ),
+                                                },
+                                            ),
+                                        ],
+                                    },
+                                ),
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    },
+}

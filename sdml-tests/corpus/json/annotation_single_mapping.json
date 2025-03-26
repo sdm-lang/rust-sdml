@@ -1,89 +1,86 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_mapping.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "published"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "dc"
-              }
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "published"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
             }
-          },
-          "span": {
-            "__type": "span",
-            "end": 70,
-            "start": 22
-          },
-          "value": {
-            "__type": "value",
-            "mapping": {
-              "__type": "mapping_value",
-              "domain": {
-                "__type": "string",
-                "value": "date"
-              },
-              "range": {
-                "__type": "value",
-                "constructor": {
-                  "__type": "value_constructor",
-                  "span": {
-                    "__type": "span",
-                    "end": 70,
-                    "start": 48
-                  },
-                  "type": {
-                    "__type": "identifier_reference",
-                    "qualified_identifier": {
-                      "__type": "qualified_identifier",
-                      "member": {
-                        "__type": "identifier",
-                        "value": "date"
-                      },
-                      "module": {
-                        "__type": "identifier",
-                        "value": "xsd"
-                      }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 84,
+          "start": 36
+        },
+        "value": {
+          "__type": "value",
+          "mapping": {
+            "__type": "mapping_value",
+            "domain": {
+              "__type": "string",
+              "value": "date"
+            },
+            "range": {
+              "__type": "value",
+              "constructor": {
+                "__type": "value_constructor",
+                "span": {
+                  "__type": "span",
+                  "end": 84,
+                  "start": 62
+                },
+                "type": {
+                  "__type": "identifier_reference",
+                  "qualified_identifier": {
+                    "__type": "qualified_identifier",
+                    "member": {
+                      "__type": "identifier",
+                      "value": "date"
+                    },
+                    "module": {
+                      "__type": "identifier",
+                      "value": "xsd"
                     }
-                  },
-                  "value": {
-                    "__type": "string",
-                    "value": "2023-08-04"
                   }
+                },
+                "value": {
+                  "__type": "string",
+                  "value": "2023-08-04"
                 }
-              },
-              "span": {
-                "__type": "span",
-                "end": 70,
-                "start": 38
               }
+            },
+            "span": {
+              "__type": "span",
+              "end": 84,
+              "start": 52
             }
           }
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_mapping.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Campaign"
+    "value": "corpus_test_annotation"
   },
   "source_file": "MANIFEST_PATH/corpus/annotation_single_mapping.sdm",
   "span": {
     "__type": "span",
-    "end": 76,
+    "end": 90,
     "start": 0
   }
 }

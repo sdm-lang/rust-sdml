@@ -1,0 +1,22 @@
+;;; Constraint, formal quantified universal
+
+module Example is
+
+  structure Outer is
+
+    inner -> {0..} string is
+      assert not_empty is
+        forall x in inner, not is_empty(x)
+      end
+    end
+
+    inner_sym -> {0..} string is
+      assert not_empty is
+        ∀ x ∈ inner, ¬ is_empty(x)
+      end
+    end
+
+  end
+
+end
+

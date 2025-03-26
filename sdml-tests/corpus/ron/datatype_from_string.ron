@@ -42,65 +42,56 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 15,
-                end: 55,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
-                span: Some(
-                    Span {
-                        start: 30,
-                        end: 40,
-                    },
-                ),
-                value: "nameString",
-            }: Datatype(
-                DatatypeDef {
-                    span: Some(
-                        Span {
-                            start: 21,
-                            end: 50,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 30,
-                                end: 40,
-                            },
-                        ),
-                        value: "nameString",
-                    },
-                    opaque: false,
-                    base_type: QualifiedIdentifier(
-                        QualifiedIdentifier {
-                            span: None,
-                            module: Identifier {
-                                span: None,
-                                value: "sdml",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 44,
-                                        end: 50,
-                                    },
-                                ),
-                                value: "string",
-                            },
-                        },
-                    ),
-                    body: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 30,
+                    end: 40,
                 },
             ),
-        },
+            value: "nameString",
+        }: Datatype(
+            DatatypeDef {
+                span: Some(
+                    Span {
+                        start: 21,
+                        end: 50,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 30,
+                            end: 40,
+                        },
+                    ),
+                    value: "nameString",
+                },
+                opaque: false,
+                base_type: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: None,
+                        module: Identifier {
+                            span: None,
+                            value: "sdml",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 44,
+                                    end: 50,
+                                },
+                            ),
+                            value: "string",
+                        },
+                    },
+                ),
+                restrictions: [],
+                body: None,
+            },
+        ),
     },
 }

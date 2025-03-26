@@ -1,6 +1,6 @@
 ;;; Union, With Renamed Variant
 
-module campaign is
+module corpus_test_union is
 
   union VehicleClass of
     Car

@@ -1,0 +1,7 @@
+module example is
+
+  datatype timeChanged <- dateTime {
+    explicitTimezone = fixed required
+  }
+
+end

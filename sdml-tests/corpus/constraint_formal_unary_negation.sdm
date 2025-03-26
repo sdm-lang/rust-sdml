@@ -1,0 +1,21 @@
+;;; Constraint, formal logical negation
+
+module Example is
+
+  structure Outer is
+
+    inner -> string is
+      assert not_empty is
+        not self.is_empty()
+      end
+    end
+
+    inner_sym -> string is
+      assert not_empty is
+        ¬ self.is_empty()
+      end
+    end
+
+  end
+
+end

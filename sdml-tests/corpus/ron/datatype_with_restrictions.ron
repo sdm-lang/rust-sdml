@@ -8,7 +8,7 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 92,
+            end: 98,
         },
     ),
     name: Identifier {
@@ -42,129 +42,65 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 15,
-                end: 91,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 30,
+                    end: 40,
+                },
+            ),
+            value: "unixUserId",
+        }: Datatype(
+            DatatypeDef {
                 span: Some(
                     Span {
-                        start: 30,
-                        end: 40,
+                        start: 21,
+                        end: 92,
                     },
                 ),
-                value: "unixUserId",
-            }: Datatype(
-                DatatypeDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 21,
-                            end: 86,
+                            start: 30,
+                            end: 40,
                         },
                     ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 30,
-                                end: 40,
-                            },
-                        ),
-                        value: "unixUserId",
-                    },
-                    opaque: false,
-                    base_type: QualifiedIdentifier(
-                        QualifiedIdentifier {
+                    value: "unixUserId",
+                },
+                opaque: false,
+                base_type: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: None,
+                        module: Identifier {
+                            span: None,
+                            value: "sdml",
+                        },
+                        member: Identifier {
                             span: Some(
                                 Span {
                                     start: 44,
-                                    end: 54,
+                                    end: 50,
                                 },
                             ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 44,
-                                        end: 47,
-                                    },
-                                ),
-                                value: "xsd",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 48,
-                                        end: 54,
-                                    },
-                                ),
-                                value: "string",
-                            },
+                            value: "string",
                         },
+                    },
+                ),
+                restrictions: [
+                    MinLength(
+                        1,
+                        false,
                     ),
-                    body: Some(
-                        AnnotationOnlyBody {
-                            span: Some(
-                                Span {
-                                    start: 55,
-                                    end: 86,
-                                },
-                            ),
-                            annotations: [
-                                Property(
-                                    AnnotationProperty {
-                                        span: Some(
-                                            Span {
-                                                start: 62,
-                                                end: 80,
-                                            },
-                                        ),
-                                        name_reference: QualifiedIdentifier(
-                                            QualifiedIdentifier {
-                                                span: Some(
-                                                    Span {
-                                                        start: 63,
-                                                        end: 76,
-                                                    },
-                                                ),
-                                                module: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 63,
-                                                            end: 66,
-                                                        },
-                                                    ),
-                                                    value: "xsd",
-                                                },
-                                                member: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 67,
-                                                            end: 76,
-                                                        },
-                                                    ),
-                                                    value: "maxLength",
-                                                },
-                                            },
-                                        ),
-                                        value: Simple(
-                                            Integer(
-                                                8,
-                                            ),
-                                        ),
-                                    },
-                                ),
-                            ],
-                        },
+                    MaxLength(
+                        8,
+                        false,
                     ),
-                },
-            ),
-        },
+                ],
+                body: None,
+            },
+        ),
     },
 }

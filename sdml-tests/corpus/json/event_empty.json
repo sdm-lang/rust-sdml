@@ -1,26 +1,23 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/event_empty.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "event": {
-          "__type": "event_def",
-          "name": {
-            "__type": "identifier",
-            "value": "NameChanged"
-          },
-          "span": {
-            "__type": "span",
-            "end": 57,
-            "start": 40
-          }
+  "definitions": [
+    {
+      "__type": "definition",
+      "event": {
+        "__type": "event_def",
+        "name": {
+          "__type": "identifier",
+          "value": "NameChanged"
+        },
+        "span": {
+          "__type": "span",
+          "end": 57,
+          "start": 40
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

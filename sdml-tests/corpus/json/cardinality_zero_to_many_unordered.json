@@ -1,0 +1,77 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_many_unordered.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "cardinality": {
+                    "__type": "cardinality_expression",
+                    "min": 0,
+                    "ordering": "unordered"
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "thing"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 144,
+                    "start": 112
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "integer"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "sdml"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 150,
+          "start": 88
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_cardinality"
+  },
+  "source_file": "MANIFEST_PATH/corpus/cardinality_zero_to_many_unordered.sdm",
+  "span": {
+    "__type": "span",
+    "end": 157,
+    "start": 0
+  }
+}

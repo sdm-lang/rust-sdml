@@ -1,16 +1,37 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_unknowns.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "entity": {
-          "__type": "entity_def",
-          "body": {
-            "__type": "entity_body",
-            "identity": {
+  "definitions": [
+    {
+      "__type": "definition",
+      "entity": {
+        "__type": "entity_def",
+        "body": {
+          "__type": "entity_body",
+          "identity": {
+            "__type": "member",
+            "kind": {
+              "__type": "member",
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "id"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 107,
+                  "start": 94
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "unknown": true
+                }
+              }
+            }
+          },
+          "members": [
+            {
               "__type": "member",
               "kind": {
                 "__type": "member",
@@ -18,12 +39,12 @@
                   "__type": "member_def",
                   "name": {
                     "__type": "identifier",
-                    "value": "id"
+                    "value": "a"
                   },
                   "span": {
                     "__type": "span",
-                    "end": 107,
-                    "start": 94
+                    "end": 125,
+                    "start": 113
                   },
                   "type": {
                     "__type": "type_reference",
@@ -31,45 +52,21 @@
                   }
                 }
               }
-            },
-            "members": [
-              {
-                "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "definition": {
-                    "__type": "member_def",
-                    "name": {
-                      "__type": "identifier",
-                      "value": "a"
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 125,
-                      "start": 113
-                    },
-                    "type": {
-                      "__type": "type_reference",
-                      "unknown": true
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Campaign"
-          },
-          "span": {
-            "__type": "span",
-            "end": 132,
-            "start": 61
-          }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Campaign"
+        },
+        "span": {
+          "__type": "span",
+          "end": 132,
+          "start": 61
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

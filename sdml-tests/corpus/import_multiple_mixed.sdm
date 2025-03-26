@@ -1,6 +1,6 @@
 ;;; Import multiple mixed
 
-module campaign is
+module corpus_test_import is
 
   import [ target xsd:base xml:lang skos ]
 

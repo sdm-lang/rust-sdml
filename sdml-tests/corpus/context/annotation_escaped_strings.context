@@ -1,0 +1,89 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_a",
+      "value": {
+        "__type": "string",
+        "value": "\\a"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_b",
+      "value": {
+        "__type": "string",
+        "value": "\\b"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_e",
+      "value": {
+        "__type": "string",
+        "value": "\\e"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_f",
+      "value": {
+        "__type": "string",
+        "value": "\\f"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_n",
+      "value": {
+        "__type": "string",
+        "value": "\\n"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_r",
+      "value": {
+        "__type": "string",
+        "value": "\\r"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_t",
+      "value": {
+        "__type": "string",
+        "value": "\\t"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_v",
+      "value": {
+        "__type": "string",
+        "value": "\\a"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_backslash",
+      "value": {
+        "__type": "string",
+        "value": "\\\\"
+      }
+    },
+    {
+      "__type": "annotation_property",
+      "name": "char_escape_doublequote",
+      "value": {
+        "__type": "string",
+        "value": "\\\""
+      }
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_escaped_strings.sdm/",
+  "is_library_module": false,
+  "name": "corpus_test_annotation",
+  "source_file": "MANIFEST_PATH/corpus/annotation_escaped_strings.sdm"
+}

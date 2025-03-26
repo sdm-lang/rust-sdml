@@ -2,7 +2,7 @@
   "__type": "module",
   "base_uri": "https://example.org/v/Campaign#",
   "is_library_module": false,
-  "name": "Campaign",
+  "name": "corpus_test_module",
   "source_file": "MANIFEST_PATH/corpus/module_empty_with_version.sdm",
   "version_info": "2",
   "version_uri": "https://example.org/v2/Campaign#"

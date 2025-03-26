@@ -42,59 +42,50 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 16,
-                end: 47,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [
-            ImportStatement {
-                span: Some(
-                    Span {
-                        start: 22,
-                        end: 42,
-                    },
-                ),
-                imports: [
-                    Module(
-                        ModuleImport {
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 22,
+                    end: 42,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 29,
+                                end: 42,
+                            },
+                        ),
+                        name: Identifier {
                             span: Some(
                                 Span {
                                     start: 29,
-                                    end: 42,
+                                    end: 32,
                                 },
                             ),
-                            name: Identifier {
+                            value: "xsd",
+                        },
+                        version_uri: None,
+                        renamed_as: Some(
+                            Identifier {
                                 span: Some(
                                     Span {
-                                        start: 29,
-                                        end: 32,
+                                        start: 36,
+                                        end: 42,
                                     },
                                 ),
-                                value: "xsd",
+                                value: "schema",
                             },
-                            version_uri: None,
-                            renamed_as: Some(
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 36,
-                                            end: 42,
-                                        },
-                                    ),
-                                    value: "schema",
-                                },
-                            ),
-                        },
-                    ),
-                ],
-            },
-        ],
-        annotations: [],
-        definitions: {},
-    },
+                        ),
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
 }

@@ -1,26 +1,23 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/enum_empty.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "enum": {
-          "__type": "enum_def",
-          "name": {
-            "__type": "identifier",
-            "value": "NameKind"
-          },
-          "span": {
-            "__type": "span",
-            "end": 52,
-            "start": 39
-          }
+  "definitions": [
+    {
+      "__type": "definition",
+      "enum": {
+        "__type": "enum_def",
+        "name": {
+          "__type": "identifier",
+          "value": "NameKind"
+        },
+        "span": {
+          "__type": "span",
+          "end": 52,
+          "start": 39
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

@@ -1,0 +1,59 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm/",
+  "definitions": [
+    {
+      "__type": "enum_def",
+      "annotations": [
+        {
+          "__type": "annotation_property",
+          "name": "owl:equivalentClass",
+          "value": {
+            "__type": "identifier",
+            "value": "unsigned"
+          }
+        }
+      ],
+      "name": "NameKind",
+      "variants": [
+        {
+          "annotations": [
+            {
+              "__type": "annotation_property",
+              "name": "rdf:value",
+              "value": {
+                "__type": "integer",
+                "value": 2
+              }
+            }
+          ],
+          "name": "External"
+        },
+        {
+          "annotations": [
+            {
+              "__type": "annotation_property",
+              "name": "rdf:value",
+              "value": {
+                "__type": "integer",
+                "value": 1
+              }
+            }
+          ],
+          "name": "Internal"
+        }
+      ]
+    }
+  ],
+  "imports": [
+    {
+      "module": "owl"
+    },
+    {
+      "module": "rdf"
+    }
+  ],
+  "is_library_module": false,
+  "name": "campaign",
+  "source_file": "MANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm"
+}

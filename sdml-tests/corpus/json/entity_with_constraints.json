@@ -1,29 +1,179 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_constraints.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "entity": {
-          "__type": "entity_def",
-          "body": {
-            "__type": "entity_body",
-            "identity": {
+  "definitions": [
+    {
+      "__type": "definition",
+      "entity": {
+        "__type": "entity_def",
+        "body": {
+          "__type": "entity_body",
+          "identity": {
+            "__type": "member",
+            "kind": {
+              "__type": "member",
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "a"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 70,
+                  "start": 55
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "CampaignId"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "members": [
+            {
               "__type": "member",
               "kind": {
                 "__type": "member",
                 "definition": {
                   "__type": "member_def",
+                  "body": {
+                    "body": {
+                      "__type": "annotation_only_body",
+                      "annotations": [
+                        {
+                          "__type": "annotation",
+                          "constraint": {
+                            "__type": "constraint",
+                            "body": {
+                              "__type": "constraint_body",
+                              "informal": {
+                                "__type": "informal_constraint",
+                                "value": "self is not null"
+                              }
+                            },
+                            "name": {
+                              "__type": "identifier",
+                              "value": "not_null"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
                   "name": {
                     "__type": "identifier",
-                    "value": "a"
+                    "value": "b"
                   },
                   "span": {
                     "__type": "span",
-                    "end": 70,
-                    "start": 55
+                    "end": 145,
+                    "start": 76
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "string"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "xsd"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "body": {
+                    "body": {
+                      "__type": "annotation_only_body",
+                      "annotations": [
+                        {
+                          "__type": "annotation",
+                          "constraint": {
+                            "__type": "constraint",
+                            "body": {
+                              "__type": "constraint_body",
+                              "formal": {
+                                "__type": "formal_constraint",
+                                "body": {
+                                  "__type": "constraint_sentence",
+                                  "simple": {
+                                    "__type": "simple_sentence",
+                                    "atomic": {
+                                      "__type": "atomic_sentence",
+                                      "arguments": [
+                                        {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "foo"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "predicate": {
+                                        "__type": "term",
+                                        "composition": {
+                                          "__type": "function_composition",
+                                          "functions": [
+                                            {
+                                              "__type": "identifier",
+                                              "value": "tags"
+                                            },
+                                            {
+                                              "__type": "identifier",
+                                              "value": "contains"
+                                            }
+                                          ],
+                                          "subject": {
+                                            "__type": "subject",
+                                            "self": true
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "name": {
+                              "__type": "identifier",
+                              "value": "tagged_with_foo"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "c"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 250,
+                    "start": 151
                   },
                   "type": {
                     "__type": "type_reference",
@@ -31,178 +181,27 @@
                       "__type": "identifier_reference",
                       "identifier": {
                         "__type": "identifier",
-                        "value": "CampaignId"
+                        "value": "Target"
                       }
                     }
                   }
                 }
               }
-            },
-            "members": [
-              {
-                "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "definition": {
-                    "__type": "member_def",
-                    "body": {
-                      "body": {
-                        "__type": "annotation_only_body",
-                        "annotations": [
-                          {
-                            "__type": "annotation",
-                            "constraint": {
-                              "__type": "constraint",
-                              "body": {
-                                "__type": "constraint_body",
-                                "informal": {
-                                  "__type": "informal_constraint",
-                                  "value": "self is not null"
-                                }
-                              },
-                              "name": {
-                                "__type": "identifier",
-                                "value": "not_null"
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "name": {
-                      "__type": "identifier",
-                      "value": "b"
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 145,
-                      "start": 76
-                    },
-                    "type": {
-                      "__type": "type_reference",
-                      "reference": {
-                        "__type": "identifier_reference",
-                        "qualified_identifier": {
-                          "__type": "qualified_identifier",
-                          "member": {
-                            "__type": "identifier",
-                            "value": "string"
-                          },
-                          "module": {
-                            "__type": "identifier",
-                            "value": "xsd"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "definition": {
-                    "__type": "member_def",
-                    "body": {
-                      "body": {
-                        "__type": "annotation_only_body",
-                        "annotations": [
-                          {
-                            "__type": "annotation",
-                            "constraint": {
-                              "__type": "constraint",
-                              "body": {
-                                "__type": "constraint_body",
-                                "formal": {
-                                  "__type": "formal_constraint",
-                                  "body": {
-                                    "__type": "constraint_sentence",
-                                    "quantified": {
-                                      "__type": "quantified_sentence",
-                                      "binding": {
-                                        "__type": "quantified_variable_binding",
-                                        "quantifier": "∀"
-                                      },
-                                      "sentence": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "atomic": {
-                                            "__type": "atomic_sentence",
-                                            "function": {
-                                              "__type": "term",
-                                              "composition": {
-                                                "__type": "function_composition",
-                                                "functions": [
-                                                  {
-                                                    "__type": "identifier",
-                                                    "value": "tags"
-                                                  },
-                                                  {
-                                                    "__type": "identifier",
-                                                    "value": "contains"
-                                                  }
-                                                ],
-                                                "subject": {
-                                                  "__type": "subject",
-                                                  "self": true
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              },
-                              "name": {
-                                "__type": "identifier",
-                                "value": "tagged_with_foo"
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "name": {
-                      "__type": "identifier",
-                      "value": "c"
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 260,
-                      "start": 151
-                    },
-                    "type": {
-                      "__type": "type_reference",
-                      "reference": {
-                        "__type": "identifier_reference",
-                        "identifier": {
-                          "__type": "identifier",
-                          "value": "Target"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Campaign"
-          },
-          "span": {
-            "__type": "span",
-            "end": 267,
-            "start": 22
-          }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Campaign"
+        },
+        "span": {
+          "__type": "span",
+          "end": 257,
+          "start": 22
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",
@@ -211,7 +210,7 @@
   "source_file": "MANIFEST_PATH/corpus/entity_with_constraints.sdm",
   "span": {
     "__type": "span",
-    "end": 273,
+    "end": 263,
     "start": 0
   }
 }

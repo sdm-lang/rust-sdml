@@ -1,18 +1,15 @@
 {
   "__type": "module",
   "base_uri": "https://example.org/v/Campaign#",
-  "body": {
-    "__type": "module_body"
-  },
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Campaign"
+    "value": "corpus_test_module"
   },
   "source_file": "MANIFEST_PATH/corpus/module_empty_with_version.sdm",
   "span": {
     "__type": "span",
-    "end": 106,
+    "end": 116,
     "start": 0
   },
   "version_info": "2",

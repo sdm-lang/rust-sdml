@@ -1,0 +1,192 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_module_from.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 142,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 38,
+                end: 46,
+            },
+        ),
+        value: "Campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_module_from.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 53,
+                    end: 71,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: true,
+                    segments: [],
+                },
+            ),
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 68,
+                                end: 71,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 68,
+                                    end: 71,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 74,
+                    end: 98,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: true,
+                    segments: [
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 81,
+                                    end: 84,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                    ],
+                },
+            ),
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 92,
+                                end: 98,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 92,
+                                    end: 98,
+                                },
+                            ),
+                            value: "facets",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 101,
+                    end: 136,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: false,
+                    segments: [
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 106,
+                                    end: 115,
+                                },
+                            ),
+                            value: "reporting",
+                        },
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 117,
+                                    end: 123,
+                                },
+                            ),
+                            value: "common",
+                        },
+                    ],
+                },
+            ),
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 131,
+                                end: 136,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 131,
+                                    end: 136,
+                                },
+                            ),
+                            value: "enums",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
+}

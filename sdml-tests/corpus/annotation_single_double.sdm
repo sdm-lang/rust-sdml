@@ -1,6 +1,6 @@
 ;;; Annotation, Single Double
 
-module Campaign is
+module corpus_test_annotation is
 
   @dc:some = 1.2e-10
 

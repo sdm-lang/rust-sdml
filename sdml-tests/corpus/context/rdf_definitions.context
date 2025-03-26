@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://www.w3.org/2000/01/rdf-schema#",
+  "base_uri": "http://www.w3.org/2000/01/exrdf-schema#",
   "definitions": [
     {
       "__type": "rdf_def",
@@ -161,7 +161,7 @@
       "module": "rdf"
     }
   ],
-  "is_library_module": true,
-  "name": "rdfs",
+  "is_library_module": false,
+  "name": "example_rdf_defs",
   "source_file": "MANIFEST_PATH/corpus/rdf_definitions.sdm"
 }

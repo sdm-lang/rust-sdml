@@ -1,0 +1,77 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_one.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "cardinality": {
+                    "__type": "cardinality_expression",
+                    "max": 1,
+                    "min": 0
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "thing"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 124,
+                    "start": 101
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "integer"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "sdml"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 130,
+          "start": 77
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_cardinality"
+  },
+  "source_file": "MANIFEST_PATH/corpus/cardinality_zero_to_one.sdm",
+  "span": {
+    "__type": "span",
+    "end": 137,
+    "start": 0
+  }
+}

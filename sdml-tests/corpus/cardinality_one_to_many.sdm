@@ -1,0 +1,10 @@
+;;; Structure, Cardinality one to many
+
+module corpus_test_cardinality is
+
+  structure Things is
+    thing -> {1..} integer
+  end
+
+end
+

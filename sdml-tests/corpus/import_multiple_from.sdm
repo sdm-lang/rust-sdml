@@ -1,0 +1,12 @@
+;;; Import multiple members from
+
+module Campaign is
+
+  from :: import xsd:base
+  from xsd import facets
+  from ::reporting::common import [
+    datatypes
+    enums
+  ]
+
+end

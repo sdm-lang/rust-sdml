@@ -1,79 +1,76 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/union_rename_variant.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "union": {
-          "__type": "union_def",
-          "body": {
-            "__type": "union_body",
-            "span": {
-              "__type": "span",
-              "end": 111,
-              "start": 74
-            },
-            "variants": [
-              {
-                "__type": "type_variant",
-                "name": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Car"
-                  }
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 84,
-                  "start": 81
-                }
-              },
-              {
-                "__type": "type_variant",
-                "name": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Boat"
-                  }
-                },
-                "rename": {
-                  "__type": "identifier",
-                  "value": "WaterCar"
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 105,
-                  "start": 89
-                }
-              }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "VehicleClass"
-          },
+  "definitions": [
+    {
+      "__type": "definition",
+      "union": {
+        "__type": "union_def",
+        "body": {
+          "__type": "union_body",
           "span": {
             "__type": "span",
-            "end": 111,
-            "start": 55
-          }
+            "end": 120,
+            "start": 83
+          },
+          "variants": [
+            {
+              "__type": "type_variant",
+              "name": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Car"
+                }
+              },
+              "span": {
+                "__type": "span",
+                "end": 93,
+                "start": 90
+              }
+            },
+            {
+              "__type": "type_variant",
+              "name": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Boat"
+                }
+              },
+              "rename": {
+                "__type": "identifier",
+                "value": "WaterCar"
+              },
+              "span": {
+                "__type": "span",
+                "end": 114,
+                "start": 98
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "VehicleClass"
+        },
+        "span": {
+          "__type": "span",
+          "end": 120,
+          "start": 64
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_union"
   },
   "source_file": "MANIFEST_PATH/corpus/union_rename_variant.sdm",
   "span": {
     "__type": "span",
-    "end": 117,
+    "end": 126,
     "start": 0
   }
 }

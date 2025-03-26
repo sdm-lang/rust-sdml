@@ -1,6 +1,6 @@
 ;;; Annotation, Single Boolean
 
-module campaign is
+module corpus_test_annotation is
 
   @dc:published = false
 

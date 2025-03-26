@@ -1,0 +1,162 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/cardinality_zero_to_many_nonunique.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 157,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 58,
+                end: 81,
+            },
+        ),
+        value: "corpus_test_cardinality",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/cardinality_zero_to_many_nonunique.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 98,
+                    end: 104,
+                },
+            ),
+            value: "Things",
+        }: Structure(
+            StructureDef {
+                span: Some(
+                    Span {
+                        start: 88,
+                        end: 150,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 98,
+                            end: 104,
+                        },
+                    ),
+                    value: "Things",
+                },
+                body: Some(
+                    StructureBody {
+                        span: Some(
+                            Span {
+                                start: 105,
+                                end: 150,
+                            },
+                        ),
+                        annotations: [],
+                        members: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 112,
+                                        end: 117,
+                                    },
+                                ),
+                                value: "thing",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 112,
+                                                end: 144,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 112,
+                                                    end: 117,
+                                                },
+                                            ),
+                                            value: "thing",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: Some(
+                                                Span {
+                                                    start: 121,
+                                                    end: 136,
+                                                },
+                                            ),
+                                            ordering: None,
+                                            uniqueness: Some(
+                                                Nonunique,
+                                            ),
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 0,
+                                                max: None,
+                                            },
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 137,
+                                                            end: 144,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 137,
+                                                                end: 144,
+                                                            },
+                                                        ),
+                                                        value: "integer",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    },
+}

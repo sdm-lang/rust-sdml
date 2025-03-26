@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 250,
+            end: 268,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 11,
+                end: 29,
             },
         ),
-        value: "sdml",
+        value: "example_typeclass_defs",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,492 +42,496 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 12,
-                end: 249,
-            },
-        ),
-        file_id: None,
-        is_library: true,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 42,
+                    end: 45,
+                },
+            ),
+            value: "Any",
+        }: TypeClass(
+            TypeClassDef {
                 span: Some(
                     Span {
-                        start: 24,
-                        end: 27,
+                        start: 36,
+                        end: 262,
                     },
                 ),
-                value: "Any",
-            }: TypeClass(
-                TypeClassDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 18,
-                            end: 244,
+                            start: 42,
+                            end: 45,
                         },
                     ),
-                    name: Identifier {
+                    value: "Any",
+                },
+                variables: [
+                    TypeVariable {
                         span: Some(
                             Span {
-                                start: 24,
-                                end: 27,
+                                start: 47,
+                                end: 48,
                             },
                         ),
-                        value: "Any",
-                    },
-                    variables: [
-                        TypeVariable {
+                        name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 29,
-                                    end: 30,
+                                    start: 47,
+                                    end: 48,
                                 },
                             ),
-                            name: Identifier {
+                            value: "T",
+                        },
+                        cardinality: None,
+                        restrictions: [],
+                    },
+                ],
+                body: Some(
+                    TypeClassBody {
+                        span: Some(
+                            Span {
+                                start: 50,
+                                end: 262,
+                            },
+                        ),
+                        annotations: [],
+                        methods: {
+                            Identifier {
                                 span: Some(
                                     Span {
-                                        start: 29,
-                                        end: 30,
+                                        start: 205,
+                                        end: 215,
                                     },
                                 ),
-                                value: "T",
-                            },
-                            cardinality: None,
-                            restrictions: [],
-                        },
-                    ],
-                    body: Some(
-                        TypeClassBody {
-                            span: Some(
-                                Span {
-                                    start: 32,
-                                    end: 244,
-                                },
-                            ),
-                            annotations: [],
-                            methods: {
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 187,
-                                            end: 197,
-                                        },
-                                    ),
-                                    value: "has_member",
-                                }: MethodDef {
-                                    span: Some(
-                                        Span {
-                                            start: 183,
-                                            end: 238,
-                                        },
-                                    ),
+                                value: "has_member",
+                            }: MethodDef {
+                                span: Some(
+                                    Span {
+                                        start: 201,
+                                        end: 256,
+                                    },
+                                ),
+                                signature: FunctionSignature {
+                                    span: None,
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 187,
-                                                end: 197,
+                                                start: 205,
+                                                end: 215,
                                             },
                                         ),
                                         value: "has_member",
                                     },
-                                    signature: FunctionSignature {
-                                        span: None,
-                                        parameters: [
-                                            FunctionParameter {
-                                                span: None,
-                                                name: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 198,
-                                                            end: 199,
-                                                        },
-                                                    ),
-                                                    value: "v",
-                                                },
-                                                target_type: FunctionType {
-                                                    span: None,
-                                                    target_cardinality: FunctionCardinality {
-                                                        span: None,
-                                                        ordering: None,
-                                                        uniqueness: None,
-                                                        range: None,
-                                                    },
-                                                    target_type: Reference(
-                                                        Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 203,
-                                                                        end: 204,
-                                                                    },
-                                                                ),
-                                                                value: "T",
-                                                            },
-                                                        ),
-                                                    ),
-                                                },
-                                            },
-                                        ],
-                                        target_type: FunctionType {
+                                    parameters: [
+                                        FunctionParameter {
                                             span: None,
-                                            target_cardinality: FunctionCardinality {
-                                                span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: None,
-                                            },
-                                            target_type: Reference(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
-                                                        span: None,
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 209,
-                                                                    end: 216,
-                                                                },
-                                                            ),
-                                                            value: "boolean",
-                                                        },
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 216,
+                                                        end: 217,
                                                     },
                                                 ),
-                                            ),
-                                        },
-                                    },
-                                    body: Some(
-                                        Simple(
-                                            Atomic(
-                                                AtomicSentence {
+                                                value: "v",
+                                            },
+                                            target_type: FunctionType {
+                                                span: None,
+                                                target_cardinality: FunctionCardinality {
                                                     span: None,
-                                                    predicate: Identifier(
-                                                        Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 220,
-                                                                        end: 235,
-                                                                    },
-                                                                ),
-                                                                value: "is_product_type",
+                                                    ordering: None,
+                                                    uniqueness: None,
+                                                    range: None,
+                                                },
+                                                target_type: Reference(
+                                                    Identifier(
+                                                        Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 221,
+                                                                    end: 222,
+                                                                },
+                                                            ),
+                                                            value: "T",
+                                                        },
+                                                    ),
+                                                ),
+                                            },
+                                        },
+                                    ],
+                                    target_type: FunctionType {
+                                        span: None,
+                                        target_cardinality: FunctionCardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: None,
+                                        },
+                                        target_type: Reference(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: None,
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 227,
+                                                                end: 234,
                                                             },
                                                         ),
-                                                    ),
-                                                    arguments: [],
+                                                        value: "boolean",
+                                                    },
                                                 },
                                             ),
                                         ),
-                                    ),
-                                    annotations: [],
+                                    },
                                 },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 100,
-                                            end: 109,
-                                        },
+                                body: Some(
+                                    Term(
+                                        Function(
+                                            FunctionalTerm {
+                                                span: None,
+                                                function: Identifier(
+                                                    Identifier(
+                                                        Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 238,
+                                                                    end: 253,
+                                                                },
+                                                            ),
+                                                            value: "is_product_type",
+                                                        },
+                                                    ),
+                                                ),
+                                                arguments: [
+                                                    Identifier(
+                                                        Identifier(
+                                                            Identifier {
+                                                                span: Some(
+                                                                    Span {
+                                                                        start: 254,
+                                                                        end: 255,
+                                                                    },
+                                                                ),
+                                                                value: "v",
+                                                            },
+                                                        ),
+                                                    ),
+                                                ],
+                                            },
+                                        ),
                                     ),
-                                    value: "is_entity",
-                                }: MethodDef {
-                                    span: Some(
-                                        Span {
-                                            start: 96,
-                                            end: 178,
-                                        },
-                                    ),
+                                ),
+                                annotations: [],
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 118,
+                                        end: 127,
+                                    },
+                                ),
+                                value: "is_entity",
+                            }: MethodDef {
+                                span: Some(
+                                    Span {
+                                        start: 114,
+                                        end: 196,
+                                    },
+                                ),
+                                signature: FunctionSignature {
+                                    span: None,
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 100,
-                                                end: 109,
+                                                start: 118,
+                                                end: 127,
                                             },
                                         ),
                                         value: "is_entity",
                                     },
-                                    signature: FunctionSignature {
-                                        span: None,
-                                        parameters: [
-                                            FunctionParameter {
-                                                span: None,
-                                                name: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 110,
-                                                            end: 111,
-                                                        },
-                                                    ),
-                                                    value: "v",
-                                                },
-                                                target_type: FunctionType {
-                                                    span: None,
-                                                    target_cardinality: FunctionCardinality {
-                                                        span: None,
-                                                        ordering: None,
-                                                        uniqueness: None,
-                                                        range: None,
-                                                    },
-                                                    target_type: Reference(
-                                                        Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 115,
-                                                                        end: 116,
-                                                                    },
-                                                                ),
-                                                                value: "T",
-                                                            },
-                                                        ),
-                                                    ),
-                                                },
-                                            },
-                                        ],
-                                        target_type: FunctionType {
+                                    parameters: [
+                                        FunctionParameter {
                                             span: None,
-                                            target_cardinality: FunctionCardinality {
-                                                span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: None,
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 128,
+                                                        end: 129,
+                                                    },
+                                                ),
+                                                value: "v",
                                             },
-                                            target_type: Reference(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
-                                                        span: None,
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
+                                            target_type: FunctionType {
+                                                span: None,
+                                                target_cardinality: FunctionCardinality {
+                                                    span: None,
+                                                    ordering: None,
+                                                    uniqueness: None,
+                                                    range: None,
+                                                },
+                                                target_type: Reference(
+                                                    Identifier(
+                                                        Identifier {
                                                             span: Some(
                                                                 Span {
-                                                                    start: 121,
-                                                                    end: 128,
+                                                                    start: 133,
+                                                                    end: 134,
                                                                 },
                                                             ),
-                                                            value: "boolean",
+                                                            value: "T",
                                                         },
+                                                    ),
+                                                ),
+                                            },
+                                        },
+                                    ],
+                                    target_type: FunctionType {
+                                        span: None,
+                                        target_cardinality: FunctionCardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: None,
+                                        },
+                                        target_type: Reference(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: None,
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 139,
+                                                                end: 146,
+                                                            },
+                                                        ),
+                                                        value: "boolean",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                },
+                                body: None,
+                                annotations: [
+                                    Property(
+                                        AnnotationProperty {
+                                            span: Some(
+                                                Span {
+                                                    start: 156,
+                                                    end: 188,
+                                                },
+                                            ),
+                                            name_reference: QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 157,
+                                                            end: 171,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 157,
+                                                                end: 161,
+                                                            },
+                                                        ),
+                                                        value: "skos",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 162,
+                                                                end: 171,
+                                                            },
+                                                        ),
+                                                        value: "prefLabel",
+                                                    },
+                                                },
+                                            ),
+                                            value: Simple(
+                                                String(
+                                                    LanguageString {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 174,
+                                                                end: 188,
+                                                            },
+                                                        ),
+                                                        value: "is an entity",
+                                                        language: None,
                                                     },
                                                 ),
                                             ),
                                         },
+                                    ),
+                                ],
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 61,
+                                        end: 73,
                                     },
-                                    body: None,
-                                    annotations: [
-                                        Property(
-                                            AnnotationProperty {
-                                                span: Some(
-                                                    Span {
-                                                        start: 138,
-                                                        end: 170,
-                                                    },
-                                                ),
-                                                name_reference: QualifiedIdentifier(
-                                                    QualifiedIdentifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 139,
-                                                                end: 153,
-                                                            },
-                                                        ),
-                                                        module: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 139,
-                                                                    end: 143,
-                                                                },
-                                                            ),
-                                                            value: "skos",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 144,
-                                                                    end: 153,
-                                                                },
-                                                            ),
-                                                            value: "prefLabel",
-                                                        },
-                                                    },
-                                                ),
-                                                value: Simple(
-                                                    String(
-                                                        LanguageString {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 156,
-                                                                    end: 170,
-                                                                },
-                                                            ),
-                                                            value: "is an entity",
-                                                            language: None,
-                                                        },
-                                                    ),
-                                                ),
-                                            },
-                                        ),
-                                    ],
-                                },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 43,
-                                            end: 55,
-                                        },
-                                    ),
-                                    value: "is_structure",
-                                }: MethodDef {
-                                    span: Some(
-                                        Span {
-                                            start: 39,
-                                            end: 74,
-                                        },
-                                    ),
+                                ),
+                                value: "is_structure",
+                            }: MethodDef {
+                                span: Some(
+                                    Span {
+                                        start: 57,
+                                        end: 92,
+                                    },
+                                ),
+                                signature: FunctionSignature {
+                                    span: None,
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 43,
-                                                end: 55,
+                                                start: 61,
+                                                end: 73,
                                             },
                                         ),
                                         value: "is_structure",
                                     },
-                                    signature: FunctionSignature {
-                                        span: None,
-                                        parameters: [
-                                            FunctionParameter {
-                                                span: None,
-                                                name: Identifier {
-                                                    span: Some(
-                                                        Span {
-                                                            start: 56,
-                                                            end: 57,
-                                                        },
-                                                    ),
-                                                    value: "v",
-                                                },
-                                                target_type: FunctionType {
-                                                    span: None,
-                                                    target_cardinality: FunctionCardinality {
-                                                        span: None,
-                                                        ordering: None,
-                                                        uniqueness: None,
-                                                        range: None,
-                                                    },
-                                                    target_type: Reference(
-                                                        Identifier(
-                                                            Identifier {
-                                                                span: Some(
-                                                                    Span {
-                                                                        start: 61,
-                                                                        end: 62,
-                                                                    },
-                                                                ),
-                                                                value: "T",
-                                                            },
-                                                        ),
-                                                    ),
-                                                },
-                                            },
-                                        ],
-                                        target_type: FunctionType {
+                                    parameters: [
+                                        FunctionParameter {
                                             span: None,
-                                            target_cardinality: FunctionCardinality {
-                                                span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: None,
-                                            },
-                                            target_type: Reference(
-                                                QualifiedIdentifier(
-                                                    QualifiedIdentifier {
-                                                        span: None,
-                                                        module: Identifier {
-                                                            span: None,
-                                                            value: "sdml",
-                                                        },
-                                                        member: Identifier {
-                                                            span: Some(
-                                                                Span {
-                                                                    start: 67,
-                                                                    end: 74,
-                                                                },
-                                                            ),
-                                                            value: "boolean",
-                                                        },
+                                            name: Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 74,
+                                                        end: 75,
                                                     },
                                                 ),
+                                                value: "v",
+                                            },
+                                            target_type: FunctionType {
+                                                span: None,
+                                                target_cardinality: FunctionCardinality {
+                                                    span: None,
+                                                    ordering: None,
+                                                    uniqueness: None,
+                                                    range: None,
+                                                },
+                                                target_type: Reference(
+                                                    Identifier(
+                                                        Identifier {
+                                                            span: Some(
+                                                                Span {
+                                                                    start: 79,
+                                                                    end: 80,
+                                                                },
+                                                            ),
+                                                            value: "T",
+                                                        },
+                                                    ),
+                                                ),
+                                            },
+                                        },
+                                    ],
+                                    target_type: FunctionType {
+                                        span: None,
+                                        target_cardinality: FunctionCardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: None,
+                                        },
+                                        target_type: Reference(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: None,
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 85,
+                                                                end: 92,
+                                                            },
+                                                        ),
+                                                        value: "boolean",
+                                                    },
+                                                },
                                             ),
-                                        },
+                                        ),
                                     },
-                                    body: None,
-                                    annotations: [],
                                 },
-                                Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 83,
-                                            end: 86,
-                                        },
-                                    ),
-                                    value: "new",
-                                }: MethodDef {
-                                    span: Some(
-                                        Span {
-                                            start: 79,
-                                            end: 91,
-                                        },
-                                    ),
+                                body: None,
+                                annotations: [],
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 101,
+                                        end: 104,
+                                    },
+                                ),
+                                value: "new",
+                            }: MethodDef {
+                                span: Some(
+                                    Span {
+                                        start: 97,
+                                        end: 109,
+                                    },
+                                ),
+                                signature: FunctionSignature {
+                                    span: None,
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 83,
-                                                end: 86,
+                                                start: 101,
+                                                end: 104,
                                             },
                                         ),
                                         value: "new",
                                     },
-                                    signature: FunctionSignature {
+                                    parameters: [],
+                                    target_type: FunctionType {
                                         span: None,
-                                        parameters: [],
-                                        target_type: FunctionType {
+                                        target_cardinality: FunctionCardinality {
                                             span: None,
-                                            target_cardinality: FunctionCardinality {
-                                                span: None,
-                                                ordering: None,
-                                                uniqueness: None,
-                                                range: None,
-                                            },
-                                            target_type: Reference(
-                                                Identifier(
-                                                    Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 90,
-                                                                end: 91,
-                                                            },
-                                                        ),
-                                                        value: "T",
-                                                    },
-                                                ),
-                                            ),
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: None,
                                         },
+                                        target_type: Reference(
+                                            Identifier(
+                                                Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 108,
+                                                            end: 109,
+                                                        },
+                                                    ),
+                                                    value: "T",
+                                                },
+                                            ),
+                                        ),
                                     },
-                                    body: None,
-                                    annotations: [],
                                 },
+                                body: None,
+                                annotations: [],
                             },
                         },
-                    ),
-                },
-            ),
-        },
+                    },
+                ),
+            },
+        ),
     },
 }

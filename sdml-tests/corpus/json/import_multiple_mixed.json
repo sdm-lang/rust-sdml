@@ -1,73 +1,70 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/import_multiple_mixed.sdm/",
-  "body": {
-    "__type": "module_body",
-    "imports": [
-      {
-        "__type": "import_statement",
-        "imports": [
-          {
-            "__type": "import",
+  "imports": [
+    {
+      "__type": "import_statement",
+      "imports": [
+        {
+          "__type": "import",
+          "module": {
+            "__type": "module_import",
             "module": {
-              "__type": "module_import",
-              "module": {
-                "__type": "identifier",
-                "value": "target"
-              }
-            }
-          },
-          {
-            "__type": "import",
-            "member": {
-              "__type": "member_import",
-              "member": {
-                "__type": "identifier",
-                "value": "base"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "xsd"
-              }
-            }
-          },
-          {
-            "__type": "import",
-            "member": {
-              "__type": "member_import",
-              "member": {
-                "__type": "identifier",
-                "value": "lang"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "xml"
-              }
-            }
-          },
-          {
-            "__type": "import",
-            "module": {
-              "__type": "module_import",
-              "module": {
-                "__type": "identifier",
-                "value": "skos"
-              }
+              "__type": "identifier",
+              "value": "target"
             }
           }
-        ]
-      }
-    ]
-  },
+        },
+        {
+          "__type": "import",
+          "member": {
+            "__type": "member_import",
+            "member": {
+              "__type": "identifier",
+              "value": "base"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "xsd"
+            }
+          }
+        },
+        {
+          "__type": "import",
+          "member": {
+            "__type": "member_import",
+            "member": {
+              "__type": "identifier",
+              "value": "lang"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "xml"
+            }
+          }
+        },
+        {
+          "__type": "import",
+          "module": {
+            "__type": "module_import",
+            "module": {
+              "__type": "identifier",
+              "value": "skos"
+            }
+          }
+        }
+      ]
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_import"
   },
   "source_file": "MANIFEST_PATH/corpus/import_multiple_mixed.sdm",
   "span": {
     "__type": "span",
-    "end": 95,
+    "end": 105,
     "start": 0
   }
 }

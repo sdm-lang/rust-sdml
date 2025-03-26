@@ -1,28 +1,25 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/datatype_from_string.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "datatype": {
-          "__type": "data_type_def",
-          "base": "sdml:string",
-          "is_opaque": false,
-          "name": {
-            "__type": "identifier",
-            "value": "nameString"
-          },
-          "span": {
-            "__type": "span",
-            "end": 50,
-            "start": 21
-          }
+  "definitions": [
+    {
+      "__type": "definition",
+      "datatype": {
+        "__type": "data_type_def",
+        "base": "sdml:string",
+        "is_opaque": false,
+        "name": {
+          "__type": "identifier",
+          "value": "nameString"
+        },
+        "span": {
+          "__type": "span",
+          "end": 50,
+          "start": 21
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

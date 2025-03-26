@@ -1,44 +1,41 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/property_def_used.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "structure": {
-          "__type": "structure_def",
-          "body": {
-            "__type": "structure_body",
-            "members": [
-              {
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
                 "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "reference": {
-                    "__type": "identifier_reference",
-                    "identifier": {
-                      "__type": "identifier",
-                      "value": "accountId"
-                    }
+                "reference": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "accountId"
                   }
                 }
               }
-            ]
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Account"
-          },
-          "span": {
-            "__type": "span",
-            "end": 62,
-            "start": 18
-          }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Account"
+        },
+        "span": {
+          "__type": "span",
+          "end": 62,
+          "start": 18
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

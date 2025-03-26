@@ -21,6 +21,6 @@
   ],
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_iri.sdm/",
   "is_library_module": false,
-  "name": "campaign",
+  "name": "corpus_test_annotation",
   "source_file": "MANIFEST_PATH/corpus/annotation_multiple_iri.sdm"
 }

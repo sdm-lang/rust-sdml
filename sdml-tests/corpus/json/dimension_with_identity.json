@@ -1,60 +1,57 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_identity.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "dimension": {
-          "__type": "dimension_def",
-          "body": {
-            "__type": "dimension_body",
+  "definitions": [
+    {
+      "__type": "definition",
+      "dimension": {
+        "__type": "dimension_def",
+        "body": {
+          "__type": "dimension_body",
+          "identity": {
+            "__type": "dimension_identity",
             "identity": {
-              "__type": "dimension_identity",
-              "identity": {
+              "__type": "member",
+              "kind": {
                 "__type": "member",
-                "kind": {
-                  "__type": "member",
-                  "definition": {
-                    "__type": "member_def",
-                    "name": {
-                      "__type": "identifier",
-                      "value": "campaign"
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 112,
-                      "start": 90
-                    },
-                    "type": {
-                      "__type": "type_reference",
-                      "reference": {
-                        "__type": "identifier_reference",
-                        "identifier": {
-                          "__type": "identifier",
-                          "value": "CampaignId"
-                        }
+                "definition": {
+                  "__type": "member_def",
+                  "name": {
+                    "__type": "identifier",
+                    "value": "campaign"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 112,
+                    "start": 90
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "identifier": {
+                        "__type": "identifier",
+                        "value": "CampaignId"
                       }
                     }
                   }
                 }
               }
             }
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Campaigns"
-          },
-          "span": {
-            "__type": "span",
-            "end": 118,
-            "start": 54
           }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Campaigns"
+        },
+        "span": {
+          "__type": "span",
+          "end": 118,
+          "start": 54
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

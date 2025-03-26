@@ -1,49 +1,46 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_source.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "dimension": {
-          "__type": "dimension_def",
-          "body": {
-            "__type": "dimension_body",
-            "identity": {
-              "__type": "dimension_identity",
-              "source": {
-                "__type": "source_entity",
-                "entity": {
-                  "__type": "identifier_reference",
-                  "qualified_identifier": {
-                    "__type": "qualified_identifier",
-                    "member": {
-                      "__type": "identifier",
-                      "value": "Campaign"
-                    },
-                    "module": {
-                      "__type": "identifier",
-                      "value": "entity"
-                    }
+  "definitions": [
+    {
+      "__type": "definition",
+      "dimension": {
+        "__type": "dimension_def",
+        "body": {
+          "__type": "dimension_body",
+          "identity": {
+            "__type": "dimension_identity",
+            "source": {
+              "__type": "source_entity",
+              "entity": {
+                "__type": "identifier_reference",
+                "qualified_identifier": {
+                  "__type": "qualified_identifier",
+                  "member": {
+                    "__type": "identifier",
+                    "value": "Campaign"
+                  },
+                  "module": {
+                    "__type": "identifier",
+                    "value": "entity"
                   }
                 }
               }
             }
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "Campaigns"
-          },
-          "span": {
-            "__type": "span",
-            "end": 107,
-            "start": 52
           }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Campaigns"
+        },
+        "span": {
+          "__type": "span",
+          "end": 107,
+          "start": 52
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

@@ -1,0 +1,213 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_less_than_or_equal.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "body": {
+                    "body": {
+                      "__type": "annotation_only_body",
+                      "annotations": [
+                        {
+                          "__type": "annotation",
+                          "constraint": {
+                            "__type": "constraint",
+                            "body": {
+                              "__type": "constraint_body",
+                              "formal": {
+                                "__type": "formal_constraint",
+                                "body": {
+                                  "__type": "constraint_sentence",
+                                  "simple": {
+                                    "__type": "simple_sentence",
+                                    "inequation": {
+                                      "__type": "inequation",
+                                      "lhs": {
+                                        "__type": "term",
+                                        "identifier": {
+                                          "__type": "identifier_reference",
+                                          "identifier": {
+                                            "__type": "identifier",
+                                            "value": "inner"
+                                          }
+                                        }
+                                      },
+                                      "relation": "op_less_than_or_equal",
+                                      "rhs": {
+                                        "__type": "term",
+                                        "value": {
+                                          "__type": "predicate_value",
+                                          "simple": {
+                                            "__type": "string",
+                                            "value": "hello"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "name": {
+                              "__type": "identifier",
+                              "value": "not_empty"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "inner"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 175,
+                    "start": 88
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "string"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "sdml"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "body": {
+                    "body": {
+                      "__type": "annotation_only_body",
+                      "annotations": [
+                        {
+                          "__type": "annotation",
+                          "constraint": {
+                            "__type": "constraint",
+                            "body": {
+                              "__type": "constraint_body",
+                              "formal": {
+                                "__type": "formal_constraint",
+                                "body": {
+                                  "__type": "constraint_sentence",
+                                  "simple": {
+                                    "__type": "simple_sentence",
+                                    "inequation": {
+                                      "__type": "inequation",
+                                      "lhs": {
+                                        "__type": "term",
+                                        "identifier": {
+                                          "__type": "identifier_reference",
+                                          "identifier": {
+                                            "__type": "identifier",
+                                            "value": "inner"
+                                          }
+                                        }
+                                      },
+                                      "relation": "op_less_than_or_equal",
+                                      "rhs": {
+                                        "__type": "term",
+                                        "value": {
+                                          "__type": "predicate_value",
+                                          "simple": {
+                                            "__type": "string",
+                                            "value": "hello"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "name": {
+                              "__type": "identifier",
+                              "value": "not_empty"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "inner_sym"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 273,
+                    "start": 181
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "string"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "sdml"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Outer"
+        },
+        "span": {
+          "__type": "span",
+          "end": 280,
+          "start": 64
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "Example"
+  },
+  "source_file": "MANIFEST_PATH/corpus/constraint_formal_less_than_or_equal.sdm",
+  "span": {
+    "__type": "span",
+    "end": 287,
+    "start": 0
+  }
+}

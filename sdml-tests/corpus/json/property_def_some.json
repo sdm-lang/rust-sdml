@@ -1,91 +1,88 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/property_def_some.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "property": {
-          "__type": "property_def",
-          "member": {
-            "__type": "member_def",
+  "definitions": [
+    {
+      "__type": "definition",
+      "property": {
+        "__type": "property_def",
+        "member": {
+          "__type": "member_def",
+          "body": {
             "body": {
-              "body": {
-                "__type": "annotation_only_body",
-                "annotations": [
-                  {
-                    "__type": "annotation",
-                    "property": {
-                      "__type": "annotation_property",
-                      "name": {
-                        "__type": "identifier_reference",
-                        "qualified_identifier": {
-                          "__type": "qualified_identifier",
-                          "member": {
-                            "__type": "identifier",
-                            "value": "definition"
-                          },
-                          "module": {
-                            "__type": "identifier",
-                            "value": "skos"
-                          }
+              "__type": "annotation_only_body",
+              "annotations": [
+                {
+                  "__type": "annotation",
+                  "property": {
+                    "__type": "annotation_property",
+                    "name": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "definition"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "skos"
                         }
-                      },
-                      "span": {
-                        "__type": "span",
-                        "end": 95,
-                        "start": 70
-                      },
-                      "value": {
-                        "__type": "value",
-                        "simple": {
-                          "__type": "string",
-                          "language": "en",
-                          "value": "a"
-                        }
+                      }
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 95,
+                      "start": 70
+                    },
+                    "value": {
+                      "__type": "value",
+                      "simple": {
+                        "__type": "string",
+                        "language": "en",
+                        "value": "a"
                       }
                     }
                   }
-                ]
-              }
-            },
-            "cardinality": {
-              "__type": "cardinality_expression",
-              "max": 2,
-              "min": 2
-            },
-            "name": {
-              "__type": "identifier",
-              "value": "identifier"
-            },
-            "span": {
-              "__type": "span",
-              "end": 101,
-              "start": 27
-            },
-            "type": {
-              "__type": "type_reference",
-              "reference": {
-                "__type": "identifier_reference",
-                "qualified_identifier": {
-                  "__type": "qualified_identifier",
-                  "member": {
-                    "__type": "identifier",
-                    "value": "AccountId"
-                  },
-                  "module": {
-                    "__type": "identifier",
-                    "value": "account"
-                  }
+                }
+              ]
+            }
+          },
+          "cardinality": {
+            "__type": "cardinality_expression",
+            "max": 2,
+            "min": 2
+          },
+          "name": {
+            "__type": "identifier",
+            "value": "identifier"
+          },
+          "span": {
+            "__type": "span",
+            "end": 101,
+            "start": 27
+          },
+          "type": {
+            "__type": "type_reference",
+            "reference": {
+              "__type": "identifier_reference",
+              "qualified_identifier": {
+                "__type": "qualified_identifier",
+                "member": {
+                  "__type": "identifier",
+                  "value": "AccountId"
+                },
+                "module": {
+                  "__type": "identifier",
+                  "value": "account"
                 }
               }
             }
           }
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

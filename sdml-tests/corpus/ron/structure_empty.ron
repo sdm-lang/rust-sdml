@@ -42,46 +42,36 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 38,
-                end: 67,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 54,
+                    end: 62,
+                },
+            ),
+            value: "Duration",
+        }: Structure(
+            StructureDef {
                 span: Some(
                     Span {
-                        start: 54,
+                        start: 44,
                         end: 62,
                     },
                 ),
-                value: "Duration",
-            }: Structure(
-                StructureDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 44,
+                            start: 54,
                             end: 62,
                         },
                     ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 54,
-                                end: 62,
-                            },
-                        ),
-                        value: "Duration",
-                    },
-                    body: None,
+                    value: "Duration",
                 },
-            ),
-        },
+                body: None,
+            },
+        ),
     },
 }

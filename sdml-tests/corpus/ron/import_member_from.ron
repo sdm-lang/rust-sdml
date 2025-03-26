@@ -1,0 +1,231 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_member_from.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 154,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 38,
+                end: 46,
+            },
+        ),
+        value: "Campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_member_from.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 53,
+                    end: 76,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: true,
+                    segments: [],
+                },
+            ),
+            imports: [
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 68,
+                                end: 76,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 68,
+                                    end: 76,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 68,
+                                        end: 71,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 72,
+                                        end: 76,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        },
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 79,
+                    end: 111,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: false,
+                    segments: [
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 84,
+                                    end: 87,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                    ],
+                },
+            ),
+            imports: [
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 95,
+                                end: 111,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 95,
+                                    end: 111,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 95,
+                                        end: 101,
+                                    },
+                                ),
+                                value: "facets",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 102,
+                                        end: 111,
+                                    },
+                                ),
+                                value: "minLength",
+                            },
+                        },
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 114,
+                    end: 148,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: true,
+                    segments: [
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 121,
+                                    end: 124,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                    ],
+                },
+            ),
+            imports: [
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 132,
+                                end: 148,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 132,
+                                    end: 148,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 132,
+                                        end: 138,
+                                    },
+                                ),
+                                value: "facets",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 139,
+                                        end: 148,
+                                    },
+                                ),
+                                value: "minLength",
+                            },
+                        },
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
+}

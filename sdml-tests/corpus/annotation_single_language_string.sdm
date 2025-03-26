@@ -1,6 +1,6 @@
 ;;; Annotation, Single Language-Tagged String
 
-module campaign is
+module corpus_test_annotation is
 
   @dc:title = "a test"@en-US
 

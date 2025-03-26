@@ -8,24 +8,24 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 106,
+            end: 116,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 15,
+                end: 25,
             },
         ),
-        value: "Campaign",
+        value: "corpus_test_module",
     },
     base_uri: Some(
         HeaderValue {
             span: Some(
                 Span {
-                    start: 16,
-                    end: 49,
+                    start: 26,
+                    end: 59,
                 },
             ),
             value: Url {
@@ -51,8 +51,8 @@ Module {
         HeaderValue {
             span: Some(
                 Span {
-                    start: 60,
-                    end: 63,
+                    start: 70,
+                    end: 73,
                 },
             ),
             value: "2",
@@ -62,8 +62,8 @@ Module {
         HeaderValue {
             span: Some(
                 Span {
-                    start: 64,
-                    end: 98,
+                    start: 74,
+                    end: 108,
                 },
             ),
             value: Url {
@@ -85,17 +85,7 @@ Module {
             },
         },
     ),
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 99,
-                end: 105,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {},
-    },
+    imports: [],
+    annotations: [],
+    definitions: {},
 }

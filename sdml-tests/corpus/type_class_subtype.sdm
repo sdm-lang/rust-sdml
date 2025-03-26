@@ -1,4 +1,4 @@
-module sdml is
+module example_typeclass_defs is
 
   class Any (T -> None(T))
 

@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 169,
+            end: 183,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 15,
+                end: 29,
             },
         ),
-        value: "Campaign",
+        value: "corpus_test_annotation",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,92 +42,82 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 16,
-                end: 168,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 22,
-                            end: 163,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
+    imports: [],
+    annotations: [
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 36,
+                        end: 177,
+                    },
+                ),
+                name_reference: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: Some(
+                            Span {
+                                start: 37,
+                                end: 46,
+                            },
+                        ),
+                        module: Identifier {
                             span: Some(
                                 Span {
-                                    start: 23,
-                                    end: 32,
+                                    start: 37,
+                                    end: 39,
                                 },
                             ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 23,
-                                        end: 25,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 26,
-                                        end: 32,
-                                    },
-                                ),
-                                value: "author",
-                            },
+                            value: "dc",
                         },
-                    ),
-                    value: Simple(
-                        Binary(
-                            Binary(
-                                [
-                                    82,
-                                    50,
-                                    57,
-                                    118,
-                                    90,
-                                    67,
-                                    66,
-                                    67,
-                                    101,
-                                    87,
-                                    85,
-                                    103,
-                                    81,
-                                    51,
-                                    74,
-                                    49,
-                                    90,
-                                    87,
-                                    119,
-                                    103,
-                                    86,
-                                    50,
-                                    57,
-                                    121,
-                                    98,
-                                    71,
-                                    81,
-                                    75,
-                                ],
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 40,
+                                    end: 46,
+                                },
                             ),
+                            value: "author",
+                        },
+                    },
+                ),
+                value: Simple(
+                    Binary(
+                        Binary(
+                            [
+                                82,
+                                50,
+                                57,
+                                118,
+                                90,
+                                67,
+                                66,
+                                67,
+                                101,
+                                87,
+                                85,
+                                103,
+                                81,
+                                51,
+                                74,
+                                49,
+                                90,
+                                87,
+                                119,
+                                103,
+                                86,
+                                50,
+                                57,
+                                121,
+                                98,
+                                71,
+                                81,
+                                75,
+                            ],
                         ),
                     ),
-                },
-            ),
-        ],
-        definitions: {},
-    },
+                ),
+            },
+        ),
+    ],
+    definitions: {},
 }

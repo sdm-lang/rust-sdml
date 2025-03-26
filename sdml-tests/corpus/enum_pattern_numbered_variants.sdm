@@ -1,0 +1,22 @@
+;;; Enum, With Variants
+
+module campaign is
+
+  import [ owl rdf ]
+
+  enum NameKind of
+
+    @owl:equivalentClass = unsigned
+
+    Internal is
+      @rdf:value = 1
+    end
+
+    External is
+      @rdf:value = 2
+    end
+
+  end
+
+end
+

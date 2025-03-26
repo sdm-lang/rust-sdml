@@ -1,86 +1,83 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_subtype.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "type_class": {
-          "__type": "type_class_def",
-          "name": {
-            "__type": "identifier",
-            "value": "Any"
-          },
-          "span": {
-            "__type": "span",
-            "end": 42,
-            "start": 18
-          },
-          "variables": [
-            {
-              "__type": "type_variable",
-              "name": {
-                "__type": "identifier",
-                "value": "T"
-              },
-              "restrictions": [
-                {
-                  "__type": "type_class_reference",
-                  "arguments": [
-                    {
-                      "__type": "type_class_argument",
-                      "reference": {
-                        "__type": "type_class_reference",
-                        "name": {
-                          "__type": "identifier_reference",
-                          "identifier": {
-                            "__type": "identifier",
-                            "value": "T"
-                          }
-                        },
-                        "span": {
-                          "__type": "span",
-                          "end": 40,
-                          "start": 39
+  "definitions": [
+    {
+      "__type": "definition",
+      "type_class": {
+        "__type": "type_class_def",
+        "name": {
+          "__type": "identifier",
+          "value": "Any"
+        },
+        "span": {
+          "__type": "span",
+          "end": 60,
+          "start": 36
+        },
+        "variables": [
+          {
+            "__type": "type_variable",
+            "name": {
+              "__type": "identifier",
+              "value": "T"
+            },
+            "restriction": [
+              {
+                "__type": "type_class_reference",
+                "arguments": [
+                  {
+                    "__type": "type_class_argument",
+                    "reference": {
+                      "__type": "type_class_reference",
+                      "name": {
+                        "__type": "identifier_reference",
+                        "identifier": {
+                          "__type": "identifier",
+                          "value": "T"
                         }
+                      },
+                      "span": {
+                        "__type": "span",
+                        "end": 58,
+                        "start": 57
                       }
                     }
-                  ],
-                  "name": {
-                    "__type": "identifier_reference",
-                    "identifier": {
-                      "__type": "identifier",
-                      "value": "None"
-                    }
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 41,
-                    "start": 34
                   }
+                ],
+                "name": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "None"
+                  }
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 59,
+                  "start": 52
                 }
-              ],
-              "span": {
-                "__type": "span",
-                "end": 41,
-                "start": 29
               }
+            ],
+            "span": {
+              "__type": "span",
+              "end": 59,
+              "start": 47
             }
-          ]
-        }
+          }
+        ]
       }
-    ]
-  },
-  "is_library_module": true,
+    }
+  ],
+  "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "sdml"
+    "value": "example_typeclass_defs"
   },
   "source_file": "MANIFEST_PATH/corpus/type_class_subtype.sdm",
   "span": {
     "__type": "span",
-    "end": 48,
+    "end": 66,
     "start": 0
   }
 }

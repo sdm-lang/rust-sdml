@@ -1,0 +1,93 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_disjunction.sdm/",
+  "definitions": [
+    {
+      "__type": "structure_def",
+      "members": [
+        {
+          "__type": "member_def",
+          "annotations": [
+            {
+              "__type": "formal_constraint",
+              "body": {
+                "__type": "binary_boolean_sentence",
+                "lhs": {
+                  "__type": "equation",
+                  "lhs": {
+                    "__type": "identifier",
+                    "value": "inner"
+                  },
+                  "rhs": {
+                    "__type": "string",
+                    "value": "hi"
+                  }
+                },
+                "operator": "logical_op_disjunction",
+                "rhs": {
+                  "__type": "equation",
+                  "lhs": {
+                    "__type": "identifier",
+                    "value": "inner_sym"
+                  },
+                  "rhs": {
+                    "__type": "string",
+                    "value": "bye"
+                  }
+                }
+              },
+              "name": "not_empty"
+            }
+          ],
+          "name": "inner",
+          "type": {
+            "reference": "sdml:string"
+          }
+        },
+        {
+          "__type": "member_def",
+          "annotations": [
+            {
+              "__type": "formal_constraint",
+              "body": {
+                "__type": "binary_boolean_sentence",
+                "lhs": {
+                  "__type": "equation",
+                  "lhs": {
+                    "__type": "identifier",
+                    "value": "inner"
+                  },
+                  "rhs": {
+                    "__type": "string",
+                    "value": "hi"
+                  }
+                },
+                "operator": "logical_op_disjunction",
+                "rhs": {
+                  "__type": "equation",
+                  "lhs": {
+                    "__type": "identifier",
+                    "value": "inner_sym"
+                  },
+                  "rhs": {
+                    "__type": "string",
+                    "value": "bye"
+                  }
+                }
+              },
+              "name": "not_empty"
+            }
+          ],
+          "name": "inner_sym",
+          "type": {
+            "reference": "sdml:string"
+          }
+        }
+      ],
+      "name": "Outer"
+    }
+  ],
+  "is_library_module": false,
+  "name": "Example",
+  "source_file": "MANIFEST_PATH/corpus/constraint_formal_binary_disjunction.sdm"
+}

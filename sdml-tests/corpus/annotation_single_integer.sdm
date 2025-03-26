@@ -1,6 +1,6 @@
 ;;; Annotation, Single Integer
 
-module Campaign is
+module corpus_test_annotation is
 
   @dc:version = 2
 

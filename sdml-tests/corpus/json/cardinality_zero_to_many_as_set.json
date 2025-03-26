@@ -1,0 +1,78 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_many_as_set.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "members": [
+            {
+              "__type": "member",
+              "kind": {
+                "__type": "member",
+                "definition": {
+                  "__type": "member_def",
+                  "cardinality": {
+                    "__type": "cardinality_expression",
+                    "min": 0,
+                    "ordering": "unordered",
+                    "uniqueness": "unique"
+                  },
+                  "name": {
+                    "__type": "identifier",
+                    "value": "thing"
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 148,
+                    "start": 109
+                  },
+                  "type": {
+                    "__type": "type_reference",
+                    "reference": {
+                      "__type": "identifier_reference",
+                      "qualified_identifier": {
+                        "__type": "qualified_identifier",
+                        "member": {
+                          "__type": "identifier",
+                          "value": "integer"
+                        },
+                        "module": {
+                          "__type": "identifier",
+                          "value": "sdml"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 154,
+          "start": 85
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_cardinality"
+  },
+  "source_file": "MANIFEST_PATH/corpus/cardinality_zero_to_many_as_set.sdm",
+  "span": {
+    "__type": "span",
+    "end": 161,
+    "start": 0
+  }
+}

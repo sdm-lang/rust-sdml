@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 101,
+            end: 115,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 54,
-                end: 62,
+                end: 76,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_annotation",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,88 +42,78 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 63,
-                end: 100,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [
-            Property(
-                AnnotationProperty {
-                    span: Some(
-                        Span {
-                            start: 69,
-                            end: 95,
-                        },
-                    ),
-                    name_reference: QualifiedIdentifier(
-                        QualifiedIdentifier {
-                            span: Some(
-                                Span {
-                                    start: 70,
-                                    end: 78,
-                                },
-                            ),
-                            module: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 70,
-                                        end: 72,
-                                    },
-                                ),
-                                value: "dc",
-                            },
-                            member: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 73,
-                                        end: 78,
-                                    },
-                                ),
-                                value: "title",
-                            },
-                        },
-                    ),
-                    value: Simple(
-                        String(
-                            LanguageString {
-                                span: Some(
-                                    Span {
-                                        start: 81,
-                                        end: 95,
-                                    },
-                                ),
-                                value: "a test",
-                                language: Some(
-                                    LanguageTag {
-                                        span: Some(
-                                            Span {
-                                                start: 89,
-                                                end: 95,
-                                            },
-                                        ),
-                                        value: LanguageTag {
-                                            serialization: "en-US",
-                                            language_end: 2,
-                                            extlang_end: 2,
-                                            script_end: 2,
-                                            region_end: 5,
-                                            variant_end: 5,
-                                            extension_end: 5,
-                                        },
-                                    },
-                                ),
+    imports: [],
+    annotations: [
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 83,
+                        end: 109,
+                    },
+                ),
+                name_reference: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: Some(
+                            Span {
+                                start: 84,
+                                end: 92,
                             },
                         ),
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 84,
+                                    end: 86,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 87,
+                                    end: 92,
+                                },
+                            ),
+                            value: "title",
+                        },
+                    },
+                ),
+                value: Simple(
+                    String(
+                        LanguageString {
+                            span: Some(
+                                Span {
+                                    start: 95,
+                                    end: 109,
+                                },
+                            ),
+                            value: "a test",
+                            language: Some(
+                                LanguageTag {
+                                    span: Some(
+                                        Span {
+                                            start: 103,
+                                            end: 109,
+                                        },
+                                    ),
+                                    value: LanguageTag {
+                                        serialization: "en-US",
+                                        language_end: 2,
+                                        extlang_end: 2,
+                                        script_end: 2,
+                                        region_end: 5,
+                                        variant_end: 5,
+                                        extension_end: 5,
+                                    },
+                                },
+                            ),
+                        },
                     ),
-                },
-            ),
-        ],
-        definitions: {},
-    },
+                ),
+            },
+        ),
+    ],
+    definitions: {},
 }

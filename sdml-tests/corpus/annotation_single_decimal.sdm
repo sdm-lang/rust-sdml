@@ -1,6 +1,6 @@
 ;;; Annotation, Single Decimal
 
-module campaign is
+module corpus_test_annotation is
 
   @dc:some = 102.201
 

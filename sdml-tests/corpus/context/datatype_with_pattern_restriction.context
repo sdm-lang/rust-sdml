@@ -1,0 +1,27 @@
+{
+  "__type": "module",
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/datatype_with_pattern_restriction.sdm/",
+  "definitions": [
+    {
+      "__type": "data_type_def",
+      "base": "sdml:string",
+      "is_opaque": false,
+      "name": "nameString",
+      "restriction": {
+        "__type": "datatype_def_restriction",
+        "pattern": {
+          "value": [
+            "[",
+            "\"A[A-Z0-9]{19}\"",
+            "\"C[A-Z0-9]{19}\"",
+            "\"X[A-Z0-9]{19}\"",
+            "]"
+          ]
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": "example",
+  "source_file": "MANIFEST_PATH/corpus/datatype_with_pattern_restriction.sdm"
+}

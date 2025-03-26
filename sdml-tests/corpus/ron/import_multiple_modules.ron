@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 76,
+            end: 86,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 36,
-                end: 44,
+                end: 54,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,70 +42,61 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 45,
-                end: 75,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [
-            ImportStatement {
-                span: Some(
-                    Span {
-                        start: 51,
-                        end: 70,
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 61,
+                    end: 80,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 70,
+                                end: 73,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 70,
+                                    end: 73,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
                     },
                 ),
-                imports: [
-                    Module(
-                        ModuleImport {
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 74,
+                                end: 78,
+                            },
+                        ),
+                        name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 60,
-                                    end: 63,
+                                    start: 74,
+                                    end: 78,
                                 },
                             ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 60,
-                                        end: 63,
-                                    },
-                                ),
-                                value: "xsd",
-                            },
-                            version_uri: None,
-                            renamed_as: None,
+                            value: "skos",
                         },
-                    ),
-                    Module(
-                        ModuleImport {
-                            span: Some(
-                                Span {
-                                    start: 64,
-                                    end: 68,
-                                },
-                            ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 64,
-                                        end: 68,
-                                    },
-                                ),
-                                value: "skos",
-                            },
-                            version_uri: None,
-                            renamed_as: None,
-                        },
-                    ),
-                ],
-            },
-        ],
-        annotations: [],
-        definitions: {},
-    },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
 }

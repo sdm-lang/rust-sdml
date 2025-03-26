@@ -1,0 +1,229 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/import_multiple_from.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 174,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 41,
+                end: 49,
+            },
+        ),
+        value: "Campaign",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/import_multiple_from.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 56,
+                    end: 79,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: true,
+                    segments: [],
+                },
+            ),
+            imports: [
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 71,
+                                end: 79,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
+                            span: Some(
+                                Span {
+                                    start: 71,
+                                    end: 79,
+                                },
+                            ),
+                            module: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 71,
+                                        end: 74,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 75,
+                                        end: 79,
+                                    },
+                                ),
+                                value: "base",
+                            },
+                        },
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 82,
+                    end: 104,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: false,
+                    segments: [
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 87,
+                                    end: 90,
+                                },
+                            ),
+                            value: "xsd",
+                        },
+                    ],
+                },
+            ),
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 98,
+                                end: 104,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 98,
+                                    end: 104,
+                                },
+                            ),
+                            value: "facets",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 107,
+                    end: 168,
+                },
+            ),
+            from_clause: Some(
+                ModulePath {
+                    span: None,
+                    is_absolute: true,
+                    segments: [
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 114,
+                                    end: 123,
+                                },
+                            ),
+                            value: "reporting",
+                        },
+                        Identifier {
+                            span: Some(
+                                Span {
+                                    start: 125,
+                                    end: 131,
+                                },
+                            ),
+                            value: "common",
+                        },
+                    ],
+                },
+            ),
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 145,
+                                end: 154,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 145,
+                                    end: 154,
+                                },
+                            ),
+                            value: "datatypes",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 159,
+                                end: 164,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 159,
+                                    end: 164,
+                                },
+                            ),
+                            value: "enums",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
+}

@@ -1,6 +1,6 @@
 ;;; Import multiple modules
 
-module campaign is
+module corpus_test_import is
 
   import [ xsd skos ]
 

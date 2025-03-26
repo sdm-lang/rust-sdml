@@ -5,4 +5,4 @@
 
 ;; This is a general comment that starts at the left
 ;; with current indentation
-module campaign is end ; a trailing comment
+module corpus_test_module is end ; a trailing comment

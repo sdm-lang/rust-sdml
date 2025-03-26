@@ -1,0 +1,160 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/cardinality_one_to_many.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 136,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 47,
+                end: 70,
+            },
+        ),
+        value: "corpus_test_cardinality",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/cardinality_one_to_many.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 87,
+                    end: 93,
+                },
+            ),
+            value: "Things",
+        }: Structure(
+            StructureDef {
+                span: Some(
+                    Span {
+                        start: 77,
+                        end: 129,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 87,
+                            end: 93,
+                        },
+                    ),
+                    value: "Things",
+                },
+                body: Some(
+                    StructureBody {
+                        span: Some(
+                            Span {
+                                start: 94,
+                                end: 129,
+                            },
+                        ),
+                        annotations: [],
+                        members: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 101,
+                                        end: 106,
+                                    },
+                                ),
+                                value: "thing",
+                            }: Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 101,
+                                                end: 123,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 101,
+                                                    end: 106,
+                                                },
+                                            ),
+                                            value: "thing",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: Some(
+                                                Span {
+                                                    start: 110,
+                                                    end: 115,
+                                                },
+                                            ),
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 1,
+                                                max: None,
+                                            },
+                                        },
+                                        target_type: Type(
+                                            QualifiedIdentifier(
+                                                QualifiedIdentifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 116,
+                                                            end: 123,
+                                                        },
+                                                    ),
+                                                    module: Identifier {
+                                                        span: None,
+                                                        value: "sdml",
+                                                    },
+                                                    member: Identifier {
+                                                        span: Some(
+                                                            Span {
+                                                                start: 116,
+                                                                end: 123,
+                                                            },
+                                                        ),
+                                                        value: "integer",
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    },
+}

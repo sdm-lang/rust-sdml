@@ -1,0 +1,16 @@
+;;; Constraint, formal greater than
+
+module Example is
+
+  structure Outer is
+
+    inner -> string is
+      assert not_empty is
+        inner > "hello"
+      end
+    end
+
+  end
+
+end
+

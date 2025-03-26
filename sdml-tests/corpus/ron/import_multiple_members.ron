@@ -42,102 +42,93 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 16,
-                end: 57,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [
-            ImportStatement {
-                span: Some(
-                    Span {
-                        start: 22,
-                        end: 50,
-                    },
-                ),
-                imports: [
-                    Member(
-                        MemberImport {
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 22,
+                    end: 50,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 31,
+                                end: 39,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
                             span: Some(
                                 Span {
                                     start: 31,
                                     end: 39,
                                 },
                             ),
-                            name: QualifiedIdentifier {
+                            module: Identifier {
                                 span: Some(
                                     Span {
                                         start: 31,
+                                        end: 34,
+                                    },
+                                ),
+                                value: "xsd",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 35,
                                         end: 39,
                                     },
                                 ),
-                                module: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 31,
-                                            end: 34,
-                                        },
-                                    ),
-                                    value: "xsd",
-                                },
-                                member: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 35,
-                                            end: 39,
-                                        },
-                                    ),
-                                    value: "base",
-                                },
+                                value: "base",
                             },
-                            renamed_as: None,
                         },
-                    ),
-                    Member(
-                        MemberImport {
+                        renamed_as: None,
+                    },
+                ),
+                Member(
+                    MemberImport {
+                        span: Some(
+                            Span {
+                                start: 40,
+                                end: 48,
+                            },
+                        ),
+                        name: QualifiedIdentifier {
                             span: Some(
                                 Span {
                                     start: 40,
                                     end: 48,
                                 },
                             ),
-                            name: QualifiedIdentifier {
+                            module: Identifier {
                                 span: Some(
                                     Span {
                                         start: 40,
+                                        end: 43,
+                                    },
+                                ),
+                                value: "xml",
+                            },
+                            member: Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 44,
                                         end: 48,
                                     },
                                 ),
-                                module: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 40,
-                                            end: 43,
-                                        },
-                                    ),
-                                    value: "xml",
-                                },
-                                member: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 44,
-                                            end: 48,
-                                        },
-                                    ),
-                                    value: "lang",
-                                },
+                                value: "lang",
                             },
-                            renamed_as: None,
                         },
-                    ),
-                ],
-            },
-        ],
-        annotations: [],
-        definitions: {},
-    },
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
+    annotations: [],
+    definitions: {},
 }

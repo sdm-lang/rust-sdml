@@ -32,22 +32,21 @@
             {
               "__type": "formal_constraint",
               "body": {
-                "__type": "quantified_sentence",
-                "binding": {
-                  "__type": "quantified_variable_binding",
-                  "quantifier": "∀"
-                },
-                "sentence": {
-                  "__type": "atomic_sentence",
-                  "function": {
-                    "__type": "function_composition",
-                    "functions": [
-                      "tags",
-                      "contains"
-                    ],
-                    "subject": {
-                      "self": true
-                    }
+                "__type": "atomic_sentence",
+                "arguments": [
+                  {
+                    "__type": "string",
+                    "value": "foo"
+                  }
+                ],
+                "predicate": {
+                  "__type": "function_composition",
+                  "functions": [
+                    "tags",
+                    "contains"
+                  ],
+                  "subject": {
+                    "self": true
                   }
                 }
               },

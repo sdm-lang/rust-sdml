@@ -1,28 +1,25 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_informal.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "constraint": {
-          "__type": "constraint",
-          "body": {
-            "__type": "constraint_body",
-            "informal": {
-              "__type": "informal_constraint",
-              "value": "This module has no definitions"
-            }
-          },
-          "name": {
-            "__type": "identifier",
-            "value": "no_definitions"
+  "annotations": [
+    {
+      "__type": "annotation",
+      "constraint": {
+        "__type": "constraint",
+        "body": {
+          "__type": "constraint_body",
+          "informal": {
+            "__type": "informal_constraint",
+            "value": "This module has no definitions"
           }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "no_definitions"
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_informal.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",

@@ -1,0 +1,9 @@
+;;; Import single module from
+
+module Campaign is
+
+  from :: import xsd
+  from ::xsd import facets
+  from reporting::common import enums
+
+end

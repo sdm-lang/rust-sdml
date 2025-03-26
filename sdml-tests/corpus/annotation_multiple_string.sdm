@@ -1,6 +1,6 @@
 ;;; Annotation, Multiple Strings
 
-module campaign is
+module corpus_test_annotation is
 
   @dc:author = [ "me" "and" "you" ]
 

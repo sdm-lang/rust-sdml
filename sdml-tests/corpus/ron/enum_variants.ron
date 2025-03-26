@@ -42,54 +42,60 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 41,
-                end: 100,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 52,
+                    end: 60,
+                },
+            ),
+            value: "NameKind",
+        }: Enum(
+            EnumDef {
                 span: Some(
                     Span {
-                        start: 52,
-                        end: 60,
+                        start: 47,
+                        end: 95,
                     },
                 ),
-                value: "NameKind",
-            }: Enum(
-                EnumDef {
+                name: Identifier {
                     span: Some(
                         Span {
-                            start: 47,
-                            end: 95,
+                            start: 52,
+                            end: 60,
                         },
                     ),
-                    name: Identifier {
+                    value: "NameKind",
+                },
+                body: Some(
+                    EnumBody {
                         span: Some(
                             Span {
-                                start: 52,
-                                end: 60,
+                                start: 61,
+                                end: 95,
                             },
                         ),
-                        value: "NameKind",
-                    },
-                    body: Some(
-                        EnumBody {
-                            span: Some(
-                                Span {
-                                    start: 61,
-                                    end: 95,
-                                },
-                            ),
-                            annotations: [],
-                            variants: {
-                                Identifier {
+                        annotations: [],
+                        variants: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 81,
+                                        end: 89,
+                                    },
+                                ),
+                                value: "External",
+                            }: ValueVariant {
+                                span: Some(
+                                    Span {
+                                        start: 81,
+                                        end: 89,
+                                    },
+                                ),
+                                name: Identifier {
                                     span: Some(
                                         Span {
                                             start: 81,
@@ -97,25 +103,25 @@ Module {
                                         },
                                     ),
                                     value: "External",
-                                }: ValueVariant {
-                                    span: Some(
-                                        Span {
-                                            start: 81,
-                                            end: 89,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 81,
-                                                end: 89,
-                                            },
-                                        ),
-                                        value: "External",
-                                    },
-                                    body: None,
                                 },
-                                Identifier {
+                                body: None,
+                            },
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 68,
+                                        end: 76,
+                                    },
+                                ),
+                                value: "Internal",
+                            }: ValueVariant {
+                                span: Some(
+                                    Span {
+                                        start: 68,
+                                        end: 76,
+                                    },
+                                ),
+                                name: Identifier {
                                     span: Some(
                                         Span {
                                             start: 68,
@@ -123,29 +129,13 @@ Module {
                                         },
                                     ),
                                     value: "Internal",
-                                }: ValueVariant {
-                                    span: Some(
-                                        Span {
-                                            start: 68,
-                                            end: 76,
-                                        },
-                                    ),
-                                    name: Identifier {
-                                        span: Some(
-                                            Span {
-                                                start: 68,
-                                                end: 76,
-                                            },
-                                        ),
-                                        value: "Internal",
-                                    },
-                                    body: None,
                                 },
+                                body: None,
                             },
                         },
-                    ),
-                },
-            ),
-        },
+                    },
+                ),
+            },
+        ),
     },
 }

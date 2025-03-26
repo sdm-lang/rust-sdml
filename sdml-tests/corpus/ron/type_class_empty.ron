@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 37,
+            end: 55,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 11,
+                end: 29,
             },
         ),
-        value: "sdml",
+        value: "example_typeclass_defs",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,67 +42,57 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 12,
-                end: 36,
-            },
-        ),
-        file_id: None,
-        is_library: true,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
-                span: Some(
-                    Span {
-                        start: 24,
-                        end: 27,
-                    },
-                ),
-                value: "Any",
-            }: TypeClass(
-                TypeClassDef {
-                    span: Some(
-                        Span {
-                            start: 18,
-                            end: 31,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 24,
-                                end: 27,
-                            },
-                        ),
-                        value: "Any",
-                    },
-                    variables: [
-                        TypeVariable {
-                            span: Some(
-                                Span {
-                                    start: 29,
-                                    end: 30,
-                                },
-                            ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 29,
-                                        end: 30,
-                                    },
-                                ),
-                                value: "T",
-                            },
-                            cardinality: None,
-                            restrictions: [],
-                        },
-                    ],
-                    body: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 42,
+                    end: 45,
                 },
             ),
-        },
+            value: "Any",
+        }: TypeClass(
+            TypeClassDef {
+                span: Some(
+                    Span {
+                        start: 36,
+                        end: 49,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 42,
+                            end: 45,
+                        },
+                    ),
+                    value: "Any",
+                },
+                variables: [
+                    TypeVariable {
+                        span: Some(
+                            Span {
+                                start: 47,
+                                end: 48,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 47,
+                                    end: 48,
+                                },
+                            ),
+                            value: "T",
+                        },
+                        cardinality: None,
+                        restrictions: [],
+                    },
+                ],
+                body: None,
+            },
+        ),
     },
 }

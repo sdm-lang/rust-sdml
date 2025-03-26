@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 63,
+            end: 70,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 44,
-                end: 55,
+                end: 62,
             },
         ),
-        value: "rental_cars",
+        value: "corpus_test_module",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,17 +42,7 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 56,
-                end: 62,
-            },
-        ),
-        file_id: None,
-        is_library: false,
-        imports: [],
-        annotations: [],
-        definitions: {},
-    },
+    imports: [],
+    annotations: [],
+    definitions: {},
 }

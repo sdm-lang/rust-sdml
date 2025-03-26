@@ -1,4 +1,4 @@
-module campaign is
+module corpus_test_import is
 
   import [
     sdml

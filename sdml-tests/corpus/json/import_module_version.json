@@ -1,27 +1,24 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/import_module_version.sdm/",
-  "body": {
-    "__type": "module_body",
-    "imports": [
-      {
-        "__type": "import_statement",
-        "imports": [
-          {
-            "__type": "import",
+  "imports": [
+    {
+      "__type": "import_statement",
+      "imports": [
+        {
+          "__type": "import",
+          "module": {
+            "__type": "module_import",
             "module": {
-              "__type": "module_import",
-              "module": {
-                "__type": "identifier",
-                "value": "customer"
-              },
-              "version_uri": "https://example.org/v2/Customer#"
-            }
+              "__type": "identifier",
+              "value": "customer"
+            },
+            "version_uri": "https://example.org/v2/Customer#"
           }
-        ]
-      }
-    ]
-  },
+        }
+      ]
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

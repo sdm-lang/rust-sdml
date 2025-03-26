@@ -1,33 +1,30 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/property_def_empty.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "property": {
-          "__type": "property_def",
-          "member": {
-            "__type": "member_def",
-            "name": {
-              "__type": "identifier",
-              "value": "accountId"
-            },
-            "span": {
-              "__type": "span",
-              "end": 48,
-              "start": 28
-            },
-            "type": {
-              "__type": "type_reference",
-              "unknown": true
-            }
+  "definitions": [
+    {
+      "__type": "definition",
+      "property": {
+        "__type": "property_def",
+        "member": {
+          "__type": "member_def",
+          "name": {
+            "__type": "identifier",
+            "value": "accountId"
+          },
+          "span": {
+            "__type": "span",
+            "end": 48,
+            "start": 28
+          },
+          "type": {
+            "__type": "type_reference",
+            "unknown": true
           }
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

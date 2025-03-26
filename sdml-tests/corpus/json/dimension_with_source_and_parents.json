@@ -1,58 +1,55 @@
 {
   "__type": "module",
   "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_source_and_parents.sdm/",
-  "body": {
-    "__type": "module_body",
-    "definitions": [
-      {
-        "__type": "definition",
-        "dimension": {
-          "__type": "dimension_def",
-          "body": {
-            "__type": "dimension_body",
-            "identity": {
-              "__type": "dimension_identity",
-              "source": {
-                "__type": "source_entity",
-                "entity": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Campaign"
-                  }
-                }
-              }
-            },
-            "parents": [
-              {
-                "__type": "dimension_parent",
-                "entity": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Portfolio"
-                  }
-                },
-                "name": {
+  "definitions": [
+    {
+      "__type": "definition",
+      "dimension": {
+        "__type": "dimension_def",
+        "body": {
+          "__type": "dimension_body",
+          "identity": {
+            "__type": "dimension_identity",
+            "source": {
+              "__type": "source_entity",
+              "entity": {
+                "__type": "identifier_reference",
+                "identifier": {
                   "__type": "identifier",
-                  "value": "portfolio"
+                  "value": "Campaign"
                 }
               }
-            ]
+            }
           },
-          "name": {
-            "__type": "identifier",
-            "value": "Campaigns"
-          },
-          "span": {
-            "__type": "span",
-            "end": 146,
-            "start": 64
-          }
+          "parents": [
+            {
+              "__type": "dimension_parent",
+              "entity": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Portfolio"
+                }
+              },
+              "name": {
+                "__type": "identifier",
+                "value": "portfolio"
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Campaigns"
+        },
+        "span": {
+          "__type": "span",
+          "end": 146,
+          "start": 64
         }
       }
-    ]
-  },
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",

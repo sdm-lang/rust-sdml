@@ -1,0 +1,10 @@
+;;; Structure, Cardinality zero to many as-list
+
+module corpus_test_cardinality is
+
+  structure Things is
+    thing -> {ordered nonunique 0..} integer
+  end
+
+end
+

@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 48,
+            end: 66,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 11,
+                end: 29,
             },
         ),
-        value: "sdml",
+        value: "example_typeclass_defs",
     },
     base_uri: Some(
         HeaderValue {
@@ -42,111 +42,101 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    body: ModuleBody {
-        span: Some(
-            Span {
-                start: 12,
-                end: 47,
-            },
-        ),
-        file_id: None,
-        is_library: true,
-        imports: [],
-        annotations: [],
-        definitions: {
-            Identifier {
-                span: Some(
-                    Span {
-                        start: 24,
-                        end: 27,
-                    },
-                ),
-                value: "Any",
-            }: TypeClass(
-                TypeClassDef {
-                    span: Some(
-                        Span {
-                            start: 18,
-                            end: 42,
-                        },
-                    ),
-                    name: Identifier {
-                        span: Some(
-                            Span {
-                                start: 24,
-                                end: 27,
-                            },
-                        ),
-                        value: "Any",
-                    },
-                    variables: [
-                        TypeVariable {
-                            span: Some(
-                                Span {
-                                    start: 29,
-                                    end: 41,
-                                },
-                            ),
-                            name: Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 29,
-                                        end: 30,
-                                    },
-                                ),
-                                value: "T",
-                            },
-                            cardinality: None,
-                            restrictions: [
-                                TypeClassReference {
-                                    span: Some(
-                                        Span {
-                                            start: 34,
-                                            end: 41,
-                                        },
-                                    ),
-                                    name: Identifier(
-                                        Identifier {
-                                            span: Some(
-                                                Span {
-                                                    start: 34,
-                                                    end: 38,
-                                                },
-                                            ),
-                                            value: "None",
-                                        },
-                                    ),
-                                    arguments: [
-                                        Reference(
-                                            TypeClassReference {
-                                                span: Some(
-                                                    Span {
-                                                        start: 39,
-                                                        end: 40,
-                                                    },
-                                                ),
-                                                name: Identifier(
-                                                    Identifier {
-                                                        span: Some(
-                                                            Span {
-                                                                start: 39,
-                                                                end: 40,
-                                                            },
-                                                        ),
-                                                        value: "T",
-                                                    },
-                                                ),
-                                                arguments: [],
-                                            },
-                                        ),
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                    body: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 42,
+                    end: 45,
                 },
             ),
-        },
+            value: "Any",
+        }: TypeClass(
+            TypeClassDef {
+                span: Some(
+                    Span {
+                        start: 36,
+                        end: 60,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 42,
+                            end: 45,
+                        },
+                    ),
+                    value: "Any",
+                },
+                variables: [
+                    TypeVariable {
+                        span: Some(
+                            Span {
+                                start: 47,
+                                end: 59,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 47,
+                                    end: 48,
+                                },
+                            ),
+                            value: "T",
+                        },
+                        cardinality: None,
+                        restrictions: [
+                            TypeClassReference {
+                                span: Some(
+                                    Span {
+                                        start: 52,
+                                        end: 59,
+                                    },
+                                ),
+                                name: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 52,
+                                                end: 56,
+                                            },
+                                        ),
+                                        value: "None",
+                                    },
+                                ),
+                                arguments: [
+                                    Reference(
+                                        TypeClassReference {
+                                            span: Some(
+                                                Span {
+                                                    start: 57,
+                                                    end: 58,
+                                                },
+                                            ),
+                                            name: Identifier(
+                                                Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 57,
+                                                            end: 58,
+                                                        },
+                                                    ),
+                                                    value: "T",
+                                                },
+                                            ),
+                                            arguments: [],
+                                        },
+                                    ),
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                body: None,
+            },
+        ),
     },
 }

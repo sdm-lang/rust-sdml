@@ -1,7 +1,8 @@
 module example is
 
-  datatype unixUserId <- xsd:string is
-    @xsd:maxLength = 8
-  end
+  datatype unixUserId <- string {
+    minLength = 1
+    maxLength = 8
+  }
 
 end

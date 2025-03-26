@@ -1,0 +1,22 @@
+;;; Constraint, formal less than or equal
+
+module Example is
+
+  structure Outer is
+
+    inner -> string is
+      assert not_empty is
+        inner <= "hello"
+      end
+    end
+
+    inner_sym -> string is
+      assert not_empty is
+        inner ≤ "hello"
+      end
+    end
+
+  end
+
+end
+

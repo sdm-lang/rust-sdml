@@ -1,53 +1,50 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_language_string.sdm/",
-  "body": {
-    "__type": "module_body",
-    "annotations": [
-      {
-        "__type": "annotation",
-        "property": {
-          "__type": "annotation_property",
-          "name": {
-            "__type": "identifier_reference",
-            "qualified_identifier": {
-              "__type": "qualified_identifier",
-              "member": {
-                "__type": "identifier",
-                "value": "title"
-              },
-              "module": {
-                "__type": "identifier",
-                "value": "dc"
-              }
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "title"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
             }
-          },
-          "span": {
-            "__type": "span",
-            "end": 95,
-            "start": 69
-          },
-          "value": {
-            "__type": "value",
-            "simple": {
-              "__type": "string",
-              "language": "en-US",
-              "value": "a test"
-            }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 109,
+          "start": 83
+        },
+        "value": {
+          "__type": "value",
+          "simple": {
+            "__type": "string",
+            "language": "en-US",
+            "value": "a test"
           }
         }
       }
-    ]
-  },
+    }
+  ],
+  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_language_string.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_annotation"
   },
   "source_file": "MANIFEST_PATH/corpus/annotation_single_language_string.sdm",
   "span": {
     "__type": "span",
-    "end": 101,
+    "end": 115,
     "start": 0
   }
 }

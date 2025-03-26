@@ -1,6 +1,6 @@
 ;;; Annotation, Multiple Separate
 
-module campaign is
+module corpus_test_annotation is
 
   @skos:prefLabel = ""
 
