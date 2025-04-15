@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_exactly_one.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/cardinality_exactly_one.sdm/",
   "definitions": [
     {
       "__type": "definition",

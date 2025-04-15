@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_simple_types.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/structure_simple_types.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -21,8 +21,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 59,
-                    "start": 47
+                    "end": 73,
+                    "start": 61
                   },
                   "type": {
                     "__type": "type_reference",
@@ -56,8 +56,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 75,
-                    "start": 64
+                    "end": 89,
+                    "start": 78
                   },
                   "type": {
                     "__type": "type_reference",
@@ -91,8 +91,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 92,
-                    "start": 80
+                    "end": 106,
+                    "start": 94
                   },
                   "type": {
                     "__type": "type_reference",
@@ -126,8 +126,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 109,
-                    "start": 97
+                    "end": 123,
+                    "start": 111
                   },
                   "type": {
                     "__type": "type_reference",
@@ -161,8 +161,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 125,
-                    "start": 114
+                    "end": 139,
+                    "start": 128
                   },
                   "type": {
                     "__type": "type_reference",
@@ -196,8 +196,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 141,
-                    "start": 130
+                    "end": 155,
+                    "start": 144
                   },
                   "type": {
                     "__type": "type_reference",
@@ -231,8 +231,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 154,
-                    "start": 146
+                    "end": 168,
+                    "start": 160
                   },
                   "type": {
                     "__type": "type_reference",
@@ -262,8 +262,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 160,
-          "start": 21
+          "end": 174,
+          "start": 35
         }
       }
     }
@@ -271,12 +271,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "example"
+    "value": "corpus_test_structure"
   },
   "source_file": "MANIFEST_PATH/corpus/structure_simple_types.sdm",
   "span": {
     "__type": "span",
-    "end": 166,
+    "end": 180,
     "start": 0
   }
 }

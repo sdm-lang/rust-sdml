@@ -1,0 +1,59 @@
+     @prefix : <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix dc: <http://purl.org/dc/elements/1.1/> .
+    @prefix mee: <http://www.w3.org/ns/pim/meeting#> .
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    @prefix trip: <http://www.w3.org/ns/pim/trip#> .
+    @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    
+    <>     dc:created "2016-06-25"^^xsd:date;
+         dc:title "An ontology for an online meeting";
+         :comment """An online meeting, in Solid world, is a collection of linked
+data resources which allow people to collaborate in real time toward the objectives of the meeting.
+The online state of a meeting may also evolve before the meeting as it is planned, and it should
+also in time evolve to give a clear idea of the take-aways for posterity""" .
+    
+    mee:Meeting     a :Class;
+         mee:label "meeting"@en,
+                "reunion"@fr .
+    
+    mee:VideoCallPage     a :Class;
+         :comment """A web page (eg on appear.in, or wherever) for  a live video chat.
+    The URI should be as accurate as possible ideally without requiring meeting numbers, room numbers, etc to be entered.""";
+         :label "video call page"@en .
+    
+    mee:actionItems     a rdf:Property;
+         :label "action items" .
+    
+    mee:agenda     a rdf:Property;
+         :label "agenda" .
+    
+    mee:attendeeGroup     a rdf:Property;
+         :label "attendees"@en,
+                "participants"@fr .
+    
+    mee:chat     a rdf:Property;
+         :comment "A live text-based chat object or chat document.";
+         :label "chat" .
+    
+    mee:nextMeeting     a rdf:Property;
+         :label "next meeting" .
+    
+    mee:previousMeeting     a rdf:Property;
+         :label "previous meeting" .
+    
+    mee:sharedNotes     a rdf:Property;
+         :comment "A shared notepad to capture the course and result of the meeting";
+         :label "notes"@en,
+                "notes"@fr .
+    
+    mee:toolList     a rdf:Property .
+    
+    mee:trip     a rdf:Property;
+         :label "trip";
+         :range trip:Trip .
+    
+    mee:videoCallPage     a rdf:Property;
+         :comment """For a meeting, a web page (eg on appear.in, or wherever) for  a live video chat for the meeting.
+  The URI should be as accurate as possible ideally without requiring meeting numbers etc to be entered.""";
+         :label "video call"@en .
+    

@@ -4,6 +4,39 @@ pub const CORPUS_MANIFEST_PATH: &str = env!("CARGO_MANIFEST_DIR");
 pub const CORPUS_PATH: &str = "corpus";
 
 #[macro_export]
+macro_rules! writer_to_string {
+    ($closure:expr) => {{
+        let mut buffer = ::std::io::Cursor::new(Vec::new());
+        $closure(&mut buffer).unwrap();
+        String::from_utf8(buffer.into_inner()).unwrap()
+    }};
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! write_file_constants {
+    ($result_type: literal, $generator_fn: expr, $replace_manifest_path: expr, $sort_results: expr) => {
+        const RESULT_DIR: &str = $result_type;
+        const RESULT_FILE_EXT: &str = $result_type;
+        const GENERATOR_FN: fn(
+            &::sdml_core::model::modules::Module,
+            &::sdml_core::store::InMemoryModuleCache,
+        ) -> String = $generator_fn;
+        const REPLACE_MANIFEST_PATH: bool = $replace_manifest_path;
+        const SORT_RESULT_LINES: bool = $sort_results;
+    };
+}
+
+#[macro_export]
+macro_rules! sort_string_as_lines {
+    ($s: expr) => {{
+        let mut new_s = $s.split("\n").collect::<Vec<&str>>();
+        new_s.sort_unstable();
+        new_s.join("\n")
+    }};
+}
+
+#[macro_export]
 macro_rules! test_case {
     ($test_name: ident) => {
         ::paste::paste! {
@@ -22,7 +55,7 @@ macro_rules! test_case {
                     ));
 
                 println!("Reading test example from {:?}", input);
-                let mut cache = ::sdml_core::store::InMemoryModuleCache::default().with_stdlib();
+                let mut cache = ::sdml_core::store::InMemoryModuleCache::with_stdlib();
                 let mut loader = ::sdml_parse::load::FsModuleLoader::default();
                 let module = loader.load_from_file(input, &mut cache, false);
                 if let Err(e) = module {
@@ -48,11 +81,24 @@ macro_rules! test_case {
                     if let Err(e) = expected_string {
                         panic!("IO error reading expected: {}", e);
                     }
-                    let expected_string = expected_string
-                        .unwrap()
-                        .replace("MANIFEST_PATH", $crate::CORPUS_MANIFEST_PATH);
 
-                    pretty_assertions::assert_eq!(result_string, expected_string);
+                    let expected_string = if REPLACE_MANIFEST_PATH {
+                        expected_string
+                            .unwrap()
+                            .replace("MANIFEST_PATH", $crate::CORPUS_MANIFEST_PATH)
+                    } else {
+                        expected_string.unwrap()
+                    };
+
+                    if SORT_RESULT_LINES {
+
+                        pretty_assertions::assert_eq!(
+                            $crate::sort_string_as_lines!(&result_string),
+                            $crate::sort_string_as_lines!(&expected_string),
+                        );
+                    } else {
+                        pretty_assertions::assert_eq!(result_string, expected_string);
+                    }
                 } else {
                     println!("Skipping test `{test_name}`, no result file in directory {RESULT_DIR}:?");
                     println!("Generated result:\n{result_string}");
@@ -85,8 +131,16 @@ macro_rules! test_suite {
 
 #[macro_export]
 macro_rules! test_setup {
-    ($result_type: literal, standard, $generator_fn: expr) => {
-        $crate::test_setup!($result_type, $generator_fn);
+    (all $result_type: literal => $generator_fn: expr) => {
+        $crate::test_setup!(all $result_type => $generator_fn ; true, false);
+    };
+    (all $result_type: literal => $generator_fn: expr ; $replace_manifest_path: expr, $sort_results: expr) => {
+        $crate::write_file_constants!(
+            $result_type,
+            $generator_fn,
+            $replace_manifest_path,
+            $sort_results
+        );
 
         $crate::test_suite! {
             module => (
@@ -103,13 +157,16 @@ macro_rules! test_setup {
             import => (
                 import_member_only,
                 import_member_rename,
+                import_member_from,
                 import_module_only,
                 import_module_rename,
                 import_module_version,
+                import_module_from,
                 import_multiple_members,
                 import_multiple_mixed,
                 import_multiple_modules,
-                import_multiple_module_version
+                import_multiple_module_version,
+                import_multiple_from
             )
         }
 
@@ -131,13 +188,44 @@ macro_rules! test_setup {
                 annotation_multiple_iri,
                 annotation_multiple_language_string,
                 annotation_multiple_separate,
-                annotation_multiple_string
+                annotation_multiple_string,
+                // test sequence constraints:
+                annotation_multiple_ordered,
+                annotation_multiple_unique,
+                annotation_multiple_as_list,
+                annotation_multiple_as_set,
+                // test the various escaping forms:
+                annotation_escaped_strings
             )
         }
 
         $crate::test_suite! {
-            rdf => (
-                rdf_definitions
+            formal_constraint => (
+                // 1. Constraint-sentence:
+                // 1.1.  Simple-sentence:
+                // 1.1.1. Atomic-sentence:
+                constraint_formal_atomic_sentence,
+                constraint_formal_function_composition,
+                // 1.1.2. Equation:
+                constraint_formal_equation,
+                // 1.1.3. Inequation:
+                constraint_formal_greater_than,
+                constraint_formal_greater_than_or_equal,
+                constraint_formal_inequation,
+                constraint_formal_less_than,
+                constraint_formal_less_than_or_equal,
+                // 1.2. Boolean-sentence:
+                // 1.2.1. Unary-boolean-sentence:
+                constraint_formal_unary_negation,
+                // 1.2.2. Binary-boolean-sentence:
+                constraint_formal_binary_conjunction,
+                constraint_formal_binary_disjunction,
+                constraint_formal_binary_exclusive_disjunction,
+                constraint_formal_binary_biconditional,
+                constraint_formal_binary_implication,
+                // 1.3. Quantified-sentence:
+                // Optional Environment:
+                constraint_formal_with_environment
             )
         }
 
@@ -150,10 +238,28 @@ macro_rules! test_setup {
         }
 
         $crate::test_suite! {
+            member_cardinality => (
+                cardinality_exactly_one,
+                cardinality_one_to_many,
+                cardinality_two_to_eight,
+                cardinality_zero_to_many,
+                cardinality_zero_to_many_as_list,
+                cardinality_zero_to_many_as_set,
+                cardinality_zero_to_many_nonunique,
+                cardinality_zero_to_many_ordered,
+                cardinality_zero_to_many_unique,
+                cardinality_zero_to_many_unordered,
+                cardinality_zero_to_one
+            )
+        }
+
+        $crate::test_suite! {
             datatype => (
                 datatype_empty,
                 datatype_from_string,
-                datatype_with_restrictions
+                datatype_with_restrictions,
+                datatype_with_fixed_restriction,
+                datatype_with_pattern_restriction
             )
         }
 
@@ -170,7 +276,8 @@ macro_rules! test_setup {
         $crate::test_suite! {
             r#enum => (
                 enum_empty,
-                enum_variants
+                enum_variants,
+                enum_pattern_numbered_variants
             )
         }
 
@@ -204,11 +311,16 @@ macro_rules! test_setup {
         }
 
         $crate::test_suite! {
+            rdf => (
+                rdf_definitions
+            )
+        }
+
+        $crate::test_suite! {
             structure => (
                 structure_empty,
                 structure_mapping_type,
-                structure_simple_types,
-                structure_member_cardinalities
+                structure_simple_types
             )
         }
 
@@ -227,13 +339,5 @@ macro_rules! test_setup {
                 union_variants
             )
         }
-    };
-    ($result_type: literal, $generator_fn: expr) => {
-        const RESULT_DIR: &str = $result_type;
-        const RESULT_FILE_EXT: &str = $result_type;
-        const GENERATOR_FN: fn(
-            &::sdml_core::model::modules::Module,
-            &::sdml_core::store::InMemoryModuleCache,
-        ) -> String = $generator_fn;
     };
 }

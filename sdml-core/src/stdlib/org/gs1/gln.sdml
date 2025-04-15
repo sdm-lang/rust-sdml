@@ -1,0 +1,5 @@
+module gs1 is
+
+  datatype GlobalLocationNumber <- string is end
+
+end

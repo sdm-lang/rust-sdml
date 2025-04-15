@@ -17,7 +17,7 @@ use sdml_core::load::ModuleLoader;
 use sdml_parse::load::FsModuleLoader;
 use std::str::FromStr;
 
-let mut cache = InMemoryModuleCache::default().with_stdlib();
+let mut cache = InMemoryModuleCache::with_stdlib();
 let mut loader = FsModuleLoader::default();
 
 let name = Identifier::from_str("example").unwrap();

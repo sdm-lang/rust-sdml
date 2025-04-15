@@ -5,11 +5,14 @@ resolver = "2"
 members = [
     "sdml-cli",
     "sdml-core",
+    "sdml-document",
+    "sdml-draw",
     "sdml-errors",
     "sdml-generate",
     "sdml-json",
     "sdml-parse",
     "sdml-rdf",
+    "sdml-src",
     "sdml-tera",
     "sdml-tests",
 ]

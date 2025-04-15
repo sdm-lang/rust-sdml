@@ -509,7 +509,7 @@ pub use classes::{
 };
 
 mod datatypes;
-pub use datatypes::DatatypeDef;
+pub use datatypes::{DatatypeDef, ExplicitTimezoneFlag, RestrictionFacet};
 
 mod dimensions;
 pub use dimensions::{

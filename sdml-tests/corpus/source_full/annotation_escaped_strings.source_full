@@ -1,0 +1,14 @@
+module corpus_test_annotation is
+
+  @char_escape_a = "\\a"
+  @char_escape_b = "\\b"
+  @char_escape_e = "\\e"
+  @char_escape_f = "\\f"
+  @char_escape_n = "\\n"
+  @char_escape_r = "\\r"
+  @char_escape_t = "\\t"
+  @char_escape_v = "\\a"
+  @char_escape_backslash = "\\\\"
+  @char_escape_doublequote = "\\\""
+
+end

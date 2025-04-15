@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/event_with_members.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/event_with_members.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -21,8 +21,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 133,
-                    "start": 115
+                    "end": 142,
+                    "start": 124
                   },
                   "type": {
                     "__type": "type_reference",
@@ -56,8 +56,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 110,
-                    "start": 92
+                    "end": 119,
+                    "start": 101
                   },
                   "type": {
                     "__type": "type_reference",
@@ -97,8 +97,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 139,
-          "start": 47
+          "end": 148,
+          "start": 56
         }
       }
     }
@@ -106,12 +106,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_event"
   },
   "source_file": "MANIFEST_PATH/corpus/event_with_members.sdm",
   "span": {
     "__type": "span",
-    "end": 145,
+    "end": 154,
     "start": 0
   }
 }

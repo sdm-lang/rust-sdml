@@ -1,0 +1,24 @@
+module iso_9362 <https://sdml.io/stdlib/iso/9362#> is
+
+  from ::org::purl::dc import terms as dc
+
+  @dc:identifier = "ISO 9362"
+  @dc:publisher = <https://www.iso.org>
+
+  datatype BusinessIdentifierCode <- string {
+    pattern = "(?<inst>[A-Z]{4})(?<cc>[A-Z]{2})(?<lc>[A-Z0-9]{2})(?<bc>[A-Z0-9]{2})?"
+  }
+
+  datatype InstitutionCode <- string {
+    pattern = "[A-Z]{4}"
+  }
+
+  datatype LocationCode <- string {
+    pattern = "[A-Z0-9]{2}"
+  }
+
+  datatype BranchCode <- xsd:string {
+    pattern = "[A-Z0-9]{3}"
+  }
+
+end

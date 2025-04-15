@@ -72,8 +72,7 @@ pub(crate) fn parse_function_composition<'a>(
     let node = cursor.node();
     rule_fn!("function_composition", node);
 
-    let child = node.child_by_field_name(FIELD_NAME_SUBJECT).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_SUBJECT);
 
     let subject: Subject = match child.kind() {
         NODE_KIND_RESERVED_SELF => Subject::ReservedSelf,
@@ -106,8 +105,7 @@ fn parse_functional_term<'a>(
     let node = cursor.node();
     rule_fn!("functional_term", node);
 
-    let child = node.child_by_field_name(FIELD_NAME_FUNCTION).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_FUNCTION);
     let function = parse_term(context, &mut child.walk())?;
 
     let arguments = {
@@ -120,23 +118,3 @@ fn parse_functional_term<'a>(
 
     Ok(FunctionalTerm::new_with_arguments(function, arguments))
 }
-
-// ------------------------------------------------------------------------------------------------
-// Private Macros
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Types
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Private Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

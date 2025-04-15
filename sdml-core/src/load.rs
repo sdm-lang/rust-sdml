@@ -22,11 +22,15 @@ fn module_found(
 
  */
 
-use crate::{model::identifiers::Identifier, store::ModuleStore};
+use crate::{
+    model::{identifiers::Identifier, modules::ModulePath},
+    store::ModuleStore,
+};
 use sdml_errors::{
     diagnostics::{reporter::ReportCounters, SeverityFilter},
     Diagnostic, FileId, Source,
 };
+use tracing::warn;
 use url::Url;
 
 // ------------------------------------------------------------------------------------------------
@@ -35,8 +39,9 @@ use url::Url;
 
 ///
 /// A resolver implementation is responsible for determining the resource identifier (URL) for
-/// a module named `name`. The additional parameter `from` identifies the module source making
-/// the request.
+/// a module named `name`.
+///
+/// The additional parameter `imported_by` identifies the module source making the request.
 ///
 pub trait ModuleResolver: Default {
     ///
@@ -45,8 +50,17 @@ pub trait ModuleResolver: Default {
     fn name_to_resource(
         &self,
         name: &Identifier,
-        from: Option<FileId>,
+        imported_by: Option<FileId>,
     ) -> Result<Url, sdml_errors::Error>;
+
+    fn path_name_to_resource(
+        &self,
+        name: &ModulePath,
+        imported_by: Option<FileId>,
+    ) -> Result<Url, sdml_errors::Error> {
+        warn!("path_name_to_resource({name:?}, {imported_by:?}) not implemented");
+        todo!();
+    }
 }
 
 ///
@@ -64,7 +78,7 @@ pub trait ModuleLoader: Default {
     fn load(
         &mut self,
         name: &Identifier,
-        from: Option<FileId>,
+        imported_by: Option<FileId>,
         store: &mut impl ModuleStore,
         recursive: bool,
     ) -> Result<Identifier, sdml_errors::Error>;

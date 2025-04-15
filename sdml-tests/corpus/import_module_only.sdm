@@ -1,6 +1,6 @@
 ;;; Import single module only
 
-module campaign is
+module corpus_test_import is
 
   import xsd
 

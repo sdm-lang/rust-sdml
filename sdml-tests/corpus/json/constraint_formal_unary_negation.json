@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_unary_negation.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_unary_negation.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -79,8 +79,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 176,
-                    "start": 86
+                    "end": 191,
+                    "start": 101
                   },
                   "type": {
                     "__type": "type_reference",
@@ -172,8 +172,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 275,
-                    "start": 182
+                    "end": 290,
+                    "start": 197
                   },
                   "type": {
                     "__type": "type_reference",
@@ -203,8 +203,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 282,
-          "start": 62
+          "end": 297,
+          "start": 77
         }
       }
     }
@@ -212,12 +212,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_unary_negation.sdm",
   "span": {
     "__type": "span",
-    "end": 288,
+    "end": 303,
     "start": 0
   }
 }

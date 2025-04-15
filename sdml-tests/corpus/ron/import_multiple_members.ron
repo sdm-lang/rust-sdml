@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 58,
+            end: 66,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 15,
+                end: 25,
             },
         ),
-        value: "Campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -46,8 +46,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 22,
-                    end: 50,
+                    start: 32,
+                    end: 60,
                 },
             ),
             from_clause: None,
@@ -56,22 +56,22 @@ Module {
                     MemberImport {
                         span: Some(
                             Span {
-                                start: 31,
-                                end: 39,
+                                start: 41,
+                                end: 49,
                             },
                         ),
                         name: QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 31,
-                                    end: 39,
+                                    start: 41,
+                                    end: 49,
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 31,
-                                        end: 34,
+                                        start: 41,
+                                        end: 44,
                                     },
                                 ),
                                 value: "xsd",
@@ -79,8 +79,8 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 35,
-                                        end: 39,
+                                        start: 45,
+                                        end: 49,
                                     },
                                 ),
                                 value: "base",
@@ -93,22 +93,22 @@ Module {
                     MemberImport {
                         span: Some(
                             Span {
-                                start: 40,
-                                end: 48,
+                                start: 50,
+                                end: 58,
                             },
                         ),
                         name: QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 40,
-                                    end: 48,
+                                    start: 50,
+                                    end: 58,
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 40,
-                                        end: 43,
+                                        start: 50,
+                                        end: 53,
                                     },
                                 ),
                                 value: "xml",
@@ -116,8 +116,8 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 44,
-                                        end: 48,
+                                        start: 54,
+                                        end: 58,
                                     },
                                 ),
                                 value: "lang",

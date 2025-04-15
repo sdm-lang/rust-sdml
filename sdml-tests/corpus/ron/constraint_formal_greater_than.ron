@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 182,
+            end: 197,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 44,
-                end: 51,
+                end: 66,
             },
         ),
-        value: "Example",
+        value: "corpus_test_constraint",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 68,
-                    end: 73,
+                    start: 83,
+                    end: 88,
                 },
             ),
             value: "Outer",
@@ -57,15 +57,15 @@ Module {
             StructureDef {
                 span: Some(
                     Span {
-                        start: 58,
-                        end: 175,
+                        start: 73,
+                        end: 190,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 68,
-                            end: 73,
+                            start: 83,
+                            end: 88,
                         },
                     ),
                     value: "Outer",
@@ -74,8 +74,8 @@ Module {
                     StructureBody {
                         span: Some(
                             Span {
-                                start: 74,
-                                end: 175,
+                                start: 89,
+                                end: 190,
                             },
                         ),
                         annotations: [],
@@ -83,8 +83,8 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 82,
-                                        end: 87,
+                                        start: 97,
+                                        end: 102,
                                     },
                                 ),
                                 value: "inner",
@@ -94,15 +94,15 @@ Module {
                                     MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 82,
-                                                end: 168,
+                                                start: 97,
+                                                end: 183,
                                             },
                                         ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 82,
-                                                    end: 87,
+                                                    start: 97,
+                                                    end: 102,
                                                 },
                                             ),
                                             value: "inner",
@@ -124,8 +124,8 @@ Module {
                                                 QualifiedIdentifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 91,
-                                                            end: 97,
+                                                            start: 106,
+                                                            end: 112,
                                                         },
                                                     ),
                                                     module: Identifier {
@@ -135,8 +135,8 @@ Module {
                                                     member: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 91,
-                                                                end: 97,
+                                                                start: 106,
+                                                                end: 112,
                                                             },
                                                         ),
                                                         value: "string",
@@ -148,8 +148,8 @@ Module {
                                             AnnotationOnlyBody {
                                                 span: Some(
                                                     Span {
-                                                        start: 98,
-                                                        end: 168,
+                                                        start: 113,
+                                                        end: 183,
                                                     },
                                                 ),
                                                 annotations: [
@@ -159,8 +159,8 @@ Module {
                                                             name: Identifier {
                                                                 span: Some(
                                                                     Span {
-                                                                        start: 114,
-                                                                        end: 123,
+                                                                        start: 129,
+                                                                        end: 138,
                                                                     },
                                                                 ),
                                                                 value: "not_empty",
@@ -178,8 +178,8 @@ Module {
                                                                                         Identifier {
                                                                                             span: Some(
                                                                                                 Span {
-                                                                                                    start: 135,
-                                                                                                    end: 140,
+                                                                                                    start: 150,
+                                                                                                    end: 155,
                                                                                                 },
                                                                                             ),
                                                                                             value: "inner",
@@ -193,8 +193,8 @@ Module {
                                                                                             LanguageString {
                                                                                                 span: Some(
                                                                                                     Span {
-                                                                                                        start: 143,
-                                                                                                        end: 150,
+                                                                                                        start: 158,
+                                                                                                        end: 165,
                                                                                                     },
                                                                                                 ),
                                                                                                 value: "hello",

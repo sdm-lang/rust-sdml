@@ -1,6 +1,6 @@
 ;;; Dimension, Empty
 
-module Campaign is
+module corpus_test_dimension is
 
   dimension Campaigns
 

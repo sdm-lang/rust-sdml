@@ -1,6 +1,6 @@
 ;;; Dimension, With Source and Parents
 
-module dimensions is
+module corpus_test_dimension is
 
   dimension Campaigns is
     source Campaign

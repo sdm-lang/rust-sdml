@@ -4,11 +4,10 @@ Generate a bare-bones CTag file from the provided module.
 */
 
 use sdml_core::error::Error;
-use sdml_core::model::definitions::HasMembers;
-use sdml_core::model::definitions::{Definition, HasVariants};
-use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::Module;
-use sdml_core::model::{HasBody, HasName, HasOptionalBody, HasSourceSpan};
+use sdml_core::model::{
+    definitions::Definition, identifiers::Identifier, modules::Module, HasBody, HasName,
+    HasOptionalBody, HasSourceSpan,
+};
 use std::io::Write;
 use std::path::PathBuf;
 

@@ -8,20 +8,21 @@ use sdml_core::model::identifiers::Identifier;
 use sdml_core::store::{InMemoryModuleCache, ModuleStore};
 use std::str::FromStr;
 
-let store = InMemoryModuleCache::default().with_stdlib();
+let store = InMemoryModuleCache::with_stdlib();
 
 let xml_schema_module = Identifier::from_str("xsd").unwrap();
 
-assert_eq!(true, store.contains(&xml_schema_module));
+assert!(store.contains(&xml_schema_module));
 ```
 
 */
 
+use crate::config::{builtin_library_cache, is_library_module};
 use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use crate::model::modules::Module;
 use crate::model::HasName;
-use crate::stdlib;
+use crate::stdlib::get_library_module_implementation;
 use std::collections::HashMap;
 use url::Url;
 
@@ -149,7 +150,7 @@ pub trait ModuleStore {
     /// use sdml_core::store::{InMemoryModuleCache, ModuleStore};
     /// use std::str::FromStr;
     ///
-    /// let cache = InMemoryModuleCache::default().with_stdlib();
+    /// let cache = InMemoryModuleCache::with_stdlib();
     /// let name = QualifiedIdentifier::from_str("xsd:integer").unwrap();
     /// let integer = cache.resolve(&name).unwrap();
     /// println!("{integer:?}");
@@ -175,7 +176,7 @@ pub trait ModuleStore {
     /// use sdml_core::store::{InMemoryModuleCache, ModuleStore};
     /// use std::str::FromStr;
     ///
-    /// let cache = InMemoryModuleCache::default().with_stdlib();
+    /// let cache = InMemoryModuleCache::with_stdlib();
     /// let default_module = Identifier::from_str("xsd").unwrap();
     /// let name = IdentifierReference::from_str("integer").unwrap();
     /// let integer = cache.resolve_or_in(&name, &default_module).unwrap();
@@ -198,7 +199,7 @@ pub trait ModuleStore {
 /// An implementation of [`ModuleStore`] that has no persistence it simply acts as an in-process
 /// cache.
 ///
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct InMemoryModuleCache {
     uri_map: HashMap<Url, Identifier>,
     modules: HashMap<Identifier, Module>,
@@ -214,7 +215,7 @@ impl ModuleStore for InMemoryModuleCache {
     }
 
     fn contains(&self, name: &Identifier) -> bool {
-        self.modules.contains_key(name)
+        self.modules.contains_key(name) || is_library_module(name)
     }
 
     fn contains_by_uri(&self, uri: &Url) -> bool {
@@ -222,7 +223,11 @@ impl ModuleStore for InMemoryModuleCache {
     }
 
     fn get(&self, name: &Identifier) -> Option<&Module> {
-        self.modules.get(name)
+        if let Some(module) = get_library_module_implementation(name) {
+            Some(module)
+        } else {
+            self.modules.get(name)
+        }
     }
 
     fn get_mut(&mut self, name: &Identifier) -> Option<&mut Module> {
@@ -291,22 +296,15 @@ impl ModuleStore for InMemoryModuleCache {
 }
 
 impl InMemoryModuleCache {
-    ///
-    /// Construct a cache with all of the standard library modules pre-inserted.
-    ///
-    pub fn with_stdlib(self) -> Self {
-        self.with(stdlib::dc_elements::module())
-            // NYI .with(stdlib::dc_am::module())
-            .with(stdlib::dc_terms::module())
-            // NYI .with(stdlib::dc_types::module())
-            .with(stdlib::iso_3166::module())
-            .with(stdlib::iso_4217::module())
-            .with(stdlib::owl::module())
-            .with(stdlib::rdf::module())
-            .with(stdlib::rdfs::module())
-            .with(stdlib::sdml::module())
-            .with(stdlib::skos::module())
-            .with(stdlib::xsd::module())
+    pub fn empty() -> Self {
+        Self {
+            uri_map: Default::default(),
+            modules: Default::default(),
+        }
+    }
+
+    pub fn with_stdlib() -> Self {
+        builtin_library_cache()
     }
 
     ///

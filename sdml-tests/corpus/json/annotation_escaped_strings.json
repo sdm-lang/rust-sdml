@@ -252,7 +252,7 @@
       }
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_escaped_strings.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/annotation_escaped_strings.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",

@@ -14,15 +14,15 @@ use crate::model::annotations::{
     Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations,
 };
 use crate::model::check::{MaybeIncomplete, Validate};
-use crate::model::constraints::{ConstraintSentence, FunctionCardinality, FunctionSignature};
+use crate::model::constraints::{FunctionBody, FunctionCardinality, FunctionSignature};
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::modules::Module;
 use crate::model::values::Value;
 use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References, Span};
 use crate::store::ModuleStore;
+use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::collections::{BTreeMap, BTreeSet};
 
-use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -93,10 +93,9 @@ pub struct TypeClassBody {
 pub struct MethodDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    name: Identifier,
     signature: FunctionSignature,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    body: Option<ConstraintSentence>,
+    body: Option<FunctionBody>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
 }
@@ -535,7 +534,7 @@ impl HasAnnotations for TypeClassBody {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
+        self.annotations.extend(extension)
     }
 }
 
@@ -641,22 +640,12 @@ impl HasAnnotations for MethodDef {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
-    }
-}
-
-impl HasName for MethodDef {
-    fn name(&self) -> &Identifier {
-        &self.name
-    }
-
-    fn set_name(&mut self, name: Identifier) {
-        self.name = name;
+        self.annotations.extend(extension)
     }
 }
 
 impl HasOptionalBody for MethodDef {
-    type Body = ConstraintSentence;
+    type Body = FunctionBody;
 
     fn body(&self) -> Option<&Self::Body> {
         self.body.as_ref()
@@ -700,17 +689,16 @@ impl MethodDef {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub const fn new(name: Identifier, signature: FunctionSignature) -> Self {
+    pub const fn new(signature: FunctionSignature) -> Self {
         Self {
             span: None,
-            name,
             signature,
             body: None,
             annotations: Vec::new(),
         }
     }
 
-    pub fn with_body(self, body: ConstraintSentence) -> Self {
+    pub fn with_body(self, body: FunctionBody) -> Self {
         Self {
             body: Some(body),
             ..self
@@ -720,6 +708,10 @@ impl MethodDef {
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
+
+    pub fn name(&self) -> &Identifier {
+        self.signature.name()
+    }
 
     pub const fn signature(&self) -> &FunctionSignature {
         &self.signature

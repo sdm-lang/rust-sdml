@@ -1,0 +1,302 @@
+PREFIX cal: <http://www.w3.org/2002/12/cal/ical#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+#PREFIX dc: <http://purl.org/dc/elements/1.1/>
+#PREFIX dt: <http://www.w3.org/2001/XMLSchema#>
+#PREFIX h: <http://www.w3.org/1999/xhtml>
+#PREFIX owl: <http://www.w3.org/2002/07/owl#>
+#PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+#PREFIX spec: <http://www.w3.org/2002/12/cal/icalSpec#>
+#PREFIX xml: <http://www.w3.org/XML/1998/namespace>
+
+cal:DomainOf_rrule {  }
+
+cal:List_of_Float {  }
+
+cal:Valarm {
+  cal:attach IRI *
+      // rdfs:comment "The property provides the capability to associate a document object with a calendar component." ;
+  cal:attendee @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines an \"Attendee\" within a calendar component." ;
+  cal:duration @cal:Value_DURATION *
+      // rdfs:comment "The property specifies a positive duration of time." ;
+  cal:trigger @cal:Value_DATE OR @cal:Value_DURATION *
+      // rdfs:comment "This property specifies when an alarm will trigger." ;
+  cal:action LITERAL *
+      // rdfs:comment "This property defines the action to be invoked when an alarm is triggered." ;
+  cal:description LITERAL *
+      // rdfs:comment "This property provides a more complete description of the calendar component, than that provided by the \"SUMMARY\" property." ;
+  cal:repeat LITERAL *
+      // rdfs:comment "This property defines the number of time the alarm should be repeated, after the initial trigger." ;
+  cal:summary LITERAL *
+      // rdfs:comment "This property defines a short summary or subject for the calendar component."
+}
+  // rdfs:comment "Provide a grouping of component properties that define an alarm."
+  // rdfs:label "VALARM"
+
+
+cal:Value_CAL-ADDRESS {  }
+
+cal:Value_DATE xsd:date
+
+cal:Value_DATE-TIME xsd:dateTime
+
+cal:Value_DURATION xsd:duration
+
+cal:Value_PERIOD {  }
+
+cal:Value_RECUR {  }
+
+cal:Vevent {
+  cal:attach IRI *
+      // rdfs:comment "The property provides the capability to associate a document object with a calendar component." ;
+  cal:attendee @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines an \"Attendee\" within a calendar component." ;
+  cal:created @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies the date and time that the calendar information was created by the calendar user agent in the calendar store. Note: This is analogous to the creation date and time for a file in the file system." ;
+  cal:dtend @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies the date and time that a calendar component ends." ;
+  cal:dtstamp @cal:Value_DATE-TIME *
+      // rdfs:comment "The property indicates the date/time that the instance of the iCalendar object was created." ;
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies when the calendar component begins." ;
+  cal:duration @cal:Value_DURATION *
+      // rdfs:comment "The property specifies a positive duration of time." ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property defines the list of date/time exceptions for a recurring calendar component." ;
+  cal:exrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for an exception to a recurrence set." ;
+  cal:geo @cal:List_of_Float *
+      // rdfs:comment "This property specifies information related to the global position for the activity specified by a calendar component." ;
+  cal:lastModified @cal:Value_DATE-TIME *
+      // rdfs:comment "The property specifies the date and time that the information associated with the calendar component was last revised in the calendar store. Note: This is analogous to the modification date and time for a file in the file system." ;
+  cal:organizer @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines the organizer for a calendar component." ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD *
+      // rdfs:comment "This property defines the list of date/times for a recurrence set." ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property is used in conjunction with the \"UID\" and \"SEQUENCE\" property to identify a specific instance of a recurring \"VEVENT\", \"VTODO\" or \"VJOURNAL\" calendar component. The property value is the effective value of the \"DTSTART\" property of the recurrence instance." ;
+  cal:rrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for recurring events, to-dos, or time zone definitions." ;
+  cal:trigger @cal:Value_DATE OR @cal:Value_DURATION *
+      // rdfs:comment "This property specifies when an alarm will trigger." ;
+  cal:url IRI *
+      // rdfs:comment "This property defines a Uniform Resource Locator (URL) associated with the iCalendar object." ;
+  cal:categories LITERAL *
+      // rdfs:comment "This property defines the categories for a calendar component." ;
+  cal:class LITERAL *
+      // rdfs:comment "This property defines the access classification for a calendar component." ;
+  cal:comment LITERAL *
+      // rdfs:comment "This property specifies non-processing information intended to provide a comment to the calendar user." ;
+  cal:contact LITERAL *
+      // rdfs:comment "The property is used to represent contact information or alternately a reference to contact information associated with the calendar component." ;
+  cal:description LITERAL *
+      // rdfs:comment "This property provides a more complete description of the calendar component, than that provided by the \"SUMMARY\" property." ;
+  cal:location LITERAL *
+      // rdfs:comment "The property defines the intended venue for the activity defined by a calendar component." ;
+  cal:priority LITERAL *
+      // rdfs:comment "The property defines the relative priority for a calendar component." ;
+  cal:relatedTo LITERAL *
+      // rdfs:comment "The property is used to represent a relationship or reference between one calendar component and another." ;
+  cal:requestStatus LITERAL *
+      // rdfs:comment "This property defines the status code returned for a scheduling request." ;
+  cal:resources LITERAL *
+      // rdfs:comment "This property defines the equipment or resources anticipated for an activity specified by a calendar entity.." ;
+  cal:sequence LITERAL *
+      // rdfs:comment "This property defines the revision sequence number of the calendar component within a sequence of revisions." ;
+  cal:status LITERAL *
+      // rdfs:comment "This property defines the overall status or confirmation for the calendar component." ;
+  cal:summary LITERAL *
+      // rdfs:comment "This property defines a short summary or subject for the calendar component." ;
+  cal:transp LITERAL *
+      // rdfs:comment "This property defines whether an event is transparent or not to busy time searches." ;
+  cal:uid LITERAL *
+      // rdfs:comment "This property defines the persistent, globally unique identifier for the calendar component." ;
+}
+  // rdfs:comment "Provide a grouping of component properties that describe an event."
+  // rdfs:label "VEVENT"
+
+
+cal:Vfreebusy {
+  cal:attendee @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines an \"Attendee\" within a calendar component." ;
+  cal:dtend @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies the date and time that a calendar component ends." ;
+  cal:dtstamp @cal:Value_DATE-TIME *
+      // rdfs:comment "The property indicates the date/time that the instance of the iCalendar object was created." ;
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies when the calendar component begins." ;
+  cal:duration @cal:Value_DURATION *
+      // rdfs:comment "The property specifies a positive duration of time." ;
+  cal:freebusy @cal:Value_PERIOD *
+      // rdfs:comment "The property defines one or more free or busy time intervals." ;
+  cal:organizer @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines the organizer for a calendar component." ;
+  cal:url IRI *
+      // rdfs:comment "This property defines a Uniform Resource Locator (URL) associated with the iCalendar object." ;
+  cal:comment LITERAL *
+      // rdfs:comment "This property specifies non-processing information intended to provide a comment to the calendar user." ;
+  cal:contact LITERAL *
+      // rdfs:comment "The property is used to represent contact information or alternately a reference to contact information associated with the calendar component." ;
+  cal:requestStatus LITERAL *
+      // rdfs:comment "This property defines the status code returned for a scheduling request." ;
+  cal:uid LITERAL *
+      // rdfs:comment "This property defines the persistent, globally unique identifier for the calendar component." ;
+}
+  // rdfs:comment "Provide a grouping of component properties that describe either a request for free/busy time, describe a response to a request for free/busy time or describe a published set of busy time."
+  // rdfs:label "VFREEBUSY"
+
+
+cal:Vjournal {
+  cal:attach IRI *
+      // rdfs:comment "The property provides the capability to associate a document object with a calendar component." ;
+  cal:attendee @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines an \"Attendee\" within a calendar component." ;
+  cal:created @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies the date and time that the calendar information was created by the calendar user agent in the calendar store. Note: This is analogous to the creation date and time for a file in the file system." ;
+  cal:dtstamp @cal:Value_DATE-TIME *
+      // rdfs:comment "The property indicates the date/time that the instance of the iCalendar object was created." ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property defines the list of date/time exceptions for a recurring calendar component." ;
+  cal:exrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for an exception to a recurrence set." ;
+  cal:lastModified @cal:Value_DATE-TIME *
+      // rdfs:comment "The property specifies the date and time that the information associated with the calendar component was last revised in the calendar store. Note: This is analogous to the modification date and time for a file in the file system." ;
+  cal:organizer @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines the organizer for a calendar component." ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD *
+      // rdfs:comment "This property defines the list of date/times for a recurrence set." ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property is used in conjunction with the \"UID\" and \"SEQUENCE\" property to identify a specific instance of a recurring \"VEVENT\", \"VTODO\" or \"VJOURNAL\" calendar component. The property value is the effective value of the \"DTSTART\" property of the recurrence instance." ;
+  cal:rrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for recurring events, to-dos, or time zone definitions." ;
+  cal:url IRI *
+      // rdfs:comment "This property defines a Uniform Resource Locator (URL) associated with the iCalendar object." ;
+  cal:categories LITERAL *
+      // rdfs:comment "This property defines the categories for a calendar component." ;
+  cal:class LITERAL *
+      // rdfs:comment "This property defines the access classification for a calendar component." ;
+  cal:comment LITERAL *
+      // rdfs:comment "This property specifies non-processing information intended to provide a comment to the calendar user." ;
+  cal:contact LITERAL *
+      // rdfs:comment "The property is used to represent contact information or alternately a reference to contact information associated with the calendar component." ;
+  cal:description LITERAL *
+      // rdfs:comment "This property provides a more complete description of the calendar component, than that provided by the \"SUMMARY\" property." ;
+  cal:relatedTo LITERAL *
+      // rdfs:comment "The property is used to represent a relationship or reference between one calendar component and another." ;
+  cal:requestStatus LITERAL *
+      // rdfs:comment "This property defines the status code returned for a scheduling request." ;
+  cal:sequence LITERAL *
+      // rdfs:comment "This property defines the revision sequence number of the calendar component within a sequence of revisions." ;
+  cal:status LITERAL *
+      // rdfs:comment "This property defines the overall status or confirmation for the calendar component." ;
+  cal:summary LITERAL *
+      // rdfs:comment "This property defines a short summary or subject for the calendar component." ;
+  cal:uid LITERAL *
+      // rdfs:comment "This property defines the persistent, globally unique identifier for the calendar component." ;
+}
+  // rdfs:comment "Provide a grouping of component properties that describe a journal entry."
+  // rdfs:label "VJOURNAL"
+
+
+cal:Vtimezone {
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies when the calendar component begins." ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property defines the list of date/time exceptions for a recurring calendar component." ;
+  cal:lastModified @cal:Value_DATE-TIME *
+      // rdfs:comment "The property specifies the date and time that the information associated with the calendar component was last revised in the calendar store. Note: This is analogous to the modification date and time for a file in the file system." ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD *
+      // rdfs:comment "This property defines the list of date/times for a recurrence set." ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property is used in conjunction with the \"UID\" and \"SEQUENCE\" property to identify a specific instance of a recurring \"VEVENT\", \"VTODO\" or \"VJOURNAL\" calendar component. The property value is the effective value of the \"DTSTART\" property of the recurrence instance." ;
+  cal:rrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for recurring events, to-dos, or time zone definitions." ;
+  cal:tzurl IRI *
+      // rdfs:comment "The TZURL provides a means for a VTIMEZONE component to point to a network location that can be used to retrieve an up-to- date version of itself." ;
+  cal:comment LITERAL *
+      // rdfs:comment "This property specifies non-processing information intended to provide a comment to the calendar user." ;
+  cal:tzid LITERAL *
+      // rdfs:comment "This property specifies the text value that uniquely identifies the \"VTIMEZONE\" calendar component." ;
+  cal:tzname LITERAL *
+      // rdfs:comment "This property specifies the customary designation for a time zone description." ;
+  cal:tzoffsetfrom LITERAL *
+      // rdfs:comment "This property specifies the offset which is in use prior to this time zone observance." ;
+  cal:tzoffsetto LITERAL *
+      // rdfs:comment "This property specifies the offset which is in use in this time zone observance." ;
+}
+  // rdfs:comment "Provide a grouping of component properties that defines a time zone."
+  // rdfs:label "VTIMEZONE"
+
+
+cal:Vtodo {
+  cal:attach IRI *
+      // rdfs:comment "The property provides the capability to associate a document object with a calendar component." ;
+  cal:attendee @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines an \"Attendee\" within a calendar component." ;
+  cal:completed @cal:Value_DATE-TIME *
+      // rdfs:comment "This property defines the date and time that a to-do was actually completed." ;
+  cal:created @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies the date and time that the calendar information was created by the calendar user agent in the calendar store. Note: This is analogous to the creation date and time for a file in the file system." ;
+  cal:dtstamp @cal:Value_DATE-TIME *
+      // rdfs:comment "The property indicates the date/time that the instance of the iCalendar object was created." ;
+  cal:dtstart @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property specifies when the calendar component begins." ;
+  cal:due @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property defines the date and time that a to-do is expected to be completed." ;
+  cal:duration @cal:Value_DURATION *
+      // rdfs:comment "The property specifies a positive duration of time." ;
+  cal:exdate @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property defines the list of date/time exceptions for a recurring calendar component." ;
+  cal:exrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for an exception to a recurrence set." ;
+  cal:geo @cal:List_of_Float *
+      // rdfs:comment "This property specifies information related to the global position for the activity specified by a calendar component." ;
+  cal:lastModified @cal:Value_DATE-TIME *
+      // rdfs:comment "The property specifies the date and time that the information associated with the calendar component was last revised in the calendar store. Note: This is analogous to the modification date and time for a file in the file system." ;
+  cal:organizer @cal:Value_CAL-ADDRESS *
+      // rdfs:comment "The property defines the organizer for a calendar component." ;
+  cal:rdate @cal:Value_DATE OR @cal:Value_DATE-TIME OR @cal:Value_PERIOD *
+      // rdfs:comment "This property defines the list of date/times for a recurrence set." ;
+  cal:recurrenceId @cal:Value_DATE OR @cal:Value_DATE-TIME *
+      // rdfs:comment "This property is used in conjunction with the \"UID\" and \"SEQUENCE\" property to identify a specific instance of a recurring \"VEVENT\", \"VTODO\" or \"VJOURNAL\" calendar component. The property value is the effective value of the \"DTSTART\" property of the recurrence instance." ;
+  cal:rrule @cal:Value_RECUR *
+      // rdfs:comment "This property defines a rule or repeating pattern for recurring events, to-dos, or time zone definitions." ;
+  cal:trigger @cal:Value_DATE OR @cal:Value_DURATION *
+      // rdfs:comment "This property specifies when an alarm will trigger." ;
+  cal:url IRI *
+      // rdfs:comment "This property defines a Uniform Resource Locator (URL) associated with the iCalendar object." ;
+  cal:categories LITERAL *
+      // rdfs:comment "This property defines the categories for a calendar component." ;
+  cal:class LITERAL *
+      // rdfs:comment "This property defines the access classification for a calendar component." ;
+  cal:comment LITERAL *
+      // rdfs:comment "This property specifies non-processing information intended to provide a comment to the calendar user." ;
+  cal:contact LITERAL *
+      // rdfs:comment "The property is used to represent contact information or alternately a reference to contact information associated with the calendar component." ;
+  cal:description LITERAL *
+      // rdfs:comment "This property provides a more complete description of the calendar component, than that provided by the \"SUMMARY\" property." ;
+  cal:location LITERAL *
+      // rdfs:comment "The property defines the intended venue for the activity defined by a calendar component." ;
+  cal:percentComplete LITERAL *
+      // rdfs:comment "This property is used by an assignee or delegatee of a to-do to convey the percent completion of a to-do to the Organizer." ;
+  cal:priority LITERAL *
+      // rdfs:comment "The property defines the relative priority for a calendar component." ;
+  cal:relatedTo LITERAL *
+      // rdfs:comment "The property is used to represent a relationship or reference between one calendar component and another." ;
+  cal:requestStatus LITERAL *
+      // rdfs:comment "This property defines the status code returned for a scheduling request." ;
+  cal:resources LITERAL *
+      // rdfs:comment "This property defines the equipment or resources anticipated for an activity specified by a calendar entity.." ;
+  cal:sequence LITERAL *
+      // rdfs:comment "This property defines the revision sequence number of the calendar component within a sequence of revisions." ;
+  cal:status LITERAL *
+      // rdfs:comment "This property defines the overall status or confirmation for the calendar component." ;
+  cal:summary LITERAL *
+      // rdfs:comment "This property defines a short summary or subject for the calendar component." ;
+  cal:uid LITERAL
+      // rdfs:comment "This property defines the persistent, globally unique identifier for the calendar component." ;
+}
+  // rdfs:comment "Provide a grouping of calendar properties that describe a to-do."
+  // rdfs:label "VTODO"

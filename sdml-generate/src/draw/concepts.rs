@@ -28,7 +28,6 @@ use crate::exec::exec_with_temp_input;
 use crate::Generator;
 use sdml_core::error::Error;
 use sdml_core::model::definitions::Definition;
-use sdml_core::model::definitions::HasMembers;
 use sdml_core::model::identifiers::IdentifierReference;
 use sdml_core::model::members::MemberKind;
 use sdml_core::model::members::{Cardinality, TypeReference, DEFAULT_CARDINALITY};

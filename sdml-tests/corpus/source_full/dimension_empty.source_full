@@ -1,0 +1,5 @@
+module corpus_test_dimension is
+
+  dimension Campaigns
+
+end

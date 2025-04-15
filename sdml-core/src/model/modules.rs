@@ -1,6 +1,9 @@
 /*!
 Provide the Rust types that implement *module*-related components of the SDML Grammar.
-*/
+ */
+use crate::config::{
+    is_rdf_definition_allowed_in_module, is_typeclass_definition_allowed_in_module,
+};
 use crate::load::ModuleLoader;
 use crate::model::definitions::{
     DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
@@ -11,19 +14,22 @@ use crate::model::{
     check::{MaybeIncomplete, Validate},
     definitions::{Definition, RdfDef, TypeClassDef},
     identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    HasBody, HasName, HasSourceSpan, Span,
+    HasName, HasSourceSpan, Span,
 };
 use crate::store::{InMemoryModuleCache, ModuleStore};
+use crate::syntax::PC_MODULE_PATH_SEPARATOR;
 use sdml_errors::diagnostics::functions::{
-    definition_not_found, imported_module_not_found, library_definition_not_allowed,
-    module_is_incomplete, module_version_info_empty, module_version_mismatch,
-    module_version_not_found, IdentifierCaseConvention,
+    definition_not_found, imported_module_not_found, invalid_module_base_uri,
+    invalid_module_version_uri, library_definition_not_allowed_in, module_is_incomplete,
+    module_version_info_empty, module_version_mismatch, module_version_not_found,
+    IdentifierCaseConvention,
 };
 use sdml_errors::{Error, FileId};
 use std::collections::BTreeMap;
 use std::fmt::Display;
 use std::hash::Hash;
 use std::path::PathBuf;
+use std::str::FromStr;
 use std::{collections::BTreeSet, fmt::Debug};
 use url::Url;
 
@@ -53,7 +59,9 @@ pub struct Module {
     version_info: Option<HeaderValue<String>>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     version_uri: Option<HeaderValue<Url>>,
-    body: ModuleBody,
+    imports: Vec<ImportStatement>,
+    annotations: Vec<Annotation>,
+    definitions: BTreeMap<Identifier, Definition>,
 }
 
 #[derive(Clone, Debug)]
@@ -62,21 +70,6 @@ pub struct HeaderValue<T> {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     value: T,
-}
-
-///
-/// Corresponds the grammar rule `module_body`.
-///
-#[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct ModuleBody {
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
-    file_id: Option<FileId>, // <- to report errors
-    is_library: bool,        // <- to catch errors
-    imports: Vec<ImportStatement>,
-    annotations: Vec<Annotation>,
-    definitions: BTreeMap<Identifier, Definition>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -91,7 +84,29 @@ pub struct ModuleBody {
 pub struct ImportStatement {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    from_clause: Option<ModulePath>,
     imports: Vec<Import>,
+}
+
+///
+/// Corresponds the embedded choice in grammar rule `from_clause`:
+///
+/// ```js
+/// choice(
+///     $.module_path_absolute,
+///     $.module_path_relative,
+///     $.module_path_root_only
+/// )
+/// ```
+///
+#[derive(Clone, Debug, Default, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct ModulePath {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    span: Option<Span>,
+    is_absolute: bool,
+    segments: Vec<Identifier>,
 }
 
 ///
@@ -168,352 +183,7 @@ impl HasName for Module {
     }
 }
 
-impl HasBody for Module {
-    type Body = ModuleBody;
-
-    fn body(&self) -> &Self::Body {
-        &self.body
-    }
-
-    fn body_mut(&mut self) -> &mut Self::Body {
-        &mut self.body
-    }
-
-    fn set_body(&mut self, body: Self::Body) {
-        let mut body_mut = body;
-        body_mut.file_id = self.file_id;
-        body_mut.set_library_status(self.name());
-        self.body = body_mut;
-    }
-}
-
-impl References for Module {
-    fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
-        self.body.referenced_types(names);
-    }
-
-    fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
-        self.body.referenced_annotations(names);
-    }
-}
-
-impl Module {
-    // --------------------------------------------------------------------------------------------
-    // Constructors
-    // --------------------------------------------------------------------------------------------
-
-    pub fn empty(name: Identifier) -> Self {
-        Self::new(name, ModuleBody::default())
-    }
-
-    pub fn new(name: Identifier, body: ModuleBody) -> Self {
-        let mut body = body;
-        body.set_library_status(&name);
-        Self {
-            source_file: None,
-            file_id: None,
-            span: None,
-            name,
-            base_uri: None,
-            version_info: None,
-            version_uri: None,
-            body,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    pub fn with_source_file(self, source_file: PathBuf) -> Self {
-        Self {
-            source_file: Some(source_file),
-            ..self
-        }
-    }
-
-    pub fn with_base_uri(self, base_uri: Url) -> Self {
-        Self {
-            base_uri: Some(base_uri.into()),
-            ..self
-        }
-    }
-
-    pub fn with_version_info<S>(self, version_info: S) -> Self
-    where
-        S: Into<String>,
-    {
-        Self {
-            version_info: Some(HeaderValue::from(version_info.into())),
-            ..self
-        }
-    }
-
-    pub fn with_version_uri(self, version_uri: Url) -> Self {
-        Self {
-            version_uri: Some(version_uri.into()),
-            ..self
-        }
-    }
-
-    pub const fn has_source_file(&self) -> bool {
-        self.source_file.is_some()
-    }
-    pub const fn source_file(&self) -> Option<&PathBuf> {
-        self.source_file.as_ref()
-    }
-    pub fn set_source_file(&mut self, source_file: PathBuf) {
-        self.source_file = Some(source_file);
-    }
-    pub fn unset_source_file(&mut self) {
-        self.source_file = None;
-    }
-
-    pub const fn has_base_uri(&self) -> bool {
-        self.base_uri.is_some()
-    }
-    pub const fn base_uri(&self) -> Option<&HeaderValue<Url>> {
-        self.base_uri.as_ref()
-    }
-    pub fn set_base_uri(&mut self, base_uri: HeaderValue<Url>) {
-        self.base_uri = Some(base_uri);
-    }
-    pub fn unset_base_uri(&mut self) {
-        self.base_uri = None;
-    }
-
-    pub const fn has_version_info(&self) -> bool {
-        self.version_info.is_some()
-    }
-    pub const fn version_info(&self) -> Option<&HeaderValue<String>> {
-        self.version_info.as_ref()
-    }
-    pub fn set_version_info(&mut self, version_info: HeaderValue<String>) {
-        self.version_info = Some(version_info);
-    }
-    pub fn unset_version_info(&mut self) {
-        self.version_info = None;
-    }
-
-    pub const fn has_version_uri(&self) -> bool {
-        self.version_uri.is_some()
-    }
-    pub const fn version_uri(&self) -> Option<&HeaderValue<Url>> {
-        self.version_uri.as_ref()
-    }
-    pub fn set_version_uri(&mut self, version_uri: HeaderValue<Url>) {
-        self.version_uri = Some(version_uri);
-    }
-    pub fn unset_version_uri(&mut self) {
-        self.version_uri = None;
-    }
-
-    pub const fn has_file_id(&self) -> bool {
-        self.file_id.is_some()
-    }
-    pub const fn file_id(&self) -> Option<&FileId> {
-        self.file_id.as_ref()
-    }
-    pub fn set_file_id(&mut self, file_id: FileId) {
-        self.file_id = Some(file_id);
-    }
-    pub fn unset_file_id(&mut self) {
-        self.file_id = None;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    #[inline(always)]
-    pub fn imported_modules(&self) -> BTreeSet<&Identifier> {
-        self.body.imported_modules()
-    }
-
-    #[inline(always)]
-    pub fn imported_module_versions(&self) -> BTreeMap<&Identifier, Option<&HeaderValue<Url>>> {
-        self.body.imported_module_versions()
-    }
-
-    #[inline(always)]
-    pub fn imported_types(&self) -> BTreeSet<&QualifiedIdentifier> {
-        self.body.imported_types()
-    }
-
-    #[inline(always)]
-    pub fn defined_names(&self) -> BTreeSet<&Identifier> {
-        self.body.defined_names()
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Pseudo-Validate
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_incomplete(&self, cache: &InMemoryModuleCache) -> bool {
-        if !self.is_library_module() {
-            self.body.is_incomplete(self, cache)
-        } else {
-            false
-        }
-    }
-
-    ///
-    /// # Checks
-    ///
-    /// 1. name is valid [`Identifier`]
-    /// 1. base URI is absolute [`Url`]
-    /// 1. version info string is not empty (warning)
-    /// 1. version URI is absolute [`Url`]
-    /// 1. body is valid
-    ///
-    pub fn validate(
-        &self,
-        cache: &InMemoryModuleCache,
-        loader: &impl ModuleLoader,
-        check_constraints: bool,
-    ) {
-        if !self.is_library_module() {
-            self.name
-                .validate(self, loader, Some(IdentifierCaseConvention::Module));
-            if let Some(version_info) = self.version_info() {
-                if version_info.as_ref().is_empty() {
-                    loader
-                        .report(&module_version_info_empty(
-                            self.file_id().copied().unwrap_or_default(),
-                            version_info.source_span().map(|span| span.byte_range()),
-                        ))
-                        .unwrap();
-                }
-            }
-            self.body.validate(self, cache, loader, check_constraints);
-            if self.is_incomplete(cache) {
-                loader
-                    .report(&module_is_incomplete(
-                        self.file_id().copied().unwrap_or_default(),
-                        self.source_span().map(|span| span.byte_range()),
-                        self.name(),
-                    ))
-                    .unwrap()
-            }
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Helpers
-    // --------------------------------------------------------------------------------------------
-
-    pub fn is_library_module(&self) -> bool {
-        Identifier::is_library_module_name(self.name().as_ref())
-    }
-
-    pub fn resolve_local(&self, name: &Identifier) -> Option<&Definition> {
-        self.body().definitions().find(|def| def.name() == name)
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Modules ❱ HeaderValue
-// ------------------------------------------------------------------------------------------------
-
-impl<T> AsRef<T> for HeaderValue<T> {
-    fn as_ref(&self) -> &T {
-        &self.value
-    }
-}
-
-impl<T> From<T> for HeaderValue<T> {
-    fn from(value: T) -> Self {
-        Self { span: None, value }
-    }
-}
-
-impl<T: Display> Display for HeaderValue<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.value)
-    }
-}
-
-impl<T: PartialEq> PartialEq for HeaderValue<T> {
-    fn eq(&self, other: &Self) -> bool {
-        self.value == other.value
-    }
-}
-
-impl<T: PartialEq> PartialEq<T> for HeaderValue<T> {
-    fn eq(&self, other: &T) -> bool {
-        self.value == *other
-    }
-}
-
-impl<T: Eq> Eq for HeaderValue<T> {}
-
-impl<T: Hash> Hash for HeaderValue<T> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        // ignore: self.span.hash(state);
-        self.value.hash(state);
-    }
-}
-
-impl<T> HasSourceSpan for HeaderValue<T> {
-    fn with_source_span(self, span: Span) -> Self {
-        Self {
-            span: Some(span),
-            ..self
-        }
-    }
-
-    fn source_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-
-    fn set_source_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-
-    fn unset_source_span(&mut self) {
-        self.span = None;
-    }
-}
-
-impl<T: PartialEq> HeaderValue<T> {
-    pub fn eq_with_span(&self, other: &Self) -> bool {
-        self.span == other.span && self.value == other.value
-    }
-}
-
-impl<T> HeaderValue<T> {
-    pub const fn value(&self) -> &T {
-        &self.value
-    }
-
-    pub fn set_value(&mut self, value: T) {
-        self.value = value;
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Modules ❱ ModuleBody
-// ------------------------------------------------------------------------------------------------
-
-impl HasSourceSpan for ModuleBody {
-    fn with_source_span(self, span: Span) -> Self {
-        let mut self_mut = self;
-        self_mut.span = Some(span);
-        self_mut
-    }
-
-    fn source_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-
-    fn set_source_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-
-    fn unset_source_span(&mut self) {
-        self.span = None;
-    }
-}
-
-impl HasAnnotations for ModuleBody {
+impl HasAnnotations for Module {
     fn has_annotations(&self) -> bool {
         !self.annotations.is_empty()
     }
@@ -545,7 +215,7 @@ impl HasAnnotations for ModuleBody {
     }
 }
 
-impl References for ModuleBody {
+impl References for Module {
     fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
         self.definitions()
             .for_each(|def| def.referenced_types(names))
@@ -557,40 +227,157 @@ impl References for ModuleBody {
     }
 }
 
-impl MaybeIncomplete for ModuleBody {
-    fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
-        self.definitions()
-            .any(|elem| elem.is_incomplete(top, cache))
-    }
-}
-
-impl Validate for ModuleBody {
-    ///
-    /// # Checks
-    ///
-    /// 1. All import statements are valid [`ImportStatement`]s
-    /// 1. All annotations are valid [`Annotation`]s
-    /// 1. All definitions are valid [`Definition`]s
-    ///
-    fn validate(
-        &self,
-        top: &Module,
-        cache: &impl ModuleStore,
-        loader: &impl ModuleLoader,
-        check_constraints: bool,
-    ) {
-        self.imports()
-            .for_each(|imp| imp.validate(top, cache, loader, check_constraints));
-        self.annotations()
-            .for_each(|ann| ann.validate(top, cache, loader, check_constraints));
-        self.definitions()
-            .for_each(|def| def.validate(top, cache, loader, check_constraints));
-    }
-}
-
-impl ModuleBody {
+impl Module {
     // --------------------------------------------------------------------------------------------
     // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub fn new(name: Identifier) -> Self {
+        Self {
+            source_file: Default::default(),
+            file_id: Default::default(),
+            span: Default::default(),
+            name: name,
+            base_uri: Default::default(),
+            version_info: Default::default(),
+            version_uri: Default::default(),
+            imports: Default::default(),
+            annotations: Default::default(),
+            definitions: Default::default(),
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields ❱ source_file
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_source_file(self, source_file: PathBuf) -> Self {
+        let mut self_mut = self;
+        self_mut.source_file = Some(source_file);
+        self_mut
+    }
+
+    pub const fn has_source_file(&self) -> bool {
+        self.source_file.is_some()
+    }
+
+    pub const fn source_file(&self) -> Option<&PathBuf> {
+        self.source_file.as_ref()
+    }
+
+    pub fn set_source_file(&mut self, source_file: PathBuf) {
+        self.source_file = Some(source_file);
+    }
+
+    pub fn unset_source_file(&mut self) {
+        self.source_file = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields ❱ file_id
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn has_file_id(&self) -> bool {
+        self.file_id.is_some()
+    }
+
+    pub const fn file_id(&self) -> Option<&FileId> {
+        self.file_id.as_ref()
+    }
+
+    pub fn set_file_id(&mut self, file_id: FileId) {
+        self.file_id = Some(file_id);
+    }
+
+    pub fn unset_file_id(&mut self) {
+        self.file_id = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields ❱ base_uri
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_base_uri(self, base_uri: Url) -> Self {
+        let mut self_mut = self;
+        self_mut.base_uri = Some(base_uri.into());
+        self_mut
+    }
+
+    pub const fn has_base_uri(&self) -> bool {
+        self.base_uri.is_some()
+    }
+
+    pub const fn base_uri(&self) -> Option<&HeaderValue<Url>> {
+        self.base_uri.as_ref()
+    }
+
+    pub fn set_base_uri(&mut self, base_uri: HeaderValue<Url>) {
+        // TODO: validate
+        self.base_uri = Some(base_uri);
+    }
+
+    pub fn unset_base_uri(&mut self) {
+        self.base_uri = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields ❱ version_info
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_version_info<S>(self, version_info: S) -> Self
+    where
+        S: Into<String>,
+    {
+        let mut self_mut = self;
+        self_mut.version_info = Some(HeaderValue::from(version_info.into()));
+        self_mut
+    }
+
+    pub const fn has_version_info(&self) -> bool {
+        self.version_info.is_some()
+    }
+
+    pub const fn version_info(&self) -> Option<&HeaderValue<String>> {
+        self.version_info.as_ref()
+    }
+
+    pub fn set_version_info(&mut self, version_info: HeaderValue<String>) {
+        self.version_info = Some(version_info);
+    }
+
+    pub fn unset_version_info(&mut self) {
+        self.version_info = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields ❱ version_uri
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_version_uri(self, version_uri: Url) -> Self {
+        let mut self_mut = self;
+        self_mut.version_uri = Some(version_uri.into());
+        self_mut
+    }
+
+    pub const fn has_version_uri(&self) -> bool {
+        self.version_uri.is_some()
+    }
+
+    pub const fn version_uri(&self) -> Option<&HeaderValue<Url>> {
+        self.version_uri.as_ref()
+    }
+
+    pub fn set_version_uri(&mut self, version_uri: HeaderValue<Url>) {
+        // TODO: validate
+        self.version_uri = Some(version_uri);
+    }
+
+    pub fn unset_version_uri(&mut self) {
+        self.version_uri = None;
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields ❱  imports
     // --------------------------------------------------------------------------------------------
 
     pub fn with_imports<I>(self, import_statements: I) -> Self
@@ -601,25 +388,6 @@ impl ModuleBody {
         self_mut.extend_imports(import_statements);
         self_mut
     }
-
-    pub fn with_definitions<I>(self, definitions: I) -> Self
-    where
-        I: IntoIterator<Item = Definition>,
-    {
-        let mut self_mut = self;
-        self_mut.extend_definitions(definitions).unwrap();
-        self_mut
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    pub fn set_library_status(&mut self, module_name: &Identifier) {
-        self.is_library = Identifier::is_library_module_name(module_name);
-    }
-
-    // --------------------------------------------------------------------------------------------
 
     pub fn has_imports(&self) -> bool {
         !self.imports.is_empty()
@@ -652,6 +420,17 @@ impl ModuleBody {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Fields ❱  definitions
+    // --------------------------------------------------------------------------------------------
+
+    pub fn with_definitions<I>(self, definitions: I) -> Self
+    where
+        I: IntoIterator<Item = Definition>,
+    {
+        let mut self_mut = self;
+        self_mut.extend_definitions(definitions).unwrap();
+        self_mut
+    }
 
     pub fn has_definitions(&self) -> bool {
         !self.definitions.is_empty()
@@ -690,11 +469,17 @@ impl ModuleBody {
         I: Into<Definition>,
     {
         let definition = value.into();
-        if !self.is_library && matches!(definition, Definition::Rdf(_) | Definition::TypeClass(_)) {
-            Err(library_definition_not_allowed(
+
+        if (matches!(definition, Definition::Rdf(_))
+            && !is_rdf_definition_allowed_in_module(&self.name))
+            || (matches!(definition, Definition::TypeClass(_))
+                && !is_typeclass_definition_allowed_in_module(&self.name))
+        {
+            Err(library_definition_not_allowed_in(
                 self.file_id.unwrap_or_default(),
                 definition.source_span().map(|s| s.into()),
                 definition.name(),
+                self.name(),
             )
             .into())
         } else {
@@ -716,7 +501,111 @@ impl ModuleBody {
     }
 
     // --------------------------------------------------------------------------------------------
+    // Pseudo-Validate
+    // --------------------------------------------------------------------------------------------
+
+    fn is_incomplete(&self, cache: &impl ModuleStore) -> bool {
+        if !self.is_library_module() {
+            self.definitions()
+                .any(|elem| elem.is_incomplete(self, cache))
+        } else {
+            false // library modules are complete
+        }
+    }
+
+    ///
+    /// # Checks
+    ///
+    /// 1. name is valid [`Identifier`]
+    /// 1. base URI is absolute [`Url`]
+    /// 1. version info string is not empty (warning)
+    /// 1. version URI is absolute [`Url`]
+    /// 1. body is valid
+    ///
+    pub fn validate(
+        &self,
+        cache: &InMemoryModuleCache,
+        loader: &impl ModuleLoader,
+        check_constraints: bool,
+    ) {
+        fn is_namespace_safe(uri: &Url) -> bool {
+            uri.fragment() == Some("") || (uri.path().ends_with("/") && uri.query().is_none())
+        }
+        if !self.is_library_module() {
+            self.name
+                .validate(self, loader, Some(IdentifierCaseConvention::Module));
+            if let Some(base_uri) = self.base_uri() {
+                let uri = base_uri.value();
+                if !is_namespace_safe(uri) {
+                    loader
+                        .report(&invalid_module_base_uri(
+                            self.file_id().copied().unwrap_or_default(),
+                            base_uri.source_span().map(|span| span.byte_range()),
+                            uri.to_string(),
+                        ))
+                        .unwrap();
+                }
+            }
+            if let Some(version_uri) = self.version_uri() {
+                let uri = version_uri.value();
+                if !is_namespace_safe(uri) {
+                    loader
+                        .report(&invalid_module_version_uri(
+                            self.file_id().copied().unwrap_or_default(),
+                            version_uri.source_span().map(|span| span.byte_range()),
+                            uri.to_string(),
+                        ))
+                        .unwrap();
+                }
+            }
+            if let Some(version_info) = self.version_info() {
+                if version_info.as_ref().is_empty() {
+                    loader
+                        .report(&module_version_info_empty(
+                            self.file_id().copied().unwrap_or_default(),
+                            version_info.source_span().map(|span| span.byte_range()),
+                        ))
+                        .unwrap();
+                }
+            }
+            self.validate(cache, loader, check_constraints);
+            if self.is_incomplete(cache) {
+                loader
+                    .report(&module_is_incomplete(
+                        self.file_id().copied().unwrap_or_default(),
+                        self.source_span().map(|span| span.byte_range()),
+                        self.name(),
+                    ))
+                    .unwrap()
+            }
+            self.imports()
+                .for_each(|imp| imp.validate(self, cache, loader, check_constraints));
+            // TODO: check that no module is loaded multiple times with different versions.
+            self.annotations()
+                .for_each(|ann| ann.validate(self, cache, loader, check_constraints));
+            self.definitions()
+                .for_each(|def| def.validate(self, cache, loader, check_constraints));
+        }
+    }
+
+    // --------------------------------------------------------------------------------------------
     // Helpers
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn is_versioned(&self) -> bool {
+        self.has_version_info() || self.has_version_uri()
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_library_module(&self) -> bool {
+        Identifier::is_library_module_name(self.name().as_ref())
+    }
+
+    pub fn resolve_local(&self, name: &Identifier) -> Option<&Definition> {
+        self.definitions().find(|def| def.name() == name)
+    }
+
     // --------------------------------------------------------------------------------------------
 
     pub fn imported_modules(&self) -> BTreeSet<&Identifier> {
@@ -818,6 +707,86 @@ impl ModuleBody {
 
     pub fn defined_names(&self) -> BTreeSet<&Identifier> {
         self.definitions().map(|def| def.name()).collect()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Modules ❱ HeaderValue
+// ------------------------------------------------------------------------------------------------
+
+impl<T> AsRef<T> for HeaderValue<T> {
+    fn as_ref(&self) -> &T {
+        &self.value
+    }
+}
+
+impl<T> From<T> for HeaderValue<T> {
+    fn from(value: T) -> Self {
+        Self { span: None, value }
+    }
+}
+
+impl<T: Display> Display for HeaderValue<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
+impl<T: PartialEq> PartialEq for HeaderValue<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
+}
+
+impl<T: PartialEq> PartialEq<T> for HeaderValue<T> {
+    fn eq(&self, other: &T) -> bool {
+        self.value == *other
+    }
+}
+
+impl<T: Eq> Eq for HeaderValue<T> {}
+
+impl<T: Hash> Hash for HeaderValue<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // ignore: self.span.hash(state);
+        self.value.hash(state);
+    }
+}
+
+impl<T> HasSourceSpan for HeaderValue<T> {
+    fn with_source_span(self, span: Span) -> Self {
+        Self {
+            span: Some(span),
+            ..self
+        }
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl<T: PartialEq> HeaderValue<T> {
+    pub fn eq_with_span(&self, other: &Self) -> bool {
+        self.span == other.span && self.value == other.value
+    }
+}
+
+impl<T> HeaderValue<T> {
+    pub const fn value(&self) -> &T {
+        &self.value
+    }
+
+    pub fn set_value(&mut self, value: T) {
+        self.value = value;
     }
 }
 
@@ -975,6 +944,7 @@ impl ImportStatement {
     pub const fn new(imports: Vec<Import>) -> Self {
         Self {
             span: None,
+            from_clause: None,
             imports,
         }
     }
@@ -982,6 +952,7 @@ impl ImportStatement {
     pub fn new_module(import: Identifier) -> Self {
         Self {
             span: None,
+            from_clause: None,
             imports: vec![Import::from(ModuleImport::from(import))],
         }
     }
@@ -989,6 +960,7 @@ impl ImportStatement {
     pub fn new_module_with_version_uri(import: Identifier, version_uri: Url) -> Self {
         Self {
             span: None,
+            from_clause: None,
             imports: vec![Import::from(
                 ModuleImport::from(import).with_version_uri(version_uri.into()),
             )],
@@ -998,12 +970,34 @@ impl ImportStatement {
     pub fn new_member(import: QualifiedIdentifier) -> Self {
         Self {
             span: None,
+            from_clause: None,
             imports: vec![Import::from(import)],
         }
     }
 
+    // TODO: with_from__path
+    // TODO: with_imports
+
     // --------------------------------------------------------------------------------------------
     // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub fn has_from_module_path(&self) -> bool {
+        self.from_clause.is_some()
+    }
+
+    pub fn from_module_path(&self) -> Option<&ModulePath> {
+        self.from_clause.as_ref()
+    }
+
+    pub fn set_from_module_path(&mut self, path: ModulePath) {
+        self.from_clause = Some(path);
+    }
+
+    pub fn unset_from_module_path(&mut self) {
+        self.from_clause = None;
+    }
+
     // --------------------------------------------------------------------------------------------
 
     pub fn has_imports(&self) -> bool {
@@ -1070,6 +1064,188 @@ impl ImportStatement {
                 }
             })
             .collect()
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+
+impl Display for ModulePath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}{}",
+            if self.is_absolute() {
+                PC_MODULE_PATH_SEPARATOR
+            } else {
+                ""
+            },
+            self.segments()
+                .map(|i| i.to_string())
+                .collect::<Vec<String>>()
+                .join(PC_MODULE_PATH_SEPARATOR),
+        )
+    }
+}
+
+impl FromStr for ModulePath {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        const PREFIX_OFFSET: usize = PC_MODULE_PATH_SEPARATOR.len();
+        if s.is_empty() {
+            Ok(ModulePath::default())
+        } else if s == PC_MODULE_PATH_SEPARATOR {
+            Ok(ModulePath::root())
+        } else {
+            let (absolute, modules) = if s.starts_with(PC_MODULE_PATH_SEPARATOR) {
+                (true, s[PREFIX_OFFSET..].split(PC_MODULE_PATH_SEPARATOR))
+            } else {
+                (false, s.split(PC_MODULE_PATH_SEPARATOR))
+            };
+            Ok(ModulePath::new(
+                absolute,
+                modules
+                    .map(Identifier::from_str)
+                    .collect::<Result<Vec<Identifier>, Self::Err>>()?,
+            ))
+        }
+    }
+}
+
+impl HasSourceSpan for ModulePath {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl Validate for ModulePath {
+    fn validate(
+        &self,
+        _top: &Module,
+        _cache: &impl ModuleStore,
+        _loader: &impl ModuleLoader,
+        _check_constraints: bool,
+    ) {
+        // TODO: ensure the hierarchy is followed.
+        todo!()
+    }
+}
+
+impl ModulePath {
+    pub fn new<T>(is_absolute: bool, segments: T) -> Self
+    where
+        T: Into<Vec<Identifier>>,
+    {
+        Self {
+            span: None,
+            is_absolute,
+            segments: segments.into(),
+        }
+    }
+
+    pub fn new_unchecked(is_absolute: bool, segments: &[&str]) -> Self {
+        Self {
+            span: None,
+            is_absolute,
+            segments: segments
+                .iter()
+                .map(|id| Identifier::new_unchecked(id))
+                .collect(),
+        }
+    }
+
+    pub fn root() -> Self {
+        Self {
+            span: None,
+            is_absolute: true,
+            segments: Vec::default(),
+        }
+    }
+
+    pub fn absolute<T>(modules: T) -> Self
+    where
+        T: Into<Vec<Identifier>>,
+    {
+        Self {
+            span: None,
+            is_absolute: true,
+            segments: modules.into(),
+        }
+    }
+
+    pub fn absolute_one(module: Identifier) -> Self {
+        Self::absolute(vec![module])
+    }
+
+    pub fn relative<T>(modules: T) -> Self
+    where
+        T: Into<Vec<Identifier>>,
+    {
+        Self {
+            span: None,
+            is_absolute: false,
+            segments: modules.into(),
+        }
+    }
+
+    pub fn relative_one(module: Identifier) -> Self {
+        Self::relative(vec![module])
+    }
+
+    pub fn is_absolute(&self) -> bool {
+        self.is_absolute
+    }
+
+    pub fn set_absolute(&mut self, is_absolute: bool) {
+        self.is_absolute = is_absolute;
+    }
+
+    pub fn is_root(&self) -> bool {
+        self.is_absolute() && !self.has_segments()
+    }
+
+    pub fn has_segments(&self) -> bool {
+        !self.segments.is_empty()
+    }
+
+    pub fn segment_count(&self) -> usize {
+        self.segments.len()
+    }
+
+    pub fn segments(&self) -> impl Iterator<Item = &Identifier> {
+        self.segments.iter()
+    }
+
+    pub fn segments_mut(&mut self) -> impl Iterator<Item = &mut Identifier> {
+        self.segments.iter_mut()
+    }
+
+    pub fn add_to_segments<I>(&mut self, value: I)
+    where
+        I: Into<Identifier>,
+    {
+        self.segments.push(value.into())
+    }
+
+    pub fn extend_segments<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.segments.extend(extension)
     }
 }
 
@@ -1391,7 +1567,7 @@ impl Display for MemberImport {
         write!(
             f,
             "{}{}",
-            self.name().to_string(),
+            self.name(),
             if let Some(renamed_as) = &self.renamed_as {
                 format!(" as {renamed_as}")
             } else {
@@ -1458,7 +1634,7 @@ impl MemberImport {
     }
 
     pub const fn member(&self) -> &Identifier {
-        &self.name().member()
+        self.name().member()
     }
 
     // --------------------------------------------------------------------------------------------
@@ -1495,5 +1671,109 @@ impl MemberImport {
 
     pub fn eq_with_span(&self, other: &Self) -> bool {
         self.span == other.span && self.name == other.name && self.renamed_as == other.renamed_as
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Unit Tests
+// ------------------------------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_module_path_from_str_default() {
+        let path = ModulePath::from_str("").unwrap();
+        assert!(!path.is_root());
+        assert!(!path.is_absolute());
+        assert!(!path.has_segments());
+        assert_eq!(path.segment_count(), 0);
+    }
+
+    #[test]
+    fn test_module_path_from_str_root() {
+        let path = ModulePath::from_str("::").unwrap();
+        assert!(path.is_root());
+        assert!(path.is_absolute());
+        assert!(!path.has_segments());
+        assert_eq!(path.segment_count(), 0);
+    }
+
+    #[test]
+    fn test_module_path_from_str_absolute() {
+        let path = ModulePath::from_str("::one").unwrap();
+        assert!(!path.is_root());
+        assert!(path.is_absolute());
+        assert!(path.has_segments());
+        assert_eq!(path.segment_count(), 1);
+    }
+
+    #[test]
+    fn test_module_path_from_str_absolute_two() {
+        let path = ModulePath::from_str("::one::two").unwrap();
+        assert!(!path.is_root());
+        assert!(path.is_absolute());
+        assert!(path.has_segments());
+        assert_eq!(path.segment_count(), 2);
+    }
+
+    #[test]
+    fn test_module_path_from_str_relative() {
+        let path = ModulePath::from_str("one").unwrap();
+        assert!(!path.is_root());
+        assert!(!path.is_absolute());
+        assert!(path.has_segments());
+        assert_eq!(path.segment_count(), 1);
+    }
+
+    #[test]
+    fn test_module_path_from_str_relative_two() {
+        let path = ModulePath::from_str("one::two").unwrap();
+        assert!(!path.is_root());
+        assert!(!path.is_absolute());
+        assert!(path.has_segments());
+        assert_eq!(path.segment_count(), 2);
+    }
+
+    #[test]
+    fn test_module_path_display_default() {
+        let path = ModulePath::default();
+        assert_eq!(&path.to_string(), "");
+    }
+
+    #[test]
+    fn test_module_path_display_root() {
+        let path = ModulePath::root();
+        assert_eq!(&path.to_string(), "::");
+    }
+
+    #[test]
+    fn test_module_path_display_absolute() {
+        let path = ModulePath::absolute(vec![Identifier::from_str("one").unwrap()]);
+        assert_eq!(&path.to_string(), "::one");
+    }
+
+    #[test]
+    fn test_module_path_display_absolute_two() {
+        let path = ModulePath::absolute(vec![
+            Identifier::from_str("one").unwrap(),
+            Identifier::from_str("two").unwrap(),
+        ]);
+        assert_eq!(&path.to_string(), "::one::two");
+    }
+    #[test]
+    fn test_module_path_display_relative() {
+        let path = ModulePath::relative(vec![Identifier::from_str("one").unwrap()]);
+        assert_eq!(&path.to_string(), "one");
+    }
+
+    #[test]
+    fn test_module_path_display_relative_two() {
+        let path = ModulePath::relative(vec![
+            Identifier::from_str("one").unwrap(),
+            Identifier::from_str("two").unwrap(),
+        ]);
+        assert_eq!(&path.to_string(), "one::two");
     }
 }

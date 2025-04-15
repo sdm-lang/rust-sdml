@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 124,
+            end: 135,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 37,
-                end: 47,
+                end: 58,
             },
         ),
-        value: "dimensions",
+        value: "corpus_test_dimension",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 64,
-                    end: 73,
+                    start: 75,
+                    end: 84,
                 },
             ),
             value: "Campaigns",
@@ -57,15 +57,15 @@ Module {
             DimensionDef {
                 span: Some(
                     Span {
-                        start: 54,
-                        end: 118,
+                        start: 65,
+                        end: 129,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 64,
-                            end: 73,
+                            start: 75,
+                            end: 84,
                         },
                     ),
                     value: "Campaigns",
@@ -74,8 +74,8 @@ Module {
                     DimensionBody {
                         span: Some(
                             Span {
-                                start: 74,
-                                end: 118,
+                                start: 85,
+                                end: 129,
                             },
                         ),
                         annotations: [],
@@ -86,15 +86,15 @@ Module {
                                     MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 90,
-                                                end: 112,
+                                                start: 101,
+                                                end: 123,
                                             },
                                         ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 90,
-                                                    end: 98,
+                                                    start: 101,
+                                                    end: 109,
                                                 },
                                             ),
                                             value: "campaign",
@@ -116,8 +116,8 @@ Module {
                                                 Identifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 102,
-                                                            end: 112,
+                                                            start: 113,
+                                                            end: 123,
                                                         },
                                                     ),
                                                     value: "CampaignId",

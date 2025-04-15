@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/union_empty.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/union_empty.sdm/",
   "definitions": [
     {
       "__type": "definition",

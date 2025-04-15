@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 63,
+            end: 72,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 25,
-                end: 33,
+                end: 42,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_event",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 46,
-                    end: 57,
+                    start: 55,
+                    end: 66,
                 },
             ),
             value: "NameChanged",
@@ -57,15 +57,15 @@ Module {
             EventDef {
                 span: Some(
                     Span {
-                        start: 40,
-                        end: 57,
+                        start: 49,
+                        end: 66,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 46,
-                            end: 57,
+                            start: 55,
+                            end: 66,
                         },
                     ),
                     value: "NameChanged",

@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_many_unordered.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_many_unordered.sdm/",
   "definitions": [
     {
       "__type": "structure_def",

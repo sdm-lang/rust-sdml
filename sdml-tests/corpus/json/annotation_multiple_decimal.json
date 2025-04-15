@@ -61,7 +61,7 @@
       }
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_decimal.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_decimal.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",

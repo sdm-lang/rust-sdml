@@ -1,4 +1,4 @@
-module rentals base <https://example.org/v/rentals> is
+module rentals <https://example.org/v/rentals> is
 
   import [ dc skos xsd ]
 
@@ -25,7 +25,6 @@ module rentals base <https://example.org/v/rentals> is
 
   entity Vehicle is
     @skos:prefLabel = "Vehicle"@en
-
     identity vin -> VehicleIdentificationNumber
 
     information -> VehicleInformation
@@ -43,7 +42,7 @@ module rentals base <https://example.org/v/rentals> is
 
   entity Location
 
-  entity Customer 
+  entity Customer
 
   entity Booking is
     identity bookingCode -> unknown

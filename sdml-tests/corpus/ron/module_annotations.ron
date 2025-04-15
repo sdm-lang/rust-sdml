@@ -8,14 +8,14 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 138,
+            end: 151,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 7,
-                end: 25,
+                start: 36,
+                end: 54,
             },
         ),
         value: "corpus_test_module",
@@ -42,86 +42,83 @@ Module {
     ),
     version_info: None,
     version_uri: None,
-    imports: [],
+    imports: [
+        ImportStatement {
+            span: Some(
+                Span {
+                    start: 61,
+                    end: 79,
+                },
+            ),
+            from_clause: None,
+            imports: [
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 70,
+                                end: 72,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 70,
+                                    end: 72,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+                Module(
+                    ModuleImport {
+                        span: Some(
+                            Span {
+                                start: 73,
+                                end: 77,
+                            },
+                        ),
+                        name: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 73,
+                                    end: 77,
+                                },
+                            ),
+                            value: "skos",
+                        },
+                        version_uri: None,
+                        renamed_as: None,
+                    },
+                ),
+            ],
+        },
+    ],
     annotations: [
         Property(
             AnnotationProperty {
                 span: Some(
                     Span {
-                        start: 32,
-                        end: 66,
+                        start: 83,
+                        end: 98,
                     },
                 ),
                 name_reference: QualifiedIdentifier(
                     QualifiedIdentifier {
                         span: Some(
                             Span {
-                                start: 33,
-                                end: 41,
+                                start: 84,
+                                end: 94,
                             },
                         ),
                         module: Identifier {
                             span: Some(
                                 Span {
-                                    start: 33,
-                                    end: 36,
-                                },
-                            ),
-                            value: "xml",
-                        },
-                        member: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 37,
-                                    end: 41,
-                                },
-                            ),
-                            value: "base",
-                        },
-                    },
-                ),
-                value: Simple(
-                    IriReference(
-                        Url {
-                            scheme: "https",
-                            cannot_be_a_base: false,
-                            username: "",
-                            password: None,
-                            host: Some(
-                                Domain(
-                                    "example.org",
-                                ),
-                            ),
-                            port: None,
-                            path: "/",
-                            query: None,
-                            fragment: None,
-                        },
-                    ),
-                ),
-            },
-        ),
-        Property(
-            AnnotationProperty {
-                span: Some(
-                    Span {
-                        start: 70,
-                        end: 85,
-                    },
-                ),
-                name_reference: QualifiedIdentifier(
-                    QualifiedIdentifier {
-                        span: Some(
-                            Span {
-                                start: 71,
-                                end: 81,
-                            },
-                        ),
-                        module: Identifier {
-                            span: Some(
-                                Span {
-                                    start: 71,
-                                    end: 73,
+                                    start: 84,
+                                    end: 86,
                                 },
                             ),
                             value: "dc",
@@ -129,8 +126,8 @@ Module {
                         member: Identifier {
                             span: Some(
                                 Span {
-                                    start: 74,
-                                    end: 81,
+                                    start: 87,
+                                    end: 94,
                                 },
                             ),
                             value: "version",
@@ -148,23 +145,23 @@ Module {
             AnnotationProperty {
                 span: Some(
                     Span {
-                        start: 89,
-                        end: 132,
+                        start: 102,
+                        end: 145,
                     },
                 ),
                 name_reference: QualifiedIdentifier(
                     QualifiedIdentifier {
                         span: Some(
                             Span {
-                                start: 90,
-                                end: 103,
+                                start: 103,
+                                end: 116,
                             },
                         ),
                         module: Identifier {
                             span: Some(
                                 Span {
-                                    start: 90,
-                                    end: 94,
+                                    start: 103,
+                                    end: 107,
                                 },
                             ),
                             value: "skos",
@@ -172,8 +169,8 @@ Module {
                         member: Identifier {
                             span: Some(
                                 Span {
-                                    start: 95,
-                                    end: 103,
+                                    start: 108,
+                                    end: 116,
                                 },
                             ),
                             value: "prefLang",
@@ -184,8 +181,8 @@ Module {
                     SequenceOfValues {
                         span: Some(
                             Span {
-                                start: 106,
-                                end: 132,
+                                start: 119,
+                                end: 145,
                             },
                         ),
                         ordering: None,
@@ -196,8 +193,8 @@ Module {
                                     LanguageString {
                                         span: Some(
                                             Span {
-                                                start: 112,
-                                                end: 119,
+                                                start: 125,
+                                                end: 132,
                                             },
                                         ),
                                         value: "aa",
@@ -205,8 +202,8 @@ Module {
                                             LanguageTag {
                                                 span: Some(
                                                     Span {
-                                                        start: 116,
-                                                        end: 119,
+                                                        start: 129,
+                                                        end: 132,
                                                     },
                                                 ),
                                                 value: LanguageTag {
@@ -228,8 +225,8 @@ Module {
                                     LanguageString {
                                         span: Some(
                                             Span {
-                                                start: 124,
-                                                end: 128,
+                                                start: 137,
+                                                end: 141,
                                             },
                                         ),
                                         value: "bb",

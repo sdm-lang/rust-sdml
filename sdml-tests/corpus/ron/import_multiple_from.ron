@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 174,
+            end: 184,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 41,
-                end: 49,
+                end: 59,
             },
         ),
-        value: "Campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -46,8 +46,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 56,
-                    end: 79,
+                    start: 66,
+                    end: 89,
                 },
             ),
             from_clause: Some(
@@ -62,22 +62,22 @@ Module {
                     MemberImport {
                         span: Some(
                             Span {
-                                start: 71,
-                                end: 79,
+                                start: 81,
+                                end: 89,
                             },
                         ),
                         name: QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 71,
-                                    end: 79,
+                                    start: 81,
+                                    end: 89,
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 71,
-                                        end: 74,
+                                        start: 81,
+                                        end: 84,
                                     },
                                 ),
                                 value: "xsd",
@@ -85,8 +85,8 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 75,
-                                        end: 79,
+                                        start: 85,
+                                        end: 89,
                                     },
                                 ),
                                 value: "base",
@@ -100,8 +100,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 82,
-                    end: 104,
+                    start: 92,
+                    end: 114,
                 },
             ),
             from_clause: Some(
@@ -112,8 +112,8 @@ Module {
                         Identifier {
                             span: Some(
                                 Span {
-                                    start: 87,
-                                    end: 90,
+                                    start: 97,
+                                    end: 100,
                                 },
                             ),
                             value: "xsd",
@@ -126,15 +126,15 @@ Module {
                     ModuleImport {
                         span: Some(
                             Span {
-                                start: 98,
-                                end: 104,
+                                start: 108,
+                                end: 114,
                             },
                         ),
                         name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 98,
-                                    end: 104,
+                                    start: 108,
+                                    end: 114,
                                 },
                             ),
                             value: "facets",
@@ -148,8 +148,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 107,
-                    end: 168,
+                    start: 117,
+                    end: 178,
                 },
             ),
             from_clause: Some(
@@ -160,8 +160,8 @@ Module {
                         Identifier {
                             span: Some(
                                 Span {
-                                    start: 114,
-                                    end: 123,
+                                    start: 124,
+                                    end: 133,
                                 },
                             ),
                             value: "reporting",
@@ -169,8 +169,8 @@ Module {
                         Identifier {
                             span: Some(
                                 Span {
-                                    start: 125,
-                                    end: 131,
+                                    start: 135,
+                                    end: 141,
                                 },
                             ),
                             value: "common",
@@ -183,15 +183,15 @@ Module {
                     ModuleImport {
                         span: Some(
                             Span {
-                                start: 145,
-                                end: 154,
+                                start: 155,
+                                end: 164,
                             },
                         ),
                         name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 145,
-                                    end: 154,
+                                    start: 155,
+                                    end: 164,
                                 },
                             ),
                             value: "datatypes",
@@ -204,15 +204,15 @@ Module {
                     ModuleImport {
                         span: Some(
                             Span {
-                                start: 159,
-                                end: 164,
+                                start: 169,
+                                end: 174,
                             },
                         ),
                         name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 159,
-                                    end: 164,
+                                    start: 169,
+                                    end: 174,
                                 },
                             ),
                             value: "enums",

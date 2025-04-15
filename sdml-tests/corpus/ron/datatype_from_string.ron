@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 56,
+            end: 69,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 14,
+                end: 27,
             },
         ),
-        value: "example",
+        value: "corpus_test_datatype",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 30,
-                    end: 40,
+                    start: 43,
+                    end: 53,
                 },
             ),
             value: "nameString",
@@ -57,15 +57,15 @@ Module {
             DatatypeDef {
                 span: Some(
                     Span {
-                        start: 21,
-                        end: 50,
+                        start: 34,
+                        end: 63,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 30,
-                            end: 40,
+                            start: 43,
+                            end: 53,
                         },
                     ),
                     value: "nameString",
@@ -81,8 +81,8 @@ Module {
                         member: Identifier {
                             span: Some(
                                 Span {
-                                    start: 44,
-                                    end: 50,
+                                    start: 57,
+                                    end: 63,
                                 },
                             ),
                             value: "string",

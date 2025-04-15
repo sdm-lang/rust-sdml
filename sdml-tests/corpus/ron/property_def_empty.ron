@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 54,
+            end: 69,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 12,
+                end: 27,
             },
         ),
-        value: "ddict",
+        value: "corpus_test_property",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 28,
-                    end: 37,
+                    start: 43,
+                    end: 52,
                 },
             ),
             value: "accountId",
@@ -59,15 +59,15 @@ Module {
                 member: MemberDef {
                     span: Some(
                         Span {
-                            start: 28,
-                            end: 48,
+                            start: 43,
+                            end: 63,
                         },
                     ),
                     name: Identifier {
                         span: Some(
                             Span {
-                                start: 28,
-                                end: 37,
+                                start: 43,
+                                end: 52,
                             },
                         ),
                         value: "accountId",

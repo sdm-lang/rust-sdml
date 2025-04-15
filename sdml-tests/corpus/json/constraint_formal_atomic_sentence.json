@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_atomic_sentence.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_atomic_sentence.sdm/",
   "definitions": [
     {
       "__type": "definition",

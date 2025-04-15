@@ -1,6 +1,7 @@
 /*!
 Provide the Rust types that implement *annotation*-related components of the SDML Grammar.
 */
+use crate::config;
 use crate::load::ModuleLoader;
 use crate::model::values::{LanguageString, LanguageTag};
 use crate::model::{
@@ -442,10 +443,7 @@ impl Annotation {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_annotation_property(&self) -> bool {
-        match self {
-            Self::Property(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Property(_))
     }
     pub const fn as_annotation_property(&self) -> Option<&AnnotationProperty> {
         match self {
@@ -454,10 +452,7 @@ impl Annotation {
         }
     }
     pub const fn is_constraint(&self) -> bool {
-        match self {
-            Self::Constraint(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Constraint(_))
     }
     pub const fn as_constraint(&self) -> Option<&Constraint> {
         match self {
@@ -543,7 +538,7 @@ impl AnnotationProperty {
     #[inline(always)]
     pub fn is_stdlib_property(&self) -> bool {
         if let IdentifierReference::QualifiedIdentifier(name) = self.name_reference() {
-            stdlib::is_library_module(name.module())
+            config::is_library_module(name.module())
         } else {
             false
         }
@@ -633,7 +628,7 @@ impl HasAnnotations for AnnotationOnlyBody {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
+        self.annotations.extend(extension)
     }
 }
 

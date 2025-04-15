@@ -2,15 +2,16 @@
 This Rust module contains the SDML model of the SDML library module `rdfs` for RDF Schema.
 */
 
-use crate::model::annotations::AnnotationBuilder;
+use crate::model::annotations::{AnnotationOnlyBody, HasAnnotations};
 use crate::model::modules::Module;
 use crate::model::HasBody;
-use crate::stdlib::rdf;
+use std::str::FromStr;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+pub const MODULE_PATH: &str = "::org::w3";
 pub const MODULE_NAME: &str = "rdfs";
 pub const MODULE_URL: &str = "http://www.w3.org/2000/01/rdf-schema#";
 
@@ -35,47 +36,121 @@ pub const SUB_PROPERTY_OF: &str = "subPropertyOf";
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn module() -> Module {
-    #[allow(non_snake_case)]
-    let MODULE_IRI: url::Url = url::Url::parse(MODULE_URL).unwrap();
-    let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(MODULE_IRI.clone());
+module_function!(|| {
+    let module_uri: url::Url = url::Url::parse(MODULE_URL).unwrap();
 
-    module
-        .body_mut()
-        .add_to_imports(import!(id!(rdf::MODULE_NAME)));
-
-    module
-        .body_mut()
-        .extend_definitions(vec![
-            // Classes
-            rdf!(class CLASS, MODULE_IRI).into(),
-            rdf!(class CONTAINER, MODULE_IRI).into(),
-            rdf!(class DATATYPE, MODULE_IRI; CLASS).into(),
-            rdf!(class LITERAL, MODULE_IRI; RESOURCE).into(),
-            rdf!(class RESOURCE, MODULE_IRI).into(),
-            // Individuals
-            rdf!(thing CONTAINER_MEMBERSHIP_PROPERTY, MODULE_IRI;
-             (rdf::MODULE_NAME, rdf::PROPERTY))
-            .into(),
-            // Properties
-            rdf!(property COMMENT, MODULE_IRI; RESOURCE => LITERAL).into(),
-            rdf!(property DOMAIN, MODULE_IRI;
-             (rdf::MODULE_NAME, rdf::PROPERTY) => CLASS)
-            .into(),
-            rdf!(property IS_DEFINED_BY, MODULE_IRI; RESOURCE => RESOURCE).into(),
-            rdf!(property LABEL, MODULE_IRI; RESOURCE => LITERAL).into(),
-            rdf!(property MEMBER, MODULE_IRI; RESOURCE => RESOURCE).into(),
-            rdf!(property RANGE, MODULE_IRI;
-             (rdf::MODULE_NAME, rdf::PROPERTY) => CLASS)
-            .into(),
-            rdf!(property SEE_ALSO, MODULE_IRI; RESOURCE => RESOURCE).into(),
-            rdf!(property SUB_CLASS_OF, MODULE_IRI; CLASS => CLASS).into(),
-            rdf!(property SUB_PROPERTY_OF, MODULE_IRI;
-             (rdf::MODULE_NAME, rdf::PROPERTY) =>
-             (rdf::MODULE_NAME, rdf::PROPERTY))
-            .into(),
-        ])
-        .unwrap();
-
-    module
-}
+    module!(
+        id!(unchecked rdfs), module_uri ; call |module: Module|
+        module.with_imports([import_statement!(
+            id!(unchecked rdf),
+        )])
+            .with_definitions([
+                // ---------------------------------------------------------------------------------
+                // Classes
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked Class) ; class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Class@en)),
+                    ])).into(),
+                rdf!(id!(unchecked Container) ; class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Container@en)),
+                    ])).into(),
+                rdf!(id!(unchecked Datatype) ; class id!(unchecked Class) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Datatype@en)),
+                    ])).into(),
+                rdf!(id!(unchecked Literal) ; class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Literal@en)),
+                    ])).into(),
+                rdf!(id!(unchecked Resource) ; class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Resource@en)),
+                    ])).into(),
+                // ---------------------------------------------------------------------------------
+                // Properties
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked comment) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(comment@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Literal)),
+                    ])).into(),
+                rdf!(id!(unchecked domain) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(domain@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked rdf:Property)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Class)),
+                    ])).into(),
+                rdf!(id!(unchecked isDefinedBy) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(isDefinedBy@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Resource)),
+                    ])).into(),
+                rdf!(id!(unchecked label) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(label@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Literal)),
+                    ])).into(),
+                rdf!(id!(unchecked range) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(range@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked rdf:Property)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Class)),
+                    ])).into(),
+                rdf!(id!(unchecked member) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(member@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Resource)),
+                    ])).into(),
+                rdf!(id!(unchecked seeAlso) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(seeAlso@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Resource)),
+                    ])).into(),
+                rdf!(id!(unchecked subPropertyOf) ; property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(subPropertyOf@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked rdf:Property)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdf:Property)),
+                    ])).into(),
+                rdf!(id!(unchecked ContainerMembershipProperty) ; class id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdfs)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(subPropertyOfContainerMembershipProperty@en)),
+                    ])).into(),
+            ])
+    )
+});

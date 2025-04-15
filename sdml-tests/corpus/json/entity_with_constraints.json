@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_constraints.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_with_constraints.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -20,8 +20,8 @@
                 },
                 "span": {
                   "__type": "span",
-                  "end": 70,
-                  "start": 55
+                  "end": 80,
+                  "start": 65
                 },
                 "type": {
                   "__type": "type_reference",
@@ -73,8 +73,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 145,
-                    "start": 76
+                    "end": 155,
+                    "start": 86
                   },
                   "type": {
                     "__type": "type_reference",
@@ -172,8 +172,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 250,
-                    "start": 151
+                    "end": 260,
+                    "start": 161
                   },
                   "type": {
                     "__type": "type_reference",
@@ -196,8 +196,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 257,
-          "start": 22
+          "end": 267,
+          "start": 32
         }
       }
     }
@@ -205,12 +205,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Campaign"
+    "value": "corpus_test_entity"
   },
   "source_file": "MANIFEST_PATH/corpus/entity_with_constraints.sdm",
   "span": {
     "__type": "span",
-    "end": 263,
+    "end": 273,
     "start": 0
   }
 }

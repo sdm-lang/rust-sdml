@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_implication.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_implication.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -112,8 +112,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 197,
-                    "start": 88
+                    "end": 212,
+                    "start": 103
                   },
                   "type": {
                     "__type": "type_reference",
@@ -238,8 +238,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 312,
-                    "start": 203
+                    "end": 327,
+                    "start": 218
                   },
                   "type": {
                     "__type": "type_reference",
@@ -364,8 +364,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 427,
-                    "start": 318
+                    "end": 442,
+                    "start": 333
                   },
                   "type": {
                     "__type": "type_reference",
@@ -395,8 +395,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 434,
-          "start": 64
+          "end": 449,
+          "start": 79
         }
       }
     }
@@ -404,12 +404,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_binary_implication.sdm",
   "span": {
     "__type": "span",
-    "end": 441,
+    "end": 456,
     "start": 0
   }
 }

@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_mapping_type.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/structure_mapping_type.sdm/",
   "definitions": [
     {
       "__type": "structure_def",
@@ -27,6 +27,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "Campaign",
+  "name": "corpus_test_structure",
   "source_file": "MANIFEST_PATH/corpus/structure_mapping_type.sdm"
 }

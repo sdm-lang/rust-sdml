@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_two_to_eight.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/cardinality_two_to_eight.sdm/",
   "definitions": [
     {
       "__type": "structure_def",

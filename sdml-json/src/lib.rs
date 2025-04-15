@@ -54,7 +54,7 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 // Modules
 // ------------------------------------------------------------------------------------------------
 
-pub mod parse;
+pub mod read;
 
-pub mod generate;
-pub use generate::{Writer, WriterOptions};
+pub mod write;
+pub use write::{module_list_to_value, module_to_value, write_module, WriteOptions};

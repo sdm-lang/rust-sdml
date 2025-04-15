@@ -1,9 +1,13 @@
 /*!
 Provide the Rust types that implement *identifier*-related components of the SDML Grammar.
 */
+use crate::config::{is_builtin_type_name_str, is_library_module_str};
 use crate::load::ModuleLoader;
 use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, Span};
+use crate::syntax::{
+    PC_QUALIFIED_IDENTIFIER_SEPARATOR, RESERVED_CONSTRAINT_KEYWORDS, RESERVED_KEYWORDS,
+};
 use convert_case::{Case, Casing};
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -65,33 +69,6 @@ lazy_static! {
     static ref IDENTIFIER: Regex =
         Regex::new(r"^[\p{Lu}\p{Ll}][\p{Lu}\p{Ll}\p{Nd}]*(?:_+[\p{Lu}\p{Ll}\p{Nd}]+)*$").unwrap();
 }
-
-const RESERVED_KEYWORDS: [&str; 19] = [
-    "as",
-    "base",
-    "datatype",
-    "end",
-    "entity",
-    "enum",
-    "event",
-    "group",
-    "identity",
-    "import",
-    "is",
-    "module",
-    "of",
-    "property",
-    "ref",
-    "source",
-    "structure",
-    "union",
-    "unknown",
-];
-const RESERVED_TYPES: [&str; 6] = ["string", "double", "decimal", "integer", "boolean", "iri"];
-const RESERVED_MODULES: [&str; 12] = [
-    "dc", "dc_am", "dc_terms", "dc_types", "iso_3166", "iso_4217", "owl", "rdf", "rdfs", "sdml",
-    "skos", "xsd",
-];
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Identifier
@@ -263,11 +240,19 @@ impl Identifier {
     }
 
     #[inline(always)]
+    pub fn is_keyword_in_constraint<S>(s: S) -> bool
+    where
+        S: AsRef<str>,
+    {
+        Self::is_keyword(&s) || RESERVED_CONSTRAINT_KEYWORDS.contains(&s.as_ref())
+    }
+
+    #[inline(always)]
     pub fn is_type_name<S>(s: S) -> bool
     where
         S: AsRef<str>,
     {
-        RESERVED_TYPES.contains(&s.as_ref())
+        is_builtin_type_name_str(s.as_ref())
     }
 
     #[inline(always)]
@@ -275,7 +260,7 @@ impl Identifier {
     where
         S: AsRef<str>,
     {
-        RESERVED_MODULES.contains(&s.as_ref())
+        is_library_module_str(s.as_ref())
     }
 
     #[inline(always)]
@@ -330,7 +315,9 @@ impl FromStr for QualifiedIdentifier {
     type Err = crate::error::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let parts = s.split(Self::SEPARATOR_STR).collect::<Vec<&str>>();
+        let parts = s
+            .split(PC_QUALIFIED_IDENTIFIER_SEPARATOR)
+            .collect::<Vec<&str>>();
         if parts.len() == 2 {
             Ok(Self::new(
                 Identifier::from_str(parts[0])?,
@@ -383,7 +370,11 @@ impl Ord for QualifiedIdentifier {
 
 impl Display for QualifiedIdentifier {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{}", self.module, self.member)
+        write!(
+            f,
+            "{}{}{}",
+            self.module, PC_QUALIFIED_IDENTIFIER_SEPARATOR, self.member
+        )
     }
 }
 
@@ -405,8 +396,6 @@ impl HasSourceSpan for QualifiedIdentifier {
 }
 
 impl QualifiedIdentifier {
-    const SEPARATOR_STR: &'static str = ":";
-
     // --------------------------------------------------------------------------------------------
     // Constructors
     // --------------------------------------------------------------------------------------------
@@ -501,7 +490,7 @@ impl FromStr for IdentifierReference {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts = s
-            .split(QualifiedIdentifier::SEPARATOR_STR)
+            .split(PC_QUALIFIED_IDENTIFIER_SEPARATOR)
             .collect::<Vec<&str>>();
         if parts.len() == 1 {
             Ok(Self::Identifier(Identifier::from_str(parts[0])?))
@@ -603,10 +592,7 @@ impl IdentifierReference {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_identifier(&self) -> bool {
-        match self {
-            Self::Identifier(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Identifier(_))
     }
 
     pub const fn as_identifier(&self) -> Option<&Identifier> {
@@ -617,10 +603,7 @@ impl IdentifierReference {
     }
 
     pub const fn is_qualified_identifier(&self) -> bool {
-        match self {
-            Self::QualifiedIdentifier(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::QualifiedIdentifier(_))
     }
 
     pub const fn as_qualified_identifier(&self) -> Option<&QualifiedIdentifier> {

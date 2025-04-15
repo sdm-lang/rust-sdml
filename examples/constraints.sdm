@@ -1,7 +1,6 @@
 module constraints is
 
   entity Constrained is
-
     identity id -> string
 
     is_thing -> boolean
@@ -12,7 +11,7 @@ module constraints is
 
     has_other_thing -> {0..1} string is
       assert also_not_null is
-        ∀ self, has_thing(container(self)) ==> not empty(self)
+       has_thing(container(self)) ==> not empty(self)
       end
     end
 

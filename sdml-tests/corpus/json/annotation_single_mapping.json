@@ -71,7 +71,7 @@
       }
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_mapping.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/annotation_single_mapping.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",

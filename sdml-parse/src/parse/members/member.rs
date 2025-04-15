@@ -9,8 +9,9 @@ use sdml_core::model::members::{Member, MemberDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_NAME, FIELD_NAME_PROPERTY,
-    FIELD_NAME_TARGET, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER_DEF, NODE_KIND_PROPERTY_REF, NODE_KIND_TYPE_REFERENCE,
+    FIELD_NAME_TARGET, NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_CARDINALITY_EXPRESSION,
+    NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
+    NODE_KIND_MEMBER_DEF, NODE_KIND_PROPERTY_REF, NODE_KIND_TYPE_REFERENCE,
 };
 use tree_sitter::TreeCursor;
 
@@ -26,7 +27,7 @@ pub(crate) fn parse_member<'a>(
     rule_fn!("member", node);
 
     for child in cursor.node().named_children(cursor) {
-        context.check_if_error(&child, RULE_NAME)?;
+        check_node!(context, RULE_NAME, &node);
         match child.kind() {
             NODE_KIND_MEMBER_DEF => {
                 return Ok(parse_member_def(context, &mut child.walk())?
@@ -81,14 +82,24 @@ pub(crate) fn parse_member_def<'a>(
 
     let mut member_def = MemberDef::new(name, type_reference).with_source_span(node.into());
 
-    if let Some(child) = node.child_by_field_name(FIELD_NAME_CARDINALITY) {
-        context.check_if_error(&child, RULE_NAME)?;
+    if let Some(child) = optional_node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_CARDINALITY,
+        NODE_KIND_CARDINALITY_EXPRESSION
+    ) {
         let cardinality = parse_cardinality_expression(context, &mut child.walk())?;
         member_def.set_target_cardinality(cardinality);
     }
 
-    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
-        context.check_if_error(&child, RULE_NAME)?;
+    if let Some(child) = optional_node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_BODY,
+        NODE_KIND_ANNOTATION_ONLY_BODY
+    ) {
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         member_def.set_body(body);
     }

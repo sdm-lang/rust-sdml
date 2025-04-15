@@ -1,5 +1,5 @@
 {
-  "name": "Inclusive Terms",
+  "name": "Non-Inclusive Terms",
   "terms": {
     "blacklist": {
       "regex": "(?i)\\bblack[ _-]?list\\b",

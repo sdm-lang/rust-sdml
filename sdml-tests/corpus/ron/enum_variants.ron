@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 101,
+            end: 109,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 32,
-                end: 40,
+                end: 48,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_enum",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 52,
-                    end: 60,
+                    start: 60,
+                    end: 68,
                 },
             ),
             value: "NameKind",
@@ -57,15 +57,15 @@ Module {
             EnumDef {
                 span: Some(
                     Span {
-                        start: 47,
-                        end: 95,
+                        start: 55,
+                        end: 103,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 52,
-                            end: 60,
+                            start: 60,
+                            end: 68,
                         },
                     ),
                     value: "NameKind",
@@ -74,8 +74,8 @@ Module {
                     EnumBody {
                         span: Some(
                             Span {
-                                start: 61,
-                                end: 95,
+                                start: 69,
+                                end: 103,
                             },
                         ),
                         annotations: [],
@@ -83,23 +83,23 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 81,
-                                        end: 89,
+                                        start: 89,
+                                        end: 97,
                                     },
                                 ),
                                 value: "External",
                             }: ValueVariant {
                                 span: Some(
                                     Span {
-                                        start: 81,
-                                        end: 89,
+                                        start: 89,
+                                        end: 97,
                                     },
                                 ),
                                 name: Identifier {
                                     span: Some(
                                         Span {
-                                            start: 81,
-                                            end: 89,
+                                            start: 89,
+                                            end: 97,
                                         },
                                     ),
                                     value: "External",
@@ -109,23 +109,23 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 68,
-                                        end: 76,
+                                        start: 76,
+                                        end: 84,
                                     },
                                 ),
                                 value: "Internal",
                             }: ValueVariant {
                                 span: Some(
                                     Span {
-                                        start: 68,
-                                        end: 76,
+                                        start: 76,
+                                        end: 84,
                                     },
                                 ),
                                 name: Identifier {
                                     span: Some(
                                         Span {
-                                            start: 68,
-                                            end: 76,
+                                            start: 76,
+                                            end: 84,
                                         },
                                     ),
                                     value: "Internal",

@@ -8,8 +8,8 @@
       "value": "This module has no definitions"
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_informal_language.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_informal_language.sdm/",
   "is_library_module": false,
-  "name": "Example",
+  "name": "corpus_test_constraint",
   "source_file": "MANIFEST_PATH/corpus/constraint_informal_language.sdm"
 }

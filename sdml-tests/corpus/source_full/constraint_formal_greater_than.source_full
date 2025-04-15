@@ -1,0 +1,11 @@
+module corpus_test_constraint is
+
+  structure Outer is
+    inner -> sdml:string is
+      assert not_empty is
+        inner > "hello"
+      end
+    end
+  end
+
+end

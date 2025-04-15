@@ -47,20 +47,13 @@ pub(crate) struct Command {
 
 impl super::Command for Command {
     fn execute(&self) -> Result<ExitCode, Error> {
-        call_with_module!(self, |module, cache, _| {
+        call_with_module!(self, |module, _, _| {
             let engine = make_engine_from(&self.template_glob)?;
 
             let mut output = self.files.output.clone();
             let mut writer = output.lock();
 
-            render_module_to(
-                &engine,
-                module,
-                cache,
-                None,
-                &self.template_name,
-                &mut writer,
-            )?;
+            render_module_to(&engine, module, None, &self.template_name, &mut writer)?;
 
             Ok(ExitCode::SUCCESS)
         });

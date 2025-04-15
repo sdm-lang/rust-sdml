@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/import_multiple_module_version.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/import_multiple_module_version.sdm/",
   "imports": [
     {
       "__type": "import_statement",

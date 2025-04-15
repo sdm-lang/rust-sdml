@@ -1,17 +1,17 @@
 use crate::error::Error;
 use crate::model::constraints::Term;
-use crate::model::identifiers::Identifier;
+use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::{HasBody, HasName, HasSourceSpan, Span};
 use crate::syntax::{
-    KW_OPERATION_BICONDITIONAL, KW_OPERATION_BICONDITIONAL_SYMBOL, KW_OPERATION_CONJUNCTION,
-    KW_OPERATION_CONJUNCTION_SYMBOL, KW_OPERATION_DISJUNCTION, KW_OPERATION_DISJUNCTION_SYMBOL,
-    KW_OPERATION_EXCLUSIVE_DISJUNCTION, KW_OPERATION_EXCLUSIVE_DISJUNCTION_SYMBOL,
-    KW_OPERATION_IMPLICATION, KW_OPERATION_IMPLICATION_SYMBOL, KW_OPERATION_NEGATION,
-    KW_OPERATION_NEGATION_SYMBOL, KW_QUANTIFIER_EXISTS, KW_QUANTIFIER_EXISTS_SYMBOL,
-    KW_QUANTIFIER_FORALL, KW_QUANTIFIER_FORALL_SYMBOL, KW_RELATION_GREATER_THAN,
-    KW_RELATION_GREATER_THAN_OR_EQUAL, KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
-    KW_RELATION_LESS_THAN, KW_RELATION_LESS_THAN_OR_EQUAL, KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
-    KW_RELATION_NOT_EQUAL, KW_RELATION_NOT_EQUAL_SYMBOL,
+    OP_LOGICAL_BICONDITIONAL, OP_LOGICAL_BICONDITIONAL_SYMBOL, OP_LOGICAL_CONJUNCTION,
+    OP_LOGICAL_CONJUNCTION_SYMBOL, OP_LOGICAL_DISJUNCTION, OP_LOGICAL_DISJUNCTION_SYMBOL,
+    OP_LOGICAL_EXCLUSIVE_DISJUNCTION, OP_LOGICAL_EXCLUSIVE_DISJUNCTION_SYMBOL,
+    OP_LOGICAL_IMPLICATION, OP_LOGICAL_IMPLICATION_SYMBOL, OP_LOGICAL_NEGATION,
+    OP_LOGICAL_NEGATION_SYMBOL, OP_LOGICAL_QUANTIFIER_EXISTS, OP_LOGICAL_QUANTIFIER_EXISTS_SYMBOL,
+    OP_LOGICAL_QUANTIFIER_FORALL, OP_LOGICAL_QUANTIFIER_FORALL_SYMBOL, OP_RELATION_GREATER_THAN,
+    OP_RELATION_GREATER_THAN_OR_EQUAL, OP_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
+    OP_RELATION_LESS_THAN, OP_RELATION_LESS_THAN_OR_EQUAL, OP_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
+    OP_RELATION_NOT_EQUAL, OP_RELATION_NOT_EQUAL_SYMBOL,
 };
 use std::fmt::Display;
 use std::str::FromStr;
@@ -181,9 +181,7 @@ pub struct QuantifiedVariableBinding {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     quantifier: Quantifier,
-    // None = `self`
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    binding: Option<QuantifiedVariable>,
+    binding: QuantifiedVariable,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -200,15 +198,29 @@ pub enum Quantifier {
 ///
 /// Corresponds to the grammar rule `quantified_variable`.
 ///
-/// A `QuantifiedVariable` is a *name* and *source* pair.
+/// A `QuantifiedVariable` is a *variable* and *source* pair.
 ///
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct QuantifiedVariable {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    name: Identifier,
+    variable: Variable,
     source: Term,
+}
+
+///
+/// Corresponds to the grammar rule `variable`.
+///
+/// A `QuantifiedVariable` is a *name* and *source* pair.
+///
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct Variable {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    span: Option<Span>,
+    name: Identifier,
+    range: Option<IdentifierReference>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -692,13 +704,13 @@ impl FromStr for InequalityRelation {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            KW_RELATION_NOT_EQUAL | KW_RELATION_NOT_EQUAL_SYMBOL => Ok(Self::NotEqual),
-            KW_RELATION_LESS_THAN => Ok(Self::LessThan),
-            KW_RELATION_LESS_THAN_OR_EQUAL | KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL => {
+            OP_RELATION_NOT_EQUAL | OP_RELATION_NOT_EQUAL_SYMBOL => Ok(Self::NotEqual),
+            OP_RELATION_LESS_THAN => Ok(Self::LessThan),
+            OP_RELATION_LESS_THAN_OR_EQUAL | OP_RELATION_LESS_THAN_OR_EQUAL_SYMBOL => {
                 Ok(Self::LessThanOrEqual)
             }
-            KW_RELATION_GREATER_THAN => Ok(Self::GreaterThan),
-            KW_RELATION_GREATER_THAN_OR_EQUAL | KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL => {
+            OP_RELATION_GREATER_THAN => Ok(Self::GreaterThan),
+            OP_RELATION_GREATER_THAN_OR_EQUAL | OP_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL => {
                 Ok(Self::GreaterThanOrEqual)
             }
             // TODO: a real error.
@@ -713,14 +725,14 @@ impl Display for InequalityRelation {
             f,
             "{}",
             match (self, f.alternate()) {
-                (Self::NotEqual, true) => KW_RELATION_NOT_EQUAL_SYMBOL,
-                (Self::NotEqual, false) => KW_RELATION_NOT_EQUAL,
-                (Self::LessThan, _) => KW_RELATION_LESS_THAN,
-                (Self::LessThanOrEqual, true) => KW_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
-                (Self::LessThanOrEqual, false) => KW_RELATION_LESS_THAN_OR_EQUAL,
-                (Self::GreaterThan, _) => KW_RELATION_GREATER_THAN,
-                (Self::GreaterThanOrEqual, true) => KW_RELATION_GREATER_THAN_OR_EQUAL,
-                (Self::GreaterThanOrEqual, false) => KW_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
+                (Self::NotEqual, true) => OP_RELATION_NOT_EQUAL_SYMBOL,
+                (Self::NotEqual, false) => OP_RELATION_NOT_EQUAL,
+                (Self::LessThan, _) => OP_RELATION_LESS_THAN,
+                (Self::LessThanOrEqual, true) => OP_RELATION_LESS_THAN_OR_EQUAL_SYMBOL,
+                (Self::LessThanOrEqual, false) => OP_RELATION_LESS_THAN_OR_EQUAL,
+                (Self::GreaterThan, _) => OP_RELATION_GREATER_THAN,
+                (Self::GreaterThanOrEqual, true) => OP_RELATION_GREATER_THAN_OR_EQUAL,
+                (Self::GreaterThanOrEqual, false) => OP_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL,
             }
         )
     }
@@ -987,20 +999,20 @@ impl Display for ConnectiveOperator {
             f,
             "{}",
             match (self, f.alternate()) {
-                (ConnectiveOperator::Negation, true) => KW_OPERATION_NEGATION,
-                (ConnectiveOperator::Negation, false) => KW_OPERATION_NEGATION_SYMBOL,
-                (ConnectiveOperator::Conjunction, true) => KW_OPERATION_CONJUNCTION,
-                (ConnectiveOperator::Conjunction, false) => KW_OPERATION_CONJUNCTION_SYMBOL,
-                (ConnectiveOperator::Disjunction, true) => KW_OPERATION_DISJUNCTION,
-                (ConnectiveOperator::Disjunction, false) => KW_OPERATION_DISJUNCTION_SYMBOL,
+                (ConnectiveOperator::Negation, true) => OP_LOGICAL_NEGATION,
+                (ConnectiveOperator::Negation, false) => OP_LOGICAL_NEGATION_SYMBOL,
+                (ConnectiveOperator::Conjunction, true) => OP_LOGICAL_CONJUNCTION,
+                (ConnectiveOperator::Conjunction, false) => OP_LOGICAL_CONJUNCTION_SYMBOL,
+                (ConnectiveOperator::Disjunction, true) => OP_LOGICAL_DISJUNCTION,
+                (ConnectiveOperator::Disjunction, false) => OP_LOGICAL_DISJUNCTION_SYMBOL,
                 (ConnectiveOperator::ExclusiveDisjunction, true) =>
-                    KW_OPERATION_EXCLUSIVE_DISJUNCTION,
+                    OP_LOGICAL_EXCLUSIVE_DISJUNCTION,
                 (ConnectiveOperator::ExclusiveDisjunction, false) =>
-                    KW_OPERATION_EXCLUSIVE_DISJUNCTION_SYMBOL,
-                (ConnectiveOperator::Implication, true) => KW_OPERATION_IMPLICATION,
-                (ConnectiveOperator::Implication, false) => KW_OPERATION_IMPLICATION_SYMBOL,
-                (ConnectiveOperator::Biconditional, true) => KW_OPERATION_BICONDITIONAL,
-                (ConnectiveOperator::Biconditional, false) => KW_OPERATION_BICONDITIONAL_SYMBOL,
+                    OP_LOGICAL_EXCLUSIVE_DISJUNCTION_SYMBOL,
+                (ConnectiveOperator::Implication, true) => OP_LOGICAL_IMPLICATION,
+                (ConnectiveOperator::Implication, false) => OP_LOGICAL_IMPLICATION_SYMBOL,
+                (ConnectiveOperator::Biconditional, true) => OP_LOGICAL_BICONDITIONAL,
+                (ConnectiveOperator::Biconditional, false) => OP_LOGICAL_BICONDITIONAL_SYMBOL,
             }
         )
     }
@@ -1091,10 +1103,10 @@ impl Display for Quantifier {
             f,
             "{}",
             match (self, f.alternate()) {
-                (Self::Existential, true) => KW_QUANTIFIER_EXISTS_SYMBOL,
-                (Self::Existential, false) => KW_QUANTIFIER_EXISTS,
-                (Self::Universal, true) => KW_QUANTIFIER_FORALL,
-                (Self::Universal, false) => KW_QUANTIFIER_FORALL_SYMBOL,
+                (Self::Existential, true) => OP_LOGICAL_QUANTIFIER_EXISTS_SYMBOL,
+                (Self::Existential, false) => OP_LOGICAL_QUANTIFIER_EXISTS,
+                (Self::Universal, true) => OP_LOGICAL_QUANTIFIER_FORALL,
+                (Self::Universal, false) => OP_LOGICAL_QUANTIFIER_FORALL_SYMBOL,
             }
         )
     }
@@ -1105,10 +1117,10 @@ impl FromStr for Quantifier {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            KW_QUANTIFIER_EXISTS => Ok(Self::Existential),
-            KW_QUANTIFIER_EXISTS_SYMBOL => Ok(Self::Existential),
-            KW_QUANTIFIER_FORALL => Ok(Self::Universal),
-            KW_QUANTIFIER_FORALL_SYMBOL => Ok(Self::Universal),
+            OP_LOGICAL_QUANTIFIER_EXISTS => Ok(Self::Existential),
+            OP_LOGICAL_QUANTIFIER_EXISTS_SYMBOL => Ok(Self::Existential),
+            OP_LOGICAL_QUANTIFIER_FORALL => Ok(Self::Universal),
+            OP_LOGICAL_QUANTIFIER_FORALL_SYMBOL => Ok(Self::Universal),
             // TODO: need an error here.
             _ => panic!("Invalid Quantifier value {:?}", s),
         }
@@ -1148,15 +1160,7 @@ impl QuantifiedVariableBinding {
         Self {
             span: Default::default(),
             quantifier,
-            binding: Some(binding),
-        }
-    }
-
-    pub fn new_self(quantifier: Quantifier) -> Self {
-        Self {
-            span: Default::default(),
-            quantifier,
-            binding: None,
+            binding: binding,
         }
     }
 
@@ -1181,51 +1185,29 @@ impl QuantifiedVariableBinding {
     }
 
     #[inline(always)]
-    pub fn is_existential(&self) -> bool {
-        self.quantifier == Quantifier::Existential
+    pub const fn is_existential(&self) -> bool {
+        matches!(self.quantifier, Quantifier::Existential)
     }
 
     #[inline(always)]
-    pub fn is_universal(&self) -> bool {
-        self.quantifier == Quantifier::Universal
+    pub const fn is_universal(&self) -> bool {
+        matches!(self.quantifier, Quantifier::Universal)
     }
 
     // --------------------------------------------------------------------------------------------
 
-    pub fn binding(&self) -> Option<&QuantifiedVariable> {
-        self.binding.as_ref()
+    pub const fn binding(&self) -> &QuantifiedVariable {
+        &self.binding
     }
 
-    pub fn is_bound_to_variable(&self) -> bool {
-        self.binding.is_some()
-    }
-
-    pub fn set_binding_to_variable(&mut self, binding: QuantifiedVariable) {
-        self.binding = Some(binding);
-    }
-
-    pub fn is_bound_to_self(&self) -> bool {
-        self.binding.is_none()
-    }
-
-    pub fn set_binding_to_self(&mut self) {
-        self.binding = None;
+    pub fn set_binding(&mut self, binding: QuantifiedVariable) {
+        self.binding = binding;
     }
 }
 
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Constraints ❱ QuantifiedVariable
 // ------------------------------------------------------------------------------------------------
-
-impl HasName for QuantifiedVariable {
-    fn name(&self) -> &Identifier {
-        &self.name
-    }
-
-    fn set_name(&mut self, name: Identifier) {
-        self.name = name;
-    }
-}
 
 impl HasSourceSpan for QuantifiedVariable {
     fn with_source_span(self, span: Span) -> Self {
@@ -1252,19 +1234,29 @@ impl QuantifiedVariable {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new<T>(name: Identifier, source: T) -> Self
+    pub fn new<T>(variable: Variable, source: T) -> Self
     where
         T: Into<Term>,
     {
         Self {
             span: Default::default(),
-            name,
+            variable,
             source: source.into(),
         }
     }
 
     // --------------------------------------------------------------------------------------------
     // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn variable(&self) -> &Variable {
+        &self.variable
+    }
+
+    pub fn set_variable(&mut self, variable: Variable) {
+        self.variable = variable;
+    }
+
     // --------------------------------------------------------------------------------------------
 
     pub const fn source(&self) -> &Term {
@@ -1276,5 +1268,81 @@ impl QuantifiedVariable {
         T: Into<Term>,
     {
         self.source = source.into();
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ Variable
+// ------------------------------------------------------------------------------------------------
+
+impl HasName for Variable {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
+
+impl HasSourceSpan for Variable {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl Variable {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn new(name: Identifier) -> Self {
+        Self {
+            span: None,
+            name,
+            range: None,
+        }
+    }
+
+    pub fn with_range<I>(self, range: I) -> Self
+    where
+        I: Into<IdentifierReference>,
+    {
+        let mut self_mut = self;
+        self_mut.range = Some(range.into());
+        self_mut
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Fields
+    // --------------------------------------------------------------------------------------------
+
+    pub const fn range(&self) -> Option<&IdentifierReference> {
+        self.range.as_ref()
+    }
+
+    pub fn set_range<I>(&mut self, range: I)
+    where
+        I: Into<IdentifierReference>,
+    {
+        self.range = Some(range.into());
+    }
+
+    pub fn unset_range(&mut self) {
+        self.range = None
     }
 }

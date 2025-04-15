@@ -1,4 +1,4 @@
-use crate::parse::{parse_comment};
+use crate::parse::parse_comment;
 
 use super::ParseContext;
 use sdml_core::error::Error;
@@ -20,6 +20,7 @@ pub(crate) fn parse_identifier<'a>(
     node: &Node<'a>,
 ) -> Result<Identifier, Error> {
     rule_fn!("identifier", node);
+
     Ok(Identifier::new_unchecked(context.node_source(node)?).with_source_span(node.into()))
 }
 
@@ -30,11 +31,23 @@ pub(crate) fn parse_qualified_identifier<'a>(
     let node = cursor.node();
     rule_fn!("qualified_identifier", node);
 
-    let child = node.child_by_field_name(FIELD_NAME_MODULE).unwrap();
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_MODULE,
+        NODE_KIND_IDENTIFIER
+    );
     context.check_if_error(&child, RULE_NAME)?;
     let module = parse_identifier(context, &child)?;
 
-    let child = node.child_by_field_name(FIELD_NAME_MEMBER).unwrap();
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_MEMBER,
+        NODE_KIND_IDENTIFIER
+    );
     context.check_if_error(&child, RULE_NAME)?;
     let member = parse_identifier(context, &child)?;
 
@@ -48,7 +61,7 @@ pub(crate) fn parse_identifier_reference<'a>(
     rule_fn!("identifier_reference", cursor.node());
 
     for node in cursor.node().named_children(cursor) {
-        context.check_if_error(&node, RULE_NAME)?;
+        check_node!(context, RULE_NAME, &node);
         match node.kind() {
             NODE_KIND_IDENTIFIER => return Ok(parse_identifier(context, &node)?.into()),
             NODE_KIND_QUALIFIED_IDENTIFIER => {
@@ -70,7 +83,3 @@ pub(crate) fn parse_identifier_reference<'a>(
     }
     rule_unreachable!(RULE_NAME, cursor);
 }
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

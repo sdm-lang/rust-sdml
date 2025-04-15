@@ -1,6 +1,6 @@
 ;;; Import single member
 
-module campaign is
+module corpus_test_import is
 
   import xsd:base
 

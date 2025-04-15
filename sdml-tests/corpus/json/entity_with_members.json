@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_members.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_with_members.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -20,8 +20,8 @@
                 },
                 "span": {
                   "__type": "span",
-                  "end": 96,
-                  "start": 81
+                  "end": 106,
+                  "start": 91
                 },
                 "type": {
                   "__type": "type_reference",
@@ -56,8 +56,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 117,
-                    "start": 102
+                    "end": 127,
+                    "start": 112
                   },
                   "type": {
                     "__type": "type_reference",
@@ -91,8 +91,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 138,
-                    "start": 122
+                    "end": 148,
+                    "start": 132
                   },
                   "type": {
                     "__type": "type_reference",
@@ -122,8 +122,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 145,
-          "start": 48
+          "end": 155,
+          "start": 58
         }
       }
     }
@@ -131,12 +131,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_entity"
   },
   "source_file": "MANIFEST_PATH/corpus/entity_with_members.sdm",
   "span": {
     "__type": "span",
-    "end": 151,
+    "end": 161,
     "start": 0
   }
 }

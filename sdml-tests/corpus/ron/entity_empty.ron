@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 62,
+            end: 72,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 26,
-                end: 34,
+                end: 44,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_entity",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 48,
-                    end: 56,
+                    start: 58,
+                    end: 66,
                 },
             ),
             value: "Campaign",
@@ -57,15 +57,15 @@ Module {
             EntityDef {
                 span: Some(
                     Span {
-                        start: 41,
-                        end: 56,
+                        start: 51,
+                        end: 66,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 48,
-                            end: 56,
+                            start: 58,
+                            end: 66,
                         },
                     ),
                     value: "Campaign",

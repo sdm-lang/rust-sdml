@@ -1,4 +1,4 @@
-module Campaign is
+module corpus_test_structure is
 
   structure Thing is
     properties -> {unique 1..} (string -> integer)

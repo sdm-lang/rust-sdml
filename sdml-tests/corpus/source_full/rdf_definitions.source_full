@@ -1,0 +1,30 @@
+module example_rdf_defs is
+
+  import [ owl rdf ]
+
+  rdf Resource is
+    @isDefinedBy = rdfs
+    @label = "Resource"@en
+    @comment = "The class resource, everything."
+  end
+
+  rdf comment is
+    @domain = Resource
+    @range = Literal
+    @isDefinedBy = rdfs
+    @label = "comment"
+    @comment = "A description of the subject resource."
+    @rdf:type = rdf:Property
+    @rdf:type = owl:AnnotationProperty
+  end
+
+  rdf subClassOf is
+    @domain = Class
+    @range = Class
+    @isDefinedBy = rdfs
+    @label = "subClassOf"
+    @comment = "The subject is a subclass of a class."
+    @rdf:type = rdf:Property
+  end
+
+end

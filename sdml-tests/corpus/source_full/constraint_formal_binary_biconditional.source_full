@@ -1,0 +1,21 @@
+module corpus_test_constraint is
+
+  structure Outer is
+    inner -> sdml:string is
+      assert not_empty is
+        inner = "hi" iff inner_sym = "bye"
+      end
+    end
+    inner_alt -> sdml:string is
+      assert not_empty is
+        inner = "hi" iff inner_sym = "bye"
+      end
+    end
+    inner_sym -> sdml:string is
+      assert not_empty is
+        inner = "hi" iff inner_sym = "bye"
+      end
+    end
+  end
+
+end

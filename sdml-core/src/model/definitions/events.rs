@@ -1,3 +1,4 @@
+use super::HasMultiMembers;
 use crate::{
     load::ModuleLoader,
     model::{
@@ -20,8 +21,6 @@ use std::{
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-use super::HasMultiMembers;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Definitions ❱ Events
@@ -212,7 +211,7 @@ impl HasAnnotations for EventBody {
     where
         I: IntoIterator<Item = Annotation>,
     {
-        self.annotations.extend(extension.into_iter())
+        self.annotations.extend(extension)
     }
 }
 

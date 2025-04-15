@@ -1,0 +1,147 @@
+module elements <http://purl.org/dc/elements/1.1/> is
+
+  from ::org::purl::dc import terms
+  from ::org::w3 import [ owl rdf rdfs ]
+
+  @terms:modified = date("2012-06-14")
+  @terms:publisher = <http://purl.org/dc/aboutdcmi#DCMI>
+  @terms:title = "Dublin Core Metadata Element Set, Version 1.1"@en
+
+  @rdfs:seeAlso = <https://www.iso.org/standard/71339.html>
+  @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_elements.nt>
+
+  structure contributor is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Contributor"@en
+    @rdfs:comment = "An entity responsible for making contributions to the resource."@en
+    @terms:description = "The guidelines for using names of persons or organizations as creators also apply to contributors.  Typically, the name of a Contributor should be used to indicate the entity."@en
+  end
+
+  structure coverage is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Coverage"@en
+    @rdfs:comment = "The spatial or temporal topic of the resource, spatial applicability of the resource, or jurisdiction under which the resource is relevant."@en
+    @terms:description = "Spatial topic and spatial applicability may be a named place or a location specified by its geographic coordinates. Temporal topic may be a named period, date, or date range. A jurisdiction may be a named administrative entity or a geographic place to which the resource applies. Recommended practice is to use a controlled vocabulary such as the Getty Thesaurus of Geographic Names [[TGN](https://www.getty.edu/research/tools/vocabulary/tgn/index.html)]. Where appropriate, named places or time periods may be used in preference to numeric identifiers such as sets of coordinates or date ranges."@en
+  end
+
+  structure creator is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Creator"@en
+    @terms:description = "Examples of a Creator include a person, an organization, or a service. Typically, the name of a Creator should be used to indicate the entity."@en
+    @rdfs:comment = "An entity primarily responsible for making the resource."@en
+  end
+
+  structure date is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Date"@en
+    @rdfs:comment = "A point or period of time associated with an event in the lifecycle of the resource."@en
+    @terms:description = "Date may be used to express temporal information at any level of granularity.  Recommended practice is to express the date, date/time, or period of time according to ISO 8601-1 [[ISO 8601-1](https://www.iso.org/iso-8601-date-and-time-format.html)] or a published profile of the ISO standard, such as the W3C Note on Date and Time Formats [[W3CDTF](https://www.w3.org/TR/NOTE-datetime)] or the Extended Date/Time Format Specification [[EDTF](http://www.loc.gov/standards/datetime/)].  If the full date is unknown, month and year (YYYY-MM) or just year (YYYY) may be used. Date ranges may be specified using ISO 8601 period of time specification in which start and end dates are separated by a '/' (slash) character.  Either the start or end date may be missing."@en
+  end
+
+  structure description is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Description"@en
+    @rdfs:comment = "Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource."@en
+    @terms:description = "Description may include but is not limited to: an abstract, a table of contents, a graphical representation, or a free-text account of the resource."@en
+  end
+
+  structure format is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Format"@en
+    @rdfs:comment = "The file format, physical medium, or dimensions of the resource."@en
+    @terms:description = "Recommended practice is to use a controlled vocabulary where available. For example, for file formats one could use the list of Internet Media Types [[MIME](https://www.iana.org/assignments/media-types/media-types.xhtml)]."@en
+  end
+
+  structure identifier is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Identifier"@en
+    @rdfs:comment = "An unambiguous reference to the resource within a given context."@en
+    @terms:description = "Recommended practice is to identify the resource by means of a string conforming to an identification system."@en
+  end
+
+  structure language is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Language"@en
+    @rdfs:comment = "A language of the resource."@en
+    @terms:description = "Recommended practice is to use either a non-literal value representing a language from a controlled vocabulary such as ISO 639-2 or ISO 639-3, or a literal value consisting of an IETF Best Current Practice 47 [[IETF-BCP47](https://tools.ietf.org/html/bcp47)] language tag."@en
+  end
+
+  structure publisher is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Publisher"@en
+    @rdfs:comment = "An entity responsible for making the resource available."@en
+    @terms:description = "Examples of a Publisher include a person, an organization, or a service. Typically, the name of a Publisher should be used to indicate the entity."@en
+  end
+
+  structure relation is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Relation"@en
+    @rdfs:comment = "A related resource."@en
+    @terms:description = "Recommended practice is to identify the related resource by means of a URI. If this is not possible or feasible, a string conforming to a formal identification system may be provided."@en
+  end
+
+  structure rights is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Rights"@en
+    @rdfs:comment = "Information about rights held in and over the resource."@en
+    @terms:description = "Typically, rights information includes a statement about various property rights associated with the resource, including intellectual property rights."@en
+  end
+
+  structure source is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Source"@en
+    @rdfs:comment = "A related resource from which the described resource is derived."@en
+    @terms:description = "The described resource may be derived from the related resource in whole or in part. Recommended best practice is to identify the related resource by means of a string conforming to a formal identification system."@en
+  end
+
+  structure subject is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Subject"@en
+    @rdfs:comment = "A related resource from which the described resource is derived."@en
+    @terms:description = "Typically, the subject will be represented using keywords, key phrases, or classification codes.  Recommended best practice is to use a controlled vocabulary."@en
+  end
+
+  structure title is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Title"@en
+    @rdfs:comment = "A name given to the resource."@en
+  end
+
+  structure type is
+    @rdf:type = [ rdf:Property owl:AnnotationProperty ]
+    @terms:issued = date("1999-07-02")
+    @rdfs:isDefinedBy = dc
+    @rdfs:label = "Type"@en
+    @rdfs:comment = "The nature or genre of the resource."@en
+    @terms:description = "Recommended practice is to use a controlled vocabulary such as the DCMI Type Vocabulary [[DCMI-TYPE](http://dublincore.org/documents/dcmi-type-vocabulary/)]. To describe the file format, physical medium, or dimensions of the resource, use the Format element."@en
+  end
+
+end

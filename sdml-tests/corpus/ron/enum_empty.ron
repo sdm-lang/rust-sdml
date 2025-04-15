@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 58,
+            end: 66,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 24,
-                end: 32,
+                end: 40,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_enum",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 44,
-                    end: 52,
+                    start: 52,
+                    end: 60,
                 },
             ),
             value: "NameKind",
@@ -57,15 +57,15 @@ Module {
             EnumDef {
                 span: Some(
                     Span {
-                        start: 39,
-                        end: 52,
+                        start: 47,
+                        end: 60,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 44,
-                            end: 52,
+                            start: 52,
+                            end: 60,
                         },
                     ),
                     value: "NameKind",

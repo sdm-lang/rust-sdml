@@ -178,10 +178,10 @@ pub mod terms {
     pub fn validate_module_terms(module: &Module, term_set: &TermSet, loader: &impl ModuleLoader) {
         let mut validator = Validator::from(term_set);
         module.name().validate_terms(&mut validator, module, loader);
-        for annotation in module.body().annotations() {
+        for annotation in module.annotations() {
             annotation.validate_terms(&mut validator, module, loader);
         }
-        for definition in module.body().definitions() {
+        for definition in module.definitions() {
             definition.validate_terms(&mut validator, module, loader);
         }
     }

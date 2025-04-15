@@ -1,0 +1,6 @@
+<http://example.orgMANIFEST_PATH/corpus/module_empty.sdm/corpus_test_module> <http://sdml.io/sdml-owl.ttl#sourceLocation> _:B131 .
+<http://example.orgMANIFEST_PATH/corpus/module_empty.sdm/corpus_test_module> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sdml.io/sdml-owl.ttl#Module> .
+<http://example.orgMANIFEST_PATH/corpus/module_empty.sdm/corpus_test_module> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+<http://example.orgMANIFEST_PATH/corpus/module_empty.sdm/corpus_test_module> <http://sdml.io/sdml-owl.ttl#srcLabel> "corpus_test_module" .
+_:B131 <http://sdml.io/sdml-owl.ttl#startByte> 0 .
+_:B131 <http://sdml.io/sdml-owl.ttl#endByte> 52 .

@@ -1,0 +1,8 @@
+module corpus_test_datatype is
+
+  datatype timeChanged <- sdml:dateTime {
+    explicitTimezone = fixed required
+  }
+
+
+end

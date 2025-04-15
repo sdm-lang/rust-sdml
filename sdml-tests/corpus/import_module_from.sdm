@@ -1,6 +1,6 @@
 ;;; Import single module from
 
-module Campaign is
+module corpus_test_import is
 
   from :: import xsd
   from ::xsd import facets

@@ -11,38 +11,6 @@
             "__type": "qualified_identifier",
             "member": {
               "__type": "identifier",
-              "value": "base"
-            },
-            "module": {
-              "__type": "identifier",
-              "value": "xml"
-            }
-          }
-        },
-        "span": {
-          "__type": "span",
-          "end": 66,
-          "start": 32
-        },
-        "value": {
-          "__type": "value",
-          "simple": {
-            "__type": "iri",
-            "value": "https://example.org/"
-          }
-        }
-      }
-    },
-    {
-      "__type": "annotation",
-      "property": {
-        "__type": "annotation_property",
-        "name": {
-          "__type": "identifier_reference",
-          "qualified_identifier": {
-            "__type": "qualified_identifier",
-            "member": {
-              "__type": "identifier",
               "value": "version"
             },
             "module": {
@@ -53,8 +21,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 85,
-          "start": 70
+          "end": 98,
+          "start": 83
         },
         "value": {
           "__type": "value",
@@ -85,8 +53,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 132,
-          "start": 89
+          "end": 145,
+          "start": 102
         },
         "value": {
           "__type": "value",
@@ -111,15 +79,42 @@
             ],
             "span": {
               "__type": "span",
-              "end": 132,
-              "start": 106
+              "end": 145,
+              "start": 119
             }
           }
         }
       }
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_annotations.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/module_annotations.sdm/",
+  "imports": [
+    {
+      "__type": "import_statement",
+      "imports": [
+        {
+          "__type": "import",
+          "module": {
+            "__type": "module_import",
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
+            }
+          }
+        },
+        {
+          "__type": "import",
+          "module": {
+            "__type": "module_import",
+            "module": {
+              "__type": "identifier",
+              "value": "skos"
+            }
+          }
+        }
+      ]
+    }
+  ],
   "is_library_module": false,
   "name": {
     "__type": "identifier",
@@ -128,7 +123,7 @@
   "source_file": "MANIFEST_PATH/corpus/module_annotations.sdm",
   "span": {
     "__type": "span",
-    "end": 138,
+    "end": 151,
     "start": 0
   }
 }

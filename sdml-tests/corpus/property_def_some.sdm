@@ -1,4 +1,4 @@
-module ddict is
+module corpus_test_property is
   property identifier -> {2} account:AccountId is
     @skos:definition = "a"@en
   end

@@ -1,0 +1,7 @@
+module corpus_test_annotation is
+
+  @skos:prefLabel = ""
+  @skos:altLabel = ""@en
+  @dc:version = 3
+
+end

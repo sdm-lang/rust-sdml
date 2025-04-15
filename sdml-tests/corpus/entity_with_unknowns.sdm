@@ -1,6 +1,6 @@
 ;;; Entity, With Unknown Member Types
 
-module campaign is
+module corpus_test_entity is
 
   entity Campaign is
 

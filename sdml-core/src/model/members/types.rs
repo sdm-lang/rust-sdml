@@ -4,7 +4,7 @@ use crate::model::definitions::Definition;
 use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
 use crate::model::modules::Module;
 use crate::model::{HasSourceSpan, References, Span};
-use crate::stdlib::is_builtin_type_name;
+use crate::config::is_builtin_type_name;
 use crate::store::ModuleStore;
 use crate::syntax::KW_TYPE_UNKNOWN;
 use sdml_errors::diagnostics::functions::{
@@ -215,10 +215,7 @@ impl TypeReference {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_reference(&self) -> bool {
-        match self {
-            Self::Type(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Type(_))
     }
 
     pub const fn as_reference(&self) -> Option<&IdentifierReference> {
@@ -229,10 +226,7 @@ impl TypeReference {
     }
 
     pub const fn is_mapping_type(&self) -> bool {
-        match self {
-            Self::MappingType(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::MappingType(_))
     }
 
     pub const fn as_mapping_type(&self) -> Option<&MappingType> {

@@ -1,7 +1,7 @@
 use crate::model::{
-    constraints::QuantifiedSentence, identifiers::Identifier, HasBody, HasSourceSpan, Span,
+    constraints::{QuantifiedSentence, Variable},
+    HasBody, HasSourceSpan, Span,
 };
-use std::collections::BTreeSet;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -16,32 +16,8 @@ use serde::{Deserialize, Serialize};
 pub struct SequenceBuilder {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    variables: Variables,
+    variables: Vec<Variable>,
     body: QuantifiedSentence,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub enum Variables {
-    Named(NamedVariables),
-    Mapping(MappingVariable),
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct NamedVariables {
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
-    names: BTreeSet<Identifier>,
-}
-
-#[derive(Clone, Debug)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct MappingVariable {
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    span: Option<Span>,
-    domain: Identifier,
-    range: Identifier,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -91,12 +67,12 @@ impl SequenceBuilder {
 
     pub fn new<V, S>(variables: V, body: S) -> Self
     where
-        V: Into<Variables>,
+        V: IntoIterator<Item = Variable>,
         S: Into<QuantifiedSentence>,
     {
         Self {
             span: Default::default(),
-            variables: variables.into(),
+            variables: Vec::from_iter(variables.into_iter()),
             body: body.into(),
         }
     }
@@ -105,193 +81,33 @@ impl SequenceBuilder {
     // Fields
     // --------------------------------------------------------------------------------------------
 
-    pub fn variables(&self) -> &Variables {
-        &self.variables
+    pub fn has_variables(&self) -> bool {
+        !self.variables.is_empty()
     }
 
-    pub fn set_variables<V>(&mut self, variables: V)
+    pub fn variables_len(&self) -> usize {
+        self.variables.len()
+    }
+
+    pub fn variables(&self) -> impl Iterator<Item = &Variable> {
+        self.variables.iter()
+    }
+
+    pub fn variables_mut(&mut self) -> impl Iterator<Item = &mut Variable> {
+        self.variables.iter_mut()
+    }
+
+    pub fn add_to_variables<I>(&mut self, value: I)
     where
-        V: Into<Variables>,
+        I: Into<Variable>,
     {
-        self.variables = variables.into();
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Constraints ❱  Variables
-// ------------------------------------------------------------------------------------------------
-
-impl From<&NamedVariables> for Variables {
-    fn from(value: &NamedVariables) -> Self {
-        Self::Named(value.clone())
-    }
-}
-
-impl From<NamedVariables> for Variables {
-    fn from(value: NamedVariables) -> Self {
-        Self::Named(value)
-    }
-}
-
-impl From<&MappingVariable> for Variables {
-    fn from(value: &MappingVariable) -> Self {
-        Self::Mapping(value.clone())
-    }
-}
-
-impl From<MappingVariable> for Variables {
-    fn from(value: MappingVariable) -> Self {
-        Self::Mapping(value)
-    }
-}
-
-impl Variables {
-    // --------------------------------------------------------------------------------------------
-    // Variants
-    // --------------------------------------------------------------------------------------------
-
-    pub const fn is_named_set(&self) -> bool {
-        matches!(self, Self::Named(_))
+        self.variables.push(value.into())
     }
 
-    pub const fn as_named_set(&self) -> Option<&NamedVariables> {
-        match self {
-            Self::Named(v) => Some(v),
-            _ => None,
-        }
-    }
-
-    pub const fn is_mapping(&self) -> bool {
-        matches!(self, Self::Mapping(_))
-    }
-
-    pub const fn as_mapping(&self) -> Option<&MappingVariable> {
-        match self {
-            Self::Mapping(v) => Some(v),
-            _ => None,
-        }
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Constraints ❱  NamedVariables
-// ------------------------------------------------------------------------------------------------
-
-impl HasSourceSpan for NamedVariables {
-    fn with_source_span(self, span: Span) -> Self {
-        let mut self_mut = self;
-        self_mut.span = Some(span);
-        self_mut
-    }
-
-    fn source_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-
-    fn set_source_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-
-    fn unset_source_span(&mut self) {
-        self.span = None;
-    }
-}
-
-impl FromIterator<Identifier> for NamedVariables {
-    fn from_iter<T: IntoIterator<Item = Identifier>>(iter: T) -> Self {
-        Self::new(iter.into_iter().collect())
-    }
-}
-
-impl AsRef<BTreeSet<Identifier>> for NamedVariables {
-    fn as_ref(&self) -> &BTreeSet<Identifier> {
-        &self.names
-    }
-}
-
-impl AsMut<BTreeSet<Identifier>> for NamedVariables {
-    fn as_mut(&mut self) -> &mut BTreeSet<Identifier> {
-        &mut self.names
-    }
-}
-
-impl NamedVariables {
-    // --------------------------------------------------------------------------------------------
-    // Constructors
-    // --------------------------------------------------------------------------------------------
-
-    pub fn new(names: BTreeSet<Identifier>) -> Self {
-        Self {
-            span: Default::default(),
-            names,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    pub fn names(&self) -> impl Iterator<Item = &Identifier> {
-        self.names.iter()
-    }
-}
-
-// ------------------------------------------------------------------------------------------------
-// Implementations ❱ Constraints ❱  MappingVariable
-// ------------------------------------------------------------------------------------------------
-
-impl HasSourceSpan for MappingVariable {
-    fn with_source_span(self, span: Span) -> Self {
-        let mut self_mut = self;
-        self_mut.span = Some(span);
-        self_mut
-    }
-
-    fn source_span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-
-    fn set_source_span(&mut self, span: Span) {
-        self.span = Some(span);
-    }
-
-    fn unset_source_span(&mut self) {
-        self.span = None;
-    }
-}
-
-impl MappingVariable {
-    // --------------------------------------------------------------------------------------------
-    // Constructors
-    // --------------------------------------------------------------------------------------------
-
-    pub const fn new(domain: Identifier, range: Identifier) -> Self {
-        Self {
-            span: None,
-            domain,
-            range,
-        }
-    }
-
-    // --------------------------------------------------------------------------------------------
-    // Fields
-    // --------------------------------------------------------------------------------------------
-
-    pub const fn domain(&self) -> &Identifier {
-        &self.domain
-    }
-
-    pub fn set_domain(&mut self, domain: Identifier) {
-        self.domain = domain;
-    }
-
-    // --------------------------------------------------------------------------------------------
-
-    pub const fn range(&self) -> &Identifier {
-        &self.range
-    }
-
-    pub fn set_range(&mut self, range: Identifier) {
-        self.range = range;
+    pub fn extend_variables<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Variable>,
+    {
+        self.variables.extend(extension)
     }
 }

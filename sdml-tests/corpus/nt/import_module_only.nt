@@ -1,0 +1,7 @@
+<http://example.orgMANIFEST_PATH/corpus/import_module_only.sdm/corpus_test_import> <http://www.w3.org/2002/07/owl#imports> <http://www.w3.org/2001/XMLSchema#> .
+<http://example.orgMANIFEST_PATH/corpus/import_module_only.sdm/corpus_test_import> <http://sdml.io/sdml-owl.ttl#sourceLocation> _:B103 .
+<http://example.orgMANIFEST_PATH/corpus/import_module_only.sdm/corpus_test_import> <http://sdml.io/sdml-owl.ttl#srcLabel> "corpus_test_import" .
+<http://example.orgMANIFEST_PATH/corpus/import_module_only.sdm/corpus_test_import> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sdml.io/sdml-owl.ttl#Module> .
+<http://example.orgMANIFEST_PATH/corpus/import_module_only.sdm/corpus_test_import> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+_:B103 <http://sdml.io/sdml-owl.ttl#endByte> 79 .
+_:B103 <http://sdml.io/sdml-owl.ttl#startByte> 0 .

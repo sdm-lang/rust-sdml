@@ -1,0 +1,89 @@
+     @prefix : <http://www.w3.org/ns/ui#> .
+    @prefix cal: <http://www.w3.org/2002/12/cal/ical#> .
+    @prefix dc: <http://purl.org/dc/elements/1.1/> .
+    @prefix doc: <http://www.w3.org/2000/10/swap/pim/doc#> .
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix q: <http://www.w3.org/2000/10/swap/pim/qif#> .
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    @prefix s: <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix t: <http://www.w3.org/ns/pim/trip#> .
+    
+    <>     s:comment """This ontology is for use in describing trips,
+such as business trips.
+Trips connect where we are at a given point in time,
+meetings which are part of the trip, and who pays for the trip 
+or part of the trip.
+They are useful for describing travel plans,
+for working out expenses, and for categoizing photographs.
+Trips do not in fact logically have to involve travel.
+A trip could be used to collate expenses relating to an activity or event
+at ones home base, or a set of photos taken at home etc.
+""";
+         doc:version "$Id: trip.ttl,v 1.1 2014/12/07 20:56:37 timbl Exp $" .
+    
+    t:TaxiTransaction     a s:Class;
+         s:comment """A Taxi transaction is a financial trasction related to a ride in
+    a taxi, car, etc. """;
+         s:label "taxi transaction";
+         s:subClassOf q:Transaction .
+    
+    t:Trip     a s:Class;
+         s:isDefinedBy <>;
+         s:label "trip";
+         :creationForm t:TripForm3 .
+    
+    t:TripForm3     a :Form,
+                :Group;
+         dc:title "Basic trip details";
+         :part  [
+             a :Heading;
+             :contents "Edit Trip"@en;
+             :sequence 1 ],
+                 [
+             a :SingleLineTextField;
+             :property dc:title;
+             :sequence 2;
+             :size 60 ],
+                 [
+             a :Comment;
+             :contents """The start and end dates are the first travel date and last travel date,
+         or the same date for a one-day event."""@en;
+             :sequence 3;
+             :style "background-color: #ffe;" ],
+                 [
+             a :DateField;
+             :property cal:dtstart;
+             :sequence 4 ],
+                 [
+             a :DateField;
+             :property cal:dtend;
+             :sequence 4 ],
+                 [
+             a :MultiLineTextField;
+             :property s:comment;
+             :sequence 4 ] .
+    
+    t:funder     a rdf:Property;
+         s:comment """Who pays for the this? An organization or individual.
+     Could apply to a trip (or a doap:Project, or a cal:Event, etc).
+     There may be more than one funder.""";
+         s:label "funder";
+         s:range foaf:Agent .
+    
+    t:location     a rdf:Property;
+         s:label "location" .
+    
+    t:part     a rdf:Property;
+         s:label "part" .
+    
+    t:travelDate     a rdf:Property;
+         s:comment """When the travel took place, or started. This should be a datetime (or a date).
+    This may be different fron the date the fare was ivoiced or charged.""";
+         s:label "travel date" .
+    
+    t:trip     a rdf:Property;
+         s:comment """The trip associated with an expense (a financial transaction), 
+    a photo, a meeting, etc.""";
+         s:label "trip";
+         s:range t:Trip .
+    

@@ -17,7 +17,7 @@ pub struct FormalConstraint {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
-    environment: Vec<EnvironmentDef>,
+    environment: Vec<FunctionDef>,
     body: ConstraintSentence,
 }
 
@@ -91,13 +91,13 @@ impl FormalConstraint {
         }
     }
 
-    pub fn with_definition<I>(self, definition: EnvironmentDef) -> Self {
+    pub fn with_definition<I>(self, definition: FunctionDef) -> Self {
         let mut self_mut = self;
         self_mut.environment.push(definition);
         self_mut
     }
 
-    pub fn with_environment(self, environment: Vec<EnvironmentDef>) -> Self {
+    pub fn with_environment(self, environment: Vec<FunctionDef>) -> Self {
         let mut self_mut = self;
         self_mut.environment = environment;
         self_mut
@@ -115,24 +115,24 @@ impl FormalConstraint {
         self.environment.len()
     }
 
-    pub fn definitions(&self) -> impl Iterator<Item = &EnvironmentDef> {
+    pub fn definitions(&self) -> impl Iterator<Item = &FunctionDef> {
         self.environment.iter()
     }
 
-    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut EnvironmentDef> {
+    pub fn definitions_mut(&mut self) -> impl Iterator<Item = &mut FunctionDef> {
         self.environment.iter_mut()
     }
 
     pub fn add_to_definitions<I>(&mut self, value: I)
     where
-        I: Into<EnvironmentDef>,
+        I: Into<FunctionDef>,
     {
         self.environment.push(value.into())
     }
 
     pub fn extend_definitions<I>(&mut self, extension: I)
     where
-        I: IntoIterator<Item = EnvironmentDef>,
+        I: IntoIterator<Item = FunctionDef>,
     {
         self.environment.extend(extension)
     }
@@ -143,22 +143,19 @@ impl FormalConstraint {
 // ------------------------------------------------------------------------------------------------
 
 mod sequences;
-pub use sequences::{MappingVariable, NamedVariables, SequenceBuilder, Variables};
-
-mod environments;
-pub use environments::{EnvironmentDef, EnvironmentDefBody};
+pub use sequences::SequenceBuilder;
 
 mod functions;
 pub use functions::{
-    FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference,
+    FunctionBody, FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature,
+    FunctionType, FunctionTypeReference,
 };
 
 mod sentences;
 pub use sentences::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
     Equation, InequalityRelation, Inequation, QuantifiedSentence, QuantifiedVariable,
-    QuantifiedVariableBinding, Quantifier, SimpleSentence, UnaryBooleanSentence,
+    QuantifiedVariableBinding, Quantifier, SimpleSentence, UnaryBooleanSentence, Variable,
 };
 
 mod terms;

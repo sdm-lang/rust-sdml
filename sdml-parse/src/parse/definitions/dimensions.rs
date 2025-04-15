@@ -14,8 +14,9 @@ use sdml_core::model::definitions::{
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_ENTITY, FIELD_NAME_IDENTITY, FIELD_NAME_MEMBER, FIELD_NAME_NAME,
-    NODE_KIND_ANNOTATION, NODE_KIND_DIMENSION_PARENT, NODE_KIND_ENTITY_IDENTITY,
-    NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
+    NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_DIMENSION_BODY,
+    NODE_KIND_DIMENSION_PARENT, NODE_KIND_ENTITY_IDENTITY, NODE_KIND_IDENTIFIER,
+    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
     NODE_KIND_SOURCE_ENTITY,
 };
 use tree_sitter::TreeCursor;
@@ -31,15 +32,25 @@ pub(crate) fn parse_dimension_def<'a>(
     let node = cursor.node();
     rule_fn!("dimension_def", node);
 
-    let child = node.child_by_field_name(FIELD_NAME_NAME).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_NAME,
+        NODE_KIND_IDENTIFIER
+    );
     let name = parse_identifier(context, &child)?;
 
     context.start_type(&name)?;
     let mut event = DimensionDef::new(name).with_source_span(node.into());
 
-    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
-        context.check_if_error(&child, RULE_NAME)?;
+    if let Some(child) = optional_node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_BODY,
+        NODE_KIND_DIMENSION_BODY
+    ) {
         let body = parse_dimension_body(context, &mut child.walk())?;
         event.set_body(body);
     }
@@ -55,8 +66,7 @@ fn parse_dimension_body<'a>(
     let node = cursor.node();
     rule_fn!("dimension_body", node);
 
-    let child = node.child_by_field_name(FIELD_NAME_IDENTITY).unwrap();
-    context.check_if_error(&child, RULE_NAME)?;
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_IDENTITY);
 
     let event_source: DimensionIdentity = if child.kind() == NODE_KIND_SOURCE_ENTITY {
         parse_source_entity(context, &mut child.walk())?.into()
@@ -74,7 +84,7 @@ fn parse_dimension_body<'a>(
     let mut body = DimensionBody::new(event_source).with_source_span(cursor.node().into());
 
     for node in node.named_children(cursor) {
-        context.check_if_error(&node, RULE_NAME)?;
+        check_node!(context, RULE_NAME, &node);
         match node.kind() {
             NODE_KIND_ANNOTATION => {
                 body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
@@ -132,8 +142,13 @@ fn parse_dimension_parent<'a>(
 
     let mut parent = DimensionParent::new(name, target_entity);
 
-    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
-        context.check_if_error(&child, RULE_NAME)?;
+    if let Some(child) = optional_node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_BODY,
+        NODE_KIND_ANNOTATION_ONLY_BODY
+    ) {
         let body = parse_annotation_only_body(context, &mut child.walk())?;
         parent.set_body(body);
     }
@@ -156,16 +171,12 @@ pub(crate) fn parse_source_entity<'a>(
         NODE_KIND_IDENTIFIER_REFERENCE
     );
     let target_entity = parse_identifier_reference(context, &mut child.walk())?;
-
     let mut source = SourceEntity::new(target_entity);
 
     for child in node.children_by_field_name(FIELD_NAME_MEMBER, cursor) {
+        check_node!(context, RULE_NAME, &node);
         source.add_to_members(parse_identifier(context, &child)?);
     }
 
     Ok(source)
 }
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

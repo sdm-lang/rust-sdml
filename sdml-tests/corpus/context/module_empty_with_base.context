@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "https://example.org/v/Campaign#",
+  "base": "https://example.org/v/Campaign#",
   "is_library_module": false,
   "name": "corpus_test_module",
   "source_file": "MANIFEST_PATH/corpus/module_empty_with_base.sdm"

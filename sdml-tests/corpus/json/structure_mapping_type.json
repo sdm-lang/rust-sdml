@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_mapping_type.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/structure_mapping_type.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -26,8 +26,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 91,
-                    "start": 45
+                    "end": 104,
+                    "start": 58
                   },
                   "type": {
                     "__type": "type_reference",
@@ -69,8 +69,8 @@
                       },
                       "span": {
                         "__type": "span",
-                        "end": 91,
-                        "start": 72
+                        "end": 104,
+                        "start": 85
                       }
                     }
                   }
@@ -85,8 +85,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 97,
-          "start": 22
+          "end": 110,
+          "start": 35
         }
       }
     }
@@ -94,12 +94,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Campaign"
+    "value": "corpus_test_structure"
   },
   "source_file": "MANIFEST_PATH/corpus/structure_mapping_type.sdm",
   "span": {
     "__type": "span",
-    "end": 103,
+    "end": 116,
     "start": 0
   }
 }

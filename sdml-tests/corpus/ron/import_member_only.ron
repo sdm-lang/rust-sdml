@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 69,
+            end: 79,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 33,
-                end: 41,
+                end: 51,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -46,8 +46,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 48,
-                    end: 63,
+                    start: 58,
+                    end: 73,
                 },
             ),
             from_clause: None,
@@ -56,22 +56,22 @@ Module {
                     MemberImport {
                         span: Some(
                             Span {
-                                start: 55,
-                                end: 63,
+                                start: 65,
+                                end: 73,
                             },
                         ),
                         name: QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 55,
-                                    end: 63,
+                                    start: 65,
+                                    end: 73,
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 55,
-                                        end: 58,
+                                        start: 65,
+                                        end: 68,
                                     },
                                 ),
                                 value: "xsd",
@@ -79,8 +79,8 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 59,
-                                        end: 63,
+                                        start: 69,
+                                        end: 73,
                                     },
                                 ),
                                 value: "base",

@@ -63,7 +63,7 @@
       }
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/annotation_single_binary.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/annotation_single_binary.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",

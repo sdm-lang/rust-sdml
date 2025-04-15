@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_equation.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_equation.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -73,8 +73,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 164,
-                    "start": 78
+                    "end": 179,
+                    "start": 93
                   },
                   "type": {
                     "__type": "type_reference",
@@ -104,8 +104,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 171,
-          "start": 54
+          "end": 186,
+          "start": 69
         }
       }
     }
@@ -113,12 +113,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_equation.sdm",
   "span": {
     "__type": "span",
-    "end": 178,
+    "end": 193,
     "start": 0
   }
 }

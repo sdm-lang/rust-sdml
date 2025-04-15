@@ -8,8 +8,8 @@ module campaign <https://advertising.amazon.com/api-model> is
     xsd
   ]
 
-
-  @skos:version = xsd:decimal(2) ;; this is a badly spelled comment.
+  @skos:version = xsd:decimal(2)
+  ;; this is a badly spelled comment.
 
   datatype Name <- xsd:string is
     @xsd:minLength = 5
@@ -45,7 +45,7 @@ module campaign <https://advertising.amazon.com/api-model> is
 
   entity AdGroup
 
-; entity UnusedAdGroup
+  ; entity UnusedAdGroup
 
   entity Campaign is
     identity campaignId -> CampaignId

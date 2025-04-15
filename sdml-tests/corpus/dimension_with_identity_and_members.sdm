@@ -1,6 +1,6 @@
 ;;; Dimension, With Identity and Members
 
-module dimensions is
+module corpus_test_dimension is
 
   dimension Campaigns is
     identity campaign -> CampaignId

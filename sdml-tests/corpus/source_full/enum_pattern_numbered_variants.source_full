@@ -1,0 +1,16 @@
+module corpus_test_enum is
+
+  import [ owl rdf ]
+
+  enum NameKind of
+    @owl:equivalentClass = unsigned
+
+    External is
+      @rdf:value = 2
+    end
+    Internal is
+      @rdf:value = 1
+    end
+  end
+
+end

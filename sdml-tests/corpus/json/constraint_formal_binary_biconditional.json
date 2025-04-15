@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_biconditional.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_biconditional.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -112,8 +112,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 195,
-                    "start": 90
+                    "end": 210,
+                    "start": 105
                   },
                   "type": {
                     "__type": "type_reference",
@@ -238,8 +238,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 311,
-                    "start": 201
+                    "end": 326,
+                    "start": 216
                   },
                   "type": {
                     "__type": "type_reference",
@@ -364,8 +364,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 426,
-                    "start": 317
+                    "end": 441,
+                    "start": 332
                   },
                   "type": {
                     "__type": "type_reference",
@@ -395,8 +395,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 433,
-          "start": 66
+          "end": 448,
+          "start": 81
         }
       }
     }
@@ -404,12 +404,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_binary_biconditional.sdm",
   "span": {
     "__type": "span",
-    "end": 440,
+    "end": 455,
     "start": 0
   }
 }

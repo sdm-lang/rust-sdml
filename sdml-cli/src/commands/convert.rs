@@ -7,8 +7,6 @@ use sdml_core::{
     store::{InMemoryModuleCache, ModuleStore},
 };
 use sdml_errors::Error;
-use sdml_generate::convert::{json, rdf, sexpr};
-use sdml_generate::Generator;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -57,6 +55,10 @@ pub(crate) enum ConvertFormat {
 // Implementations
 // ------------------------------------------------------------------------------------------------
 
+use objio::{HasOptions, ObjectWriter};
+use sexpr_out::writer::LanguageStyle;
+use sexpr_out::{Options as SExprOptions, Value as SExprValue, Writer as SExprWriter};
+
 impl super::Command for Command {
     fn execute(&self) -> Result<ExitCode, Error> {
         call_with_module!(self, |module: &Module, cache: &InMemoryModuleCache, _| {
@@ -65,19 +67,35 @@ impl super::Command for Command {
 
             match self.output_format {
                 ConvertFormat::Rdf => {
-                    let mut generator = rdf::RdfModelGenerator::default();
-                    generator.generate(module, cache, None, &mut writer)?;
+                    sdml_rdf::write::write_module_with_options(
+                        &mut writer,
+                        module,
+                        cache,
+                        Default::default(),
+                        Default::default(),
+                    )?;
                 }
                 ConvertFormat::Json | ConvertFormat::JsonPretty => {
-                    let options = json::JsonGeneratorOptions::default()
-                        .pretty_print(self.output_format == ConvertFormat::JsonPretty);
-                    let mut generator = json::JsonGenerator::default();
-                    generator.generate_with_options(module, cache, options, None, &mut writer)?;
+                    sdml_json::write::write_module_with_options(
+                        &mut writer,
+                        module,
+                        cache,
+                        sdml_json::WriteOptions::default()
+                            .with_pretty_printing(self.output_format == ConvertFormat::JsonPretty),
+                    )?;
                 }
                 ConvertFormat::SExpr => {
-                    let options = sexpr::SExpressionOptions::default();
-                    let mut generator = sexpr::SExpressionGenerator::default();
-                    generator.generate_with_options(module, cache, options, None, &mut writer)?;
+                    let sexpr_writer = SExprWriter::default().pretty_printed(true).with_options(
+                        SExprOptions::default()
+                            .with_line_width(80)
+                            .with_style(LanguageStyle::Racket),
+                    );
+                    sexpr_writer
+                        .write(&mut writer, &SExprValue::Bool(true))
+                        .map_err(|e| Error::GeneratorError {
+                            name: "rdf".to_string(),
+                            message: e.to_string(),
+                        })?;
                 }
             }
 

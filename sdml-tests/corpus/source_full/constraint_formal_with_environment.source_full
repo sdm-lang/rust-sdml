@@ -1,0 +1,14 @@
+module corpus_test_constraint is
+
+  structure Outer is
+    inner -> sdml:string is
+      assert tagged_with_foo_path with
+        def foo() -> sdml:string :=
+          "foo"
+      is
+        self.tags.contains(foo)
+      end
+    end
+  end
+
+end

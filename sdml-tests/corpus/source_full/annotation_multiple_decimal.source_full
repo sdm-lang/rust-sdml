@@ -1,0 +1,5 @@
+module corpus_test_annotation is
+
+  @dc:some = [ 101.0 102.201 0.1 ]
+
+end

@@ -1,22 +1,23 @@
 use super::terms::parse_term;
-use crate::parse::identifiers::parse_identifier;
+use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
 use crate::parse::ParseContext;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::constraints::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConstraintSentence, Equation,
     InequalityRelation, Inequation, QuantifiedSentence, QuantifiedVariable,
-    QuantifiedVariableBinding, Quantifier, SimpleSentence, Term, UnaryBooleanSentence,
+    QuantifiedVariableBinding, Quantifier, SimpleSentence, Term, UnaryBooleanSentence, Variable,
 };
 use sdml_core::syntax::{
     FIELD_NAME_ARGUMENT, FIELD_NAME_BINDING, FIELD_NAME_BODY, FIELD_NAME_LHS, FIELD_NAME_NAME,
-    FIELD_NAME_OPERATOR, FIELD_NAME_PREDICATE, FIELD_NAME_QUANTIFIER, FIELD_NAME_RELATION,
-    FIELD_NAME_RHS, FIELD_NAME_SOURCE, NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BICONDITIONAL,
-    NODE_KIND_BINARY_BOOLEAN_SENTENCE, NODE_KIND_BOOLEAN_SENTENCE, NODE_KIND_CONJUNCTION,
-    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_DISJUNCTION, NODE_KIND_EQUATION,
-    NODE_KIND_EXCLUSIVE_DISJUNCTION, NODE_KIND_IMPLICATION, NODE_KIND_INEQUATION,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_NEGATION, NODE_KIND_QUANTIFIED_SENTENCE,
-    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_RESERVED_SELF, NODE_KIND_SIMPLE_SENTENCE,
-    NODE_KIND_TERM, NODE_KIND_UNARY_BOOLEAN_SENTENCE,
+    FIELD_NAME_OPERATOR, FIELD_NAME_PREDICATE, FIELD_NAME_QUANTIFIER, FIELD_NAME_RANGE,
+    FIELD_NAME_RELATION, FIELD_NAME_RHS, FIELD_NAME_SOURCE, FIELD_NAME_VARIABLE,
+    NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BINARY_BOOLEAN_SENTENCE, NODE_KIND_BOOLEAN_SENTENCE,
+    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_EQUATION, NODE_KIND_INEQUATION,
+    NODE_KIND_LINE_COMMENT, NODE_KIND_LOGICAL_OP_BICONDITIONAL, NODE_KIND_LOGICAL_OP_CONJUNCTION,
+    NODE_KIND_LOGICAL_OP_DISJUNCTION, NODE_KIND_LOGICAL_OP_EXCLUSIVE_DISJUNCTION,
+    NODE_KIND_LOGICAL_OP_IMPLICATION, NODE_KIND_LOGICAL_OP_NEGATION, NODE_KIND_QUANTIFIED_SENTENCE,
+    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_TERM,
+    NODE_KIND_UNARY_BOOLEAN_SENTENCE,
 };
 use sdml_errors::Error;
 use std::str::FromStr;
@@ -133,10 +134,10 @@ fn parse_unary_boolean_sentence<'a>(
     let node = cursor.node();
     rule_fn!("unary_boolean_sentence", node);
 
-    let child = node_child_named!(node, FIELD_NAME_OPERATOR, context, RULE_NAME);
-    assert!(child.kind() == NODE_KIND_NEGATION);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_OPERATOR);
+    assert!(child.kind() == NODE_KIND_LOGICAL_OP_NEGATION);
 
-    let child = node_child_named!(node, FIELD_NAME_RHS, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_RHS);
     let rhs = parse_constraint_sentence(context, &mut child.walk())?;
 
     Ok(UnaryBooleanSentence::new(rhs))
@@ -149,58 +150,36 @@ fn parse_binary_boolean_sentence<'a>(
     let node = cursor.node();
     rule_fn!("binary_boolean_sentence", node);
 
-    let child = node_child_named!(node, FIELD_NAME_LHS, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_LHS);
     let lhs = parse_constraint_sentence(context, &mut child.walk())?;
 
-    let child = node_child_named!(node, FIELD_NAME_OPERATOR, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_OPERATOR);
     let relation_kind = child.kind().to_string();
 
-    let child = node_child_named!(node, FIELD_NAME_RHS, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_RHS);
     let rhs = parse_constraint_sentence(context, &mut child.walk())?;
 
     match relation_kind.as_str() {
-        NODE_KIND_CONJUNCTION => Ok(BinaryBooleanSentence::and(lhs, rhs)),
-        NODE_KIND_DISJUNCTION => Ok(BinaryBooleanSentence::or(lhs, rhs)),
-        NODE_KIND_EXCLUSIVE_DISJUNCTION => Ok(BinaryBooleanSentence::xor(lhs, rhs)),
-        NODE_KIND_IMPLICATION => Ok(BinaryBooleanSentence::implies(lhs, rhs)),
-        NODE_KIND_BICONDITIONAL => Ok(BinaryBooleanSentence::iff(lhs, rhs)),
+        NODE_KIND_LOGICAL_OP_CONJUNCTION => Ok(BinaryBooleanSentence::and(lhs, rhs)),
+        NODE_KIND_LOGICAL_OP_DISJUNCTION => Ok(BinaryBooleanSentence::or(lhs, rhs)),
+        NODE_KIND_LOGICAL_OP_EXCLUSIVE_DISJUNCTION => Ok(BinaryBooleanSentence::xor(lhs, rhs)),
+        NODE_KIND_LOGICAL_OP_IMPLICATION => Ok(BinaryBooleanSentence::implies(lhs, rhs)),
+        NODE_KIND_LOGICAL_OP_BICONDITIONAL => Ok(BinaryBooleanSentence::iff(lhs, rhs)),
         _ => {
             unexpected_node!(
                 context,
                 RULE_NAME,
                 node,
                 [
-                    NODE_KIND_CONJUNCTION,
-                    NODE_KIND_DISJUNCTION,
-                    NODE_KIND_EXCLUSIVE_DISJUNCTION,
-                    NODE_KIND_IMPLICATION,
-                    NODE_KIND_BICONDITIONAL,
+                    NODE_KIND_LOGICAL_OP_CONJUNCTION,
+                    NODE_KIND_LOGICAL_OP_DISJUNCTION,
+                    NODE_KIND_LOGICAL_OP_EXCLUSIVE_DISJUNCTION,
+                    NODE_KIND_LOGICAL_OP_IMPLICATION,
+                    NODE_KIND_LOGICAL_OP_BICONDITIONAL,
                 ]
             );
         }
     }
-}
-
-pub(crate) fn parse_quantified_sentence<'a>(
-    context: &mut ParseContext<'a>,
-    cursor: &mut TreeCursor<'a>,
-) -> Result<QuantifiedSentence, Error> {
-    let node = cursor.node();
-    rule_fn!("quantified_sentence", node);
-
-    let child = node_child_named!(
-        node,
-        FIELD_NAME_BINDING,
-        NODE_KIND_QUANTIFIED_VARIABLE_BINDING,
-        context,
-        RULE_NAME
-    );
-    let binding = parse_quantified_variable_binding(context, &mut child.walk())?;
-
-    let child = node_child_named!(node, FIELD_NAME_BODY, context, RULE_NAME);
-    let body = parse_constraint_sentence(context, &mut child.walk())?;
-
-    Ok(QuantifiedSentence::new(binding, body))
 }
 
 fn parse_atomic_sentence<'a>(
@@ -210,16 +189,13 @@ fn parse_atomic_sentence<'a>(
     let node = cursor.node();
     rule_fn!("atomic_sentence", node);
 
-    let child = node_child_named!(node, FIELD_NAME_PREDICATE, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_PREDICATE);
     let predicate = parse_term(context, &mut child.walk())?;
 
-    let arguments = {
-        let mut arguments: Vec<Term> = Default::default();
-        for argument in node.children_by_field_name(FIELD_NAME_ARGUMENT, cursor) {
-            arguments.push(parse_term(context, &mut argument.walk())?);
-        }
-        arguments
-    };
+    let mut arguments: Vec<Term> = Default::default();
+    for argument in node.children_by_field_name(FIELD_NAME_ARGUMENT, &mut node.walk()) {
+        arguments.push(parse_term(context, &mut argument.walk())?);
+    }
 
     Ok(AtomicSentence::new_with_arguments(predicate, arguments))
 }
@@ -231,10 +207,10 @@ fn parse_equation<'a>(
     let node = cursor.node();
     rule_fn!("equation", node);
 
-    let child = node_child_named!(node, FIELD_NAME_LHS, NODE_KIND_TERM, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_LHS, NODE_KIND_TERM);
     let lhs = parse_term(context, &mut child.walk())?;
 
-    let child = node_child_named!(node, FIELD_NAME_RHS, NODE_KIND_TERM, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_RHS, NODE_KIND_TERM);
     let rhs = parse_term(context, &mut child.walk())?;
 
     Ok(Equation::new(lhs, rhs))
@@ -247,16 +223,38 @@ fn parse_inequation<'a>(
     let node = cursor.node();
     rule_fn!("inequation", node);
 
-    let child = node_child_named!(node, FIELD_NAME_LHS, NODE_KIND_TERM, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_LHS, NODE_KIND_TERM);
     let lhs = parse_term(context, &mut child.walk())?;
 
-    let child = node_child_named!(node, FIELD_NAME_RELATION, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_RELATION);
     let relation = InequalityRelation::from_str(context.node_source(&child)?)?;
 
-    let child = node_child_named!(node, FIELD_NAME_RHS, NODE_KIND_TERM, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_RHS, NODE_KIND_TERM);
     let rhs = parse_term(context, &mut child.walk())?;
 
     Ok(Inequation::new(lhs, relation, rhs))
+}
+
+pub(crate) fn parse_quantified_sentence<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<QuantifiedSentence, Error> {
+    let node = cursor.node();
+    rule_fn!("quantified_sentence", node);
+
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_BINDING,
+        NODE_KIND_QUANTIFIED_VARIABLE_BINDING
+    );
+    let binding = parse_quantified_variable_binding(context, &mut child.walk())?;
+
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_BODY);
+    let body = parse_constraint_sentence(context, &mut child.walk())?;
+
+    Ok(QuantifiedSentence::new(binding, body))
 }
 
 pub(crate) fn parse_quantified_variable_binding<'a>(
@@ -266,50 +264,45 @@ pub(crate) fn parse_quantified_variable_binding<'a>(
     let node = cursor.node();
     rule_fn!("quantified_variable_binding", cursor.node());
 
-    let quantifier = if let Some(child) = node.child_by_field_name(FIELD_NAME_QUANTIFIER) {
-        context.check_if_error(&child, RULE_NAME)?;
-        Quantifier::from_str(context.node_source(&child)?)?
-    } else {
-        Quantifier::default()
-    };
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_QUANTIFIER);
+    let quantifier = Quantifier::from_str(context.node_source(&child)?)?;
 
-    let child = node_child_named!(node, FIELD_NAME_BINDING, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_BINDING);
+    let binding = parse_quantified_variable(context, &mut child.walk())?;
 
-    if let Some(binding) = parse_quantified_variable(context, &mut child.walk())? {
-        Ok(QuantifiedVariableBinding::new(quantifier, binding))
-    } else {
-        Ok(QuantifiedVariableBinding::new_self(quantifier))
-    }
+    Ok(QuantifiedVariableBinding::new(quantifier, binding))
 }
 
 fn parse_quantified_variable<'a>(
     context: &mut ParseContext<'a>,
     cursor: &mut TreeCursor<'a>,
-) -> Result<Option<QuantifiedVariable>, Error> {
+) -> Result<QuantifiedVariable, Error> {
     let node = cursor.node();
     rule_fn!("quantified_variable", cursor.node());
 
-    let child = node_child_named!(node, FIELD_NAME_SOURCE, context, RULE_NAME);
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_VARIABLE);
+    let variable = parse_variable(context, &mut child.walk())?;
 
-    if child.kind() == NODE_KIND_RESERVED_SELF {
-        Ok(None)
-    } else if child.kind() == NODE_KIND_TERM {
-        let source = parse_term(context, &mut child.walk())?;
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_SOURCE);
+    let source = parse_term(context, &mut child.walk())?;
 
-        let child = node_child_named!(node, FIELD_NAME_NAME, context, RULE_NAME);
-        let name = parse_identifier(context, &child)?;
-
-        Ok(Some(QuantifiedVariable::new(name, source)))
-    } else {
-        unexpected_node!(
-            context,
-            RULE_NAME,
-            node,
-            [NODE_KIND_RESERVED_SELF, NODE_KIND_TERM,]
-        );
-    }
+    Ok(QuantifiedVariable::new(variable, source))
 }
 
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------
+pub(crate) fn parse_variable<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<Variable, Error> {
+    let node = cursor.node();
+    rule_fn!("variable", cursor.node());
+
+    let child = node_field_named!(context, RULE_NAME, node, FIELD_NAME_NAME);
+    let variable = Variable::new(parse_identifier(context, &child)?);
+
+    if let Some(range) = optional_node_field_named!(context, RULE_NAME, node, FIELD_NAME_RANGE) {
+        let range = parse_identifier_reference(context, &mut range.walk())?;
+        Ok(variable.with_range(range))
+    } else {
+        Ok(variable)
+    }
+}

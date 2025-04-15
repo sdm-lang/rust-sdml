@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_inequation.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_inequation.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -74,8 +74,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 167,
-                    "start": 80
+                    "end": 182,
+                    "start": 95
                   },
                   "type": {
                     "__type": "type_reference",
@@ -162,8 +162,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 265,
-                    "start": 173
+                    "end": 280,
+                    "start": 188
                   },
                   "type": {
                     "__type": "type_reference",
@@ -193,8 +193,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 272,
-          "start": 56
+          "end": 287,
+          "start": 71
         }
       }
     }
@@ -202,12 +202,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_inequation.sdm",
   "span": {
     "__type": "span",
-    "end": 279,
+    "end": 294,
     "start": 0
   }
 }

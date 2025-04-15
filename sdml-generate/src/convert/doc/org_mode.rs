@@ -10,19 +10,19 @@ use crate::convert::doc::common::{
     ArgumentType, BlockFormat, Formatter, LinkFormat, PageFormat, TextFormat,
 };
 use crate::convert::doc::{AnnotationCategories, BookConfig, DocumentationWriter, Heading};
-use crate::convert::rdf::RdfModelGenerator;
 use crate::draw::OutputFormat;
 use crate::Generator;
 use console::Term;
 use indicatif::{ProgressBar, ProgressStyle};
+use rdftk_io::{turtle::TurtleWriter, ObjectWriter};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader;
 use sdml_core::model::annotations::HasAnnotations;
 use sdml_core::model::check::MaybeIncomplete;
 use sdml_core::model::constraints::ConstraintBody;
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, HasVariants, PropertyDef,
-    StructureDef, TypeClassDef, UnionDef,
+    DatatypeDef, Definition, DimensionDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef,
+    TypeClassDef, UnionDef,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{Member, MemberKind, PseudoSequenceType, DEFAULT_CARDINALITY};
@@ -32,6 +32,7 @@ use sdml_core::model::{HasBody, HasName, HasNameReference, HasOptionalBody};
 use sdml_core::store::ModuleStore;
 use sdml_errors::diagnostics::UseColor;
 use sdml_errors::Source;
+use sdml_rdf::write::module_to_graph;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::fs::{read_to_string, File, OpenOptions};
@@ -544,9 +545,13 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
     {
         write_heading(heading, writer)?;
 
-        let mut generator = RdfModelGenerator::default();
-        let rdf =
-            generator.generate_to_string(module, cache, Default::default(), Default::default())?;
+        let graph = module_to_graph(module, cache)?;
+        let rdf_src = TurtleWriter::default()
+            .write_to_string(&graph)
+            .map_err(|e| Error::GeneratorError {
+                name: "rdf".to_string(),
+                message: e.to_string(),
+            })?;
 
         let name = module.name();
         let link_label = format!("module-{name}-src-rdf");
@@ -555,7 +560,7 @@ impl DocumentationWriter<IncludeArguments, SourceBlockArguments, OrgModeFormatte
             FORMATTER
                 .source_with(
                     "ttl",
-                    rdf,
+                    rdf_src,
                     SourceBlockArguments::default(),
                     format!("lst:{link_label}"),
                     format!("Module {} RDF Source", FORMATTER.mono(name)),
@@ -2078,6 +2083,9 @@ fn write_definitions(
             Definition::Datatype(v) => {
                 write_datatype(parent_level, module, v, cache, categories, writer)?
             }
+            Definition::Dimension(v) => {
+                write_dimension(parent_level, module, v, cache, categories, writer)?
+            }
             Definition::Entity(v) => {
                 write_entity(parent_level, module, v, cache, categories, writer)?
             }
@@ -2153,6 +2161,54 @@ fn write_datatype(
     Ok(())
 }
 
+fn write_dimension(
+    parent_level: u8,
+    module: &Module,
+    dimension: &DimensionDef,
+    cache: &impl ModuleStore,
+    categories: &AnnotationCategories,
+    writer: &mut dyn Write,
+) -> Result<(), Error> {
+    let name = dimension.name();
+    write_heading(
+        Heading::new(
+            parent_level + 1,
+            format!("Dimension {}", FORMATTER.mono(name)),
+        )
+        .with_label(make_section_label(&[
+            "definition",
+            module.name().as_ref(),
+            name.as_ref(),
+        ])),
+        writer,
+    )?;
+
+    if !dimension.is_incomplete(module, cache) {
+        if let Some(body) = dimension.body() {
+            // TODO: identity
+
+            if body.has_annotations() {
+                write_annotations(body, categories, writer)?;
+            }
+            for member in body.members() {
+                write_member(
+                    parent_level + 1,
+                    module,
+                    name,
+                    member,
+                    cache,
+                    categories,
+                    writer,
+                )?;
+            }
+        }
+    } else {
+        writer.write_all(type_is_incomplete().as_bytes())?;
+    }
+
+    Ok(())
+}
+
 fn write_entity(
     parent_level: u8,
     module: &Module,
@@ -2170,9 +2226,8 @@ fn write_entity(
     )?;
 
     if !entity.is_incomplete(module, cache) {
-        // identity
-
         if let Some(body) = entity.body() {
+            // TODO: identity
             if body.has_annotations() {
                 write_annotations(body, categories, writer)?;
             }

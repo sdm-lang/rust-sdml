@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 78,
+            end: 88,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 15,
+                end: 25,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -46,8 +46,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 22,
-                    end: 72,
+                    start: 32,
+                    end: 82,
                 },
             ),
             from_clause: None,
@@ -56,15 +56,15 @@ Module {
                     ModuleImport {
                         span: Some(
                             Span {
-                                start: 29,
-                                end: 72,
+                                start: 39,
+                                end: 82,
                             },
                         ),
                         name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 29,
-                                    end: 37,
+                                    start: 39,
+                                    end: 47,
                                 },
                             ),
                             value: "customer",
@@ -73,8 +73,8 @@ Module {
                             HeaderValue {
                                 span: Some(
                                     Span {
-                                        start: 38,
-                                        end: 72,
+                                        start: 48,
+                                        end: 82,
                                     },
                                 ),
                                 value: Url {

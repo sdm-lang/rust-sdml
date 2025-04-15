@@ -2,7 +2,7 @@ use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
 use sdml_core::model::definitions::Definition;
 use sdml_core::model::modules::ImportStatement;
 use sdml_core::model::values::{SequenceMember, SimpleValue, Value};
-use sdml_core::model::{HasBody, HasName, HasNameReference};
+use sdml_core::model::{HasName, HasNameReference};
 use sdml_core::store::{InMemoryModuleCache, ModuleStore};
 use sdml_parse::load::FsModuleLoader;
 use std::io::Cursor;
@@ -11,7 +11,7 @@ use url::Url;
 
 #[test]
 fn test_parse_empty_module() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(&mut Cursor::new(b"module foo is end"), &mut cache, false);
     println!("{:#?}", module);
@@ -25,7 +25,7 @@ fn test_parse_empty_module() {
 
 #[test]
 fn test_parse_module_with_imports() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
@@ -47,9 +47,8 @@ end"#
 
     let module = cache.get(&module.unwrap());
     let module = module.unwrap();
-    let body = module.body();
 
-    let imports: Vec<&ImportStatement> = body.imports().collect();
+    let imports: Vec<&ImportStatement> = module.imports().collect();
     assert_eq!(imports.len(), 3);
 
     let import = imports.first().unwrap();
@@ -59,7 +58,7 @@ end"#
 
 #[test]
 fn test_parse_module_with_annotations() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
@@ -85,9 +84,8 @@ end"#
 
     let module = cache.get(&module.unwrap());
     let module = module.unwrap();
-    let body = module.body();
 
-    let annotations: Vec<&AnnotationProperty> = body.annotation_properties().collect();
+    let annotations: Vec<&AnnotationProperty> = module.annotation_properties().collect();
     assert_eq!(annotations.len(), 3);
 
     let annotation = annotations.first().unwrap();
@@ -142,7 +140,7 @@ end"#
 
 #[test]
 fn test_parse_datatype() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module = loader.load_from_reader(
         &mut Cursor::new(
@@ -161,9 +159,8 @@ end"#
 
     let module = cache.get(&module.unwrap());
     let module = module.unwrap();
-    let body = module.body();
 
-    let types: Vec<&Definition> = body.definitions().collect();
+    let types: Vec<&Definition> = module.definitions().collect();
     assert_eq!(types.len(), 1);
 
     if let Some(Definition::Datatype(definition)) = types.first() {

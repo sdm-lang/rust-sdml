@@ -1,6 +1,8 @@
+;;; Module,with annotations
+
 module corpus_test_module is
 
-  @xml:base = <https://example.org/>
+  import [ dc skos ]
 
   @dc:version = 2
 

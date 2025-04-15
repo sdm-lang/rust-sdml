@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -29,8 +29,8 @@
                 },
                 "span": {
                   "__type": "span",
-                  "end": 122,
-                  "start": 91
+                  "end": 130,
+                  "start": 99
                 },
                 "value": {
                   "__type": "value",
@@ -72,8 +72,8 @@
                         },
                         "span": {
                           "__type": "span",
-                          "end": 206,
-                          "start": 192
+                          "end": 214,
+                          "start": 200
                         },
                         "value": {
                           "__type": "value",
@@ -93,8 +93,8 @@
               },
               "span": {
                 "__type": "span",
-                "end": 214,
-                "start": 174
+                "end": 222,
+                "start": 182
               }
             },
             {
@@ -123,8 +123,8 @@
                         },
                         "span": {
                           "__type": "span",
-                          "end": 160,
-                          "start": 146
+                          "end": 168,
+                          "start": 154
                         },
                         "value": {
                           "__type": "value",
@@ -144,8 +144,8 @@
               },
               "span": {
                 "__type": "span",
-                "end": 168,
-                "start": 128
+                "end": 176,
+                "start": 136
               }
             }
           ]
@@ -156,8 +156,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 221,
-          "start": 69
+          "end": 229,
+          "start": 77
         }
       }
     }
@@ -192,12 +192,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_enum"
   },
   "source_file": "MANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm",
   "span": {
     "__type": "span",
-    "end": 228,
+    "end": 236,
     "start": 0
   }
 }

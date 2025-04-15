@@ -1,6 +1,6 @@
 ;;; Entity, Empty
 
-module campaign is
+module corpus_test_entity is
 
   entity Campaign
 

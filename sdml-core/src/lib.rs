@@ -3,6 +3,19 @@ Provides the core in-memory implementation of the *Simple Domain Modeling Langua
 
 This package also includes the traits used to describe module loading as well as artifact
 generators.
+
+# Features
+
+## repr-write
+
+## serde
+
+## stdlib
+
+## terms
+
+## tree-sitter
+
 */
 
 #![warn(
@@ -50,12 +63,18 @@ generators.
 
 pub use sdml_errors::errors as error;
 
-pub mod store;
+pub mod config;
 
 pub mod load;
 
 pub mod model;
 
+#[cfg(feature = "repr-write")]
+pub mod repr;
+
+#[cfg(feature = "stdlib")]
 pub mod stdlib;
+
+pub mod store;
 
 pub mod syntax;

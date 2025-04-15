@@ -6,6 +6,7 @@ use crate::model::{
     members::{Ordering, Uniqueness},
     HasSourceSpan, Span,
 };
+use crate::syntax::grammar::{VALUE_BOOLEAN_FALSITY_SYMBOL, VALUE_BOOLEAN_TRUTH_SYMBOL};
 use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
@@ -35,6 +36,16 @@ pub enum Value {
     Sequence(SequenceOfValues),
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum ValueType {
+    Simple(SimpleValueType),
+    ValueConstructor(SimpleValueType),
+    Mapping(SimpleValueType, Box<ValueType>),
+    Reference,
+    Sequence(Vec<ValueType>),
+}
+
 /// Corresponds to the grammar rule `simple_value`.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
@@ -55,6 +66,19 @@ pub enum SimpleValue {
     IriReference(Url),
     /// Corresponds to the grammar rule `binary`.
     Binary(Binary),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum SimpleValueType {
+    Boolean,
+    Double,
+    Decimal,
+    Integer,
+    Unsigned,
+    String,
+    IriReference,
+    Binary,
 }
 
 /// Corresponds to the grammar rule `binary`.
@@ -236,10 +260,7 @@ impl Value {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_simple(&self) -> bool {
-        match self {
-            Self::Simple(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Simple(_))
     }
 
     pub const fn as_simple(&self) -> Option<&SimpleValue> {
@@ -250,10 +271,7 @@ impl Value {
     }
 
     pub const fn is_value_constructor(&self) -> bool {
-        match self {
-            Self::ValueConstructor(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::ValueConstructor(_))
     }
 
     pub const fn as_value_constructor(&self) -> Option<&ValueConstructor> {
@@ -264,10 +282,7 @@ impl Value {
     }
 
     pub const fn is_mapping_value(&self) -> bool {
-        match self {
-            Self::Mapping(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Mapping(_))
     }
 
     pub const fn as_mapping_value(&self) -> Option<&MappingValue> {
@@ -278,10 +293,7 @@ impl Value {
     }
 
     pub const fn is_reference(&self) -> bool {
-        match self {
-            Self::Reference(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Reference(_))
     }
 
     pub const fn as_reference(&self) -> Option<&IdentifierReference> {
@@ -291,10 +303,7 @@ impl Value {
         }
     }
     pub const fn is_sequence(&self) -> bool {
-        match self {
-            Self::Sequence(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Sequence(_))
     }
 
     pub const fn as_sequence(&self) -> Option<&SequenceOfValues> {
@@ -473,6 +482,54 @@ impl From<u64> for SimpleValue {
     }
 }
 
+impl From<&i32> for SimpleValue {
+    fn from(v: &i32) -> Self {
+        Self::Integer(*v as i64)
+    }
+}
+
+impl From<i32> for SimpleValue {
+    fn from(v: i32) -> Self {
+        Self::Integer(v as i64)
+    }
+}
+
+impl From<&u32> for SimpleValue {
+    fn from(v: &u32) -> Self {
+        Self::Unsigned(*v as u64)
+    }
+}
+
+impl From<u32> for SimpleValue {
+    fn from(v: u32) -> Self {
+        Self::Unsigned(v as u64)
+    }
+}
+
+impl From<&i16> for SimpleValue {
+    fn from(v: &i16) -> Self {
+        Self::Integer(*v as i64)
+    }
+}
+
+impl From<i16> for SimpleValue {
+    fn from(v: i16) -> Self {
+        Self::Integer(v as i64)
+    }
+}
+
+impl From<&u16> for SimpleValue {
+    fn from(v: &u16) -> Self {
+        Self::Unsigned(*v as u64)
+    }
+}
+
+impl From<u16> for SimpleValue {
+    fn from(v: u16) -> Self {
+        Self::Unsigned(v as u64)
+    }
+}
+
 impl From<&str> for SimpleValue {
     fn from(v: &str) -> Self {
         Self::plain(v)
@@ -527,11 +584,20 @@ impl Display for SimpleValue {
             f,
             "{}",
             match self {
-                Self::Double(v) => v.to_string(),
+                Self::Double(v) => format!("{:e}", v),
                 Self::Decimal(v) => v.to_string(),
                 Self::Integer(v) => v.to_string(),
                 Self::Unsigned(v) => v.to_string(),
-                Self::Boolean(v) => v.to_string(),
+                Self::Boolean(v) =>
+                    if f.alternate() {
+                        if *v {
+                            VALUE_BOOLEAN_TRUTH_SYMBOL.to_string()
+                        } else {
+                            VALUE_BOOLEAN_FALSITY_SYMBOL.to_string()
+                        }
+                    } else {
+                        v.to_string()
+                    },
                 Self::IriReference(v) => format!("<{v}>"),
                 Self::String(v) => v.to_string(),
                 Self::Binary(v) => v.to_string(),
@@ -553,10 +619,7 @@ impl SimpleValue {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_boolean(&self) -> bool {
-        match self {
-            Self::Boolean(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Boolean(_))
     }
 
     pub const fn as_boolean(&self) -> Option<&bool> {
@@ -567,10 +630,7 @@ impl SimpleValue {
     }
 
     pub const fn is_double(&self) -> bool {
-        match self {
-            Self::Double(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Double(_))
     }
 
     pub const fn as_double(&self) -> Option<&OrderedFloat<f64>> {
@@ -581,10 +641,7 @@ impl SimpleValue {
     }
 
     pub const fn is_decimal(&self) -> bool {
-        match self {
-            Self::Decimal(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Decimal(_))
     }
 
     pub const fn as_decimal(&self) -> Option<&Decimal> {
@@ -595,10 +652,7 @@ impl SimpleValue {
     }
 
     pub const fn is_integer(&self) -> bool {
-        match self {
-            Self::Integer(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Integer(_))
     }
 
     pub const fn as_integer(&self) -> Option<&i64> {
@@ -609,10 +663,7 @@ impl SimpleValue {
     }
 
     pub const fn is_unsigned(&self) -> bool {
-        match self {
-            Self::Unsigned(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Unsigned(_))
     }
 
     pub const fn as_unsigned(&self) -> Option<&u64> {
@@ -623,10 +674,7 @@ impl SimpleValue {
     }
 
     pub const fn is_string(&self) -> bool {
-        match self {
-            Self::String(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::String(_))
     }
 
     pub const fn as_string(&self) -> Option<&LanguageString> {
@@ -637,10 +685,7 @@ impl SimpleValue {
     }
 
     pub const fn is_iri(&self) -> bool {
-        match self {
-            Self::IriReference(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::IriReference(_))
     }
 
     pub const fn as_iri(&self) -> Option<&Url> {
@@ -651,10 +696,7 @@ impl SimpleValue {
     }
 
     pub const fn is_binary(&self) -> bool {
-        match self {
-            Self::Binary(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Binary(_))
     }
 
     pub const fn as_binary(&self) -> Option<&Binary> {
@@ -914,11 +956,11 @@ impl LanguageTag {
 
 impl Display for Binary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[")?;
+        write!(f, "#[ ")?;
         for byte in self.as_bytes() {
-            write!(f, "{:02X}", byte)?;
+            write!(f, "{:02X} ", byte)?;
         }
-        write!(f, "[")
+        write!(f, "]")
     }
 }
 
@@ -948,48 +990,20 @@ impl Binary {
         self.0.as_slice()
     }
 
-    pub fn default_format(&self) -> String {
-        self.format(1, 2)
+    pub fn to_sdml_string(&self) -> String {
+        self.to_string()
     }
 
-    pub fn format(&self, indent_level: u8, indent_spaces: u8) -> String {
-        let mut buffer = String::new();
-        let n = (indent_level * indent_spaces) as usize;
-        let indent_outer = format!("{:n$}", "");
-        let n = ((indent_level + 1) * indent_spaces) as usize;
-        let indent_inner = format!("{:n$}", "");
-        if self.0.len() <= 16 {
-            buffer.push_str("#[");
-            buffer.push_str(&format_byte_block(self.0.as_slice(), &indent_inner));
-            buffer.push(']');
-        } else {
-            buffer.push_str(&format!("#[\n{indent_outer}"));
-            buffer.push_str(&format_byte_block(self.0.as_slice(), &indent_inner));
-            buffer.push_str(&format!("\n{indent_outer}]"));
-        }
-        buffer
+    pub fn to_hex_string(&self) -> String {
+        self.as_bytes().iter().map(|b| format!("{b:02X}")).collect()
     }
-}
 
-fn format_byte_block(bytes: &[u8], indent: &str) -> String {
-    if bytes.len() <= 8 {
-        bytes
-            .iter()
-            .map(|b| format!("{:02X}", b))
-            .collect::<Vec<String>>()
-            .join(" ")
-    } else if bytes.len() <= 16 {
-        format!(
-            "{}   {}",
-            format_byte_block(&bytes[0..8], indent),
-            format_byte_block(&bytes[9..], indent),
-        )
-    } else {
-        format!(
-            "{indent}{}\n{}",
-            format_byte_block(&bytes[0..16], indent),
-            format_byte_block(&bytes[17..], indent),
-        )
+    pub fn to_base64_string(&self) -> String {
+        self.to_base64_string_with(&base64::engine::general_purpose::STANDARD_NO_PAD)
+    }
+
+    pub fn to_base64_string_with<T: base64::Engine>(&self, engine: &T) -> String {
+        engine.encode(self.as_bytes())
     }
 }
 
@@ -1088,7 +1102,7 @@ impl Display for SequenceOfValues {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "[{}]",
+            "[ {} ]",
             self.values
                 .iter()
                 .map(|v| v.to_string())

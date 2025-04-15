@@ -1,0 +1,11 @@
+;;; Annotation, Multiple ordered
+
+module corpus_test_annotation is
+
+  @dc:seeAlso = {ordered} [
+      <https://www.dublincore.org/>
+      <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/>
+  ]
+
+end
+

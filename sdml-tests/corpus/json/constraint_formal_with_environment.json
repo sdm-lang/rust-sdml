@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_with_environment.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_with_environment.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -126,8 +126,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 237,
-                    "start": 86
+                    "end": 252,
+                    "start": 101
                   },
                   "type": {
                     "__type": "type_reference",
@@ -157,8 +157,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 244,
-          "start": 62
+          "end": 259,
+          "start": 77
         }
       }
     }
@@ -166,12 +166,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_with_environment.sdm",
   "span": {
     "__type": "span",
-    "end": 250,
+    "end": 265,
     "start": 0
   }
 }

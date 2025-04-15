@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/module_empty.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/module_empty.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",

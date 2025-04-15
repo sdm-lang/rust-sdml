@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_function_composition.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_function_composition.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -69,8 +69,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 176,
-                    "start": 90
+                    "end": 191,
+                    "start": 105
                   },
                   "type": {
                     "__type": "type_reference",
@@ -100,8 +100,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 183,
-          "start": 66
+          "end": 198,
+          "start": 81
         }
       }
     }
@@ -109,12 +109,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_function_composition.sdm",
   "span": {
     "__type": "span",
-    "end": 189,
+    "end": 204,
     "start": 0
   }
 }

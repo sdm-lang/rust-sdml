@@ -32,7 +32,7 @@ impl super::Command for Command {
 
         let reporter = StandardStreamReporter::default();
         let mut loader = FsModuleLoader::default().with_reporter(Box::new(reporter));
-        let mut cache = InMemoryModuleCache::default().with_stdlib();
+        let mut cache = InMemoryModuleCache::default();
 
         generator.write_book(&mut loader, &mut cache, config)?;
 

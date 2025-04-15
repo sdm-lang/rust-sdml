@@ -748,9 +748,7 @@ pub fn walk_module_simple(
     visit_members_and_variants: bool,
 ) -> Result<(), Error> {
     if walker.module_start(module)? {
-        let body = module.body();
-
-        for import in body.imports() {
+        for import in module.imports() {
             if walker.import_statement_start(import)? {
                 for import in import.imports() {
                     match import {
@@ -762,9 +760,9 @@ pub fn walk_module_simple(
             }
         }
 
-        walk_annotations!(walker, body.annotations(), visit_annotations);
+        walk_annotations!(walker, module.annotations(), visit_annotations);
 
-        for type_def in body.definitions() {
+        for type_def in module.definitions() {
             if walker.definition_start(type_def)? {
                 match &type_def {
                     Definition::Datatype(def) => walk_datatype_def(def, walker, visit_annotations)?,

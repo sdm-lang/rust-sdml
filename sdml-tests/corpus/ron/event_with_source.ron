@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 98,
+            end: 107,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 31,
-                end: 39,
+                end: 48,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_event",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 52,
-                    end: 63,
+                    start: 61,
+                    end: 72,
                 },
             ),
             value: "NameChanged",
@@ -57,15 +57,15 @@ Module {
             EventDef {
                 span: Some(
                     Span {
-                        start: 46,
-                        end: 92,
+                        start: 55,
+                        end: 101,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 52,
-                            end: 63,
+                            start: 61,
+                            end: 72,
                         },
                     ),
                     value: "NameChanged",
@@ -74,8 +74,8 @@ Module {
                     EventBody {
                         span: Some(
                             Span {
-                                start: 64,
-                                end: 92,
+                                start: 73,
+                                end: 101,
                             },
                         ),
                         annotations: [],
@@ -85,8 +85,8 @@ Module {
                                 Identifier {
                                     span: Some(
                                         Span {
-                                            start: 78,
-                                            end: 86,
+                                            start: 87,
+                                            end: 95,
                                         },
                                     ),
                                     value: "Campaign",

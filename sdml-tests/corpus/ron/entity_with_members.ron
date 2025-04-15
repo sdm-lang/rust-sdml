@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 151,
+            end: 161,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 33,
-                end: 41,
+                end: 51,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_entity",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 55,
-                    end: 63,
+                    start: 65,
+                    end: 73,
                 },
             ),
             value: "Campaign",
@@ -57,15 +57,15 @@ Module {
             EntityDef {
                 span: Some(
                     Span {
-                        start: 48,
-                        end: 145,
+                        start: 58,
+                        end: 155,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 55,
-                            end: 63,
+                            start: 65,
+                            end: 73,
                         },
                     ),
                     value: "Campaign",
@@ -74,8 +74,8 @@ Module {
                     EntityBody {
                         span: Some(
                             Span {
-                                start: 64,
-                                end: 145,
+                                start: 74,
+                                end: 155,
                             },
                         ),
                         identity: Member {
@@ -84,15 +84,15 @@ Module {
                                 MemberDef {
                                     span: Some(
                                         Span {
-                                            start: 81,
-                                            end: 96,
+                                            start: 91,
+                                            end: 106,
                                         },
                                     ),
                                     name: Identifier {
                                         span: Some(
                                             Span {
-                                                start: 81,
-                                                end: 83,
+                                                start: 91,
+                                                end: 93,
                                             },
                                         ),
                                         value: "id",
@@ -114,15 +114,15 @@ Module {
                                             QualifiedIdentifier {
                                                 span: Some(
                                                     Span {
-                                                        start: 87,
-                                                        end: 96,
+                                                        start: 97,
+                                                        end: 106,
                                                     },
                                                 ),
                                                 module: Identifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 87,
-                                                            end: 89,
+                                                            start: 97,
+                                                            end: 99,
                                                         },
                                                     ),
                                                     value: "xs",
@@ -130,8 +130,8 @@ Module {
                                                 member: Identifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 90,
-                                                            end: 96,
+                                                            start: 100,
+                                                            end: 106,
                                                         },
                                                     ),
                                                     value: "string",
@@ -148,8 +148,8 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 102,
-                                        end: 103,
+                                        start: 112,
+                                        end: 113,
                                     },
                                 ),
                                 value: "a",
@@ -159,15 +159,15 @@ Module {
                                     MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 102,
-                                                end: 117,
+                                                start: 112,
+                                                end: 127,
                                             },
                                         ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 102,
-                                                    end: 103,
+                                                    start: 112,
+                                                    end: 113,
                                                 },
                                             ),
                                             value: "a",
@@ -189,15 +189,15 @@ Module {
                                                 QualifiedIdentifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 107,
-                                                            end: 117,
+                                                            start: 117,
+                                                            end: 127,
                                                         },
                                                     ),
                                                     module: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 107,
-                                                                end: 110,
+                                                                start: 117,
+                                                                end: 120,
                                                             },
                                                         ),
                                                         value: "xsd",
@@ -205,8 +205,8 @@ Module {
                                                     member: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 111,
-                                                                end: 117,
+                                                                start: 121,
+                                                                end: 127,
                                                             },
                                                         ),
                                                         value: "string",
@@ -221,8 +221,8 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 122,
-                                        end: 123,
+                                        start: 132,
+                                        end: 133,
                                     },
                                 ),
                                 value: "b",
@@ -232,15 +232,15 @@ Module {
                                     MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 122,
-                                                end: 138,
+                                                start: 132,
+                                                end: 148,
                                             },
                                         ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 122,
-                                                    end: 123,
+                                                    start: 132,
+                                                    end: 133,
                                                 },
                                             ),
                                             value: "b",
@@ -262,15 +262,15 @@ Module {
                                                 QualifiedIdentifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 127,
-                                                            end: 138,
+                                                            start: 137,
+                                                            end: 148,
                                                         },
                                                     ),
                                                     module: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 127,
-                                                                end: 130,
+                                                                start: 137,
+                                                                end: 140,
                                                             },
                                                         ),
                                                         value: "xsd",
@@ -278,8 +278,8 @@ Module {
                                                     member: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 131,
-                                                                end: 138,
+                                                                start: 141,
+                                                                end: 148,
                                                             },
                                                         ),
                                                         value: "integer",

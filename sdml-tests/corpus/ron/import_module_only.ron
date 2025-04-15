@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 69,
+            end: 79,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 38,
-                end: 46,
+                end: 56,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -46,8 +46,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 53,
-                    end: 63,
+                    start: 63,
+                    end: 73,
                 },
             ),
             from_clause: None,
@@ -56,15 +56,15 @@ Module {
                     ModuleImport {
                         span: Some(
                             Span {
-                                start: 60,
-                                end: 63,
+                                start: 70,
+                                end: 73,
                             },
                         ),
                         name: Identifier {
                             span: Some(
                                 Span {
-                                    start: 60,
-                                    end: 63,
+                                    start: 70,
+                                    end: 73,
                                 },
                             ),
                             value: "xsd",

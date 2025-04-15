@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_with_unknowns.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_with_unknowns.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -20,8 +20,8 @@
                 },
                 "span": {
                   "__type": "span",
-                  "end": 107,
-                  "start": 94
+                  "end": 117,
+                  "start": 104
                 },
                 "type": {
                   "__type": "type_reference",
@@ -43,8 +43,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 125,
-                    "start": 113
+                    "end": 135,
+                    "start": 123
                   },
                   "type": {
                     "__type": "type_reference",
@@ -61,8 +61,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 132,
-          "start": 61
+          "end": 142,
+          "start": 71
         }
       }
     }
@@ -70,12 +70,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_entity"
   },
   "source_file": "MANIFEST_PATH/corpus/entity_with_unknowns.sdm",
   "span": {
     "__type": "span",
-    "end": 138,
+    "end": 148,
     "start": 0
   }
 }

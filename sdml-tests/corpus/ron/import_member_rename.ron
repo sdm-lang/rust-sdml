@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 51,
+            end: 61,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 15,
+                end: 25,
             },
         ),
-        value: "Campaign",
+        value: "corpus_test_import",
     },
     base_uri: Some(
         HeaderValue {
@@ -46,8 +46,8 @@ Module {
         ImportStatement {
             span: Some(
                 Span {
-                    start: 22,
-                    end: 45,
+                    start: 32,
+                    end: 55,
                 },
             ),
             from_clause: None,
@@ -56,22 +56,22 @@ Module {
                     MemberImport {
                         span: Some(
                             Span {
-                                start: 29,
-                                end: 37,
+                                start: 39,
+                                end: 47,
                             },
                         ),
                         name: QualifiedIdentifier {
                             span: Some(
                                 Span {
-                                    start: 29,
-                                    end: 37,
+                                    start: 39,
+                                    end: 47,
                                 },
                             ),
                             module: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 29,
-                                        end: 32,
+                                        start: 39,
+                                        end: 42,
                                     },
                                 ),
                                 value: "xsd",
@@ -79,8 +79,8 @@ Module {
                             member: Identifier {
                                 span: Some(
                                     Span {
-                                        start: 33,
-                                        end: 37,
+                                        start: 43,
+                                        end: 47,
                                     },
                                 ),
                                 value: "base",
@@ -90,8 +90,8 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 41,
-                                        end: 45,
+                                        start: 51,
+                                        end: 55,
                                     },
                                 ),
                                 value: "base",

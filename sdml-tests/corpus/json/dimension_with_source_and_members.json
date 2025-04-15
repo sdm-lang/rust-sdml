@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/dimension_with_source_and_members.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/dimension_with_source_and_members.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -53,8 +53,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 135,
-                    "start": 123
+                    "end": 146,
+                    "start": 134
                   },
                   "type": {
                     "__type": "type_reference",
@@ -77,8 +77,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 156,
-          "start": 64
+          "end": 167,
+          "start": 75
         }
       }
     }
@@ -86,12 +86,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "dimensions"
+    "value": "corpus_test_dimension"
   },
   "source_file": "MANIFEST_PATH/corpus/dimension_with_source_and_members.sdm",
   "span": {
     "__type": "span",
-    "end": 162,
+    "end": 173,
     "start": 0
   }
 }

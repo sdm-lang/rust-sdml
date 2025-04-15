@@ -1,0 +1,6 @@
+_:B137 <http://sdml.io/sdml-owl.ttl#startByte> 0 .
+_:B137 <http://sdml.io/sdml-owl.ttl#endByte> 70 .
+<http://example.orgMANIFEST_PATH/corpus/module_with_underscore.sdm/corpus_test_module> <http://sdml.io/sdml-owl.ttl#srcLabel> "corpus_test_module" .
+<http://example.orgMANIFEST_PATH/corpus/module_with_underscore.sdm/corpus_test_module> <http://sdml.io/sdml-owl.ttl#sourceLocation> _:B137 .
+<http://example.orgMANIFEST_PATH/corpus/module_with_underscore.sdm/corpus_test_module> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sdml.io/sdml-owl.ttl#Module> .
+<http://example.orgMANIFEST_PATH/corpus/module_with_underscore.sdm/corpus_test_module> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .

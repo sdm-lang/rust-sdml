@@ -5,7 +5,7 @@ use sdml_core::{
     store::{InMemoryModuleCache, ModuleStore},
 };
 use sdml_parse::load::FsModuleLoader;
-use sdml_rdf::generate::module_to_graph;
+use sdml_rdf::write::module_to_graph;
 use std::io::Cursor;
 
 fn print_graph(graph: &Graph) {
@@ -21,7 +21,7 @@ fn print_graph(graph: &Graph) {
 
 #[test]
 fn test_parse_empty_module() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(b"module foo <http://example.org/v/2#> is end"),
@@ -34,7 +34,7 @@ fn test_parse_empty_module() {
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let result = module_to_graph(module.unwrap(), &cache);
+    let result = module_to_graph(module.unwrap(), &cache, &Default::default());
     assert!(result.is_ok());
 
     let graph = result.unwrap();
@@ -43,7 +43,7 @@ fn test_parse_empty_module() {
 
 #[test]
 fn test_parse_module_with_version() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(b"module foo <http://example.org/v/2#> version \"v2\" <http://example.org/v/2024-10-4#> is end"),
@@ -56,7 +56,7 @@ fn test_parse_module_with_version() {
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let result = module_to_graph(module.unwrap(), &cache);
+    let result = module_to_graph(module.unwrap(), &cache, &Default::default());
     assert!(result.is_ok());
 
     let graph = result.unwrap();
@@ -65,7 +65,7 @@ fn test_parse_module_with_version() {
 
 #[test]
 fn test_parse_module_with_imports() {
-    let mut cache = InMemoryModuleCache::default().with_stdlib();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(
@@ -88,7 +88,7 @@ end",
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let result = module_to_graph(module.unwrap(), &cache);
+    let result = module_to_graph(module.unwrap(), &cache, &Default::default());
     assert!(result.is_ok());
 
     let graph = result.unwrap();
@@ -97,7 +97,7 @@ end",
 
 #[test]
 fn test_parse_module_with_annotations() {
-    let mut cache = InMemoryModuleCache::default().with_stdlib();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(
@@ -115,7 +115,7 @@ end",
     let module = cache.get(&module_name.unwrap());
     assert!(module.is_some());
 
-    let result = module_to_graph(module.unwrap(), &cache);
+    let result = module_to_graph(module.unwrap(), &cache, &Default::default());
     assert!(result.is_ok());
 
     let graph = result.unwrap();

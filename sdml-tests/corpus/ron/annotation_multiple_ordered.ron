@@ -1,0 +1,141 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/annotation_multiple_ordered.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 216,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 41,
+                end: 63,
+            },
+        ),
+        value: "corpus_test_annotation",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/annotation_multiple_ordered.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [
+        Property(
+            AnnotationProperty {
+                span: Some(
+                    Span {
+                        start: 70,
+                        end: 209,
+                    },
+                ),
+                name_reference: QualifiedIdentifier(
+                    QualifiedIdentifier {
+                        span: Some(
+                            Span {
+                                start: 71,
+                                end: 81,
+                            },
+                        ),
+                        module: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 71,
+                                    end: 73,
+                                },
+                            ),
+                            value: "dc",
+                        },
+                        member: Identifier {
+                            span: Some(
+                                Span {
+                                    start: 74,
+                                    end: 81,
+                                },
+                            ),
+                            value: "seeAlso",
+                        },
+                    },
+                ),
+                value: Sequence(
+                    SequenceOfValues {
+                        span: Some(
+                            Span {
+                                start: 84,
+                                end: 209,
+                            },
+                        ),
+                        ordering: Some(
+                            Ordered,
+                        ),
+                        uniqueness: None,
+                        values: [
+                            Simple(
+                                IriReference(
+                                    Url {
+                                        scheme: "https",
+                                        cannot_be_a_base: false,
+                                        username: "",
+                                        password: None,
+                                        host: Some(
+                                            Domain(
+                                                "www.dublincore.org",
+                                            ),
+                                        ),
+                                        port: None,
+                                        path: "/",
+                                        query: None,
+                                        fragment: None,
+                                    },
+                                ),
+                            ),
+                            Simple(
+                                IriReference(
+                                    Url {
+                                        scheme: "https",
+                                        cannot_be_a_base: false,
+                                        username: "",
+                                        password: None,
+                                        host: Some(
+                                            Domain(
+                                                "www.dublincore.org",
+                                            ),
+                                        ),
+                                        port: None,
+                                        path: "/specifications/dublin-core/dcmi-terms/",
+                                        query: None,
+                                        fragment: None,
+                                    },
+                                ),
+                            ),
+                        ],
+                    },
+                ),
+            },
+        ),
+    ],
+    definitions: {},
+}

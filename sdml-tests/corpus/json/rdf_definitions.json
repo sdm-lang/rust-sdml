@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://www.w3.org/2000/01/exrdf-schema#",
+  "base": "http://www.w3.org/2000/01/exrdf-schema#",
   "definitions": [
     {
       "__type": "definition",

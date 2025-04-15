@@ -1,6 +1,6 @@
 ;;; Constraint, formal less than
 
-module Example is
+module corpus_test_constraint is
 
   structure Outer is
 

@@ -1,6 +1,6 @@
 ;;; Event, Empty
 
-module campaign is
+module corpus_test_event is
 
   event NameChanged
 

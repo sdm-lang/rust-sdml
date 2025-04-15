@@ -15,17 +15,23 @@ all-features = true
 rustdoc-args = ["--html-in-header", "doc-src/header.html"]
 
 [features]
-default = ["serde", "terms"]
+default = ["repr-write", "serde", "stdlib", "stdlib-ext-config", "terms", "tree-sitter"]
+repr-write = []
 serde = ["dep:serde"]
+stdlib = []
+stdlib-ext-config = ["dep:serde_json"]
 terms = ["serde", "dep:serde_json", "dep:serde_regex"]
 tree-sitter = ["dep:tree-sitter"]
 
 [dependencies]
+base64 = "0.22.1"
 codespan-reporting = "0.11.1"
+const_format = "0.2.34"
 convert_case = "0.6"
 language-tags = { version = "0.3.2", features = ["serde"] }
 lazy_static = "1.5"
 ordered-float = { version = "4.5", features = ["serde"] }
+paste = "1.0.15"
 regex = "1.11.0"
 rust_decimal = { version = "1.36.0", features = ["serde"] }
 sdml-errors = { version = "0.4.0", path = "../sdml-errors" }
@@ -36,6 +42,7 @@ tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tree-sitter = { version = "0.24.4", optional = true }
 url = { version = "2.5", features = ["serde"] }
+xdirs = "0.1.1"
 
 [dev-dependencies]
 pretty_assertions = "1.4"

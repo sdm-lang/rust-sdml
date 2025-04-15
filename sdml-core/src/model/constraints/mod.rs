@@ -229,12 +229,11 @@ impl ConstraintBody {
 mod formal;
 pub use formal::{
     AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConnectiveOperator, ConstraintSentence,
-    EnvironmentDef, EnvironmentDefBody, Equation, FormalConstraint, FunctionCardinality,
-    FunctionComposition, FunctionDef, FunctionParameter, FunctionSignature, FunctionType,
-    FunctionTypeReference, FunctionalTerm, InequalityRelation, Inequation, MappingVariable,
-    NamedVariables, PredicateSequenceMember, PredicateValue, QuantifiedSentence,
-    QuantifiedVariable, QuantifiedVariableBinding, Quantifier, SequenceBuilder,
-    SequenceOfPredicateValues, SimpleSentence, Subject, Term, UnaryBooleanSentence, Variables,
+    Equation, FormalConstraint, FunctionBody, FunctionCardinality, FunctionComposition,
+    FunctionDef, FunctionParameter, FunctionSignature, FunctionType, FunctionTypeReference,
+    FunctionalTerm, InequalityRelation, Inequation, PredicateSequenceMember, PredicateValue,
+    QuantifiedSentence, QuantifiedVariable, QuantifiedVariableBinding, Quantifier, SequenceBuilder,
+    SequenceOfPredicateValues, SimpleSentence, Subject, Term, UnaryBooleanSentence, Variable,
 };
 
 mod informal;

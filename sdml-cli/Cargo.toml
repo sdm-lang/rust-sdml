@@ -4,7 +4,7 @@ description = "Rust CLI for Simple Domain Modeling Language (SDML)"
 version = "0.4.0"
 authors = ["Simon Johnston <johnstonskj@gmail.com>"]
 repository = "https://github.com/johnstonskj/rust-sdml.git"
-license-file = "../LICENSE"
+license = "Apache-2.0"
 readme = "README.md"
 edition = "2021"
 publish = true
@@ -27,8 +27,9 @@ sdml-errors = { version = "0.4.0", features = ["templates"], path = "../sdml-err
 sdml-generate = { version = "0.4.0", path = "../sdml-generate" }
 sdml-json = { version = "0.4.0", path = "../sdml-json" }
 sdml-parse = { version = "0.4.0", path = "../sdml-parse" }
+sdml-rdf = { version = "0.4.0", path = "../sdml-rdf" }
 sdml-tera = { version = "0.4.0", path = "../sdml-tera" }
 sexpr-out = "0.1.0"
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-tree-sitter-sdml = "0.4.1"
+tree-sitter-sdml = { version = "0.4.6", path = "../../tree-sitter-sdml" }

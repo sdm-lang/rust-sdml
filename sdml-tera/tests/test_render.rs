@@ -7,7 +7,7 @@ use std::io::Cursor;
 
 #[test]
 fn test_render_very_empty_module() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name =
         loader.load_from_reader(&mut Cursor::new(b"module foo is end"), &mut cache, false);
@@ -27,7 +27,7 @@ fn test_render_very_empty_module() {
 
 #[test]
 fn test_render_empty_module() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(b"module foo <http://example.org/v/2#> is end"),
@@ -50,7 +50,7 @@ fn test_render_empty_module() {
 
 #[test]
 fn test_render_module_with_version() {
-    let mut cache = InMemoryModuleCache::default();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(b"module foo <http://example.org/v/2#> version \"v2\" <http://example.org/v/2024-10-4#> is end"),
@@ -73,7 +73,7 @@ fn test_render_module_with_version() {
 
 #[test]
 fn test_render_module_with_imports() {
-    let mut cache = InMemoryModuleCache::default().with_stdlib();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(
@@ -101,7 +101,7 @@ end",
 
 #[test]
 fn test_render_module_with_annotations() {
-    let mut cache = InMemoryModuleCache::default().with_stdlib();
+    let mut cache = InMemoryModuleCache::with_stdlib();
     let mut loader = FsModuleLoader::default();
     let module_name = loader.load_from_reader(
         &mut Cursor::new(

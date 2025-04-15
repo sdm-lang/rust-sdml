@@ -1,6 +1,9 @@
 use crate::load::ModuleLoader;
 use crate::model::check::Validate;
-use crate::model::constraints::ConstraintSentence;
+use crate::model::constraints::{
+    BooleanSentence, ConstraintSentence, FunctionComposition, FunctionalTerm, PredicateValue,
+    QuantifiedSentence, SequenceBuilder, SimpleSentence, Term,
+};
 use crate::model::identifiers::{Identifier, IdentifierReference};
 use crate::model::members::{CardinalityRange, MappingType, Ordering, Uniqueness};
 use crate::model::modules::Module;
@@ -22,7 +25,7 @@ pub struct FunctionDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     signature: FunctionSignature,
-    body: ConstraintSentence,
+    body: FunctionBody,
 }
 
 #[derive(Clone, Debug)]
@@ -30,6 +33,7 @@ pub struct FunctionDef {
 pub struct FunctionSignature {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
+    name: Identifier,
     parameters: Vec<FunctionParameter>,
     target_type: FunctionType,
 }
@@ -75,12 +79,19 @@ pub enum FunctionTypeReference {
     MappingType(MappingType),
 }
 
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum FunctionBody {
+    Sentence(ConstraintSentence),
+    Term(Term),
+}
+
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Constraints ❱ FunctionDef
 // ------------------------------------------------------------------------------------------------
 
 impl HasBody for FunctionDef {
-    type Body = ConstraintSentence;
+    type Body = FunctionBody;
 
     fn body(&self) -> &Self::Body {
         &self.body
@@ -120,17 +131,24 @@ impl FunctionDef {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub const fn new(signature: FunctionSignature, body: ConstraintSentence) -> Self {
+    pub fn new<T>(signature: FunctionSignature, body: T) -> Self
+    where
+        T: Into<FunctionBody>,
+    {
         Self {
             span: None,
             signature,
-            body,
+            body: body.into(),
         }
     }
 
     // --------------------------------------------------------------------------------------------
     // Fields
     // --------------------------------------------------------------------------------------------
+
+    pub fn name(&self) -> &Identifier {
+        self.signature.name()
+    }
 
     pub const fn signature(&self) -> &FunctionSignature {
         &self.signature
@@ -144,6 +162,16 @@ impl FunctionDef {
 // ------------------------------------------------------------------------------------------------
 // Implementations ❱ Constraints ❱ FunctionSignature
 // ------------------------------------------------------------------------------------------------
+
+impl HasName for FunctionSignature {
+    fn name(&self) -> &Identifier {
+        &self.name
+    }
+
+    fn set_name(&mut self, name: Identifier) {
+        self.name = name;
+    }
+}
 
 impl HasSourceSpan for FunctionSignature {
     fn with_source_span(self, span: Span) -> Self {
@@ -170,12 +198,30 @@ impl FunctionSignature {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    pub fn new(parameters: Vec<FunctionParameter>, target_type: FunctionType) -> Self {
+    pub fn new(
+        name: Identifier,
+        parameters: Vec<FunctionParameter>,
+        target_type: FunctionType,
+    ) -> Self {
+        Self::named(name, target_type).with_parameters(parameters)
+    }
+
+    pub fn named(name: Identifier, target_type: FunctionType) -> Self {
         Self {
             span: Default::default(),
-            parameters,
+            name,
+            parameters: Default::default(),
             target_type,
         }
+    }
+
+    pub fn with_parameters<I>(self, parameters: I) -> Self
+    where
+        I: IntoIterator<Item = FunctionParameter>,
+    {
+        let mut self_mut = self;
+        self_mut.extend_parameters(parameters);
+        self_mut
     }
 
     // --------------------------------------------------------------------------------------------
@@ -574,9 +620,7 @@ impl FunctionCardinality {
 
     #[inline(always)]
     pub fn is_default(&self) -> bool {
-        self.ordering.is_none()
-            && self.uniqueness.is_none()
-            && self.range.is_none()
+        self.ordering.is_none() && self.uniqueness.is_none() && self.range.is_none()
     }
 
     pub fn is_wildcard(&self) -> bool {
@@ -645,5 +689,93 @@ impl FunctionTypeReference {
 
     pub const fn is_wildcard(&self) -> bool {
         matches!(self, Self::Wildcard)
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Constraints ❱ FunctionBody
+// ------------------------------------------------------------------------------------------------
+
+impl From<ConstraintSentence> for FunctionBody {
+    fn from(value: ConstraintSentence) -> FunctionBody {
+        FunctionBody::Sentence(value)
+    }
+}
+
+impl From<SimpleSentence> for FunctionBody {
+    fn from(value: SimpleSentence) -> FunctionBody {
+        FunctionBody::Sentence(value.into())
+    }
+}
+
+impl From<BooleanSentence> for FunctionBody {
+    fn from(value: BooleanSentence) -> FunctionBody {
+        FunctionBody::Sentence(value.into())
+    }
+}
+
+impl From<QuantifiedSentence> for FunctionBody {
+    fn from(value: QuantifiedSentence) -> FunctionBody {
+        FunctionBody::Sentence(value.into())
+    }
+}
+
+impl From<Term> for FunctionBody {
+    fn from(value: Term) -> FunctionBody {
+        FunctionBody::Term(value)
+    }
+}
+
+impl From<SequenceBuilder> for FunctionBody {
+    fn from(value: SequenceBuilder) -> FunctionBody {
+        FunctionBody::Term(Box::new(value).into())
+    }
+}
+
+impl From<FunctionalTerm> for FunctionBody {
+    fn from(value: FunctionalTerm) -> FunctionBody {
+        FunctionBody::Term(Box::new(value).into())
+    }
+}
+
+impl From<FunctionComposition> for FunctionBody {
+    fn from(value: FunctionComposition) -> FunctionBody {
+        FunctionBody::Term(value.into())
+    }
+}
+
+impl From<IdentifierReference> for FunctionBody {
+    fn from(value: IdentifierReference) -> FunctionBody {
+        FunctionBody::Term(value.into())
+    }
+}
+
+impl From<PredicateValue> for FunctionBody {
+    fn from(value: PredicateValue) -> FunctionBody {
+        FunctionBody::Term(value.into())
+    }
+}
+
+impl FunctionBody {
+    pub fn is_sentence(&self) -> bool {
+        matches!(self, Self::Sentence(_))
+    }
+
+    pub fn as_sentence(&self) -> Option<&ConstraintSentence> {
+        match &self {
+            Self::Sentence(value) => Some(value),
+            _ => None,
+        }
+    }
+
+    pub fn is_term(&self) -> bool {
+        matches!(self, Self::Term(_))
+    }
+
+    pub fn as_term(&self) -> Option<&Term> {
+        match &self {
+            Self::Term(value) => Some(value),
+            _ => None,
+        }
     }
 }

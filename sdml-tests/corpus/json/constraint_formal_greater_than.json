@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_greater_than.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_greater_than.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -74,8 +74,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 168,
-                    "start": 82
+                    "end": 183,
+                    "start": 97
                   },
                   "type": {
                     "__type": "type_reference",
@@ -105,8 +105,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 175,
-          "start": 58
+          "end": 190,
+          "start": 73
         }
       }
     }
@@ -114,12 +114,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_greater_than.sdm",
   "span": {
     "__type": "span",
-    "end": 182,
+    "end": 197,
     "start": 0
   }
 }

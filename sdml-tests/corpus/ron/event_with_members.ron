@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 145,
+            end: 154,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 32,
-                end: 40,
+                end: 49,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_event",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 53,
-                    end: 64,
+                    start: 62,
+                    end: 73,
                 },
             ),
             value: "NameChanged",
@@ -57,15 +57,15 @@ Module {
             EventDef {
                 span: Some(
                     Span {
-                        start: 47,
-                        end: 139,
+                        start: 56,
+                        end: 148,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 53,
-                            end: 64,
+                            start: 62,
+                            end: 73,
                         },
                     ),
                     value: "NameChanged",
@@ -74,8 +74,8 @@ Module {
                     EventBody {
                         span: Some(
                             Span {
-                                start: 65,
-                                end: 139,
+                                start: 74,
+                                end: 148,
                             },
                         ),
                         annotations: [],
@@ -85,8 +85,8 @@ Module {
                                 Identifier {
                                     span: Some(
                                         Span {
-                                            start: 79,
-                                            end: 87,
+                                            start: 88,
+                                            end: 96,
                                         },
                                     ),
                                     value: "Campaign",
@@ -98,8 +98,8 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 115,
-                                        end: 123,
+                                        start: 124,
+                                        end: 132,
                                     },
                                 ),
                                 value: "new_name",
@@ -109,15 +109,15 @@ Module {
                                     MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 115,
-                                                end: 133,
+                                                start: 124,
+                                                end: 142,
                                             },
                                         ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 115,
-                                                    end: 123,
+                                                    start: 124,
+                                                    end: 132,
                                                 },
                                             ),
                                             value: "new_name",
@@ -139,8 +139,8 @@ Module {
                                                 QualifiedIdentifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 127,
-                                                            end: 133,
+                                                            start: 136,
+                                                            end: 142,
                                                         },
                                                     ),
                                                     module: Identifier {
@@ -150,8 +150,8 @@ Module {
                                                     member: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 127,
-                                                                end: 133,
+                                                                start: 136,
+                                                                end: 142,
                                                             },
                                                         ),
                                                         value: "string",
@@ -166,8 +166,8 @@ Module {
                             Identifier {
                                 span: Some(
                                     Span {
-                                        start: 92,
-                                        end: 100,
+                                        start: 101,
+                                        end: 109,
                                     },
                                 ),
                                 value: "old_name",
@@ -177,15 +177,15 @@ Module {
                                     MemberDef {
                                         span: Some(
                                             Span {
-                                                start: 92,
-                                                end: 110,
+                                                start: 101,
+                                                end: 119,
                                             },
                                         ),
                                         name: Identifier {
                                             span: Some(
                                                 Span {
-                                                    start: 92,
-                                                    end: 100,
+                                                    start: 101,
+                                                    end: 109,
                                                 },
                                             ),
                                             value: "old_name",
@@ -207,8 +207,8 @@ Module {
                                                 QualifiedIdentifier {
                                                     span: Some(
                                                         Span {
-                                                            start: 104,
-                                                            end: 110,
+                                                            start: 113,
+                                                            end: 119,
                                                         },
                                                     ),
                                                     module: Identifier {
@@ -218,8 +218,8 @@ Module {
                                                     member: Identifier {
                                                         span: Some(
                                                             Span {
-                                                                start: 104,
-                                                                end: 110,
+                                                                start: 113,
+                                                                end: 119,
                                                             },
                                                         ),
                                                         value: "string",

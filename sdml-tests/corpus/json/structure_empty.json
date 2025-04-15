@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/structure_empty.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/structure_empty.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -12,8 +12,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 62,
-          "start": 44
+          "end": 75,
+          "start": 57
         }
       }
     }
@@ -21,12 +21,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "campaign"
+    "value": "corpus_test_structure"
   },
   "source_file": "MANIFEST_PATH/corpus/structure_empty.sdm",
   "span": {
     "__type": "span",
-    "end": 68,
+    "end": 81,
     "start": 0
   }
 }

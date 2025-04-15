@@ -1,4 +1,4 @@
-module example is
+module corpus_test_structure is
 
   structure Duration is
     a -> boolean

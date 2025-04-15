@@ -1,0 +1,114 @@
+{
+  "modules": {
+    "::io": [
+      {
+        "name": "sdml",
+        "alias": "sdml",
+        "builtin": true,
+        "datatypes": ["binary", "iri", "unsigned"]
+      }
+    ],
+    "::io::sdml": [],
+    "::org::gs1": [
+      { "name": "gln" },
+      { "name": "gtin" }
+    ],
+    "::org::iso": [
+      { "name": "iso_17442" },
+      { "name": "iso_3166" },
+      { "name": "iso_4217" },
+      { "name": "iso_639_1" },
+      { "name": "iso_9362" }
+    ],
+    "::org::purl::dc": [
+      {
+        "name": "elements",
+        "alias": "dc",
+        "builtin": true
+      },
+      {
+        "name": "terms",
+        "alias": "dcterms",
+        "builtin": true
+      },
+      {
+        "name": "dcam",
+        "alias": "dcam"
+      },
+      {
+        "name": "dcmitype",
+        "alias": "dcmitype"
+      }
+    ],
+    "::org::w3": [
+      {
+        "name": "owl",
+        "alias": "owl",
+        "builtin": true,
+        "datatypes": ["rational", "real"]
+      },
+      {
+        "name": "rdf",
+        "alias": "rdf",
+        "builtin": true
+      },
+      {
+        "name": "rdfs",
+        "alias": "rdfs",
+        "builtin": true
+      },
+      {
+        "name": "skos",
+        "alias": "skos",
+        "builtin": true
+      },
+      {
+        "name": "xsd",
+        "alias": "xsd",
+        "builtin": true,
+        "datatypes": [
+            "anyURI",
+            "base64Binary",
+            "boolean",
+            "date",
+            "dateTime",
+            "decimal",
+            "double",
+            "duration",
+            "float",
+            "gDay",
+            "gMonth",
+            "gMonthDay",
+            "gYearMonth",
+            "gYear",
+            "hexBinary",
+            "binary",
+            "string",
+            "time",
+            "dateTimeStamp",
+            "dayTimeDuration",
+            "yearMonthDuration",
+            "integer",
+            "long",
+            "int",
+            "short",
+            "byte",
+            "nonNegativeInteger",
+            "positiveInteger",
+            "unsignedLong",
+            "unsignedInt",
+            "unsigned",
+            "unsignedShort",
+            "unsignedByte",
+            "nonPositiveInteger",
+            "negativeInteger",
+            "normalizedString",
+            "token",
+            "language"
+        ]
+      }
+    ]
+  },
+  "rdf_definition_allow": [ "example_rdf_defs" ],
+  "typeclass_definition_allow": [ "example_typeclass_defs" ]
+}

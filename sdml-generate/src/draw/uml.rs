@@ -8,8 +8,8 @@ use crate::exec::{exec_with_temp_input, CommandArg};
 use sdml_core::error::Error;
 use sdml_core::model::annotations::AnnotationProperty;
 use sdml_core::model::definitions::{
-    DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef, StructureDef, TypeVariant,
-    UnionDef, ValueVariant,
+    DatatypeDef, DimensionDef, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef, SourceEntity,
+    StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
 use sdml_core::model::identifiers::{Identifier, IdentifierReference};
 use sdml_core::model::members::{
@@ -21,7 +21,7 @@ use sdml_core::model::walk::{walk_module_simple, SimpleModuleVisitor};
 use sdml_core::model::{HasName, HasNameReference, HasOptionalBody, References};
 use sdml_core::store::ModuleStore;
 use sdml_core::syntax::{KW_ORDERING_ORDERED, KW_UNIQUENESS_UNIQUE};
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use tracing::{debug, trace};
@@ -218,7 +218,7 @@ package "{name}" as {} <<module>> {{
             let restriction = format!("  {} --|> {}\n", make_id(name), make_id(base_type));
             self.refs = Some(
                 self.refs
-                    .clone()
+                    .as_ref()
                     .map(|r| format!("{r}{restriction}"))
                     .unwrap_or(restriction),
             );
@@ -246,7 +246,7 @@ package "{name}" as {} <<module>> {{
         Ok(())
     }
 
-    fn entity_start(&mut self, entity: &EntityDef) -> Result<bool, Error> {
+    fn dimension_start(&mut self, entity: &DimensionDef) -> Result<bool, Error> {
         let name = entity.name();
         if self
             .options
@@ -258,6 +258,34 @@ package "{name}" as {} <<module>> {{
                     "class"
                 } else {
                     "abstract"
+                },
+                name,
+                "dimension",
+            ));
+            self.assoc_src = Some(name.to_string());
+        }
+        Self::INCLUDE_NESTED
+    }
+
+    fn dimension_end(&mut self, entity: &DimensionDef) -> Result<(), Error> {
+        self.buffer
+            .push_str(&end_type(entity.name(), entity.has_body()));
+        self.assoc_src = None;
+        Ok(())
+    }
+
+    fn entity_start(&mut self, entity: &EntityDef) -> Result<bool, Error> {
+        let name = entity.name();
+        if self
+            .options
+            .content_filter
+            .draw_definition_named(DefinitionKind::Entity, name)
+        {
+            self.buffer.push_str(&start_type_with_sterotype(
+                if entity.has_body() {
+                    "class"
+                } else {
+                    "abstrqact"
                 },
                 name,
                 "entity",
@@ -301,18 +329,32 @@ package "{name}" as {} <<module>> {{
             .content_filter
             .draw_definition_named(DefinitionKind::Enum, name)
         {
-            let source = event.event_source();
-            self.buffer
-                .push_str(&start_type_with_sterotype("class", name, "event"));
+            self.buffer.push_str(&start_type_with_sterotype(
+                if event.has_body() {
+                    "class"
+                } else {
+                    "abstract"
+                },
+                name,
+                "event",
+            ));
             self.assoc_src = Some(name.to_string());
-            let reference = format!("  {} ..> {}: <<source>>\n", make_id(name), make_id(source));
-            self.refs = Some(
-                self.refs
-                    .clone()
-                    .map(|r| format!("{r}{reference}"))
-                    .unwrap_or(reference),
-            );
         }
+        Self::INCLUDE_NESTED
+    }
+
+    fn source_entity_start(&mut self, thing: &SourceEntity) -> Result<bool, Error> {
+        let reference = format!(
+            "  {} ..> {}: <<source>>\n",
+            &self.assoc_src.as_ref().unwrap(),
+            make_id(thing.target_entity())
+        );
+        self.refs = Some(
+            self.refs
+                .clone()
+                .map(|r| format!("{r}{reference}"))
+                .unwrap_or_default(),
+        );
         Self::INCLUDE_NESTED
     }
 
@@ -565,11 +607,11 @@ fn make_imports(module: &Module) -> (String, String) {
                 make_id(*imported),
             ));
         }
-        let mut names = HashSet::default();
+        let mut names = BTreeSet::default();
         module.referenced_types(&mut names);
         for imported in names
             .iter()
-            .filter_map(|rt| rt.as_qualified_identifier())
+            .filter_map(|rt: &&IdentifierReference| rt.as_qualified_identifier())
             .filter(|qi| qi.module() == other)
         {
             imports_top.push_str(&format!(

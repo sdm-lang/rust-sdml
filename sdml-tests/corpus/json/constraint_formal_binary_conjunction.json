@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_conjunction.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_binary_conjunction.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -112,8 +112,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 193,
-                    "start": 88
+                    "end": 208,
+                    "start": 103
                   },
                   "type": {
                     "__type": "type_reference",
@@ -238,8 +238,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 308,
-                    "start": 199
+                    "end": 323,
+                    "start": 214
                   },
                   "type": {
                     "__type": "type_reference",
@@ -269,8 +269,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 315,
-          "start": 64
+          "end": 330,
+          "start": 79
         }
       }
     }
@@ -278,12 +278,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_binary_conjunction.sdm",
   "span": {
     "__type": "span",
-    "end": 322,
+    "end": 337,
     "start": 0
   }
 }

@@ -1,0 +1,5 @@
+module gs1 is
+
+  datatype GlobalTradeItemNumber <- string is end
+
+end

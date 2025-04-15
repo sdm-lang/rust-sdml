@@ -239,7 +239,7 @@ impl ModuleLoader for FsModuleLoader {
         recursive: bool,
     ) -> Result<Identifier, Error> {
         trace_entry!("ModuleLoader", "load" => "{}", name);
-        if stdlib::library_module(name).is_some() {
+        if stdlib::get_library_module_implementation(name).is_some() {
             Ok(name.clone())
         } else {
             let file = match self.resolver.name_to_path(name, from) {

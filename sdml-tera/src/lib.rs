@@ -195,7 +195,7 @@ Error: A template error occurred; source:
 
 use sdml_core::model::modules::Module;
 use sdml_errors::Error;
-use sdml_json::generate::{module_list_to_value, module_to_value, JsonFlavor};
+use sdml_json::write::{module_list_to_value, module_to_value, ValueOptions};
 use std::{fs::OpenOptions, io::Write, path::Path};
 use tera::{Context, Tera};
 
@@ -398,7 +398,12 @@ pub fn render_modules_to_file<P: AsRef<Path>>(
 // ------------------------------------------------------------------------------------------------
 
 fn make_context_from(module: &Module, context: Option<Context>) -> Context {
-    let value = module_to_value(module, JsonFlavor::Context);
+    let value = module_to_value(
+        module,
+        ValueOptions::default()
+            .emit_context_only(true)
+            .with_spans_included(true),
+    );
 
     let mut context = context.unwrap_or_default();
     context.insert("module", &value);
@@ -406,7 +411,12 @@ fn make_context_from(module: &Module, context: Option<Context>) -> Context {
 }
 
 fn make_context_from_all(modules: Vec<&Module>, context: Option<Context>) -> Context {
-    let values = module_list_to_value(&modules, JsonFlavor::Context);
+    let values = module_list_to_value(
+        &modules,
+        ValueOptions::default()
+            .emit_context_only(true)
+            .with_spans_included(true),
+    );
 
     let mut context = context.unwrap_or_default();
     context.insert("modules", &values);

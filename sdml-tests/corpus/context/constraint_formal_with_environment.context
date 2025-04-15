@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_with_environment.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_with_environment.sdm/",
   "definitions": [
     {
       "__type": "structure_def",
@@ -62,6 +62,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "example",
+  "name": "corpus_test_constraint",
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_with_environment.sdm"
 }

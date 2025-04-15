@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_less_than.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_less_than.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -74,8 +74,8 @@
                   },
                   "span": {
                     "__type": "span",
-                    "end": 165,
-                    "start": 79
+                    "end": 180,
+                    "start": 94
                   },
                   "type": {
                     "__type": "type_reference",
@@ -105,8 +105,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 172,
-          "start": 55
+          "end": 187,
+          "start": 70
         }
       }
     }
@@ -114,12 +114,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_less_than.sdm",
   "span": {
     "__type": "span",
-    "end": 179,
+    "end": 194,
     "start": 0
   }
 }

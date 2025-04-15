@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 68,
+            end: 81,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 29,
-                end: 37,
+                end: 50,
             },
         ),
-        value: "campaign",
+        value: "corpus_test_structure",
     },
     base_uri: Some(
         HeaderValue {
@@ -48,8 +48,8 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 54,
-                    end: 62,
+                    start: 67,
+                    end: 75,
                 },
             ),
             value: "Duration",
@@ -57,15 +57,15 @@ Module {
             StructureDef {
                 span: Some(
                     Span {
-                        start: 44,
-                        end: 62,
+                        start: 57,
+                        end: 75,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 54,
-                            end: 62,
+                            start: 67,
+                            end: 75,
                         },
                     ),
                     value: "Duration",

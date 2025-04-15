@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/type_class_methods.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/type_class_methods.sdm/",
   "definitions": [
     {
       "__type": "definition",

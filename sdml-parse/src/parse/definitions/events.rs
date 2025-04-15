@@ -10,7 +10,8 @@ use sdml_core::model::definitions::{EventBody, EventDef};
 use sdml_core::model::{HasOptionalBody, HasSourceSpan};
 use sdml_core::syntax::{
     FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,
-    NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER, NODE_KIND_SOURCE_ENTITY,
+    NODE_KIND_EVENT_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
+    NODE_KIND_SOURCE_ENTITY,
 };
 use tree_sitter::TreeCursor;
 
@@ -37,8 +38,13 @@ pub(crate) fn parse_event_def<'a>(
     context.start_type(&name)?;
     let mut event = EventDef::new(name).with_source_span(node.into());
 
-    if let Some(child) = node.child_by_field_name(FIELD_NAME_BODY) {
-        context.check_if_error(&child, RULE_NAME)?;
+    if let Some(child) = optional_node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_BODY,
+        NODE_KIND_EVENT_BODY
+    ) {
         let body = parse_event_body(context, &mut child.walk())?;
         event.set_body(body);
     }
@@ -66,7 +72,7 @@ fn parse_event_body<'a>(
     let mut body = EventBody::new(event_source).with_source_span(cursor.node().into());
 
     for node in node.named_children(cursor) {
-        context.check_if_error(&node, RULE_NAME)?;
+        check_node!(context, RULE_NAME, &node);
         match node.kind() {
             NODE_KIND_ANNOTATION => {
                 body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
@@ -92,7 +98,3 @@ fn parse_event_body<'a>(
 
     Ok(body)
 }
-
-// ------------------------------------------------------------------------------------------------
-// Modules
-// ------------------------------------------------------------------------------------------------

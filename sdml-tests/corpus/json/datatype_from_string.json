@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/datatype_from_string.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/datatype_from_string.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -14,8 +14,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 50,
-          "start": 21
+          "end": 63,
+          "start": 34
         }
       }
     }
@@ -23,12 +23,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "example"
+    "value": "corpus_test_datatype"
   },
   "source_file": "MANIFEST_PATH/corpus/datatype_from_string.sdm",
   "span": {
     "__type": "span",
-    "end": 56,
+    "end": 69,
     "start": 0
   }
 }

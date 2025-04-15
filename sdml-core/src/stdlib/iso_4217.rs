@@ -2,11 +2,10 @@
 This Rust module contains the SDML model of the SDML library module `iso_3166` for ISO-4217.
 */
 
-use crate::model::annotations::HasAnnotations;
+use crate::model::annotations::{AnnotationOnlyBody, HasAnnotations};
+use crate::model::definitions::UnionBody;
 use crate::model::modules::Module;
-use crate::model::HasBody;
-use crate::stdlib::{dc_terms, rdfs, skos, xsd};
-use url::Url;
+use std::str::FromStr;
 
 // ------------------------------------------------------------------------------------------------
 // Public Macros
@@ -19,7 +18,7 @@ use url::Url;
 pub const MODULE_NAME: &str = "iso_4217";
 library_module_url! { "iso", "4217-2020" }
 
-pub const MODULE_SRC: &str = include_str!("iso_4217.sdml");
+pub const MODULE_SRC: &str = include_str!("org/iso/iso_4217.sdml");
 
 pub const CURRENCY_CODE_ALPHA: &str = "CurrencyCodeAlpha";
 pub const CURRENCY_CODE_NUMERIC: &str = "CurrencyCodeNumeric";
@@ -29,102 +28,57 @@ pub const CURRENCY_CODE: &str = "CurrencyCode";
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn module() -> Module {
-    let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(Url::parse(MODULE_URL).unwrap());
+module_function!(|| {
+    let module_uri: url::Url = url::Url::parse(MODULE_URL).unwrap();
 
-    module.body_mut().add_to_imports(import!(
-        id!(dc_terms::MODULE_NAME),
-        id!(rdfs::MODULE_NAME),
-        id!(skos::MODULE_NAME),
-        id!(xsd::MODULE_NAME)
-    ));
-
-    module.body_mut().extend_annotations(vec![
-        prop!(
-            skos::MODULE_NAME, skos::PREF_LABEL;
-            simple!(lstr!("ISO 4217:2015"))
-        )
-        .into(),
-        //prop!(
-        //    dc_terms::MODULE_NAME, dc_terms::PROP_ISSUED_NAME;
-        //    simple!(lstr!("2015-08-01"))
-        //).into(),
-        //prop!(
-        //    dc_terms::MODULE_NAME, dc_terms::PROP_HAS_VERSION_NAME;
-        //    simple!(8_u64)
-        //).into(),
-        prop!(
-            dc_terms::MODULE_NAME, dc_terms::DESCRIPTION;
-            simple!(lstr!("Codes for the representation of currencies"@"en"))
-        )
-        .into(),
-        prop!(
-            dc_terms::MODULE_NAME, dc_terms::DESCRIPTION;
-            simple!(lstr!("Codes pour la représentation des monnaies"@"fr"))
-        )
-        .into(),
-        prop!(
-            rdfs::MODULE_NAME, rdfs::SEE_ALSO;
-            simple!(Url::parse("https://www.iso.org/iso-4217-currency-codes.html").unwrap())
-        )
-        .into(),
-    ]);
-
-    module
-        .body_mut()
-        .extend_definitions(vec![
-            datatype!(CURRENCY_CODE_ALPHA => xsd::MODULE_NAME, xsd::STRING)
-                .with_body(
-                    vec![
-                        prop!(
-                            xsd::MODULE_NAME, xsd::PATTERN;
-                            simple!(lstr!("[A-Z]{3}"))
-                        )
-                        .into(),
-                        prop!(
-                            skos::MODULE_NAME, skos::PREF_LABEL;
-                            simple!(lstr!("alpha code"@"en"))
-                        )
-                        .into(),
-                        prop!(
-                            skos::MODULE_NAME, skos::PREF_LABEL;
-                            simple!(lstr!("code alpha"@"fr"))
-                        )
-                        .into(),
-                    ]
-                    .into(),
-                )
-                .into(),
-            datatype!(CURRENCY_CODE_NUMERIC => xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER)
-                .with_body(
-                    vec![
-                        prop!(
-                            xsd::MODULE_NAME, xsd::MIN_INCLUSIVE;
-                            tc!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER => 0_u64)
-                        )
-                        .into(),
-                        prop!(
-                            xsd::MODULE_NAME, xsd::MAX_INCLUSIVE;
-                            tc!(xsd::MODULE_NAME, xsd::NONNEGATIVE_INTEGER => 899_u64)
-                        )
-                        .into(),
-                        prop!(
-                            skos::MODULE_NAME, skos::PREF_LABEL;
-                            simple!(lstr!("numeric code"@"en"))
-                        )
-                        .into(),
-                        prop!(
-                            skos::MODULE_NAME, skos::PREF_LABEL;
-                            simple!(lstr!("code numérique"@"fr"))
-                        )
-                        .into(),
-                    ]
-                    .into(),
-                )
-                .into(),
-            union!(CURRENCY_CODE => CURRENCY_CODE_ALPHA, CURRENCY_CODE_NUMERIC).into(),
-        ])
-        .unwrap();
-
-    module
-}
+    module!(
+        id!(unchecked iso_4217), module_uri ; call |module: Module|
+        module.with_imports([import_statement!(
+            id!(unchecked dc_terms),
+            id!(unchecked rdfs),
+            id!(unchecked skos),
+            id!(unchecked xsd),
+        )])
+            .with_annotations([
+                 annotation!(id!(unchecked skos:prefLabel), rdf_str!("ISO 4217:2015"@en)),
+                 annotation!(id!(unchecked dc_terms:description), rdf_str!("Codes for the representation of currencies"@en)),
+                 annotation!(id!(unchecked dc_terms:description), rdf_str!("Codes pour la représentation des monnaies"@fr)),
+                annotation!(id!(unchecked rdfs:seeAlso), url!("https://www.iso.org/iso-4217-currency-codes.html")),
+            ])
+            .with_definitions([
+                // ---------------------------------------------------------------------------------
+                // Datatypes
+                // ---------------------------------------------------------------------------------
+                datatype!(
+                    id!(unchecked AlphaCode), idref!(unchecked xsd:string) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked iso_4217)),
+                        annotation!(id!(unchecked xsd:pattern), rdf_str!("[A-Z]{2}")),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("alpha code"@en)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("code alpha"@fr)),
+                    ])).into(),
+                datatype!(
+                    id!(unchecked NumericCode), idref!(unchecked xsd:nonNegativeInteger) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked iso_4217)),
+                        annotation!(id!(unchecked xsd:minInclusive), v!(id!(unchecked xsd:nonNegativeInteger), 0)),
+                        annotation!(id!(unchecked xsd:maxInclusive), v!(id!(unchecked xsd:nonNegativeInteger), 899)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("numeric code"@en)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("code numérique"@fr)),
+                    ])).into(),
+                union!(
+                    id!(unchecked CurrencyCode) ;
+                    call |body: UnionBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked iso_4217)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("currency code"@en)),
+                    ])
+                        .with_variants([
+                            unvar!(id!(unchecked AlphaCode)),
+                            unvar!(id!(unchecked NumericCode)),
+                        ])).into(),
+            ])
+    )
+});

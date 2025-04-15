@@ -1,6 +1,6 @@
 ;;; Enum, With Variants
 
-module campaign is
+module corpus_test_enum is
 
   enum NameKind of
     Internal

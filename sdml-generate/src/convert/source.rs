@@ -36,8 +36,8 @@ use sdml_core::error::Error;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
 use sdml_core::model::constraints::{Constraint, ConstraintBody};
 use sdml_core::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, HasMembers, HasVariants, PropertyDef,
-    RdfDef, StructureDef, TypeVariant, UnionDef, ValueVariant,
+    DatatypeDef, Definition, DimensionDef, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef,
+    StructureDef, TypeVariant, UnionDef, ValueVariant,
 };
 use sdml_core::model::identifiers::IdentifierReference;
 use sdml_core::model::members::{
@@ -297,6 +297,7 @@ impl SourceGenerator {
                 writer.write_all(EOL)?;
                 match &definition {
                     Definition::Datatype(v) => self.write_datatype(v, writer)?,
+                    Definition::Dimension(v) => self.write_dimension(v, writer)?,
                     Definition::Entity(v) => self.write_entity(v, writer)?,
                     Definition::Enum(v) => self.write_enum(v, writer)?,
                     Definition::Event(v) => self.write_event(v, writer)?,
@@ -333,6 +334,48 @@ impl SourceGenerator {
                         writer,
                         DEFINITION_ANNOTATION_INDENT,
                     )?;
+                }
+                writer.write_all(format!("{indentation}{}\n", keyword("end")).as_bytes())?;
+            } else {
+                writer.write_all(ELIPPSIS.as_bytes())?;
+            }
+        } else {
+            writer.write_all(EOL)?;
+        }
+
+        Ok(())
+    }
+
+    fn write_dimension(
+        &mut self,
+        defn: &DimensionDef,
+        writer: &mut dyn Write,
+    ) -> Result<(), Error> {
+        let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
+        writer.write_all(
+            format!(
+                "{indentation}{} {}",
+                keyword("dimension"),
+                type_name_def(defn.name())
+            )
+            .as_bytes(),
+        )?;
+
+        if let Some(body) = defn.body() {
+            if self.options.level.generate_definition_bodies() {
+                writer.write_all(format!(" {}\n", keyword("is")).as_bytes())?;
+                if body.has_annotations() {
+                    self.write_annotations(
+                        body.annotations(),
+                        writer,
+                        DEFINITION_ANNOTATION_INDENT,
+                    )?;
+                    if body.has_members() {
+                        writer.write_all(EOL)?;
+                    }
+                }
+                for member in body.members() {
+                    self.write_member(member, writer)?;
                 }
                 writer.write_all(format!("{indentation}{}\n", keyword("end")).as_bytes())?;
             } else {
@@ -454,11 +497,9 @@ impl SourceGenerator {
         let indentation = self.options.indentation_str(MODULE_DEFINITION_INDENT);
         writer.write_all(
             format!(
-                "{indentation}{} {} {} {}",
+                "{indentation}{} {}",
                 keyword("event"),
                 type_name_def(defn.name()),
-                keyword("source"),
-                type_name_ref(defn.event_source())
             )
             .as_bytes(),
         )?;
@@ -474,6 +515,34 @@ impl SourceGenerator {
                     )?;
                     if body.has_members() {
                         writer.write_all(EOL)?;
+                    }
+                }
+                let source = body.source_entity();
+                writer.write_all(
+                    format!(
+                        "{} {}",
+                        keyword("source"),
+                        type_name_ref(source.target_entity())
+                    )
+                    .as_bytes(),
+                )?;
+                if source.has_members() {
+                    if source.member_count() == 1 {
+                        writer.write_all(
+                            format!(" with {}", source.members().next().unwrap()).as_bytes(),
+                        )?;
+                    } else {
+                        writer.write_all(
+                            format!(
+                                " with [ {} ]",
+                                source
+                                    .members()
+                                    .map(|id| id.to_string())
+                                    .collect::<Vec<String>>()
+                                    .join(" ")
+                            )
+                            .as_bytes(),
+                        )?;
                     }
                 }
                 for member in body.members() {

@@ -1,6 +1,6 @@
-;;; Event, With Source
+;;; Event, With Source and Members
 
-module campaign is
+module corpus_test_event is
 
   event NameChanged is
     source Campaign with [ name title status ]

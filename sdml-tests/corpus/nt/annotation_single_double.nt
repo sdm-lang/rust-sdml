@@ -1,0 +1,7 @@
+<http://example.orgMANIFEST_PATH/corpus/annotation_single_double.sdm/corpus_test_annotation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .
+<http://example.orgMANIFEST_PATH/corpus/annotation_single_double.sdm/corpus_test_annotation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://sdml.io/sdml-owl.ttl#Module> .
+<http://example.orgMANIFEST_PATH/corpus/annotation_single_double.sdm/corpus_test_annotation> <http://sdml.io/sdml-owl.ttl#sourceLocation> _:B28 .
+<http://example.orgMANIFEST_PATH/corpus/annotation_single_double.sdm/corpus_test_annotation> <http://sdml.io/sdml-owl.ttl#srcLabel> "corpus_test_annotation" .
+<http://example.orgMANIFEST_PATH/corpus/annotation_single_double.sdm/corpus_test_annotation> <http://purl.org/dc/elements/1.1/some> 0.00000000012 .
+_:B28 <http://sdml.io/sdml-owl.ttl#startByte> 0 .
+_:B28 <http://sdml.io/sdml-owl.ttl#endByte> 91 .

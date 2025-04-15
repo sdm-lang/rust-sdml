@@ -1,0 +1,134 @@
+module dcmitype <http://purl.org/dc/dcmitype/> is
+
+  from ::org::purl::dc import [dcam terms ]
+  from ::org::w3 import [ owl rdf rdfs ]
+
+  @terms:modified = date("2012-06-14")
+  @terms:publisher = <http://purl.org/dc/aboutdcmi#DCMI>
+  @terms:title = "DCMI Type Vocabulary"@en
+
+  @rdfs:seeAlso = <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_type.ttl>
+
+  structure Collection is
+    @rdf:type = rdfs:Class
+    @terms:issued = xsd:date("2000-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy = dcmitype
+    @rdfs:label = "Collection"@en
+    @rdfs:comment = "An aggregation of resources."@en
+    @terms:description = "A collection is described as a group; its parts may also be separately described."@en
+  end
+
+  structure Dataset is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2000-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy = dcmitype
+    @rdfs:label = "Dataset"@en
+    @rdfs:comment = "Data encoded in a defined structure."@en
+    @terms:description = "Examples include lists, tables, and databases.  A dataset may be useful for direct machine processing."@en
+  end
+
+  structure Event is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2000-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy = dcmitype
+    @rdfs:label = "Event"@en
+    @rdfs:comment = "A non-persistent, time-based occurrence."@en
+    @terms:description = "Metadata for an event provides descriptive information that is the basis for discovery of the purpose, location, duration, and responsible agents associated with an event. Examples include an exhibition, webcast, conference, workshop, open day, performance, battle, trial, wedding, tea party, conflagration."@en
+  end
+
+  structure Image is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2000-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy = dcmitype
+    @rdfs:label = "Image"@en
+    @rdfs:comment = " A visual representation other than text."@en
+    @terms:description = "Examples include images and photographs of physical objects, paintings, prints, drawings, other images and graphics, animations and moving pictures, film, diagrams, maps, musical notation.  Note that Image may include both electronic and physical representations."@en
+  end
+
+  structure InteractiveResource is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2000-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Interactive Resource"@en
+    @rdfs:comment = "A resource requiring interaction from the user to be understood, executed, or experienced."@en
+    @terms:description = "Examples include forms on Web pages, applets, multimedia learning objects, chat services, or virtual reality environments."@en
+  end
+
+  structure MovingImage is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = Image
+    @terms:issued = date("2003-11-18")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Moving Image"@en
+    @rdfs:comment = "A series of visual representations imparting an impression of motion when shown in succession."@en
+    @terms:description = "Examples include animations, movies, television programs, videos, zoetropes, or visual output from a simulation.  Instances of the type Moving Image must also be describable as instances of the broader type Image."@en
+  end
+
+  structure PhysicalObject is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2002-07-13")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Physical Object"@en
+    @rdfs:comment = "An inanimate, three-dimensional object or substance."@en
+    @terms:description = "Note that digital representations of, or surrogates for, these objects should use Image, Text or one of the other types."@en
+  end
+
+  structure Service is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2002-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Service"@en
+    @rdfs:comment = "A system that provides one or more functions."@en
+    @terms:description = "Examples include a photocopying service, a banking service, an authentication service, interlibrary loans, a Z39.50 or Web server."@en
+  end
+
+  structure Software is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2002-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Software"@en
+    @rdfs:comment = "A computer program in source or compiled form."@en
+    @terms:description = "Examples include a C source file, MS-Windows .exe executable, or Perl script."@en
+  end
+
+  structure Sound is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2002-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Sound"@en
+    @rdfs:comment = "A resource primarily intended to be heard."@en
+    @terms:description = "Examples include a music playback file format, an audio compact disc, and recorded speech or sounds."@en
+  end
+
+  structure StillImage is
+    @rdf:type = rdfs:Class
+    @rdfs:subClassOf = Image
+    @terms:issued = date("2002-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Still Image"@en
+    @rdfs:comment = "A static visual representation."@en
+    @terms:description = "Examples include paintings, drawings, graphic designs, plans and maps. Recommended best practice is to assign the type Text to images of textual materials. Instances of the type Still Image must also be describable as instances of the broader type Image."@en
+  end
+
+  structure Text is
+    @rdf:type = rdfs:Class
+    @terms:issued = date("2002-07-11")
+    @dcam:memberOf = terms:DCMIType
+    @rdfs:isDefinedBy =  dcmitype
+    @rdfs:label = "Text"@en
+    @rdfs:comment = "A resource consisting primarily of words for reading."@en
+    @terms:description = "Examples include books, letters, dissertations, poems, newspapers, articles, archives of mailing lists. Note that facsimiles or images of texts are still of the genre Text."@en
+  end
+
+end

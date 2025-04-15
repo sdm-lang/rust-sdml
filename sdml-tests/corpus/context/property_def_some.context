@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/property_def_some.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/property_def_some.sdm/",
   "definitions": [
     {
       "__type": "property_def",
@@ -29,6 +29,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "ddict",
+  "name": "corpus_test_property",
   "source_file": "MANIFEST_PATH/corpus/property_def_some.sdm"
 }

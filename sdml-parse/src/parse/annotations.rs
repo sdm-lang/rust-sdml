@@ -1,8 +1,8 @@
 use super::ParseContext;
 use crate::parse::constraints::parse_constraint;
 use crate::parse::identifiers::parse_identifier_reference;
+use crate::parse::parse_comment;
 use crate::parse::values::parse_value;
-use crate::parse::{parse_comment};
 use sdml_core::error::Error;
 use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
 use sdml_core::model::annotations::{Annotation, AnnotationProperty};
@@ -24,7 +24,7 @@ pub(crate) fn parse_annotation<'a>(
     rule_fn!("annotation", cursor.node());
 
     for node in cursor.node().named_children(cursor) {
-        context.check_if_error(&node, RULE_NAME)?;
+        check_node!(context, RULE_NAME, &node);
         match node.kind() {
             NODE_KIND_ANNOTATION_PROPERTY => {
                 return Ok(parse_annotation_property(context, &mut node.walk())?.into())

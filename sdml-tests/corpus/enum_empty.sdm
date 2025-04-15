@@ -1,6 +1,6 @@
 ;;; Enum, Empty
 
-module campaign is
+module corpus_test_enum is
 
   enum NameKind
 

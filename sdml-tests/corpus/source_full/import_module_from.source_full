@@ -1,0 +1,7 @@
+module corpus_test_import is
+
+  from :: import xsd
+  from ::xsd import facets
+  from reporting::common import enums
+
+end

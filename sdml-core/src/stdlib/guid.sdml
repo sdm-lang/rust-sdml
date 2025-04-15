@@ -1,0 +1,38 @@
+module guid is
+
+  import [ dc skos xsd ]
+
+  @dc:description = "This library provides simply datatypes for GUIDs/UUIDs."@en
+
+  datatype guidBinary <- xsd:hexBinary is
+    @skos:prefLabel = "binary GUID"@en
+    @dc:description = "The binary form of a GUID or UUID."@en
+    @xsd:length = 16
+  end
+
+  ;;
+  ;; GUID strings may be one of five representation forms, as shown below. This implies that the string
+  ;; representation can vary from 32 characters to 68. The regular expression for each form is shown below.
+  ;;
+  ;; 1. 00000000000000000000000000000000
+  ;;    /(?:[[:xdigit:]]{32})/
+  ;;
+  ;; 2. 00000000-0000-0000-0000-000000000000
+  ;;    /(?:[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12})/
+  ;;
+  ;; 3. {00000000-0000-0000-0000-000000000000}
+  ;;    /(?:\\{[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}\\})/
+  ;;
+  ;; 4. (00000000-0000-0000-0000-000000000000)
+  ;;    /(?:\\([[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}\\))/
+  ;;
+  ;; 5. {0x00000000,0x0000,0x0000,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}}
+  ;;    /(?:\\{0x[[:xdigit:]]{8},(?:0x[[:xdigit:]]{4},){2}\\{(?:0x[[:xdigit:]]{2},){7}0x[[:xdigit:]]{2}\\}\\})/
+  ;;
+  datatype guidString <- xsd:String is
+    @skos:prefLabel = "string GUID"@en
+    @dc:description = "The string form of a GUID or UUID."@en
+    @xsd:pattern = "^(?:[[:xdigit:]]{32})|(?:[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12})|(?:\\{[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}\\})|(?:\\([[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}\\))|(?:\\{0x[[:xdigit:]]{8},(?:0x[[:xdigit:]]{4},){2}\\{(?:0x[[:xdigit:]]{2},){7}0x[[:xdigit:]]{2}\\}\\})$"
+  end
+
+end

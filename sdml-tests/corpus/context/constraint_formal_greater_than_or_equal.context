@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_greater_than_or_equal.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_formal_greater_than_or_equal.sdm/",
   "definitions": [
     {
       "__type": "structure_def",
@@ -60,6 +60,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "Example",
+  "name": "corpus_test_constraint",
   "source_file": "MANIFEST_PATH/corpus/constraint_formal_greater_than_or_equal.sdm"
 }

@@ -1,6 +1,6 @@
 ;;; Import single member from
 
-module Campaign is
+module corpus_test_import is
 
   from :: import xsd:base
   from xsd import facets:minLength

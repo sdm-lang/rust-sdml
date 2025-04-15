@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/entity_empty.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_empty.sdm/",
   "definitions": [
     {
       "__type": "entity_def",
@@ -8,6 +8,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "campaign",
+  "name": "corpus_test_entity",
   "source_file": "MANIFEST_PATH/corpus/entity_empty.sdm"
 }

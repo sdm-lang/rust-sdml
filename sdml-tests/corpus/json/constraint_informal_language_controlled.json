@@ -20,16 +20,16 @@
       }
     }
   ],
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm/",
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "Example"
+    "value": "corpus_test_constraint"
   },
   "source_file": "MANIFEST_PATH/corpus/constraint_informal_language_controlled.sdm",
   "span": {
     "__type": "span",
-    "end": 88,
+    "end": 103,
     "start": 0
   }
 }

@@ -1,0 +1,40 @@
+     @prefix : <http://www.w3.org/2000/01/rdf-schema#> .
+    @prefix arg: <http://www.w3.org/ns/pim/arg#> .
+    @prefix dc: <http://purl.org/dc/elements/1.1/> .
+    @prefix owl: <http://www.w3.org/2002/07/owl#> .
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    
+    <>     a owl:Ontology;
+         dc:title "A simple Argumentation ontology";
+         :comment """This ontology may be used
+    to capture the relationship between different 
+""" .
+    
+    arg:Conjunction     a :Class;
+         :subClassOf arg:Position .
+    
+    arg:Position     a :Class;
+         :label "position" .
+    
+    arg:Resolution     a :Class;
+         :subClassOf arg:Position .
+    
+    arg:opposition     a rdf:Property;
+         :domain arg:Position;
+         :label "opposition";
+         :range arg:Position;
+         owl:inverse  [
+             :label "opposes" ] .
+    
+    arg:requires     a rdf:Property;
+         :domain arg:Conjunction;
+         :label "requires";
+         :range arg:Position .
+    
+    arg:support     a rdf:Property;
+         :domain arg:Position;
+         :label "support";
+         :range arg:Position;
+         owl:inverse  [
+             :label "supports" ] .
+    

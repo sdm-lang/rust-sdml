@@ -131,7 +131,7 @@ impl RdfDef {
     // Constructors
     // --------------------------------------------------------------------------------------------
 
-    fn new(name: Identifier) -> Self {
+    pub fn new(name: Identifier) -> Self {
         Self {
             span: None,
             name,

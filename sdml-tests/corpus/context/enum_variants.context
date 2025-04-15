@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/enum_variants.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/enum_variants.sdm/",
   "definitions": [
     {
       "__type": "enum_def",
@@ -16,6 +16,6 @@
     }
   ],
   "is_library_module": false,
-  "name": "campaign",
+  "name": "corpus_test_enum",
   "source_file": "MANIFEST_PATH/corpus/enum_variants.sdm"
 }

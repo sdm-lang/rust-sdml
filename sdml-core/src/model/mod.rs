@@ -26,6 +26,15 @@ pub trait HasBody {
     ///
     type Body;
 
+    fn with_body(self, body: Self::Body) -> Self
+    where
+        Self: Sized,
+    {
+        let mut self_mut = self;
+        self_mut.set_body(body);
+        self_mut
+    }
+
     ///
     /// Get the body of the enclosing type.
     ///
@@ -81,6 +90,14 @@ pub trait HasOptionalBody {
     ///
     type Body;
 
+    fn with_body(self, body: Self::Body) -> Self
+    where
+        Self: Sized,
+    {
+        let mut self_mut = self;
+        self_mut.set_body(body);
+        self_mut
+    }
     fn has_body(&self) -> bool {
         self.body().is_some()
     }
@@ -94,7 +111,14 @@ pub trait HasOptionalBody {
 /// This trait is implemented by types that include a source location from which they were parsed.
 ///
 pub trait HasSourceSpan {
-    fn with_source_span(self, ts_span: Span) -> Self;
+    fn with_source_span(self, ts_span: Span) -> Self
+    where
+        Self: Sized,
+    {
+        let mut self_mut = self;
+        self_mut.set_source_span(ts_span);
+        self_mut
+    }
     fn has_source_span(&self) -> bool {
         self.source_span().is_some()
     }

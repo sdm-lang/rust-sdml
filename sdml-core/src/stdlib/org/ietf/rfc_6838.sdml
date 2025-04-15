@@ -1,0 +1,34 @@
+module rfc_6838 <https://sdml.io/stdlib/ietf/rfc-6838#> is
+
+  from ::org::purl::dc import terms as dc
+  from ::org::w3 import [ rdfs skos ]
+
+  @dc:title = "Media Type Specifications and Registration Procedures"@en
+  @dc:identifier = "RFC6838"
+  @dc:publisher = <https://www.ietf.org/>
+  @dc:issued = "2013-01"
+  @dc:replaces = "RFC4288"
+  @rdfs:isDefinedBy = <https://datatracker.ietf.org/doc/html/rfc6838>
+  @rdfs:seeAlso = <https://www.iana.org/assignments/media-types/media-types.xhtml>
+
+  datatype MediaType <- string {
+    pattern = "(audio|image|video|x-(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+))/([0-9A-Za-z!#$%&'*+.^_`|~-]+)"
+  } is
+    @skos:prefLabel = "Media Type"@en
+    @skos:altLabel = "MIME Type"@en
+    @rdfs:comment = "MediaType :== Type '/' Subtype;"
+  end
+
+  datatype Type <- string {
+    pattern = "(audio|image|video|x-(?:[0-9A-Za-z!#$%&'*+.^_`|~-]+))"
+  } is
+    @skos:prefLabel = "Type"@en
+  end
+
+  datatype Subtype <- string {
+    pattern = "([0-9A-Za-z!#$%&'*+.^_`|~-]+)"
+  } is
+    @skos:prefLabel = "Subtype"@en
+  end
+
+end

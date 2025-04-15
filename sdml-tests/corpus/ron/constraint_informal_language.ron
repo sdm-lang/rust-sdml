@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 84,
+            end: 99,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
                 start: 7,
-                end: 14,
+                end: 29,
             },
         ),
-        value: "Example",
+        value: "corpus_test_constraint",
     },
     base_uri: Some(
         HeaderValue {
@@ -50,8 +50,8 @@ Module {
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 27,
-                            end: 41,
+                            start: 42,
+                            end: 56,
                         },
                     ),
                     value: "no_definitions",
@@ -60,8 +60,8 @@ Module {
                     ControlledLanguageString {
                         span: Some(
                             Span {
-                                start: 42,
-                                end: 79,
+                                start: 57,
+                                end: 94,
                             },
                         ),
                         value: "This module has no definitions",
@@ -69,8 +69,8 @@ Module {
                             ControlledLanguageTag {
                                 span: Some(
                                     Span {
-                                        start: 76,
-                                        end: 79,
+                                        start: 91,
+                                        end: 94,
                                     },
                                 ),
                                 value: "en",

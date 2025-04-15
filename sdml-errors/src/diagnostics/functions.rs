@@ -292,6 +292,52 @@ where
 
 #[inline]
 #[allow(clippy::redundant_closure_call)]
+pub fn invalid_module_base_uri<S>(file_id: FileId, location: Option<Span>, value: S) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(
+        InvalidModuleBaseUrl,
+        |diagnostic: Diagnostic| if let Some(location) = location {
+            diagnostic.with_labels(vec![
+                Label::primary(file_id, location).with_message(i18n!("lbl_this_uri"))
+            ])
+        } else {
+            diagnostic.with_notes(vec![
+                i18n!("lbl_value", val = value.into()),
+                i18n!("help_namespace_uri"),
+            ])
+        }
+    )
+}
+
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn invalid_module_version_uri<S>(
+    file_id: FileId,
+    location: Option<Span>,
+    value: S,
+) -> Diagnostic
+where
+    S: Into<String>,
+{
+    new_diagnostic!(
+        InvalidModuleVersionUrl,
+        |diagnostic: Diagnostic| if let Some(location) = location {
+            diagnostic.with_labels(vec![
+                Label::primary(file_id, location).with_message(i18n!("lbl_this_uri"))
+            ])
+        } else {
+            diagnostic.with_notes(vec![
+                i18n!("lbl_value", val = value.into()),
+                i18n!("help_namespace_uri"),
+            ])
+        }
+    )
+}
+
+#[inline]
+#[allow(clippy::redundant_closure_call)]
 pub fn invalid_language_tag<S>(file_id: FileId, location: Option<Span>, value: S) -> Diagnostic
 where
     S: Into<String>,
@@ -546,6 +592,31 @@ where
             diagnostic.with_notes(vec![i18n!("lbl_type_name", name = name.into())])
         }
         .with_notes(vec![i18n!("help_property_reference_not_property")])
+    })
+}
+
+#[inline]
+#[allow(clippy::redundant_closure_call)]
+pub fn library_definition_not_allowed_in<S1, S2>(
+    file_id: FileId,
+    reference_location: Option<Span>,
+    name: S1,
+    module: S2,
+) -> Diagnostic
+where
+    S1: Into<String>,
+    S2: Into<String>,
+{
+    new_diagnostic!(LibraryDefinitionNotAllowed, |diagnostic: Diagnostic| {
+        if let Some(reference_location) = reference_location {
+            diagnostic.with_labels(vec![Label::primary(file_id, reference_location)
+                .with_message(i18n!("lbl_this_reference"))])
+        } else {
+            diagnostic.with_notes(vec![
+                i18n!("lbl_type_name", name = name.into()),
+                i18n!("lbl_module_name", name = module.into()),
+            ])
+        }
     })
 }
 

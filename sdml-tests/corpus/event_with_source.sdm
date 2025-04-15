@@ -1,6 +1,6 @@
 ;;; Event, With Source
 
-module campaign is
+module corpus_test_event is
 
   event NameChanged is
     source Campaign

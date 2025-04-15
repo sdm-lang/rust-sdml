@@ -1,6 +1,6 @@
 ;;; Entity, With Different Members
 
-module campaign is
+module corpus_test_entity is
 
   entity Campaign is
 

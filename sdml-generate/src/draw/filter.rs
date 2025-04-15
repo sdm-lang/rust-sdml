@@ -216,6 +216,7 @@ pub struct QualifiedNameFilter {
 #[serde(rename_all = "snake_case")]
 pub enum DefinitionKind {
     Datatype,
+    Dimension,
     Entity,
     Enum,
     Event,
@@ -304,7 +305,7 @@ impl DiagramContentFilter {
 
         let stdlib_names: Vec<IdentifierString> = [
             stdlib::dc::MODULE_NAME,
-            stdlib::dc::terms::MODULE_NAME,
+            stdlib::dct::MODULE_NAME,
             stdlib::iso_3166::MODULE_NAME,
             stdlib::iso_4217::MODULE_NAME,
             stdlib::owl::MODULE_NAME,
@@ -413,7 +414,7 @@ impl DiagramContentFilter {
     pub fn draw_import(&self, id: &Import) -> bool {
         match id {
             Import::Module(v) => self.draw_module_import(v.name()),
-            Import::Member(v) => self.draw_member_import(v),
+            Import::Member(v) => self.draw_member_import(v.name()),
         }
     }
 
@@ -540,6 +541,7 @@ impl From<&Definition> for DefinitionKind {
     fn from(value: &Definition) -> Self {
         match value {
             Definition::Datatype(_) => Self::Datatype,
+            Definition::Dimension(_) => Self::Dimension,
             Definition::Entity(_) => Self::Entity,
             Definition::Enum(_) => Self::Enum,
             Definition::Event(_) => Self::Event,

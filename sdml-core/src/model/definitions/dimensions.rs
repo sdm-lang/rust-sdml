@@ -1,4 +1,5 @@
 use crate::{
+    config::is_builtin_type_name,
     load::ModuleLoader,
     model::{
         annotations::{
@@ -11,7 +12,6 @@ use crate::{
         values::Value,
         HasName, HasOptionalBody, HasSourceSpan, References, Span,
     },
-    stdlib::is_builtin_type_name,
     store::ModuleStore,
 };
 use std::{
@@ -691,28 +691,26 @@ impl Validate for DimensionParent {
                     ))
                     .unwrap();
             }
+        } else if !name
+            .as_identifier()
+            .map(is_builtin_type_name)
+            .unwrap_or_default()
+        {
+            loader
+                .report(&type_definition_not_found(
+                    top.file_id().copied().unwrap_or_default(),
+                    name.source_span().as_ref().map(|span| (*span).into()),
+                    name,
+                ))
+                .unwrap();
         } else {
-            if !name
-                .as_identifier()
-                .map(is_builtin_type_name)
-                .unwrap_or_default()
-            {
-                loader
-                    .report(&type_definition_not_found(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap();
-            } else {
-                loader
-                    .report(&dimension_parent_not_entity(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap();
-            }
+            loader
+                .report(&dimension_parent_not_entity(
+                    top.file_id().copied().unwrap_or_default(),
+                    name.source_span().as_ref().map(|span| (*span).into()),
+                    name,
+                ))
+                .unwrap();
         }
     }
 }
@@ -839,28 +837,26 @@ impl Validate for SourceEntity {
                     ))
                     .unwrap();
             }
+        } else if !name
+            .as_identifier()
+            .map(is_builtin_type_name)
+            .unwrap_or_default()
+        {
+            loader
+                .report(&type_definition_not_found(
+                    top.file_id().copied().unwrap_or_default(),
+                    name.source_span().as_ref().map(|span| (*span).into()),
+                    name,
+                ))
+                .unwrap();
         } else {
-            if !name
-                .as_identifier()
-                .map(is_builtin_type_name)
-                .unwrap_or_default()
-            {
-                loader
-                    .report(&type_definition_not_found(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap();
-            } else {
-                loader
-                    .report(&source_entity_not_entity(
-                        top.file_id().copied().unwrap_or_default(),
-                        name.source_span().as_ref().map(|span| (*span).into()),
-                        name,
-                    ))
-                    .unwrap();
-            }
+            loader
+                .report(&source_entity_not_entity(
+                    top.file_id().copied().unwrap_or_default(),
+                    name.source_span().as_ref().map(|span| (*span).into()),
+                    name,
+                ))
+                .unwrap();
         }
     }
 }

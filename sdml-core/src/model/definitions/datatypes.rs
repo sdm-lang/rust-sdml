@@ -13,9 +13,17 @@ use crate::model::{
 };
 use crate::model::{HasOptionalBody, HasSourceSpan};
 use crate::store::ModuleStore;
+use crate::syntax::{
+    KW_FACET_EXPLICIT_TIMEZONE, KW_FACET_FRACTION_DIGITS, KW_FACET_LENGTH, KW_FACET_MAX_EXCLUSIVE,
+    KW_FACET_MAX_INCLUSIVE, KW_FACET_MAX_LENGTH, KW_FACET_MIN_EXCLUSIVE, KW_FACET_MIN_INCLUSIVE,
+    KW_FACET_MIN_LENGTH, KW_FACET_PATTERN, KW_FACET_TIMEZONE_OPTIONAL,
+    KW_FACET_TIMEZONE_PROHIBITED, KW_FACET_TIMEZONE_REQUIRED, KW_FACET_TOTAL_DIGITS,
+};
 use sdml_errors::diagnostics::functions::{
     datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
 };
+use std::fmt::Display;
+use std::str::FromStr;
 use std::{collections::BTreeSet, fmt::Debug};
 
 #[cfg(feature = "serde")]
@@ -24,6 +32,47 @@ use serde::{Deserialize, Serialize};
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Definitions ❱ Datatypes
 // ------------------------------------------------------------------------------------------------
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum ExplicitTimezoneFlag {
+    #[default]
+    Optional,
+    Required,
+    Prohibited,
+}
+
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub enum RestrictionFacet {
+    // ---------------------------------------------------------------------------------------------
+    /// The XML Schema facet `xsd:fractionDigits`
+    FractionDigits(u32, bool),
+    /// The XML Schema facet `xsd:totalDigits`
+    TotalDigits(u32, bool),
+    // ---------------------------------------------------------------------------------------------
+    /// The XML Schema facet `xsd:length`
+    Length(u32, bool),
+    /// The XML Schema facet `xsd:maxLength`
+    MaxLength(u32, bool),
+    /// The XML Schema facet `xsd:minLength`
+    MinLength(u32, bool),
+    // ---------------------------------------------------------------------------------------------
+    /// The XML Schema facet `xsd:maxExclusive`
+    MaxExclusive(u32, bool),
+    /// The XML Schema facet `xsd:minExclusive`
+    MinExclusive(u32, bool),
+    /// The XML Schema facet `xsd:maxInclusive`
+    MaxInclusive(u32, bool),
+    /// The XML Schema facet `xsd:minInclusive`
+    MinInclusive(u32, bool),
+    // ---------------------------------------------------------------------------------------------
+    /// The XML Schema facet `xsd:explicitTimezone`
+    ExplicitTimezone(ExplicitTimezoneFlag, bool),
+    // ---------------------------------------------------------------------------------------------
+    /// The XML Schema facet `xsd:pattern`
+    Pattern(Vec<String>),
+}
 
 /// Corresponds to the grammar rule `data_type_def`.
 #[derive(Clone, Debug)]
@@ -35,6 +84,8 @@ pub struct DatatypeDef {
     opaque: bool,
     /// Corresponds to the grammar rule `data_type_base`.
     base_type: IdentifierReference,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
+    restrictions: Vec<RestrictionFacet>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
 }
@@ -196,6 +247,7 @@ impl DatatypeDef {
             name,
             opaque: false,
             base_type,
+            restrictions: Vec::new(),
             body: None,
         }
     }
@@ -206,6 +258,7 @@ impl DatatypeDef {
             name,
             opaque: true,
             base_type,
+            restrictions: Vec::new(),
             body: None,
         }
     }
@@ -213,6 +266,12 @@ impl DatatypeDef {
     pub fn with_body(self, body: AnnotationOnlyBody) -> Self {
         let mut self_mut = self;
         self_mut.body = Some(body);
+        self_mut
+    }
+
+    pub fn with_restrictions(self, restrictions: Vec<RestrictionFacet>) -> Self {
+        let mut self_mut = self;
+        self_mut.restrictions = restrictions;
         self_mut
     }
 
@@ -234,5 +293,112 @@ impl DatatypeDef {
 
     pub fn set_base_type(&mut self, base_type: IdentifierReference) {
         self.base_type = base_type;
+    }
+
+    pub fn has_restrictions(&self) -> bool {
+        !self.restrictions.is_empty()
+    }
+
+    pub fn restriction_count(&self) -> usize {
+        self.restrictions.len()
+    }
+
+    pub fn restrictions(&self) -> impl Iterator<Item = &RestrictionFacet> {
+        self.restrictions.iter()
+    }
+
+    pub fn restrictions_mut(&mut self) -> impl Iterator<Item = &mut RestrictionFacet> {
+        self.restrictions.iter_mut()
+    }
+
+    pub fn add_to_restrictions(&mut self, restriction: RestrictionFacet) {
+        self.restrictions.push(restriction);
+    }
+
+    pub fn extend_restrictions<I>(&mut self, restrictions: I)
+    where
+        I: IntoIterator<Item = RestrictionFacet>,
+    {
+        self.restrictions.extend(restrictions);
+    }
+
+    pub fn set_restrictions(&mut self, restrictions: Vec<RestrictionFacet>) {
+        self.restrictions = restrictions;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ RestrictionFacet
+// ------------------------------------------------------------------------------------------------
+
+impl RestrictionFacet {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::FractionDigits(_, _) => KW_FACET_FRACTION_DIGITS,
+            Self::TotalDigits(_, _) => KW_FACET_TOTAL_DIGITS,
+            Self::Length(_, _) => KW_FACET_LENGTH,
+            Self::MaxLength(_, _) => KW_FACET_MAX_LENGTH,
+            Self::MinLength(_, _) => KW_FACET_MIN_LENGTH,
+            Self::MaxExclusive(_, _) => KW_FACET_MAX_EXCLUSIVE,
+            Self::MinExclusive(_, _) => KW_FACET_MIN_EXCLUSIVE,
+            Self::MaxInclusive(_, _) => KW_FACET_MAX_INCLUSIVE,
+            Self::MinInclusive(_, _) => KW_FACET_MIN_INCLUSIVE,
+            Self::ExplicitTimezone(_, _) => KW_FACET_EXPLICIT_TIMEZONE,
+            Self::Pattern(_) => KW_FACET_PATTERN,
+        }
+    }
+
+    pub fn fixed(&self) -> Option<bool> {
+        match self {
+            Self::FractionDigits(_, fixed) => Some(*fixed),
+            Self::TotalDigits(_, fixed) => Some(*fixed),
+            Self::Length(_, fixed) => Some(*fixed),
+            Self::MaxLength(_, fixed) => Some(*fixed),
+            Self::MinLength(_, fixed) => Some(*fixed),
+            Self::MaxExclusive(_, fixed) => Some(*fixed),
+            Self::MinExclusive(_, fixed) => Some(*fixed),
+            Self::MaxInclusive(_, fixed) => Some(*fixed),
+            Self::MinInclusive(_, fixed) => Some(*fixed),
+            Self::ExplicitTimezone(_, fixed) => Some(*fixed),
+            Self::Pattern(_) => None,
+        }
+    }
+
+    pub fn count(&self) -> usize {
+        match self {
+            Self::Pattern(vec) => vec.len(),
+            _ => 1,
+        }
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ ExplicitTimezoneFlag
+// ------------------------------------------------------------------------------------------------
+
+impl Display for ExplicitTimezoneFlag {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Optional => KW_FACET_TIMEZONE_OPTIONAL,
+                Self::Required => KW_FACET_TIMEZONE_REQUIRED,
+                Self::Prohibited => KW_FACET_TIMEZONE_PROHIBITED,
+            }
+        )
+    }
+}
+
+impl FromStr for ExplicitTimezoneFlag {
+    type Err = crate::error::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            KW_FACET_TIMEZONE_OPTIONAL => Ok(Self::Optional),
+            KW_FACET_TIMEZONE_REQUIRED => Ok(Self::Required),
+            KW_FACET_TIMEZONE_PROHIBITED => Ok(Self::Prohibited),
+            _ => panic!(),
+        }
     }
 }

@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_many_as_list.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/cardinality_zero_to_many_as_list.sdm/",
   "definitions": [
     {
       "__type": "definition",

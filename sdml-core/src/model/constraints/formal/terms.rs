@@ -45,8 +45,8 @@ pub enum Term {
 pub struct FunctionComposition {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
-    subject: Subject,                // assert!(!is_empty())
-    function_names: Vec<Identifier>, // ditto
+    subject: Subject,                // <- should be term?
+    function_names: Vec<Identifier>, // assert!(!is_empty())
 }
 
 /// Corresponds to the field `subject` in the grammar rule `name`.
@@ -132,10 +132,7 @@ impl Term {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_sequence(&self) -> bool {
-        match self {
-            Self::Sequence(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Sequence(_))
     }
     pub const fn as_sequence(&self) -> Option<&SequenceBuilder> {
         match self {
@@ -147,10 +144,7 @@ impl Term {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_function(&self) -> bool {
-        match self {
-            Self::Function(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Function(_))
     }
 
     pub const fn as_function(&self) -> Option<&FunctionalTerm> {
@@ -163,10 +157,7 @@ impl Term {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_call(&self) -> bool {
-        match self {
-            Self::Composition(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Composition(_))
     }
 
     pub const fn as_call(&self) -> Option<&FunctionComposition> {
@@ -179,10 +170,7 @@ impl Term {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_identifier(&self) -> bool {
-        match self {
-            Self::Identifier(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Identifier(_))
     }
 
     pub const fn as_identifier(&self) -> Option<&IdentifierReference> {
@@ -195,10 +183,7 @@ impl Term {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_value(&self) -> bool {
-        match self {
-            Self::Value(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Value(_))
     }
 
     pub const fn as_value(&self) -> Option<&PredicateValue> {
@@ -322,19 +307,13 @@ impl Subject {
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_reserved_self(&self) -> bool {
-        match self {
-            Self::ReservedSelf => true,
-            _ => false,
-        }
+        matches!(self, Self::ReservedSelf)
     }
 
     // --------------------------------------------------------------------------------------------
 
     pub const fn is_identifier(&self) -> bool {
-        match self {
-            Self::Identifier(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Identifier(_))
     }
 
     pub const fn as_identifier(&self) -> Option<&Identifier> {

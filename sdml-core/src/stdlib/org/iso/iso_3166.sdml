@@ -1,0 +1,37 @@
+module iso_3166 <https://sdml.io/stdlib/iso/3166-1:2020#> is
+
+  from ::org::purl::dc import terms as dc
+  from ::org::w3 import [ rdfs skos ]
+
+  @dc:title = "Codes for the representation of names of countries and their subdivisions — Part 1: Country code"@en
+  @dc:title = "Codes pour la représentation des noms de pays et de leurs subdivisions — Partie 1: Codes de pays"@fr
+  @dc:identifier = "ISO 3166-1:2020"
+  @dc:publisher = <https://www.iso.org>
+  @dc:issued = "2020-08"
+  @dc:replaces = "ISO 3166-1:2013"
+  @rdfs:isDefinedBy = <https://www.iso.org/standard/72482.html>
+  @rdfs:seeAlso = <https://www.iso.org/iso-3166-country-codes.html>
+
+  datatype CountryCodeAlpha2 <- string {
+    pattern = "[A-Z]{2}"
+  } is
+    @skos:prefLabel = "alpha-2 code"@en
+    @skos:prefLabel = "code alpha-2"@fr
+  end
+
+  datatype CountryCodeAlpha3 <- string {
+    pattern = "[A-Z]{3}"
+  } is
+    @skos:prefLabel = "alpha-3 code"@en
+    @skos:prefLabel = "code alpha-3"@fr
+  end
+
+  datatype CountryCodeNumeric <- unsigned {
+    minInclusive = 0
+    maxInclusive = 899
+  } is
+    @skos:prefLabel = "numeric-3 code"@en
+    @skos:prefLabel = "code numérique-3"@fr
+  end
+
+end

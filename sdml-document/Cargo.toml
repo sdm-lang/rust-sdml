@@ -1,0 +1,19 @@
+[package]
+name = "sdml-document"
+description = "Simple Domain Modeling Language (SDML) documentation tools"
+version = "0.1.0"
+authors = ["Simon Johnston <johnstonskj@gmail.com>"]
+repository = "https://github.com/johnstonskj/rust-sdml.git"
+license = "Apache-2.0"
+readme = "README.md"
+edition = "2021"
+publish = true
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+all-features = true
+rustdoc-args = ["--html-in-header", "doc-src/header.html"]
+
+[dependencies]
+sdml-core = { version = "0.4.0", path = "../sdml-core" }
+sdml-errors = { version = "0.4.0", path = "../sdml-errors" }

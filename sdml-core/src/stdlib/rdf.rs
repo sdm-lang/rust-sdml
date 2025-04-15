@@ -2,10 +2,11 @@
 This Rust module contains the SDML model of the SDML library module `rdf` for RDF syntax.
 */
 
-use crate::model::annotations::AnnotationBuilder;
+use crate::model::annotations::{AnnotationOnlyBody, HasAnnotations};
 use crate::model::modules::Module;
 use crate::model::HasBody;
-use crate::stdlib::rdfs;
+use std::str::FromStr;
+
 // ------------------------------------------------------------------------------------------------
 // Public Macros
 // ------------------------------------------------------------------------------------------------
@@ -14,6 +15,7 @@ use crate::stdlib::rdfs;
 // Public Types
 // ------------------------------------------------------------------------------------------------
 
+pub const MODULE_PATH: &str = "::org::w3";
 pub const MODULE_NAME: &str = "rdf";
 pub const MODULE_URL: &str = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
@@ -47,115 +49,233 @@ pub const DIRECTION: &str = "direction";
 // Public Functions
 // ------------------------------------------------------------------------------------------------
 
-pub fn module() -> Module {
-    #[allow(non_snake_case)]
-    let MODULE_IRI: url::Url = url::Url::parse(MODULE_URL).unwrap();
-    let mut module = Module::empty(id!(MODULE_NAME)).with_base_uri(MODULE_IRI.clone());
+module_function!(|| {
+    let module_uri: url::Url = url::Url::parse(MODULE_URL).unwrap();
 
-    module
-        .body_mut()
-        .add_to_imports(import!(id!(rdfs::MODULE_NAME)));
-
-    module.body_mut().extend_definitions(vec![
-        // Datatypes
-        rdf!(datatype HTML, MODULE_IRI; rdfs::LITERAL)
-            .with_comment("The datatype of RDF literals storing fragments of HTML content")
-            .with_see_also_str("http://www.w3.org/TR/rdf11-concepts/#section-html")
-            .into(),
-        rdf!(datatype JSON, MODULE_IRI; rdfs::LITERAL)
-            .with_comment("The datatype of RDF literals storing JSON content")
-            .with_see_also_str("https://www.w3.org/TR/json-ld11/#the-rdf-json-datatype")
-            .into(),
-        rdf!(datatype LANG_STRING, MODULE_IRI; rdfs::LITERAL)
-            .with_comment("The datatype of language-tagged string values")
-            .with_see_also_str("http://www.w3.org/TR/rdf11-concepts/#section-Graph-Literal")
-            .into(),
-        rdf!(datatype PLAIN_LITERAL, MODULE_IRI; rdfs::LITERAL)
-            .with_comment("The class of plain (i.e. untyped) literal values, as used in RIF and OWL 2")
-            .with_see_also_str("http://www.w3.org/TR/rdf-plain-literal/")
-            .into(),
-        rdf!(datatype XML_LITERAL, MODULE_IRI; rdfs::LITERAL)
-            .with_comment("The datatype of XML literal values")
-            .into(),
-
-        // Classes
-        rdf!(class PROPERTY, MODULE_IRI; (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The class of RDF properties.")
-            .into(),
-
-        // Properties
-        rdf!(property TYPE, MODULE_IRI;
-             (rdfs::MODULE_NAME, rdfs::RESOURCE) =>
-             (rdfs::MODULE_NAME, rdfs::CLASS))
-            .into(),
-
-        // Container Classes and Properties
-        rdf!(class ALT, MODULE_IRI;
-             (rdfs::MODULE_NAME, rdfs::CONTAINER))
-            .with_comment("The class of containers of alternatives.")
-            .into(),
-        rdf!(class BAG, MODULE_IRI;
-             (rdfs::MODULE_NAME, rdfs::CONTAINER))
-            .with_comment("The class of unordered containers.")
-            .into(),
-        rdf!(class SEQ, MODULE_IRI;
-             (rdfs::MODULE_NAME, rdfs::CONTAINER))
-            .with_comment("The class of ordered containers.")
-            .into(),
-
-        // RDF Collections
-        rdf!(class LIST, MODULE_IRI;
-             (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The class of RDF Lists.")
-           .into(),
-        rdf!(property FIRST, MODULE_IRI;
-             LIST => (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The first item in the subject RDF list.")
-            .into(),
-        rdf!(property REST, MODULE_IRI; LIST => LIST)
-            .with_comment("The rest of the subject RDF list after the first item.")
-            .into(),
-        rdf!(thing NIL, MODULE_IRI, LIST)
-            .with_comment("The empty list, with no items in it. If the rest of a list is nil then the list has no more items in it.")
-            .into(),
-
-        // Reification Vocabulary
-        rdf!(class STATEMENT, MODULE_IRI; (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The class of RDF statements.")
-            .into(),
-        rdf!(property SUBJECT, MODULE_IRI;
-             STATEMENT => (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The subject of the subject RDF statement.")
-            .into(),
-        rdf!(property PREDICATE, MODULE_IRI;
-             STATEMENT => (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The predicate of the subject RDF statement.")
-            .into(),
-        rdf!(property OBJECT, MODULE_IRI;
-             STATEMENT => (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("The object of the subject RDF statement.")
-            .into(),
-
-        rdf!(property VALUE, MODULE_IRI;
-             (rdfs::MODULE_NAME, rdfs::RESOURCE) =>
-             (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("Idiomatic property used for structured values.")
-            .into(),
-
-        // Compound Literals
-        rdf!(class COMPOUND, MODULE_IRI; (rdfs::MODULE_NAME, rdfs::RESOURCE))
-            .with_comment("A class representing a compound literal.")
-            .with_see_also_str("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")
-            .into(),
-        rdf!(property DIRECTION, MODULE_IRI; COMPOUND)
-            .with_comment("The language component of a CompoundLiteral.")
-            .with_see_also_str("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")
-            .into(),
-        rdf!(property LANGUAGE, MODULE_IRI; COMPOUND)
-            .with_comment("The base direction component of a CompoundLiteral.")
-            .with_see_also_str("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")
-            .into(),
-     ]).unwrap();
-
-    module
-}
+    module!(
+        id!(unchecked rdf), module_uri ; call |module: Module|
+        module.with_imports([import_statement!(
+            id!(unchecked rdfs),
+        )])
+            .with_definitions([
+                // ---------------------------------------------------------------------------------
+                // Literal Types
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked HTML) ;
+                    class id!(unchecked rdfs:Literal) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("HTML"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The datatype of RDF literals storing fragments of HTML content"@en)),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("http://www.w3.org/TR/rdf11-concepts/#section-html")),
+                    ])).into(),
+                rdf!(id!(unchecked JSON) ;
+                    class id!(unchecked rdfs:Literal) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("JSON"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The datatype of RDF literals storing JSON content"@en)),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("https://www.w3.org/TR/json-ld11/#the-rdf-json-datatype")),
+                    ])).into(),
+                rdf!(id!(unchecked langString) ;
+                    class id!(unchecked rdfs:Literal) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("Language-Tagged String"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The datatype of language-tagged string values"@en)),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("http://www.w3.org/TR/rdf11-concepts/#section-Graph-Literal")),
+                    ])).into(),
+                rdf!(id!(unchecked plainLiteral) ;
+                    class id!(unchecked rdfs:Literal) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("Plain Literal"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of plain (i.e. untyped) literal values, as used in RIF and OWL 2"@en)),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("http://www.w3.org/TR/rdf-plain-literal/")),
+                    ])).into(),
+                rdf!(id!(unchecked XMLLiteral) ;
+                    class id!(unchecked rdfs:Literal) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("XML Literal"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The datatype of XML literal values")),
+                    ])).into(),
+                // ---------------------------------------------------------------------------------
+                // Generic Properties
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked Property) ;
+                    class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Property@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of RDF properties")),
+                    ])).into(),
+                rdf!(id!(unchecked type) ;
+                    property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(type@en)),
+                        annotation!(id!(unchecked skos:altLabel), rdf_str!(a@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdfs:Class)),
+                    ])).into(),
+                rdf!(id!(unchecked value) ;
+                    property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(value@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("Idiomatic property used for structured values"@en)),
+                    ])).into(),
+                // ---------------------------------------------------------------------------------
+                // Container Classes and Properties
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked Alt) ;
+                    class id!(unchecked rdfs:Container) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("Property"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of containers of alternatives")),
+                    ])).into(),
+                rdf!(id!(unchecked Bag) ;
+                    class id!(unchecked rdfs:Container) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("Bag"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of unordered containers")),
+                    ])).into(),
+                rdf!(id!(unchecked Seq) ;
+                    class id!(unchecked rdfs:Container) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("Seq"@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of ordered containers")),
+                    ])).into(),
+                rdf!(id!(unchecked List) ;
+                    class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(List@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of RDF Lists")),
+                    ])).into(),
+                rdf!(id!(unchecked first) ;
+                    property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(first@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked List)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The first item in the subject RDF list"@en)),
+                    ])).into(),
+                rdf!(id!(unchecked rest) ;
+                    property id!(unchecked Property) ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(rest@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked List)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked List)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The rest of the subject RDF list after the first item"@en)),
+                    ])).into(),
+                rdf!(id!(unchecked nil) ;
+                    unnamed individual ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(language@en)),
+                        annotation!(id!(unchecked type), id!(unchecked List)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The empty list, with no items in it. If the rest of a list is nil then the list has no more items in it")),
+                    ])).into(),
+                // ---------------------------------------------------------------------------------
+                // Reification Vocabulary
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked Statement) ;
+                    class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(Statement@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The class of RDF statements")),
+                    ])).into(),
+                rdf!(id!(unchecked subject) ;
+                    property ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(subject@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Statement)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The subject of the subject RDF statement")),
+                    ])).into(),                rdf!(id!(unchecked predicate) ;
+                    property ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(predicate@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Statement)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The predicate of the subject RDF statement")),
+                    ])).into(),
+                rdf!(id!(unchecked object) ;
+                    property ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(object@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked Statement)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked rdfs:Resource)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The object of the subject RDF statement")),
+                    ])).into(),
+                // ---------------------------------------------------------------------------------
+                // Compound Literals
+                // ---------------------------------------------------------------------------------
+                rdf!(id!(unchecked CompoundLiteral) ;
+                    class ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(CompoundLiteral@en)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("A class representing a compound literal")),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")),
+                    ])).into(),
+                rdf!(id!(unchecked direction) ;
+                    property ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(direction@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked CompoundLiteral)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Literal)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The base direction component of a CompoundLiteral")),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The range of the property is an rdfs:Literal, whose value MUST be either 'ltr' or 'rtl'")),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")),
+                    ])).into(),
+                rdf!(id!(unchecked language) ;
+                    property ;
+                    call |body: AnnotationOnlyBody|
+                    body.with_annotations([
+                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked rdf)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!(language@en)),
+                        annotation!(id!(unchecked rdfs:domain), id!(unchecked CompoundLiteral)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked Literal)),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The language component of a CompoundLiteral")),
+                        annotation!(id!(unchecked rdfs:comment), rdf_str!("The range of the property is an rdfs:Literal, whose value MUST be a well-formed [BCP47] language tag")),
+                        annotation!(id!(unchecked rdfs:seeAlso), url!("https://www.w3.org/TR/json-ld11/#the-rdf-compoundliteral-class-and-the-rdf-language-and-rdf-direction-properties")),
+                    ])).into(),
+            ])
+    )
+});

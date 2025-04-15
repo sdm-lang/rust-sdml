@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base_uri": "http://example.orgMANIFEST_PATH/corpus/property_def_empty.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/property_def_empty.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -14,8 +14,8 @@
           },
           "span": {
             "__type": "span",
-            "end": 48,
-            "start": 28
+            "end": 63,
+            "start": 43
           },
           "type": {
             "__type": "type_reference",
@@ -28,12 +28,12 @@
   "is_library_module": false,
   "name": {
     "__type": "identifier",
-    "value": "ddict"
+    "value": "corpus_test_property"
   },
   "source_file": "MANIFEST_PATH/corpus/property_def_empty.sdm",
   "span": {
     "__type": "span",
-    "end": 54,
+    "end": 69,
     "start": 0
   }
 }

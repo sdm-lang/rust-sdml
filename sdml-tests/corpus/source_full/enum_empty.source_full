@@ -1,0 +1,5 @@
+module corpus_test_enum is
+
+  enum NameKind
+
+end
