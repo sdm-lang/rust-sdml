@@ -1,6 +1,7 @@
 /*!
 Provide the Rust types that implement *definition*-related components of the SDML Grammar.
 */
+
 use crate::{
     load::ModuleLoader,
     model::{
@@ -509,7 +510,10 @@ pub use classes::{
 };
 
 mod datatypes;
-pub use datatypes::{DatatypeDef, ExplicitTimezoneFlag, RestrictionFacet};
+pub use datatypes::{
+    is_restriction_facet_name, is_restriction_facet_name_str, DatatypeDef, ExplicitTimezoneFlag,
+    RestrictionFacet,
+};
 
 mod dimensions;
 pub use dimensions::{

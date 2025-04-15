@@ -1,6 +1,8 @@
-use crate::model::constraints::{PredicateValue, SequenceBuilder};
-use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
-use crate::model::{HasSourceSpan, Span};
+use crate::model::{
+    constraints::{PredicateValue, SequenceBuilder},
+    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+    HasSourceSpan, Span,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

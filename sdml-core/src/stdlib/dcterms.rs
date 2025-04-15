@@ -2,14 +2,12 @@
 This Rust module contains the SDML model of the SDML library module `dc_terms`.
 */
 
-use crate::model::annotations::{AnnotationOnlyBody, HasAnnotations};
-use crate::model::modules::Module;
-use crate::model::HasBody;
+use crate::model::{
+    annotations::{AnnotationOnlyBody, HasAnnotations},
+    modules::Module,
+    HasBody,
+};
 use std::str::FromStr;
-
-// ------------------------------------------------------------------------ye------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types

@@ -1,12 +1,14 @@
 /*!
 Provide the Rust types that implement *value*-related components of the SDML Grammar.
 */
-use crate::model::{
-    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    members::{Ordering, Uniqueness},
-    HasSourceSpan, Span,
+use crate::{
+    model::{
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+        members::{Ordering, Uniqueness},
+        HasSourceSpan, Span,
+    },
+    syntax::grammar::{VALUE_BOOLEAN_FALSITY_SYMBOL, VALUE_BOOLEAN_TRUTH_SYMBOL},
 };
-use crate::syntax::grammar::{VALUE_BOOLEAN_FALSITY_SYMBOL, VALUE_BOOLEAN_TRUTH_SYMBOL};
 use lazy_static::lazy_static;
 use ordered_float::OrderedFloat;
 use regex::Regex;
@@ -995,7 +997,12 @@ impl Binary {
     }
 
     pub fn to_hex_string(&self) -> String {
-        self.as_bytes().iter().map(|b| format!("{b:02X}")).collect()
+        self.as_bytes()
+            .iter()
+            .fold(String::with_capacity(self.0.len() * 2), |mut result, b| {
+                result.push_str(&format!("{b:02X}"));
+                result
+            })
     }
 
     pub fn to_base64_string(&self) -> String {

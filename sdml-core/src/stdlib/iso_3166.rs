@@ -2,14 +2,12 @@
 This Rust module contains the SDML model of the SDML library module `iso_3166` for ISO-3166.
 */
 
-use crate::model::annotations::{AnnotationOnlyBody, HasAnnotations};
-use crate::model::definitions::UnionBody;
-use crate::model::modules::Module;
+use crate::model::{
+    annotations::{AnnotationOnlyBody, HasAnnotations},
+    definitions::UnionBody,
+    modules::Module,
+};
 use std::str::FromStr;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types

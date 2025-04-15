@@ -1,11 +1,5 @@
 /*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-
+Constants for the syntactic elements of the language.
  */
 
 pub const NAME_SDML: &str = "sdml";

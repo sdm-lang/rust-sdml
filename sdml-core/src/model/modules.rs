@@ -1,36 +1,39 @@
 /*!
 Provide the Rust types that implement *module*-related components of the SDML Grammar.
  */
-use crate::config::{
-    is_rdf_definition_allowed_in_module, is_typeclass_definition_allowed_in_module,
+use crate::{
+    config::{is_rdf_definition_allowed_in_module, is_typeclass_definition_allowed_in_module},
+    load::ModuleLoader,
+    model::{
+        annotations::{Annotation, HasAnnotations},
+        check::{MaybeIncomplete, Validate},
+        definitions::{
+            DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
+        },
+        definitions::{Definition, RdfDef, TypeClassDef},
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+        HasName, HasSourceSpan, References, Span,
+    },
+    store::{InMemoryModuleCache, ModuleStore},
+    syntax::PC_MODULE_PATH_SEPARATOR,
 };
-use crate::load::ModuleLoader;
-use crate::model::definitions::{
-    DatatypeDef, EntityDef, EnumDef, EventDef, PropertyDef, StructureDef, UnionDef,
+use sdml_errors::{
+    diagnostics::functions::{
+        definition_not_found, imported_module_not_found, invalid_module_base_uri,
+        invalid_module_version_uri, library_definition_not_allowed_in, module_is_incomplete,
+        module_version_info_empty, module_version_mismatch, module_version_not_found,
+        IdentifierCaseConvention,
+    },
+    Error, FileId,
 };
-use crate::model::References;
-use crate::model::{
-    annotations::{Annotation, HasAnnotations},
-    check::{MaybeIncomplete, Validate},
-    definitions::{Definition, RdfDef, TypeClassDef},
-    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    HasName, HasSourceSpan, Span,
+use std::{
+    collections::BTreeMap,
+    collections::BTreeSet,
+    fmt::{Debug, Display},
+    hash::Hash,
+    path::PathBuf,
+    str::FromStr,
 };
-use crate::store::{InMemoryModuleCache, ModuleStore};
-use crate::syntax::PC_MODULE_PATH_SEPARATOR;
-use sdml_errors::diagnostics::functions::{
-    definition_not_found, imported_module_not_found, invalid_module_base_uri,
-    invalid_module_version_uri, library_definition_not_allowed_in, module_is_incomplete,
-    module_version_info_empty, module_version_mismatch, module_version_not_found,
-    IdentifierCaseConvention,
-};
-use sdml_errors::{Error, FileId};
-use std::collections::BTreeMap;
-use std::fmt::Display;
-use std::hash::Hash;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::{collections::BTreeSet, fmt::Debug};
 use url::Url;
 
 #[cfg(feature = "serde")]
@@ -237,7 +240,7 @@ impl Module {
             source_file: Default::default(),
             file_id: Default::default(),
             span: Default::default(),
-            name: name,
+            name,
             base_uri: Default::default(),
             version_info: Default::default(),
             version_uri: Default::default(),

@@ -1,6 +1,8 @@
-use crate::model::identifiers::IdentifierReference;
-use crate::model::values::{MappingValue, SimpleValue, ValueConstructor};
-use crate::model::{HasSourceSpan, Span};
+use crate::model::{
+    identifiers::IdentifierReference,
+    values::{MappingValue, SimpleValue, ValueConstructor},
+    HasSourceSpan, Span,
+};
 use std::fmt::Display;
 
 #[cfg(feature = "serde")]

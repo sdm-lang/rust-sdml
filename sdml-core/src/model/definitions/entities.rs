@@ -1,21 +1,22 @@
-use super::HasMultiMembers;
-use crate::load::ModuleLoader;
-use crate::model::annotations::{AnnotationBuilder, AnnotationProperty, HasAnnotations};
-use crate::model::check::{validate_multiple_method_duplicates, MaybeIncomplete};
-use crate::model::values::Value;
-use crate::model::{
-    annotations::Annotation,
-    check::Validate,
-    identifiers::{Identifier, IdentifierReference},
-    members::Member,
-    modules::Module,
-    Span,
+use crate::{
+    load::ModuleLoader,
+    model::{
+        annotations::{Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations},
+        check::{validate_multiple_method_duplicates, MaybeIncomplete, Validate},
+        definitions::HasMultiMembers,
+        identifiers::{Identifier, IdentifierReference},
+        members::Member,
+        modules::Module,
+        values::Value,
+        HasName, HasOptionalBody, HasSourceSpan, References, Span,
+    },
+    store::ModuleStore,
 };
-use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References};
-use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
-use std::collections::BTreeMap;
-use std::{collections::BTreeSet, fmt::Debug};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::Debug,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

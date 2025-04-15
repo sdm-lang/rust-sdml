@@ -1,25 +1,16 @@
-/*!
-One-line description.
-
-More detailed description, with
-
-# Example
-
-YYYYY
-
-*/
-
-use crate::load::ModuleLoader;
-use crate::model::annotations::{
-    Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations,
+use crate::{
+    load::ModuleLoader,
+    model::{
+        annotations::{Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations},
+        check::{MaybeIncomplete, Validate},
+        constraints::{FunctionBody, FunctionCardinality, FunctionSignature},
+        identifiers::{Identifier, IdentifierReference},
+        modules::Module,
+        values::Value,
+        HasName, HasOptionalBody, HasSourceSpan, References, Span,
+    },
+    store::ModuleStore,
 };
-use crate::model::check::{MaybeIncomplete, Validate};
-use crate::model::constraints::{FunctionBody, FunctionCardinality, FunctionSignature};
-use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::modules::Module;
-use crate::model::values::Value;
-use crate::model::{HasName, HasOptionalBody, HasSourceSpan, References, Span};
-use crate::store::ModuleStore;
 use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::collections::{BTreeMap, BTreeSet};
 

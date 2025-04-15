@@ -11,12 +11,12 @@ use crate::{
     },
     store::ModuleStore,
 };
+use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt::Debug,
 };
 
-use sdml_errors::diagnostics::functions::IdentifierCaseConvention;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 

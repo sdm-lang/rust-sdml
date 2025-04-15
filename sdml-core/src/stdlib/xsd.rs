@@ -1,15 +1,12 @@
 /**
 This Rust module contains the SDML model of the SDML library module `xsd` for XML Schema.
  */
-use crate::model::annotations::{AnnotationOnlyBody, HasAnnotations};
-use crate::model::identifiers::Identifier;
-use crate::model::modules::Module;
-use crate::model::HasBody;
+use crate::model::{
+    annotations::{AnnotationOnlyBody, HasAnnotations},
+    modules::Module,
+    HasBody,
+};
 use std::str::FromStr;
-
-// ------------------------------------------------------------------------------------------------
-// Public Macros
-// ------------------------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------------------------
 // Public Types
@@ -489,25 +486,3 @@ module_function!(|| {
             ])
     )
 });
-
-pub fn is_constraining_facet(name: &Identifier) -> bool {
-    is_constraining_facet_str(name.as_ref())
-}
-
-pub fn is_constraining_facet_str(name: &str) -> bool {
-    [
-        ENUMERATION,
-        FRACTION_DIGITS,
-        LENGTH,
-        MAX_EXCLUSIVE,
-        MAX_INCLUSIVE,
-        MAX_LENGTH,
-        MIN_EXCLUSIVE,
-        MIN_INCLUSIVE,
-        MIN_LENGTH,
-        PATTERN,
-        TOTAL_DIGITS,
-        WHITE_SPACE,
-    ]
-    .contains(&name)
-}

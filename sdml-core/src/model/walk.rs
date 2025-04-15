@@ -26,22 +26,23 @@ walk_module_simple(
 
 */
 
-use crate::error::Error;
-use crate::model::annotations::{Annotation, AnnotationProperty, HasAnnotations};
-use crate::model::constraints::{ConstraintBody, ControlledLanguageString, FormalConstraint};
-use crate::model::definitions::{
-    DatatypeDef, Definition, EntityDef, EnumDef, EventDef, PropertyDef, RdfDef, StructureDef,
-    TypeVariant, UnionDef, ValueVariant,
+use crate::{
+    error::Error,
+    model::{
+        annotations::{Annotation, AnnotationProperty, HasAnnotations},
+        constraints::{ConstraintBody, ControlledLanguageString, FormalConstraint},
+        definitions::{
+            DatatypeDef, Definition, DimensionDef, DimensionIdentity, DimensionParent, EntityDef,
+            EnumDef, EventDef, PropertyDef, RdfDef, SourceEntity, StructureDef, TypeVariant,
+            UnionDef, ValueVariant,
+        },
+        identifiers::IdentifierReference,
+        members::{Member, MemberDef, MemberKind},
+        modules::{Import, ImportStatement, MemberImport, Module, ModuleImport},
+        HasBody, HasOptionalBody,
+    },
 };
-use crate::model::identifiers::IdentifierReference;
-use crate::model::members::{Member, MemberDef, MemberKind};
-use crate::model::modules::{Import, ModuleImport};
-use crate::model::modules::{ImportStatement, Module};
-use crate::model::{HasBody, HasOptionalBody};
 use tracing::info;
-
-use super::definitions::{DimensionDef, DimensionIdentity, DimensionParent, SourceEntity};
-use super::modules::MemberImport;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types

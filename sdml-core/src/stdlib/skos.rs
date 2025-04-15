@@ -1,10 +1,12 @@
 /**
 This Rust module contains the SDML model of the SDML library module `skos` for SKOS.
 */
-use crate::model::annotations::HasAnnotations;
-use crate::model::definitions::{StructureBody, UnionBody};
-use crate::model::modules::Module;
-use crate::model::values::SimpleValue;
+use crate::model::{
+    annotations::HasAnnotations,
+    definitions::{StructureBody, UnionBody},
+    modules::Module,
+    values::SimpleValue,
+};
 use std::str::FromStr;
 use url::Url;
 

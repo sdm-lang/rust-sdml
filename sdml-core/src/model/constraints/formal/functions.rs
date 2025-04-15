@@ -1,15 +1,19 @@
-use crate::load::ModuleLoader;
-use crate::model::check::Validate;
-use crate::model::constraints::{
-    BooleanSentence, ConstraintSentence, FunctionComposition, FunctionalTerm, PredicateValue,
-    QuantifiedSentence, SequenceBuilder, SimpleSentence, Term,
+use crate::{
+    load::ModuleLoader,
+    model::{
+        check::Validate,
+        constraints::{
+            BooleanSentence, ConstraintSentence, FunctionComposition, FunctionalTerm,
+            PredicateValue, QuantifiedSentence, SequenceBuilder, SimpleSentence, Term,
+        },
+        identifiers::{Identifier, IdentifierReference},
+        members::{CardinalityRange, MappingType, Ordering, Uniqueness},
+        modules::Module,
+        HasBody, HasName, HasSourceSpan, Span,
+    },
+    store::ModuleStore,
+    syntax::KW_WILDCARD,
 };
-use crate::model::identifiers::{Identifier, IdentifierReference};
-use crate::model::members::{CardinalityRange, MappingType, Ordering, Uniqueness};
-use crate::model::modules::Module;
-use crate::model::{HasBody, HasName, HasSourceSpan, Span};
-use crate::store::ModuleStore;
-use crate::syntax::KW_WILDCARD;
 use std::fmt::Display;
 
 #[cfg(feature = "serde")]

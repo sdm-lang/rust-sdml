@@ -72,7 +72,7 @@ impl SequenceBuilder {
     {
         Self {
             span: Default::default(),
-            variables: Vec::from_iter(variables.into_iter()),
+            variables: Vec::from_iter(variables),
             body: body.into(),
         }
     }

@@ -1,30 +1,31 @@
-use crate::load::ModuleLoader;
-use crate::model::annotations::HasAnnotations;
-use crate::model::annotations::{AnnotationBuilder, AnnotationProperty};
-use crate::model::check::{find_definition, MaybeIncomplete, Validate};
-use crate::model::definitions::Definition;
-use crate::model::modules::Module;
-use crate::model::values::Value;
-use crate::model::References;
-use crate::model::{
-    annotations::AnnotationOnlyBody,
-    identifiers::{Identifier, IdentifierReference},
-    HasName, Span,
-};
-use crate::model::{HasOptionalBody, HasSourceSpan};
-use crate::store::ModuleStore;
-use crate::syntax::{
-    KW_FACET_EXPLICIT_TIMEZONE, KW_FACET_FRACTION_DIGITS, KW_FACET_LENGTH, KW_FACET_MAX_EXCLUSIVE,
-    KW_FACET_MAX_INCLUSIVE, KW_FACET_MAX_LENGTH, KW_FACET_MIN_EXCLUSIVE, KW_FACET_MIN_INCLUSIVE,
-    KW_FACET_MIN_LENGTH, KW_FACET_PATTERN, KW_FACET_TIMEZONE_OPTIONAL,
-    KW_FACET_TIMEZONE_PROHIBITED, KW_FACET_TIMEZONE_REQUIRED, KW_FACET_TOTAL_DIGITS,
+use crate::{
+    load::ModuleLoader,
+    model::{
+        annotations::{AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations},
+        check::{find_definition, MaybeIncomplete, Validate},
+        definitions::Definition,
+        identifiers::{Identifier, IdentifierReference},
+        modules::Module,
+        values::Value,
+        HasName, HasOptionalBody, HasSourceSpan, References, Span,
+    },
+    store::ModuleStore,
+    syntax::{
+        KW_FACET_EXPLICIT_TIMEZONE, KW_FACET_FRACTION_DIGITS, KW_FACET_LENGTH,
+        KW_FACET_MAX_EXCLUSIVE, KW_FACET_MAX_INCLUSIVE, KW_FACET_MAX_LENGTH,
+        KW_FACET_MIN_EXCLUSIVE, KW_FACET_MIN_INCLUSIVE, KW_FACET_MIN_LENGTH, KW_FACET_PATTERN,
+        KW_FACET_TIMEZONE_OPTIONAL, KW_FACET_TIMEZONE_PROHIBITED, KW_FACET_TIMEZONE_REQUIRED,
+        KW_FACET_TOTAL_DIGITS,
+    },
 };
 use sdml_errors::diagnostics::functions::{
     datatype_invalid_base_type, type_definition_not_found, IdentifierCaseConvention,
 };
-use std::fmt::Display;
-use std::str::FromStr;
-use std::{collections::BTreeSet, fmt::Debug};
+use std::{
+    collections::BTreeSet,
+    fmt::{Debug, Display},
+    str::FromStr,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -88,6 +89,27 @@ pub struct DatatypeDef {
     restrictions: Vec<RestrictionFacet>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     body: Option<AnnotationOnlyBody>,
+}
+
+pub fn is_restriction_facet_name(name: &Identifier) -> bool {
+    is_restriction_facet_name_str(name.as_ref())
+}
+
+pub fn is_restriction_facet_name_str(name: &str) -> bool {
+    [
+        KW_FACET_EXPLICIT_TIMEZONE,
+        KW_FACET_FRACTION_DIGITS,
+        KW_FACET_LENGTH,
+        KW_FACET_MAX_EXCLUSIVE,
+        KW_FACET_MAX_INCLUSIVE,
+        KW_FACET_MAX_LENGTH,
+        KW_FACET_MIN_EXCLUSIVE,
+        KW_FACET_MIN_INCLUSIVE,
+        KW_FACET_MIN_LENGTH,
+        KW_FACET_PATTERN,
+        KW_FACET_TOTAL_DIGITS,
+    ]
+    .contains(&name)
 }
 
 // ------------------------------------------------------------------------------------------------

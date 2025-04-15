@@ -2,7 +2,7 @@ use pretty_assertions::assert_eq;
 use sdml_core::model::identifiers::Identifier;
 use sdml_core::model::modules::Module;
 use sdml_core::repr::RepresentationWriter;
-use sdml_src::{Options, Writer};
+use sdml_src::write::{Options, Writer};
 use url::Url;
 
 #[test]

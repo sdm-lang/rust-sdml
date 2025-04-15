@@ -1,14 +1,16 @@
-use crate::error::Error;
-use crate::load::ModuleLoader;
-use crate::model::check::Validate;
-use crate::model::modules::Module;
-use crate::model::{HasSourceSpan, Span};
-use crate::store::ModuleStore;
-use crate::syntax::{
-    KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_UNIQUENESS_NONUNIQUE, KW_UNIQUENESS_UNIQUE,
+use crate::{
+    error::Error,
+    load::ModuleLoader,
+    model::{check::Validate, modules::Module, HasSourceSpan, Span},
+    store::ModuleStore,
+    syntax::{
+        KW_ORDERING_ORDERED, KW_ORDERING_UNORDERED, KW_UNIQUENESS_NONUNIQUE, KW_UNIQUENESS_UNIQUE,
+    },
 };
-use std::fmt::{Debug, Display};
-use std::str::FromStr;
+use std::{
+    fmt::{Debug, Display},
+    str::FromStr,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

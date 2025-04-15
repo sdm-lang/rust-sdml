@@ -6,6 +6,7 @@ use crate::{
             Annotation, AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
         },
         check::{find_definition, validate_multiple_method_duplicates, MaybeIncomplete, Validate},
+        definitions::HasMultiMembers,
         identifiers::{Identifier, IdentifierReference},
         members::Member,
         modules::Module,
@@ -14,19 +15,17 @@ use crate::{
     },
     store::ModuleStore,
 };
+use sdml_errors::diagnostics::functions::{
+    dimension_parent_not_entity, source_entity_missing_member, source_entity_not_entity,
+    type_definition_not_found, IdentifierCaseConvention,
+};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt::Debug,
 };
 
-use sdml_errors::diagnostics::functions::{
-    dimension_parent_not_entity, source_entity_missing_member, source_entity_not_entity,
-    type_definition_not_found, IdentifierCaseConvention,
-};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-
-use super::HasMultiMembers;
 
 // ------------------------------------------------------------------------------------------------
 // Public Types ❱ Definitions ❱ Dimensions

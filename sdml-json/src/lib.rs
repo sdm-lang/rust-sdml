@@ -1,13 +1,11 @@
 /*!
 One-line description.
 
-More detailed description, with
+TBD
 
 # Example
 
-End of file during parsingSymbol’s value as variable is void: rustEnd of file during parsing
-
-# Features
+TBD
 
  */
 

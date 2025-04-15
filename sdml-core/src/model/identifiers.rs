@@ -1,12 +1,12 @@
 /*!
 Provide the Rust types that implement *identifier*-related components of the SDML Grammar.
 */
-use crate::config::{is_builtin_type_name_str, is_library_module_str};
-use crate::load::ModuleLoader;
-use crate::model::modules::Module;
-use crate::model::{HasSourceSpan, Span};
-use crate::syntax::{
-    PC_QUALIFIED_IDENTIFIER_SEPARATOR, RESERVED_CONSTRAINT_KEYWORDS, RESERVED_KEYWORDS,
+
+use crate::{
+    config::{is_builtin_type_name_str, is_library_module_str},
+    load::ModuleLoader,
+    model::{modules::Module, HasSourceSpan, Span},
+    syntax::{PC_QUALIFIED_IDENTIFIER_SEPARATOR, RESERVED_CONSTRAINT_KEYWORDS, RESERVED_KEYWORDS},
 };
 use convert_case::{Case, Casing};
 use lazy_static::lazy_static;

@@ -1,10 +1,9 @@
-use super::HasMultiMembers;
 use crate::{
     load::ModuleLoader,
     model::{
         annotations::{Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations},
         check::{validate_multiple_method_duplicates, MaybeIncomplete, Validate},
-        definitions::SourceEntity,
+        definitions::{HasMultiMembers, SourceEntity},
         identifiers::{Identifier, IdentifierReference},
         members::Member,
         modules::Module,

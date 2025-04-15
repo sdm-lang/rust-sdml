@@ -1,12 +1,15 @@
 /*!
-Provides types for model checking.
-
+Provides the traits and functions for model checking.
 */
 
-use super::{definitions::HasMultiMembers, identifiers::Identifier, HasSourceSpan};
 use crate::{
     load::ModuleLoader,
-    model::{definitions::Definition, identifiers::IdentifierReference, modules::Module, HasName},
+    model::{
+        definitions::{Definition, HasMultiMembers},
+        identifiers::{Identifier, IdentifierReference},
+        modules::Module,
+        HasName, HasSourceSpan,
+    },
     store::ModuleStore,
 };
 use sdml_errors::diagnostics::functions::{duplicate_member, member_is_incomplete};

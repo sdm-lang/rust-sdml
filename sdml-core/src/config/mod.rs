@@ -1,17 +1,19 @@
 /*!
 One-line description.
 
-More detailed description, with
+TBD
 
 # Example
 
-End of file during parsingSymbol’s value as variable is void: rustEnd of file during parsing
+TBD
 
  */
 
-use crate::model::{identifiers::Identifier, modules::ModulePath};
-use crate::stdlib::{self, owl, rdf, rdfs, sdml, skos, xsd};
-use crate::store::InMemoryModuleCache;
+use crate::{
+    model::{identifiers::Identifier, modules::ModulePath},
+    stdlib::{self, owl, rdf, rdfs, sdml, skos, xsd},
+    store::InMemoryModuleCache,
+};
 use std::{
     collections::{BTreeSet, HashMap},
     sync::LazyLock,
@@ -275,25 +277,15 @@ impl Default for LibraryConfiguration {
 fn config_to_library_names() -> BTreeSet<&'static str> {
     library_module_configuration()
         .values()
-        .map(|vs| vs.iter().map(|v| v.name.as_ref()))
-        .flatten()
-        .chain(
-            library_module_configuration()
-                .values()
-                .map(|vs| {
-                    vs.iter().filter_map(|v| {
-                        if let Some(name) = &v.compatibility_alias {
-                            Some(name.as_ref())
-                        } else {
-                            None
-                        }
-                    })
-                })
-                .flatten(),
-        )
+        .flat_map(|vs| vs.iter().map(|v| v.name.as_ref()))
+        .chain(library_module_configuration().values().flat_map(|vs| {
+            vs.iter()
+                .filter_map(|v| v.compatibility_alias.as_ref().map(|name| name.as_ref()))
+        }))
         .collect()
 }
 
+#[allow(clippy::map_flatten)]
 fn config_to_type_names() -> BTreeSet<&'static str> {
     library_module_configuration()
         .values()

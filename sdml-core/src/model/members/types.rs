@@ -1,18 +1,24 @@
-use crate::load::ModuleLoader;
-use crate::model::check::{find_definition, MaybeIncomplete, Validate};
-use crate::model::definitions::Definition;
-use crate::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
-use crate::model::modules::Module;
-use crate::model::{HasSourceSpan, References, Span};
-use crate::config::is_builtin_type_name;
-use crate::store::ModuleStore;
-use crate::syntax::KW_TYPE_UNKNOWN;
+use crate::{
+    config::is_builtin_type_name,
+    load::ModuleLoader,
+    model::{
+        check::{find_definition, MaybeIncomplete, Validate},
+        definitions::Definition,
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+        modules::Module,
+        HasSourceSpan, References, Span,
+    },
+    store::ModuleStore,
+    syntax::KW_TYPE_UNKNOWN,
+};
 use sdml_errors::diagnostics::functions::{
     property_incompatible_usage, rdf_definition_incompatible_usage, type_class_incompatible_usage,
     type_definition_not_found,
 };
-use std::collections::BTreeSet;
-use std::fmt::{Debug, Display};
+use std::{
+    collections::BTreeSet,
+    fmt::{Debug, Display},
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};

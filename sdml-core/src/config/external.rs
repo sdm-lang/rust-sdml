@@ -1,16 +1,18 @@
 /*!
 One-line description.
 
-More detailed description, with
+TBD
 
 # Example
 
-End of file during parsingSymbol’s value as variable is void: rustEnd of file during parsing
+TBD
 
  */
 
-use super::{LibraryConfiguration, LibraryModule};
-use crate::model::{identifiers::Identifier, modules::ModulePath};
+use crate::{
+    config::{LibraryConfiguration, LibraryModule},
+    model::{identifiers::Identifier, modules::ModulePath},
+};
 use serde_json::{self, Map, Value};
 use std::{
     collections::{BTreeSet, HashMap},
@@ -105,7 +107,7 @@ fn parse_library_modules(
     let mut lib_modules: HashMap<ModulePath, Vec<LibraryModule>> = HashMap::default();
     for (path, modules) in modules {
         if let Value::Array(modules) = modules {
-            let path = ModulePath::from_str(&path).unwrap();
+            let path = ModulePath::from_str(path).unwrap();
             lib_modules.insert(path, parse_module_list(modules)?);
         } else {
             return Err(LibraryConfigurationError::InvalidValueType(

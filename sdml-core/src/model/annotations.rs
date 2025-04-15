@@ -1,20 +1,22 @@
 /*!
 Provide the Rust types that implement *annotation*-related components of the SDML Grammar.
 */
-use crate::config;
-use crate::load::ModuleLoader;
-use crate::model::values::{LanguageString, LanguageTag};
-use crate::model::{
-    check::Validate,
-    constraints::Constraint,
-    identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
-    modules::Module,
-    values::Value,
-    HasNameReference, Span,
+
+use crate::{
+    config,
+    load::ModuleLoader,
+    model::{
+        check::Validate,
+        constraints::Constraint,
+        definitions::is_restriction_facet_name,
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+        modules::Module,
+        values::{LanguageString, LanguageTag, Value},
+        HasName, HasNameReference, References, Span,
+    },
+    stdlib,
+    store::ModuleStore,
 };
-use crate::model::{HasName, References};
-use crate::stdlib;
-use crate::store::ModuleStore;
 use std::{collections::BTreeSet, fmt::Debug};
 use tracing::trace;
 use url::Url;
@@ -548,7 +550,7 @@ impl AnnotationProperty {
     pub fn is_datatype_facet(&self) -> bool {
         if let IdentifierReference::QualifiedIdentifier(name) = self.name_reference() {
             name.module().as_ref() == stdlib::xsd::MODULE_NAME
-                && stdlib::xsd::is_constraining_facet(name.member())
+                && is_restriction_facet_name(name.member())
         } else {
             false
         }

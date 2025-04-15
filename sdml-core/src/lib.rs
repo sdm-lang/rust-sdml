@@ -8,11 +8,23 @@ generators.
 
 ## repr-write
 
+Includes a trait [`RepresentationWriter`] for implementers, and clients, of model representation forms requiring more than simply Serde support.
+
 ## serde
+
+Support for serde derived serialization and de-serialization for all the model types.
 
 ## stdlib
 
+Includes support for the standard library definitions.
+
+## stdlib-ext-config
+
+Includes support for external configuration of standard library content.
+
 ## terms
+
+Includes support for term checking as a part of the standard validation process.
 
 ## tree-sitter
 

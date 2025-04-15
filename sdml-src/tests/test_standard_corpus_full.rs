@@ -1,5 +1,5 @@
 use sdml_core::{model::modules::Module, repr::RepresentationWriter, store::InMemoryModuleCache};
-use sdml_src::{Level, Options, Writer};
+use sdml_src::write::{Level, Options, Writer};
 
 sdml_tests::test_setup! {
     all "source_full" =>  module_to_source
