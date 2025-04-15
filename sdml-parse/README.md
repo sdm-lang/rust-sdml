@@ -5,9 +5,10 @@ Rust Parser for the Simple Domain Modeling Language (SDML).
 [![Crates.io](https://img.shields.io/crates/v/sdml_parse.svg)](https://crates.io/crates/sdml_parse)
 [![Docs.rs](https://img.shields.io/docsrs/sdml-parse.svg)](https://docs.rs/sdml_parse)
 
-This package is part of the Rust SDML project and specifically implements a parser from SDML surface syntax to the
-in-memory model representation. The project's intent is to provide an idiomatic implementation of the in-memory model,
-parser, generators, and the CLI tool.
+This package is part of the Rust SDML project and specifically implements a
+parser from SDML surface syntax to the in-memory model representation. The
+project's intent is to provide an idiomatic implementation of the in-memory
+model, parser, generators, and the CLI tool.
 
 The following figure demonstrates this package in the broader project context.
 
@@ -15,7 +16,7 @@ The following figure demonstrates this package in the broader project context.
 
 ## Changes
 
-### Version 0.4.0
+### Version 0.4.1
 
 * Update version to be consistent with new core language.
 
@@ -46,7 +47,8 @@ The following figure demonstrates this package in the broader project context.
 
 ### Version 0.2.10
 
-* Fix: Handle tree-sitter `ERROR` nodes correctly when they cause the top-level rule to fail.
+* Fix: Handle tree-sitter `ERROR` nodes correctly when they cause the top-level
+  rule to fail.
 
 ### Version 0.2.9
 
@@ -60,8 +62,10 @@ The following figure demonstrates this package in the broader project context.
 ### Version 0.2.7
 
 * Fix: Cardinality parser set incorrect default values.
-  * Fix: For min/max it should be `one` and not `zero_or_one` as the default to match the `DEFAULT_CARDINALITY` constant in the model.
-  * Fix: For ordering/uniqueness the default if not parsed should be `None` not `Some(Default::default())`.
+  * Fix: For min/max it should be `one` and not `zero_or_one` as the default to
+    match the `DEFAULT_CARDINALITY` constant in the model.
+  * Fix: For ordering/uniqueness the default if not parsed should be `None` not
+    `Some(Default::default())`.
   * Update: the `with_` constructors on `Cardinality` to take option types.
 
 ### Version 0.2.6

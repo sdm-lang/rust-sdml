@@ -1,6 +1,6 @@
 [package]
 name = "sdml-tests"
-version = "0.4.0"
+version = "0.4.1"
 description = "Test Cases, not for general use"
 edition = "2021"
 license = "Apache-2.0"
@@ -9,5 +9,5 @@ publish = false
 [dependencies]
 paste = "1.0.15"
 pretty_assertions = "1.4"
-sdml-core = { version = "0.4.0", features = ["serde", "tree-sitter"], path = "../sdml-core" }
-sdml-parse = { version = "0.4.0", path = "../sdml-parse" }
+sdml-core = { version = "0.4.1", features = ["serde", "tree-sitter"], path = "../sdml-core" }
+sdml-parse = { version = "0.4.1", path = "../sdml-parse" }
