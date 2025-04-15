@@ -2,8 +2,8 @@
 
 Simple Domain Modeling Language (SDML) JSON I/O.
 
-[[https://crates.io/crates/sdml_json][https://img.shields.io/crates/v/sdml_generate.svg]]
-[[https://docs.rs/sdml_json][https://img.shields.io/docsrs/sdml-generate.svg]]
+[[https://crates.io/crates/sdml_json][https://img.shields.io/crates/v/sdml_json.svg]]
+[[https://docs.rs/sdml_json][https://img.shields.io/docsrs/sdml-json.svg]]
 
 This package is part of the Rust SDML project and specifically defines the JSON
 mapping for SDML modules. The project's intent is to provide an idiomatic
