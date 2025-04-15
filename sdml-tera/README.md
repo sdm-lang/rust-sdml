@@ -18,7 +18,7 @@ The following figure demonstrates this package in the broader project context.
 
 ![Package Overview](https://raw.githubusercontent.com/sdm-lang/rust-sdml/refs/heads/main/doc/overview-tera.png)
 
-# Example
+## Example
 
 We wish to produce an output such as the following, a bulleted outline of a
 module.
@@ -126,12 +126,12 @@ fn print_module(module: &Module, cache: &impl ModuleStore) {
 }
 ```
 
-# Changes
+## Changes
 
-### Version 0.4.0
+### Version 0.4.1
 
 * Update version to be consistent with new core language.
 
-## Version 0.1.0
+### Version 0.1.0
 
 Initial release.
