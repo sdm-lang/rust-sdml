@@ -1,8 +1,11 @@
 module corpus_test_dimension is
 
   dimension Campaigns is
+
     source Campaign
+
     parent portfolio -> Portfolio
+
   end
 
 end

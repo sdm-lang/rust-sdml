@@ -1,14 +1,15 @@
 module corpus_test_datatype is
 
   datatype nameString <- sdml:string {
-    pattern =  [
+
+    pattern = [
       "["
       "\"A[A-Z0-9]{19}\""
       "\"C[A-Z0-9]{19}\""
       "\"X[A-Z0-9]{19}\""
       "]"
     ]
-  }
 
+  }
 
 end

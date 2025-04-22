@@ -1,7 +1,9 @@
 module corpus_test_dimension is
 
   dimension Campaigns is
+
     identity campaign -> CampaignId
+
   end
 
 end

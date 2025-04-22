@@ -1,13 +1,21 @@
 module corpus_test_structure is
 
   structure Duration is
+
     a -> sdml:boolean
+
     b -> sdml:double
+
     c -> sdml:decimal
+
     d -> sdml:integer
+
     e -> sdml:string
+
     f -> sdml:binary
+
     g -> sdml:iri
+
   end
 
 end

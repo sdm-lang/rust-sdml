@@ -1,7 +1,9 @@
 module corpus_test_structure is
 
   structure Thing is
+
     properties -> {unique 1..} (sdml:string -> sdml:integer)
+
   end
 
 end

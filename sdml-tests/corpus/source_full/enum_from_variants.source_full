@@ -2,9 +2,9 @@ module corpus_test_enum is
 
   enum NameKind of
 
-    External
+    from Names with Internal
 
-    Internal
+    External
 
   end
 

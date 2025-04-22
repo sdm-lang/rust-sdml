@@ -1,9 +1,10 @@
 module corpus_test_datatype is
 
   datatype unixUserId <- sdml:string {
+
     minLength = 1
     maxLength = 8
-  }
 
+  }
 
 end

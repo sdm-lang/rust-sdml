@@ -1,7 +1,9 @@
 module corpus_test_event is
 
   event NameChanged is
+
     source Campaign with [ name title status ]
+
   end
 
 end

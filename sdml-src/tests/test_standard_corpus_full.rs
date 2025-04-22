@@ -1,5 +1,5 @@
 use sdml_core::{model::modules::Module, repr::RepresentationWriter, store::InMemoryModuleCache};
-use sdml_src::write::{Level, Options, Writer};
+use sdml_src::write::{Level, Options, Whitespace, Writer};
 
 sdml_tests::test_setup! {
     all "source_full" =>  module_to_source
@@ -8,6 +8,7 @@ sdml_tests::test_setup! {
 fn module_to_source(module: &Module, cache: &InMemoryModuleCache) -> String {
     let options = Options::default()
         .with_level(Level::Full)
+        .with_whitespace(Whitespace::Additional)
         .with_emit_base_iri(false);
     let writer = Writer;
     writer

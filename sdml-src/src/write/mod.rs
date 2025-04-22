@@ -22,9 +22,9 @@ use sdml_core::{
         },
         definitions::{
             DatatypeDef, Definition, DimensionDef, DimensionIdentity, DimensionParent, EntityDef,
-            EnumDef, EventDef, MethodDef, PropertyDef, RdfDef, RestrictionFacet, SourceEntity,
-            StructureDef, TypeClassArgument, TypeClassDef, TypeClassReference, TypeVariable,
-            TypeVariant, UnionDef, ValueVariant,
+            EnumDef, EventDef, FromDefinition, HasOptionalFromDefinition, MethodDef, PropertyDef,
+            RdfDef, RestrictionFacet, SourceEntity, StructureDef, TypeClassArgument, TypeClassDef,
+            TypeClassReference, TypeVariable, TypeVariant, UnionDef, ValueVariant,
         },
         identifiers::IdentifierReference,
         members::{Cardinality, Member, MemberDef, MemberKind, TypeReference, DEFAULT_CARDINALITY},
@@ -50,6 +50,13 @@ pub enum Level {
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Whitespace {
+    #[default]
+    Normal,
+    Additional,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum OperatorForm {
     #[default]
     Textual,
@@ -61,6 +68,7 @@ pub enum OperatorForm {
 pub struct Options {
     emit_base_iri: bool,
     level: Level,
+    whitespace: Whitespace,
     operator_form: OperatorForm,
 }
 
@@ -98,6 +106,7 @@ impl Default for Options {
         Self {
             emit_base_iri: true,
             level: Default::default(),
+            whitespace: Default::default(),
             operator_form: Default::default(),
         }
     }
@@ -107,17 +116,33 @@ impl Options {
     pub fn with_level(self, level: Level) -> Self {
         Self { level, ..self }
     }
+
+    pub fn with_whitespace(self, whitespace: Whitespace) -> Self {
+        Self { whitespace, ..self }
+    }
+
     pub fn with_operator_form(self, operator_form: OperatorForm) -> Self {
         Self {
             operator_form,
             ..self
         }
     }
+
     pub fn with_emit_base_iri(self, emit_base_iri: bool) -> Self {
         Self {
             emit_base_iri,
             ..self
         }
+    }
+
+    #[inline(always)]
+    pub const fn whitespace_normal(&self) -> bool {
+        matches!(self.whitespace, Whitespace::Normal)
+    }
+
+    #[inline(always)]
+    pub const fn whitespace_additional(&self) -> bool {
+        matches!(self.whitespace, Whitespace::Additional)
     }
 
     #[inline(always)]
@@ -213,76 +238,68 @@ impl<T> Context<T>
 where
     T: Highlighter,
 {
-    contextfn!(keyword kw_module => KW_MODULE);
-    contextfn!(keyword kw_version => KW_MODULE_VERSION);
-
-    contextfn!(keyword kw_is => KW_BLOCK_IS);
-    contextfn!(keyword kw_of => KW_BLOCK_OF);
-    contextfn!(keyword kw_end => KW_BLOCK_END);
-
-    contextfn!(keyword kw_import => KW_IMPORT);
-    contextfn!(keyword kw_from => KW_IMPORT_FROM);
-
+    contextfn!(keyword kw_as => KW_RENAME_AS);
     contextfn!(keyword kw_assert => KW_ASSERT);
-    contextfn!(keyword kw_fn_def => KW_FN_DEF);
-    contextfn!(keyword kw_self => KW_SELF);
-    contextfn!(keyword kw_with => KW_WITH);
-
     contextfn!(keyword kw_class => KW_CLASS);
     contextfn!(keyword kw_datatype => KW_DATATYPE);
     contextfn!(keyword kw_dimension => KW_DIMENSION);
+    contextfn!(keyword kw_end => KW_BLOCK_END);
     contextfn!(keyword kw_entity => KW_ENTITY);
     contextfn!(keyword kw_enum => KW_ENUM);
     contextfn!(keyword kw_event => KW_EVENT);
+    contextfn!(keyword kw_fixed => KW_DATATYPE_FIXED);
+    contextfn!(keyword kw_fn_def => KW_FN_DEF);
+    contextfn!(keyword kw_from => KW_IMPORT_FROM);
+    contextfn!(keyword kw_identity => KW_ENTITY_IDENTITY);
+    contextfn!(keyword kw_import => KW_IMPORT);
+    contextfn!(keyword kw_is => KW_BLOCK_IS);
+    contextfn!(keyword kw_module => KW_MODULE);
+    contextfn!(keyword kw_of => KW_BLOCK_OF);
+    contextfn!(keyword kw_opaque => KW_DATATYPE_OPAQUE);
+    contextfn!(keyword kw_parent => KW_DIMENSION_PARENT);
     contextfn!(keyword kw_property => KW_PROPERTY);
     contextfn!(keyword kw_rdf => KW_RDF);
+    contextfn!(keyword kw_ref => KW_REF);
+    contextfn!(keyword kw_self => KW_SELF);
+    contextfn!(keyword kw_source => KW_SOURCE);
     contextfn!(keyword kw_structure => KW_STRUCTURE);
     contextfn!(keyword kw_union => KW_UNION);
-
-    contextfn!(keyword kw_opaque => KW_DATATYPE_OPAQUE);
-    contextfn!(keyword kw_fixed => KW_DATATYPE_FIXED);
-    contextfn!(keyword kw_identity => KW_ENTITY_IDENTITY);
-    contextfn!(keyword kw_parent => KW_DIMENSION_PARENT);
-    contextfn!(keyword kw_source => KW_SOURCE);
-    contextfn!(keyword kw_ref => KW_REF);
-    contextfn!(keyword kw_as => KW_RENAME_AS);
     contextfn!(keyword kw_unknown => KW_TYPE_UNKNOWN);
+    contextfn!(keyword kw_version => KW_MODULE_VERSION);
     contextfn!(keyword kw_wildcard => KW_WILDCARD);
-
-    contextfn!(operator type_assert => OP_TYPE_ASSERTION, OP_TYPE_ASSERTION_SYMBOL);
-    contextfn!(operator type_restrict => OP_TYPE_RESTRICTION, OP_TYPE_RESTRICTION_SYMBOL);
-    contextfn!(operator type_combine => OP_TYPE_COMBINE, OP_TYPE_COMBINE_SYMBOL);
-
-    contextfn!(operator range => OP_TYPE_CARDINALITY_RANGE);
+    contextfn!(keyword kw_with => KW_WITH);
 
     contextfn!(operator by_defn => OP_ASSIGNMENT_BY_DEFINITION, OP_ASSIGNMENT_BY_DEFINITION_SYMBOL);
-    contextfn!(operator op_assign => OP_ASSIGNMENT);
-    contextfn!(operator rel_eq => OP_RELATION_EQUAL);
-    contextfn!(operator rel_neq => OP_RELATION_NOT_EQUAL, OP_RELATION_NOT_EQUAL_SYMBOL);
-    contextfn!(operator rel_lt => OP_RELATION_LESS_THAN);
-    contextfn!(operator rel_lteq => OP_RELATION_LESS_THAN_OR_EQUAL, OP_RELATION_LESS_THAN_OR_EQUAL_SYMBOL);
-    contextfn!(operator rel_gt => OP_RELATION_GREATER_THAN);
-    contextfn!(operator rel_gteq => OP_RELATION_GREATER_THAN_OR_EQUAL, OP_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL);
     contextfn!(operator fn_composition => OP_FN_COMPOSITION, OP_FN_COMPOSITION_SYMBOL);
-
     contextfn!(operator lop_and => OP_LOGICAL_CONJUNCTION, OP_LOGICAL_CONJUNCTION_SYMBOL);
-    contextfn!(operator lop_or => OP_LOGICAL_DISJUNCTION, OP_LOGICAL_DISJUNCTION_SYMBOL);
-    contextfn!(operator lop_not => OP_LOGICAL_NEGATION, OP_LOGICAL_NEGATION_SYMBOL);
-    contextfn!(operator lop_xor => OP_LOGICAL_EXCLUSIVE_DISJUNCTION, OP_LOGICAL_EXCLUSIVE_DISJUNCTION_SYMBOL);
-    contextfn!(operator lop_implies => OP_LOGICAL_IMPLICATION, OP_LOGICAL_IMPLICATION_SYMBOL);
-    contextfn!(operator lop_iff => OP_LOGICAL_BICONDITIONAL, OP_LOGICAL_BICONDITIONAL_SYMBOL);
     contextfn!(operator lop_exists => OP_LOGICAL_QUANTIFIER_EXISTS, OP_LOGICAL_QUANTIFIER_EXISTS_SYMBOL);
     contextfn!(operator lop_forall => OP_LOGICAL_QUANTIFIER_FORALL, OP_LOGICAL_QUANTIFIER_FORALL_SYMBOL);
+    contextfn!(operator lop_iff => OP_LOGICAL_BICONDITIONAL, OP_LOGICAL_BICONDITIONAL_SYMBOL);
+    contextfn!(operator lop_implies => OP_LOGICAL_IMPLICATION, OP_LOGICAL_IMPLICATION_SYMBOL);
+    contextfn!(operator lop_not => OP_LOGICAL_NEGATION, OP_LOGICAL_NEGATION_SYMBOL);
+    contextfn!(operator lop_or => OP_LOGICAL_DISJUNCTION, OP_LOGICAL_DISJUNCTION_SYMBOL);
+    contextfn!(operator lop_xor => OP_LOGICAL_EXCLUSIVE_DISJUNCTION, OP_LOGICAL_EXCLUSIVE_DISJUNCTION_SYMBOL);
+    contextfn!(operator op_assign => OP_ASSIGNMENT);
     contextfn!(operator op_member => OP_SET_MEMBERSHIP, OP_SET_MEMBERSHIP_SYMBOL);
+    contextfn!(operator range => OP_TYPE_CARDINALITY_RANGE);
+    contextfn!(operator rel_eq => OP_RELATION_EQUAL);
+    contextfn!(operator rel_gt => OP_RELATION_GREATER_THAN);
+    contextfn!(operator rel_gteq => OP_RELATION_GREATER_THAN_OR_EQUAL, OP_RELATION_GREATER_THAN_OR_EQUAL_SYMBOL);
+    contextfn!(operator rel_lt => OP_RELATION_LESS_THAN);
+    contextfn!(operator rel_lteq => OP_RELATION_LESS_THAN_OR_EQUAL, OP_RELATION_LESS_THAN_OR_EQUAL_SYMBOL);
+    contextfn!(operator rel_neq => OP_RELATION_NOT_EQUAL, OP_RELATION_NOT_EQUAL_SYMBOL);
+    contextfn!(operator type_assert => OP_TYPE_ASSERTION, OP_TYPE_ASSERTION_SYMBOL);
+    contextfn!(operator type_combine => OP_TYPE_COMBINE, OP_TYPE_COMBINE_SYMBOL);
+    contextfn!(operator type_restrict => OP_TYPE_RESTRICTION, OP_TYPE_RESTRICTION_SYMBOL);
 
-    contextfn!(punctuation_bracket left_paren => PC_PAREN_LEFT);
-    contextfn!(punctuation_bracket right_paren => PC_PAREN_RIGHT);
     contextfn!(punctuation_bracket binary_end => PC_BINARY_END);
     contextfn!(punctuation_bracket binary_start => PC_BINARY_START);
+    contextfn!(punctuation_bracket left_paren => PC_PAREN_LEFT);
     contextfn!(punctuation_bracket restriction_end => PC_BRACE_RIGHT);
     contextfn!(punctuation_bracket restriction_start => PC_BRACE_LEFT);
-    contextfn!(punctuation_bracket sequence_start => PC_BRACKET_LEFT);
+    contextfn!(punctuation_bracket right_paren => PC_PAREN_RIGHT);
     contextfn!(punctuation_bracket sequence_end => PC_BRACKET_RIGHT);
+    contextfn!(punctuation_bracket sequence_start => PC_BRACKET_LEFT);
     contextfn!(punctuation_separator quantified_sentence_sep => PC_QUANTIFIED_SENTENCE_SEPARATOR);
     // contextfn!(punctuation_separator lang_at => PC_LANGUAGE_PREFIX);
 }
@@ -336,15 +353,22 @@ impl RepresentationWriter for Writer {
         if module.has_imports() || module.has_annotations() || module.has_definitions() {
             ctx.indent();
             w.write_all(format!("{}\n", ctx.kw_is()).as_bytes())?;
+            if ctx.options.whitespace_additional() {
+                w.write_all(EOL)?;
+            }
 
             if module.has_imports() {
-                w.write_all(EOL)?;
                 self.write_module_imports(w, module, &mut ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
             }
 
             if module.has_annotations() {
-                w.write_all(EOL)?;
                 self.write_annotations(w, module.annotations(), &mut ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
             }
 
             if module.has_definitions() {
@@ -352,8 +376,7 @@ impl RepresentationWriter for Writer {
             }
 
             ctx.outdent();
-
-            w.write_all(format!("\n{}\n", ctx.kw_end()).as_bytes())?;
+            w.write_all(format!("{}\n", ctx.kw_end()).as_bytes())?;
         } else {
             w.write_all(format!("{} {}\n", ctx.kw_is(), ctx.kw_end()).as_bytes())?;
         }
@@ -1212,7 +1235,6 @@ impl Writer {
     {
         if module.has_definitions() {
             for definition in module.definitions() {
-                w.write_all(EOL)?;
                 match &definition {
                     Definition::Datatype(v) => self.write_datatype(w, v, ctx)?,
                     Definition::Dimension(v) => self.write_dimension(w, v, ctx)?,
@@ -1225,8 +1247,50 @@ impl Writer {
                     Definition::TypeClass(v) => self.write_type_class(w, v, ctx)?,
                     Definition::Union(v) => self.write_union(w, v, ctx)?,
                 }
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
             }
         }
+        Ok(())
+    }
+
+    fn write_from_definition<T, W>(
+        &self,
+        w: &mut W,
+        from_clause: &FromDefinition,
+        ctx: &mut Context<T>,
+    ) -> Result<(), sdml_core::error::Error>
+    where
+        W: std::io::Write,
+        T: Highlighter,
+    {
+        w.write_all(
+            format!(
+                "{}{} {} {} {}\n",
+                ctx.indentation_str(),
+                ctx.kw_from(),
+                ctx.hl.type_ref(&from_clause.definition().to_string()),
+                ctx.kw_with(),
+                match from_clause.member_count() {
+                    0 => "_".to_string(),
+                    1 => from_clause.members().next().unwrap().to_string(),
+                    _ => {
+                        format!(
+                            "{} {} {}",
+                            ctx.sequence_start(),
+                            from_clause
+                                .members()
+                                .map(|m| m.to_string())
+                                .collect::<Vec<String>>()
+                                .join(" "),
+                            ctx.sequence_end(),
+                        )
+                    }
+                }
+            )
+            .as_bytes(),
+        )?;
         Ok(())
     }
 
@@ -1264,9 +1328,17 @@ impl Writer {
         if defn.has_restrictions() {
             w.write_all(format!(" {}\n", ctx.restriction_start()).as_bytes())?;
             ctx.indent();
+
+            if ctx.options.whitespace_additional() {
+                w.write_all(EOL)?;
+            }
             for restriction in defn.restrictions() {
                 self.write_datatype_restriction(w, restriction, ctx)?;
             }
+            if ctx.options.whitespace_additional() {
+                w.write_all(EOL)?;
+            }
+
             ctx.outdent();
             w.write_all(
                 format!("{}{}\n", ctx.indentation_str(), ctx.restriction_end()).as_bytes(),
@@ -1275,17 +1347,25 @@ impl Writer {
 
         if let Some(body) = defn.body() {
             if ctx.options.generate_definition_bodies() {
-                ctx.indent();
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                ctx.indent();
+
                 if body.has_annotations() {
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                     self.write_annotations(w, body.annotations(), ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
                 w.write_all(ELIPPSIS.as_bytes())?;
             }
-        } else {
+        } else if !defn.has_restrictions() && ctx.options.whitespace_additional() {
             w.write_all(EOL)?;
         }
 
@@ -1350,7 +1430,7 @@ impl Writer {
             }
             RestrictionFacet::Pattern(vec) => {
                 if vec.len() > 1 {
-                    w.write_all(format!(" {}\n", ctx.sequence_start()).as_bytes())?;
+                    w.write_all(format!("{}\n", ctx.sequence_start()).as_bytes())?;
                     ctx.indent();
                     for v in vec {
                         w.write_all(format!("{}{:?}\n", ctx.indentation_str(), v).as_bytes())?;
@@ -1397,9 +1477,16 @@ impl Writer {
             if ctx.options.generate_definition_bodies() {
                 ctx.indent();
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
                     if body.has_members() {
+                        w.write_all(EOL)?;
+                    }
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
@@ -1412,14 +1499,33 @@ impl Writer {
                         self.write_identity_member(w, member, ctx)?
                     }
                 }
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
 
-                for parent in body.parents() {
-                    self.write_dimension_parent(w, parent, ctx)?;
+                if body.has_parents() {
+                    for parent in body.parents() {
+                        self.write_dimension_parent(w, parent, ctx)?;
+                    }
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
 
                 for member in body.members() {
                     self.write_member(w, member, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -1458,7 +1564,15 @@ impl Writer {
             if body.has_annotations() && ctx.options.generate_member_bodies() {
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
                 ctx.indent();
+
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
                 self.write_annotations(w, body.annotations(), ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             }
@@ -1497,18 +1611,36 @@ impl Writer {
             if ctx.options.generate_definition_bodies() {
                 ctx.indent();
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
-                    if body.has_members() {
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
 
                 self.write_identity_member(w, body.identity(), ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
 
                 for member in body.members() {
                     self.write_member(w, member, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -1571,17 +1703,31 @@ impl Writer {
             if ctx.options.generate_definition_bodies() {
                 ctx.indent();
                 w.write_all(format!(" {}\n", ctx.kw_of()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
-                    if body.has_variants() {
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
-                if body.has_variants() {
-                    for variant in body.variants() {
-                        self.write_value_variant(w, variant, ctx)?;
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
                     }
                 }
+
+                for variant in body.variants() {
+                    self.write_value_variant(w, variant, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -1617,9 +1763,17 @@ impl Writer {
             if ctx.options.generate_member_bodies() {
                 ctx.indent();
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+
                 if body.has_annotations() {
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                     self.write_annotations(w, body.annotations(), ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -1660,17 +1814,34 @@ impl Writer {
             if ctx.options.generate_definition_bodies() {
                 ctx.indent();
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
-                    if body.has_members() {
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
 
                 self.write_source_entity(w, body.source_entity(), ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
 
                 for member in body.members() {
                     self.write_member(w, member, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
 
                 ctx.outdent();
@@ -1789,7 +1960,15 @@ impl Writer {
             if body.has_annotations() && ctx.options.generate_member_bodies() {
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
                 ctx.indent();
+
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
                 self.write_annotations(w, body.annotations(), ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             }
@@ -1944,9 +2123,17 @@ impl Writer {
             let body = defn.body();
             w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
             ctx.indent();
+
             if body.has_annotations() {
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
                 self.write_annotations(w, body.annotations(), ctx)?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
             }
+
             ctx.outdent();
             w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
         } else {
@@ -1992,17 +2179,33 @@ impl Writer {
 
         if let Some(body) = defn.body() {
             if ctx.options.generate_definition_bodies() {
-                w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
                 ctx.indent();
+                w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
-                    if body.has_members() {
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
+
                 for member in body.members() {
                     self.write_member(w, member, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -2049,17 +2252,33 @@ impl Writer {
 
         if let Some(body) = defn.body() {
             if ctx.options.generate_definition_bodies() {
-                w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
                 ctx.indent();
+                w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
-                    if body.has_methods() {
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
+
                 for method in body.methods() {
                     self.write_type_class_method(w, method, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -2161,7 +2380,15 @@ impl Writer {
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
             }
             ctx.indent();
+
+            if ctx.options.whitespace_additional() {
+                w.write_all(EOL)?;
+            }
             self.write_annotations(w, method.annotations(), ctx)?;
+            if ctx.options.whitespace_additional() {
+                w.write_all(EOL)?;
+            }
+
             ctx.outdent();
             w.write_all(format!("{}{}", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
         }
@@ -2196,19 +2423,35 @@ impl Writer {
 
         if let Some(body) = defn.body() {
             if ctx.options.generate_definition_bodies() {
-                w.write_all(format!(" {}\n", ctx.kw_of()).as_bytes())?;
                 ctx.indent();
+                w.write_all(format!(" {}\n", ctx.kw_of()).as_bytes())?;
+                if ctx.options.whitespace_additional() {
+                    w.write_all(EOL)?;
+                }
+
                 if body.has_annotations() {
                     self.write_annotations(w, body.annotations(), ctx)?;
-                    if body.has_variants() {
+                    if ctx.options.whitespace_additional() {
                         w.write_all(EOL)?;
                     }
                 }
+
+                if let Some(from_clause) = body.from_definition() {
+                    self.write_from_definition(w, from_clause, ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+                }
+
                 if body.has_variants() {
                     for variant in body.variants() {
                         self.write_type_variant(w, variant, ctx)?;
+                        if ctx.options.whitespace_additional() {
+                            w.write_all(EOL)?;
+                        }
                     }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
@@ -2258,9 +2501,17 @@ impl Writer {
             if ctx.options.generate_variant_bodies() {
                 w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
                 ctx.indent();
+
                 if body.has_annotations() {
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                     self.write_annotations(w, body.annotations(), ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
+
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {

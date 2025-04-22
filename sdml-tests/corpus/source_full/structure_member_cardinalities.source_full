@@ -1,16 +1,27 @@
 module corpus_test_structure is
 
   structure Example is
+
     default -> sdml:string
+
     one -> {1} sdml:string
+
     one_or_more -> {1..} sdml:string
+
     seq_nonempty_set -> {unique unordered 1..} sdml:string
+
     seq_nonunique -> {nonunique 0..} sdml:string
+
     seq_ordered -> {ordered 0..} sdml:string
+
     seq_unique -> {unique 0..} sdml:string
+
     seq_unordered -> {unordered 0..} sdml:string
+
     two -> {2} sdml:string
+
     zero_or_one -> {0..1} sdml:string
+
   end
 
 end
