@@ -173,7 +173,3 @@ mod exec;
 pub mod color;
 
 pub mod actions;
-
-pub mod convert;
-
-pub mod draw;

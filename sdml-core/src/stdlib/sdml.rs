@@ -17,12 +17,12 @@ pub const MODULE_NAME: &str = "sdml";
 pub const MODULE_URL: &str = "http://sdml.io/sdml-owl.ttl#";
 
 /* Classes */
+pub const ANNOTATION: &str = "Annotation";
 pub const ANNOTATION_PROPERTY: &str = "AnnotationProperty";
 pub const CARDINALITY: &str = "Cardinality";
-pub const MAP_TYPE: &str = "MapType";
 pub const CONSTRAINT: &str = "Constraint";
-pub const DEFINITION: &str = "Definition";
 pub const DATATYPE: &str = "Datatype";
+pub const DEFINITION: &str = "Definition";
 pub const DIMENSION: &str = "Dimension";
 pub const ENTITY: &str = "Entity";
 pub const ENUMERATION: &str = "Enumeration";
@@ -31,6 +31,7 @@ pub const FORMAL_CONSTRAINT: &str = "FormalConstraint";
 pub const IMPORT: &str = "Import";
 pub const IMPORT_STATEMENT: &str = "ImportStatement";
 pub const INFORMAL_CONSTRAINT: &str = "InformalConstraint";
+pub const MAP_TYPE: &str = "MapType";
 pub const MEMBER: &str = "Member";
 pub const MEMBER_IMPORT: &str = "MemberImport";
 pub const MODULE: &str = "Module";
@@ -38,15 +39,14 @@ pub const MODULE_IMPORT: &str = "ModuleImport";
 pub const ORDERING_CONSTRAINT: &str = "OrderingConstraint";
 pub const PROPERTY: &str = "Property";
 pub const RDF: &str = "Rdf";
-pub const STRUCTURE: &str = "Structure";
 pub const SEQUENCE: &str = "Sequence";
+pub const STRUCTURE: &str = "Structure";
 pub const TYPE_CLASS: &str = "TypeClass";
 pub const TYPE_VARIANT: &str = "TypeVariant";
 pub const UNION: &str = "Union";
+pub const UNIQUENESS_CONSTRAINT: &str = "UniquenessConstraint";
 pub const UNKNOWN: &str = "Unknown";
 pub const VALUE_VARIANT: &str = "ValueVariant";
-pub const ANNOTATION: &str = "Annotation";
-pub const UNIQUENESS_CONSTRAINT: &str = "UniquenessConstraint";
 
 /* Datatypes */
 pub const BINARY: &str = "binary";
@@ -61,42 +61,44 @@ pub const STRING: &str = "string";
 pub const UNSIGNED: &str = "unsigned";
 
 pub const IDENTIFIER: &str = "identifier";
-pub const QUALIFIED_IDENTIFIER: &str = "qualifiedIdentifier";
 pub const IDENTIFIER_REFERENCE: &str = "identifierReference";
+pub const QUALIFIED_IDENTIFIER: &str = "qualifiedIdentifier";
 
 /* Properties */
-pub const HAS_ANNOTATION: &str = "hasAnnotation";
-pub const HAS_CARDINALITY: &str = "hasCardinality";
 pub const CONTROLLED_LANG_STRING: &str = "controlledLangString";
-pub const HAS_CONSTRAINT: &str = "hasConstraint";
-pub const HAS_DEFINITION: &str = "hasDefinition";
 pub const DOMAIN_TYPE: &str = "domainType";
 pub const DOMAIN_VALUE: &str = "domainValue";
+pub const END_BYTE: &str = "endByte";
+pub const HAS_ANNOTATION: &str = "hasAnnotation";
+pub const HAS_CARDINALITY: &str = "hasCardinality";
+pub const HAS_CONSTRAINT: &str = "hasConstraint";
+pub const HAS_DEFINITION: &str = "hasDefinition";
 pub const HAS_ELEMENT: &str = "hasElement";
 pub const HAS_IMPORT_STATEMENT: &str = "hasImportStatement";
 pub const HAS_MEMBER: &str = "hasMember";
-pub const IDENTITY_MEMBER: &str = "identityMember";
-pub const NAME: &str = "name";
-pub const RANGE_TYPE: &str = "rangeType";
-pub const RANGE_VALUE: &str = "rangeValue";
-pub const SOURCE_ENTITY: &str = "sourceEntity";
-pub const SOURCE_LOCATION: &str = "sourceLocation";
 pub const HAS_TYPE: &str = "hasType";
 pub const HAS_TYPE_VARIANT: &str = "hasTypeVariant";
 pub const HAS_VALUE_VARIANT: &str = "hasValueVariant";
-pub const END_BYTE: &str = "endByte";
-pub const START_BYTE: &str = "startByte";
+pub const IDENTITY_MEMBER: &str = "identityMember";
 pub const MAX_OCCURS: &str = "maxOccurs";
 pub const MIN_OCCURS: &str = "minOccurs";
-pub const ORDERING: &str = "ordering";
+pub const NAME: &str = "name";
+pub const ELEMENT_ORDERING: &str = "elementOrdering";
+pub const PROPERTY_REF: &str = "propertyRef";
+pub const RANGE_TYPE: &str = "rangeType";
+pub const RANGE_VALUE: &str = "rangeValue";
+pub const RENAME: &str = "rename";
+pub const SOURCE_ENTITY: &str = "sourceEntity";
+pub const SOURCE_LOCATION: &str = "sourceLocation";
 pub const SRC_LABEL: &str = "srcLabel";
-pub const UNIQUENESS: &str = "uniqueness";
+pub const START_BYTE: &str = "startByte";
+pub const ELEMENT_UNIQUENESS: &str = "elementUniqueness";
 
 /* Values */
-pub const ORDERED: &str = "Ordered";
-pub const UNIQUE: &str = "Unique";
-pub const NONUNIQUE: &str = "NonUnique";
-pub const UNORDERED: &str = "Unordered";
+pub const NONUNIQUE: &str = "nonunique";
+pub const ORDERED: &str = "ordered";
+pub const UNIQUE: &str = "unique";
+pub const UNORDERED: &str = "unordered";
 
 // ------------------------------------------------------------------------------------------------
 // Public Functions
@@ -275,7 +277,7 @@ module_function!(|| {
                         annotation!(id!(unchecked rdfs:domain), id!(unchecked Import)),
                         annotation!(id!(unchecked rdfs:range), id!(unchecked Identifier)),
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
-                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("imported"@en)),
+                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("rename as"@en)),
                    ])).into(),
                 rdf!(
                     id!(unchecked MemberImport) ;
@@ -447,7 +449,7 @@ module_function!(|| {
                         annotation!(id!(unchecked skos:prefLabel), rdf_str!("Cardinality"@en)),
                     ])).into(),
                 rdf!(
-                    id!(unchecked Ordering) ;
+                    id!(unchecked OrderingConstraint) ;
                     class  id!(unchecked rdfs:Literal) ;
                     call |body: AnnotationOnlyBody|
                     body.with_annotations([
@@ -462,12 +464,12 @@ module_function!(|| {
                         annotation!(id!(unchecked owl:minCardinality), v!(id!(unchecked xsd:nonNegativeInteger), 0)),
                         annotation!(id!(unchecked owl:maxCardinality), v!(id!(unchecked xsd:nonNegativeInteger), 1)),
                         annotation!(id!(unchecked rdfs:domain), id!(unchecked Cardinality)),
-                        annotation!(id!(unchecked rdfs:range), id!(unchecked Ordering)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked OrderingConstraint)),
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
                         annotation!(id!(unchecked skos:prefLabel), rdf_str!("ordering"@en)),
                    ])).into(),
                 rdf!(
-                    id!(unchecked Uniqueness) ;
+                    id!(unchecked UniquenessConstraint) ;
                     class  id!(unchecked rdfs:Literal) ;
                     call |body: AnnotationOnlyBody|
                     body.with_annotations([
@@ -482,7 +484,7 @@ module_function!(|| {
                         annotation!(id!(unchecked owl:minCardinality), v!(id!(unchecked xsd:nonNegativeInteger), 0)),
                         annotation!(id!(unchecked owl:maxCardinality), v!(id!(unchecked xsd:nonNegativeInteger), 1)),
                         annotation!(id!(unchecked rdfs:domain), id!(unchecked Cardinality)),
-                        annotation!(id!(unchecked rdfs:range), id!(unchecked Uniqueness)),
+                        annotation!(id!(unchecked rdfs:range), id!(unchecked UniquenessConstraint)),
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
                         annotation!(id!(unchecked skos:prefLabel), rdf_str!("uniqueness"@en)),
                    ])).into(),
@@ -551,18 +553,7 @@ module_function!(|| {
                         annotation!(id!(unchecked owl:disjointWith), id!(unchecked TypeVariant)),
                     ])).into(),
                 // ---------------------------------------------------------------------------------
-                // Classes ❱ Values
-                // ---------------------------------------------------------------------------------
-                rdf!(
-                    id!(unchecked hasElement) ;
-                    property id!(unchecked owl:DatatypeProperty) ;
-                    call |body: AnnotationOnlyBody|
-                    body.with_annotations([
-                        annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
-                        annotation!(id!(unchecked skos:prefLabel), rdf_str!("has element"@en)),
-                   ])).into(),
-                // ---------------------------------------------------------------------------------
-                // Classes ❱ Values ❱ Identifiers
+                // Datatypes ❱ Identifiers
                 // ---------------------------------------------------------------------------------
                 rdf!(
                     id!(unchecked Identifier) ;
@@ -614,7 +605,7 @@ module_function!(|| {
                 // ---------------------------------------------------------------------------------
                 rdf!(
                     id!(unchecked nonunique) ;
-                    individual  id!(unchecked Uniqueness) ;
+                    individual  id!(unchecked UniquenessConstraint) ;
                     call |body: AnnotationOnlyBody|
                     body.with_annotations([
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
@@ -623,7 +614,7 @@ module_function!(|| {
                     ])).into(),
                 rdf!(
                     id!(unchecked unique) ;
-                    individual  id!(unchecked Uniqueness) ;
+                    individual  id!(unchecked UniquenessConstraint) ;
                     call |body: AnnotationOnlyBody|
                     body.with_annotations([
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
@@ -632,7 +623,7 @@ module_function!(|| {
                     ])).into(),
                 rdf!(
                     id!(unchecked unordered) ;
-                    individual  id!(unchecked Ordering) ;
+                    individual  id!(unchecked OrderingConstraint) ;
                     call |body: AnnotationOnlyBody|
                     body.with_annotations([
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),
@@ -641,7 +632,7 @@ module_function!(|| {
                     ])).into(),
                 rdf!(
                     id!(unchecked ordered) ;
-                    individual  id!(unchecked Ordering) ;
+                    individual  id!(unchecked OrderingConstraint) ;
                     call |body: AnnotationOnlyBody|
                     body.with_annotations([
                         annotation!(id!(unchecked rdfs:isDefinedBy), id!(unchecked sdml)),

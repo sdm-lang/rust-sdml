@@ -86,6 +86,7 @@ model!(field START is start);
 model!(field UNARY is unary);
 model!(field VARIABLES as_plural FIELD_NAME_VARIABLE);
 model!(field VARIANTS is variants);
+model!(field WITH is with);
 
 // ------------------------------------------------------------------------------------------------
 // Public Values ❱ Model Variant Names

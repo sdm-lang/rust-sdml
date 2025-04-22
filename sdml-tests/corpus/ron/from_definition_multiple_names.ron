@@ -1,0 +1,124 @@
+Module {
+    source_file: Some(
+        "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/from_definition_multiple_names.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 158,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 49,
+                end: 76,
+            },
+        ),
+        value: "corpus_test_from_definition",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/from_definition_multiple_names.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 93,
+                    end: 100,
+                },
+            ),
+            value: "Example",
+        }: Structure(
+            StructureDef {
+                span: Some(
+                    Span {
+                        start: 83,
+                        end: 151,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 93,
+                            end: 100,
+                        },
+                    ),
+                    value: "Example",
+                },
+                body: Some(
+                    StructureBody {
+                        span: Some(
+                            Span {
+                                start: 101,
+                                end: 151,
+                            },
+                        ),
+                        annotations: [],
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 113,
+                                                end: 119,
+                                            },
+                                        ),
+                                        value: "Source",
+                                    },
+                                ),
+                                with_members: {
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 132,
+                                                end: 143,
+                                            },
+                                        ),
+                                        value: "description",
+                                    },
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 127,
+                                                end: 131,
+                                            },
+                                        ),
+                                        value: "name",
+                                    },
+                                },
+                            },
+                        ),
+                        members: {},
+                    },
+                ),
+            },
+        ),
+    },
+}

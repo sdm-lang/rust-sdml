@@ -1,18 +1,24 @@
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::ParseContext;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader;
-use sdml_core::model::definitions::{DatatypeDef, ExplicitTimezoneFlag, RestrictionFacet};
-use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
-use sdml_core::model::{HasOptionalBody, HasSourceSpan};
-use sdml_core::syntax::{
-    FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_FACET, FIELD_NAME_IS_FIXED, FIELD_NAME_NAME,
-    FIELD_NAME_RESTRICTION, FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION_ONLY_BODY,
-    NODE_KIND_BUILTIN_SIMPLE_TYPE, NODE_KIND_DATATYPE_DEF_RESTRICTION,
-    NODE_KIND_DIGIT_RESTRICTION_FACET, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-    NODE_KIND_LENGTH_RESTRICTION_FACET, NODE_KIND_PATTERN_RESTRICTION_FACET,
-    NODE_KIND_TZ_RESTRICTION_FACET, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_RESTRICTION_FACET,
+use crate::parse::{
+    definitions::parse_annotation_only_body,
+    identifiers::{parse_identifier, parse_identifier_reference},
+    ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader,
+    model::{
+        definitions::{DatatypeDef, ExplicitTimezoneFlag, RestrictionFacet},
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+        HasOptionalBody, HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BASE, FIELD_NAME_BODY, FIELD_NAME_FACET, FIELD_NAME_IS_FIXED, FIELD_NAME_NAME,
+        FIELD_NAME_RESTRICTION, FIELD_NAME_VALUE, NAME_SDML, NODE_KIND_ANNOTATION_ONLY_BODY,
+        NODE_KIND_BUILTIN_SIMPLE_TYPE, NODE_KIND_DATATYPE_DEF_RESTRICTION,
+        NODE_KIND_DIGIT_RESTRICTION_FACET, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
+        NODE_KIND_LENGTH_RESTRICTION_FACET, NODE_KIND_PATTERN_RESTRICTION_FACET,
+        NODE_KIND_TZ_RESTRICTION_FACET, NODE_KIND_UNSIGNED, NODE_KIND_VALUE_RESTRICTION_FACET,
+    },
 };
 use tree_sitter::TreeCursor;
 

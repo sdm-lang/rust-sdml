@@ -1,13 +1,17 @@
-use crate::parse::identifiers::parse_identifier_reference;
-use crate::parse::values::parse_simple_value;
-use crate::parse::ParseContext;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::{PredicateValue, SequenceOfPredicateValues};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{
-    FIELD_NAME_ELEMENT, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES, NODE_KIND_SIMPLE_VALUE,
+use crate::parse::{
+    identifiers::parse_identifier_reference, values::parse_simple_value, ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        constraints::{PredicateValue, SequenceOfPredicateValues},
+        HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_ELEMENT, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
+        NODE_KIND_SEQUENCE_OF_PREDICATE_VALUES, NODE_KIND_SIMPLE_VALUE,
+    },
 };
 use tree_sitter::TreeCursor;
 

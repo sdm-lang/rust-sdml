@@ -80,7 +80,7 @@ pub trait ModuleLoader: Default {
         name: &Identifier,
         imported_by: Option<FileId>,
         store: &mut impl ModuleStore,
-        recursive: bool,
+        load_recursively: bool,
     ) -> Result<Identifier, sdml_errors::Error>;
 
     ///

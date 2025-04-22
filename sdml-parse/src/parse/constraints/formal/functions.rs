@@ -1,25 +1,30 @@
-use crate::parse::constraints::formal::sentences::parse_constraint_sentence;
-use crate::parse::constraints::formal::terms::parse_term;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::members::parse_mapping_type;
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::{
-    FunctionBody, FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature,
-    FunctionType, FunctionTypeReference,
+use crate::parse::{
+    constraints::formal::{sentences::parse_constraint_sentence, terms::parse_term},
+    identifiers::{parse_identifier, parse_identifier_reference},
+    members::parse_mapping_type,
+    ParseContext,
 };
-use sdml_core::model::identifiers::{Identifier, IdentifierReference, QualifiedIdentifier};
-use sdml_core::model::members::{CardinalityRange, Ordering, Uniqueness};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_MAX, FIELD_NAME_MIN, FIELD_NAME_NAME,
-    FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_SIGNATURE, FIELD_NAME_TARGET,
-    FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE, NODE_KIND_CONSTRAINT_SENTENCE,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_TYPE, NODE_KIND_TERM,
-    NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        constraints::{
+            FunctionBody, FunctionCardinality, FunctionDef, FunctionParameter, FunctionSignature,
+            FunctionType, FunctionTypeReference,
+        },
+        identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
+        members::{CardinalityRange, Ordering, Uniqueness},
+        HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_MAX, FIELD_NAME_MIN, FIELD_NAME_NAME,
+        FIELD_NAME_ORDERING, FIELD_NAME_PARAMETER, FIELD_NAME_SIGNATURE, FIELD_NAME_TARGET,
+        FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
+        NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
+        NODE_KIND_MAPPING_TYPE, NODE_KIND_TERM, NODE_KIND_UNSIGNED, NODE_KIND_WILDCARD,
+    },
 };
 use sdml_errors::diagnostics::functions::invalid_value_for_type_named;
-use sdml_errors::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 

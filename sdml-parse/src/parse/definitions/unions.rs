@@ -1,16 +1,22 @@
-use crate::parse::annotations::parse_annotation;
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::{parse_comment, ParseContext};
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{TypeVariant, UnionBody, UnionDef};
-use sdml_core::model::{HasOptionalBody, HasSourceSpan};
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_RENAME, NODE_KIND_ANNOTATION,
-    NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY,
+use crate::parse::{
+    annotations::parse_annotation,
+    definitions::parse_annotation_only_body,
+    identifiers::{parse_identifier, parse_identifier_reference},
+    parse_comment, ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        annotations::HasAnnotations,
+        definitions::{TypeVariant, UnionBody, UnionDef},
+        HasOptionalBody, HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_RENAME, NODE_KIND_ANNOTATION,
+        NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
+        NODE_KIND_LINE_COMMENT, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY,
+    },
 };
 use tree_sitter::TreeCursor;
 

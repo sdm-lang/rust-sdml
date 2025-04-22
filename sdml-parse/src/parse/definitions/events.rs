@@ -1,17 +1,20 @@
-use crate::parse::annotations::parse_annotation;
-use crate::parse::definitions::dimensions::parse_source_entity;
-use crate::parse::identifiers::parse_identifier;
-use crate::parse::members::parse_member;
-use crate::parse::{parse_comment, ParseContext};
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader;
-use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{EventBody, EventDef};
-use sdml_core::model::{HasOptionalBody, HasSourceSpan};
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,
-    NODE_KIND_EVENT_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
-    NODE_KIND_SOURCE_ENTITY,
+use crate::parse::{
+    annotations::parse_annotation, definitions::dimensions::parse_source_entity,
+    identifiers::parse_identifier, members::parse_member, parse_comment, ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader,
+    model::{
+        annotations::HasAnnotations,
+        definitions::{EventBody, EventDef},
+        HasOptionalBody, HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,
+        NODE_KIND_EVENT_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
+        NODE_KIND_SOURCE_ENTITY,
+    },
 };
 use tree_sitter::TreeCursor;
 

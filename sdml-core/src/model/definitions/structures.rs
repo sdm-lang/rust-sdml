@@ -3,6 +3,7 @@ use crate::{
     model::{
         annotations::{Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations},
         check::{MaybeIncomplete, Validate},
+        definitions::{FromDefinition, HasOptionalFromDefinition},
         identifiers::{Identifier, IdentifierReference},
         members::Member,
         modules::Module,
@@ -43,6 +44,8 @@ pub struct StructureBody {
     span: Option<Span>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    from: Option<FromDefinition>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
     members: BTreeMap<Identifier, Member>,
 }
@@ -228,6 +231,24 @@ impl HasSourceSpan for StructureBody {
 
     fn unset_source_span(&mut self) {
         self.span = None;
+    }
+}
+
+impl HasOptionalFromDefinition for StructureBody {
+    fn from_definition(&self) -> Option<&FromDefinition> {
+        self.from.as_ref()
+    }
+
+    fn from_definition_mut(&mut self) -> Option<&mut FromDefinition> {
+        self.from.as_mut()
+    }
+
+    fn set_from_definition(&mut self, from_definition: FromDefinition) {
+        self.from = Some(from_definition);
+    }
+
+    fn unset_from_definition(&mut self) {
+        self.from = None;
     }
 }
 

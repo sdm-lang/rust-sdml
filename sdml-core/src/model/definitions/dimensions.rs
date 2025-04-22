@@ -6,7 +6,7 @@ use crate::{
             Annotation, AnnotationBuilder, AnnotationOnlyBody, AnnotationProperty, HasAnnotations,
         },
         check::{find_definition, validate_multiple_method_duplicates, MaybeIncomplete, Validate},
-        definitions::HasMultiMembers,
+        definitions::{FromDefinition, HasMultiMembers, HasOptionalFromDefinition},
         identifiers::{Identifier, IdentifierReference},
         members::Member,
         modules::Module,
@@ -53,6 +53,8 @@ pub struct DimensionBody {
     identity: DimensionIdentity,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
     parents: BTreeMap<Identifier, DimensionParent>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    from: Option<FromDefinition>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
     members: BTreeMap<Identifier, Member>,
 }
@@ -278,6 +280,24 @@ impl HasSourceSpan for DimensionBody {
     }
 }
 
+impl HasOptionalFromDefinition for DimensionBody {
+    fn from_definition(&self) -> Option<&FromDefinition> {
+        self.from.as_ref()
+    }
+
+    fn from_definition_mut(&mut self) -> Option<&mut FromDefinition> {
+        self.from.as_mut()
+    }
+
+    fn set_from_definition(&mut self, from_definition: FromDefinition) {
+        self.from = Some(from_definition);
+    }
+
+    fn unset_from_definition(&mut self) {
+        self.from = None;
+    }
+}
+
 impl MaybeIncomplete for DimensionBody {
     fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
         self.identity().is_incomplete(top, cache)
@@ -351,6 +371,7 @@ impl DimensionBody {
             annotations: Default::default(),
             identity: entity.into(),
             parents: Default::default(),
+            from: Default::default(),
             members: Default::default(),
         }
     }

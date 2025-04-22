@@ -1,28 +1,30 @@
-use crate::parse::identifiers::parse_identifier_reference;
-use crate::parse::parse_comment;
+use crate::parse::{identifiers::parse_identifier_reference, parse_comment, ParseContext};
 use rust_decimal::Decimal;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::members::{Ordering, Uniqueness};
-use sdml_core::model::values::{
-    Binary, LanguageString, LanguageTag, MappingValue, SequenceOfValues, SimpleValue, Value,
-    ValueConstructor,
-};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{
-    FIELD_NAME_BYTE, FIELD_NAME_DOMAIN, FIELD_NAME_ELEMENT, FIELD_NAME_NAME, FIELD_NAME_ORDERING,
-    FIELD_NAME_RANGE, FIELD_NAME_UNIQUENESS, FIELD_NAME_VALUE, NODE_KIND_BINARY, NODE_KIND_BOOLEAN,
-    NODE_KIND_DECIMAL, NODE_KIND_DOUBLE, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_INTEGER,
-    NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG, NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VALUE,
-    NODE_KIND_QUOTED_STRING, NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SEQUENCE_ORDERING,
-    NODE_KIND_SEQUENCE_UNIQUENESS, NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_UNSIGNED,
-    NODE_KIND_VALUE, NODE_KIND_VALUE_CONSTRUCTOR,
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        members::{Ordering, Uniqueness},
+        values::{
+            Binary, LanguageString, LanguageTag, MappingValue, SequenceOfValues, SimpleValue,
+            Value, ValueConstructor,
+        },
+        HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BYTE, FIELD_NAME_DOMAIN, FIELD_NAME_ELEMENT, FIELD_NAME_NAME,
+        FIELD_NAME_ORDERING, FIELD_NAME_RANGE, FIELD_NAME_UNIQUENESS, FIELD_NAME_VALUE,
+        NODE_KIND_BINARY, NODE_KIND_BOOLEAN, NODE_KIND_DECIMAL, NODE_KIND_DOUBLE,
+        NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_INTEGER, NODE_KIND_IRI, NODE_KIND_LANGUAGE_TAG,
+        NODE_KIND_LINE_COMMENT, NODE_KIND_MAPPING_VALUE, NODE_KIND_QUOTED_STRING,
+        NODE_KIND_SEQUENCE_OF_VALUES, NODE_KIND_SEQUENCE_ORDERING, NODE_KIND_SEQUENCE_UNIQUENESS,
+        NODE_KIND_SIMPLE_VALUE, NODE_KIND_STRING, NODE_KIND_UNSIGNED, NODE_KIND_VALUE,
+        NODE_KIND_VALUE_CONSTRUCTOR,
+    },
 };
 use sdml_errors::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 use url::Url;
-
-use super::ParseContext;
 
 // ------------------------------------------------------------------------------------------------
 // Parser Functions

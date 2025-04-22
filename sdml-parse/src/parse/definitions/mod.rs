@@ -1,15 +1,22 @@
-use super::ParseContext;
-use crate::parse::annotations::parse_annotation;
-use crate::parse::parse_comment;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::annotations::{AnnotationOnlyBody, HasAnnotations};
-use sdml_core::model::definitions::Definition;
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{
-    NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF, NODE_KIND_DIMENSION_DEF, NODE_KIND_ENTITY_DEF,
-    NODE_KIND_ENUM_DEF, NODE_KIND_EVENT_DEF, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF,
-    NODE_KIND_RDF_DEF, NODE_KIND_STRUCTURE_DEF, NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
+use crate::parse::{
+    annotations::parse_annotation,
+    identifiers::{parse_identifier, parse_identifier_reference},
+    parse_comment, ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        annotations::{AnnotationOnlyBody, HasAnnotations},
+        definitions::{Definition, FromDefinition},
+        HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_FROM, FIELD_NAME_MEMBER, NODE_KIND_ANNOTATION, NODE_KIND_DATA_TYPE_DEF,
+        NODE_KIND_DIMENSION_DEF, NODE_KIND_ENTITY_DEF, NODE_KIND_ENUM_DEF, NODE_KIND_EVENT_DEF,
+        NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_PROPERTY_DEF,
+        NODE_KIND_RDF_DEF, NODE_KIND_STRUCTURE_DEF, NODE_KIND_TYPE_CLASS_DEF, NODE_KIND_UNION_DEF,
+    },
 };
 use tree_sitter::TreeCursor;
 
@@ -106,6 +113,34 @@ pub(crate) fn parse_annotation_only_body<'a>(
         }
     }
     Ok(body)
+}
+
+pub(crate) fn parse_from_definition_clause<'a>(
+    context: &mut ParseContext<'a>,
+    cursor: &mut TreeCursor<'a>,
+) -> Result<FromDefinition, Error> {
+    let node = cursor.node();
+    rule_fn!("from_definition_clause", node);
+
+    let child = node_field_named!(
+        context,
+        RULE_NAME,
+        node,
+        FIELD_NAME_FROM,
+        NODE_KIND_IDENTIFIER_REFERENCE
+    );
+    let defn_id = parse_identifier_reference(context, &mut child.walk())?;
+    let mut from = FromDefinition::from(defn_id);
+
+    // Note:
+    // if the grammar matches "_", the wildcard, then there will be no
+    // members, this loop does nothing and the result is correct.
+    for child in node.children_by_field_name(FIELD_NAME_MEMBER, cursor) {
+        check_node!(context, RULE_NAME, &node);
+        from.add_to_members(parse_identifier(context, &child)?);
+    }
+
+    Ok(from)
 }
 
 // ------------------------------------------------------------------------------------------------

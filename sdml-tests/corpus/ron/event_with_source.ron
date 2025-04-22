@@ -94,6 +94,7 @@ Module {
                             ),
                             with_members: [],
                         },
+                        from: None,
                         members: {},
                     },
                 ),

@@ -3,7 +3,7 @@ use crate::{
     model::{
         annotations::{Annotation, AnnotationBuilder, AnnotationProperty, HasAnnotations},
         check::{validate_multiple_method_duplicates, MaybeIncomplete, Validate},
-        definitions::{HasMultiMembers, SourceEntity},
+        definitions::{FromDefinition, HasMultiMembers, HasOptionalFromDefinition, SourceEntity},
         identifiers::{Identifier, IdentifierReference},
         members::Member,
         modules::Module,
@@ -45,6 +45,8 @@ pub struct EventBody {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     annotations: Vec<Annotation>,
     source_entity: SourceEntity,
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    from: Option<FromDefinition>,
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "BTreeMap::is_empty"))]
     members: BTreeMap<Identifier, Member>,
 }
@@ -234,6 +236,24 @@ impl HasSourceSpan for EventBody {
     }
 }
 
+impl HasOptionalFromDefinition for EventBody {
+    fn from_definition(&self) -> Option<&FromDefinition> {
+        self.from.as_ref()
+    }
+
+    fn from_definition_mut(&mut self) -> Option<&mut FromDefinition> {
+        self.from.as_mut()
+    }
+
+    fn set_from_definition(&mut self, from_definition: FromDefinition) {
+        self.from = Some(from_definition);
+    }
+
+    fn unset_from_definition(&mut self) {
+        self.from = None;
+    }
+}
+
 impl MaybeIncomplete for EventBody {
     fn is_incomplete(&self, top: &Module, cache: &impl ModuleStore) -> bool {
         self.members().any(|elem| elem.is_incomplete(top, cache))
@@ -300,6 +320,7 @@ impl EventBody {
             span: Default::default(),
             annotations: Default::default(),
             source_entity,
+            from: Default::default(),
             members: Default::default(),
         }
     }

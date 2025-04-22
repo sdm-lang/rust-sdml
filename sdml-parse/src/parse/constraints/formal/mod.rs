@@ -1,10 +1,11 @@
-use crate::parse::constraints::formal::functions::parse_function_def;
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::{FormalConstraint, FunctionDef};
-use sdml_core::syntax::{
-    NODE_KIND_CONSTRAINT_ENVIRONMENT, NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_FUNCTION_DEF,
-    NODE_KIND_LINE_COMMENT,
+use crate::parse::{constraints::formal::functions::parse_function_def, ParseContext};
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::constraints::{FormalConstraint, FunctionDef},
+    syntax::{
+        NODE_KIND_CONSTRAINT_ENVIRONMENT, NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_FUNCTION_DEF,
+        NODE_KIND_LINE_COMMENT,
+    },
 };
 use sdml_errors::Error;
 use tree_sitter::TreeCursor;
@@ -88,6 +89,7 @@ mod sequences;
 pub(crate) use sequences::parse_sequence_builder;
 
 mod terms;
+pub(crate) use terms::parse_term;
 
 mod values;
 pub(crate) use values::parse_predicate_value;

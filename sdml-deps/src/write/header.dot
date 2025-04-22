@@ -1,0 +1,14 @@
+digraph G {
+  bgcolor="transparent";
+  rankdir="TB";
+  fontname="Helvetica,Arial,sans-serif";
+  node [
+    shape="tab";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=11
+  ];
+  edge [
+    style="dashed"; arrowhead="open";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
+    labelfontcolor="blue"; labeldistance=2.0
+  ];
+

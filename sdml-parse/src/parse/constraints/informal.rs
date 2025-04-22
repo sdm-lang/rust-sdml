@@ -1,8 +1,12 @@
 use crate::parse::ParseContext;
-use sdml_core::error::Error;
-use sdml_core::model::constraints::{ControlledLanguageString, ControlledLanguageTag};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{FIELD_NAME_LANGUAGE, FIELD_NAME_VALUE};
+use sdml_core::{
+    error::Error,
+    model::{
+        constraints::{ControlledLanguageString, ControlledLanguageTag},
+        HasSourceSpan,
+    },
+    syntax::{FIELD_NAME_LANGUAGE, FIELD_NAME_VALUE},
+};
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

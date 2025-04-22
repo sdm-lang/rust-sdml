@@ -1,0 +1,39 @@
+digraph G {
+  bgcolor="transparent";
+  rankdir="TB";
+  fontname="Helvetica,Arial,sans-serif";
+  node [
+    shape="tab";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=11
+  ];
+  edge [
+    style="dashed"; arrowhead="open";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
+    labelfontcolor="blue"; labeldistance=2.0
+  ];
+
+  corpus_test_import [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><B>corpus_test_import</B>>];
+  dc [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>dc</I>>];
+  owl [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>owl</I>>];
+  rdf [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>rdf</I>>];
+  rdfs [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>rdfs</I>>];
+  skos [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>skos</I>>];
+  xsd [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>xsd</I>>];
+
+  corpus_test_import -> skos ;
+  corpus_test_import -> xsd ;
+  dc -> dct ;
+  dc -> rdf ;
+  dc -> rdfs ;
+  dc -> skos ;
+  owl -> rdf ;
+  owl -> rdfs ;
+  owl -> xsd ;
+  rdf -> rdfs ;
+  rdfs -> rdf ;
+  skos -> dc ;
+  skos -> owl ;
+  skos -> rdf ;
+  skos -> rdfs ;
+  xsd -> dct ;
+}

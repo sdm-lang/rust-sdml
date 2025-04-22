@@ -5,6 +5,13 @@ SCRIPT_NAME=$(basename "$0")
 make_all=0
 force_empty=0
 format=
+verbose=0
+
+function verbose_success {
+    if [[ $verbose -eq 1 ]]; then
+        success "\033[2m$1\033[0m"
+    fi
+}
 
 function success {
     echo -e "\033[1;32m✓\033[0m ${1}"
@@ -29,7 +36,7 @@ function make_result {
             success "file ${new_file_path} exists, clearing content"
             echo "" > "${new_file_path}"
         else
-            success "file ${new_file_path} exists, skipping"
+            verbose_success "file ${new_file_path} exists, skipping"
         fi
     else
         touch "${new_file_path}"
@@ -39,7 +46,7 @@ function make_result {
 
 function make_results {
     if [[ -d "${format}" ]]; then
-        success "directory ${format} exists"
+        verbose_success "directory ${format} exists"
     else
         mkdir "${format}"
         success "directory ${format} created"
@@ -68,6 +75,7 @@ Usage:
 
 Arguments:
 
+    --verbose -v          Output more messages.
     --force | -f          Overwrite existing result files.
     --all   | -a          Create files for all test cases.
     --result-format | -r  Result format/directory name.
@@ -81,6 +89,10 @@ EOF
 
 while [[ $# -gt 0 ]]; do
     case ${1} in
+        --verbose | -v)
+            verbose=1
+            shift 1
+            ;;
         --force | -f)
             force_empty=1
             shift 1

@@ -53,9 +53,10 @@ use sdml_core::{
         definitions::{
             DatatypeDef, Definition, DimensionBody, DimensionDef, DimensionIdentity,
             DimensionParent, EntityBody, EntityDef, EnumBody, EnumDef, EventBody, EventDef,
-            MethodDef, PropertyDef, RdfDef, RestrictionFacet, SourceEntity, StructureBody,
-            StructureDef, TypeClassArgument, TypeClassBody, TypeClassDef, TypeClassReference,
-            TypeVariable, TypeVariant, UnionBody, UnionDef, ValueVariant,
+            FromDefinition, HasOptionalFromDefinition, MethodDef, PropertyDef, RdfDef,
+            RestrictionFacet, SourceEntity, StructureBody, StructureDef, TypeClassArgument,
+            TypeClassBody, TypeClassDef, TypeClassReference, TypeVariable, TypeVariant, UnionBody,
+            UnionDef, ValueVariant,
         },
         identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
         members::{Cardinality, MappingType, Member, MemberDef, MemberKind, TypeReference},
@@ -226,6 +227,14 @@ macro_rules! add_annotations {
             annotations,
             FIELD_NAME_ANNOTATIONS
         );
+    };
+}
+
+macro_rules! add_from_definition {
+    ($me:expr, $value_map:expr, $opts:expr) => {
+        if let Some(from) = $me.from_definition() {
+            set!($value_map, FIELD_NAME_FROM => from.to_json_with($opts));
+        }
     };
 }
 
@@ -577,6 +586,15 @@ impl ToJson for Definition {
                 ; TypeClass => NODE_VARIANT_TYPE_CLASS
                 ; Union => NODE_VARIANT_UNION
         );
+    }
+}
+
+impl ToJson for FromDefinition {
+    fn add_to_json_with(&self, value_map: &mut Map<String, Value>, opts: ValueOptions) {
+        set!(value_map => NODE_KIND_FROM_DEFINITION_CLAUSE);
+        set_source_span!(self, value_map, opts);
+        set!(value_map, FIELD_NAME_FROM => self.definition().to_json_with(opts));
+        add_collection!(value_map, opts, self, has_members, members, FIELD_NAME_WITH);
     }
 }
 
@@ -978,6 +996,7 @@ impl ToJson for EntityBody {
         set!(unless opts.context_only; value_map => NODE_KIND_ENTITY_BODY);
         set!(value_map, FIELD_NAME_IDENTITY => self.identity().to_json_with(opts));
         add_annotations!(value_map, opts, self);
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,
@@ -1104,6 +1123,7 @@ impl ToJson for EnumBody {
     fn add_to_json_with(&self, value_map: &mut Map<String, Value>, opts: ValueOptions) {
         set!(unless opts.context_only; value_map => NODE_KIND_ENUM_BODY);
         add_annotations!(value_map, opts, self);
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,
@@ -1153,6 +1173,7 @@ impl ToJson for EventBody {
     fn add_to_json_with(&self, value_map: &mut Map<String, Value>, opts: ValueOptions) {
         set!(unless opts.context_only; value_map => NODE_KIND_EVENT_BODY);
         add_annotations!(value_map, opts, self);
+        add_from_definition!(self, value_map, opts);
         set!(value_map, FIELD_NAME_SOURCE => self.source_entity().to_json_with(opts));
         add_collection!(
             value_map,
@@ -1242,6 +1263,7 @@ impl ToJson for DimensionBody {
             parents,
             FIELD_NAME_PARENTS
         );
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,
@@ -1350,6 +1372,7 @@ impl ToJson for StructureBody {
     fn add_to_json_with(&self, value_map: &mut Map<String, Value>, opts: ValueOptions) {
         set!(unless opts.context_only; value_map => NODE_KIND_STRUCTURE_BODY);
         add_annotations!(value_map, opts, self);
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,
@@ -1405,6 +1428,7 @@ impl ToJson for TypeClassBody {
         set!(unless opts.context_only; value_map => NODE_KIND_TYPE_CLASS_BODY);
         set_source_span!(self, value_map, opts, !opts.context_only);
         add_annotations!(value_map, opts, self);
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,

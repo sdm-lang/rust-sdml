@@ -115,6 +115,7 @@ Module {
                             ),
                         },
                         annotations: [],
+                        from: None,
                         members: {
                             Identifier {
                                 span: Some(

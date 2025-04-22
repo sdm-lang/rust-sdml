@@ -1,15 +1,18 @@
-use super::ParseContext;
-use crate::parse::constraints::parse_constraint;
-use crate::parse::identifiers::parse_identifier_reference;
-use crate::parse::parse_comment;
-use crate::parse::values::parse_value;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::annotations::{Annotation, AnnotationProperty};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{
-    FIELD_NAME_NAME, FIELD_NAME_VALUE, NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_CONSTRAINT,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE,
+use crate::parse::{
+    constraints::parse_constraint, identifiers::parse_identifier_reference, parse_comment,
+    values::parse_value, ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        annotations::{Annotation, AnnotationProperty},
+        HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_NAME, FIELD_NAME_VALUE, NODE_KIND_ANNOTATION_PROPERTY, NODE_KIND_CONSTRAINT,
+        NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE,
+    },
 };
 use tree_sitter::TreeCursor;
 

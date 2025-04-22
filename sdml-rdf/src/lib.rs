@@ -1,13 +1,11 @@
 /*!
-One-line description.
+This package provides the ability to read and write the RDF representation of SDML.
 
-More detailed description, with
+TBD
 
 # Example
 
-
-# Features
-
+TBD
  */
 
 #![warn(

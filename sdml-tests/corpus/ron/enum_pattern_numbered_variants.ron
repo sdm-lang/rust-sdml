@@ -185,6 +185,7 @@ Module {
                                 },
                             ),
                         ],
+                        from: None,
                         variants: {
                             Identifier {
                                 span: Some(

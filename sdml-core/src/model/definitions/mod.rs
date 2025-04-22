@@ -53,6 +53,38 @@ pub enum Definition {
 }
 
 // ------------------------------------------------------------------------------------------------
+// Public Types ❱ Definitions ❱  FromDefinition
+// ------------------------------------------------------------------------------------------------
+
+/// Corresponds to the grammar rule `from_definition`.
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+pub struct FromDefinition {
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    span: Option<Span>,
+    definition: IdentifierReference,
+    with_members: BTreeSet<Identifier>,
+}
+
+pub trait HasOptionalFromDefinition {
+    fn with_from_definition(self, from_definition: FromDefinition) -> Self
+    where
+        Self: Sized,
+    {
+        let mut self_mut = self;
+        self_mut.set_from_definition(from_definition);
+        self_mut
+    }
+    fn has_from_definition(&self) -> bool {
+        self.from_definition().is_some()
+    }
+    fn from_definition(&self) -> Option<&FromDefinition>;
+    fn from_definition_mut(&mut self) -> Option<&mut FromDefinition>;
+    fn set_from_definition(&mut self, from_definition: FromDefinition);
+    fn unset_from_definition(&mut self);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Implementations ❱ Definitions ❱ Definition
 // ------------------------------------------------------------------------------------------------
 
@@ -497,6 +529,106 @@ impl Definition {
     #[inline(always)]
     pub fn is_library_definition(&self) -> bool {
         matches!(self, Self::Rdf(_) | Self::TypeClass(_))
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Implementations ❱ Definitions ❱ FromDefinition
+// ------------------------------------------------------------------------------------------------
+
+impl From<IdentifierReference> for FromDefinition {
+    fn from(definition: IdentifierReference) -> Self {
+        Self {
+            span: Default::default(),
+            definition,
+            with_members: Default::default(),
+        }
+    }
+}
+
+impl HasSourceSpan for FromDefinition {
+    fn with_source_span(self, span: Span) -> Self {
+        let mut self_mut = self;
+        self_mut.span = Some(span);
+        self_mut
+    }
+
+    fn source_span(&self) -> Option<&Span> {
+        self.span.as_ref()
+    }
+
+    fn set_source_span(&mut self, span: Span) {
+        self.span = Some(span);
+    }
+
+    fn unset_source_span(&mut self) {
+        self.span = None;
+    }
+}
+
+impl FromDefinition {
+    // --------------------------------------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------------------------------------
+    pub fn new<I>(definition: IdentifierReference, with_members: I) -> Self
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        Self::from(definition).with_members(with_members)
+    }
+
+    pub fn with_members<I>(self, with_members: I) -> Self
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        let mut self_mut = self;
+        self_mut.extend_members(with_members);
+        self_mut
+    }
+
+    // --------------------------------------------------------------------------------------------
+    // Members
+    // --------------------------------------------------------------------------------------------
+
+    pub fn definition(&self) -> &IdentifierReference {
+        &self.definition
+    }
+
+    pub fn set_definition(&mut self, definition: IdentifierReference) {
+        self.definition = definition;
+    }
+
+    // --------------------------------------------------------------------------------------------
+
+    pub fn is_wildcard(&self) -> bool {
+        self.with_members.is_empty()
+    }
+
+    pub fn set_member_wildcard(&mut self) {
+        self.with_members.clear();
+    }
+
+    pub fn has_members(&self) -> bool {
+        !self.with_members.is_empty()
+    }
+
+    pub fn member_count(&self) -> usize {
+        self.with_members.len()
+    }
+
+    pub fn members(&self) -> impl Iterator<Item = &Identifier> {
+        self.with_members.iter()
+    }
+
+    pub fn add_to_members(&mut self, member: Identifier) {
+        self.with_members.insert(member);
+    }
+
+    pub fn extend_members<I>(&mut self, extension: I)
+    where
+        I: IntoIterator<Item = Identifier>,
+    {
+        self.with_members.extend(extension.into_iter());
     }
 }
 

@@ -1,10 +1,11 @@
-use crate::parse::identifiers::parse_identifier;
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::Constraint;
-use sdml_core::syntax::{
-    FIELD_NAME_NAME, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
-    NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_LINE_COMMENT,
+use crate::parse::{identifiers::parse_identifier, ParseContext};
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::constraints::Constraint,
+    syntax::{
+        FIELD_NAME_NAME, NODE_KIND_FORMAL_CONSTRAINT, NODE_KIND_IDENTIFIER,
+        NODE_KIND_INFORMAL_CONSTRAINT, NODE_KIND_LINE_COMMENT,
+    },
 };
 use sdml_errors::Error;
 use tree_sitter::TreeCursor;
@@ -77,5 +78,5 @@ pub(crate) use informal::parse_informal_constraint;
 mod formal;
 pub(crate) use formal::{
     parse_formal_constraint, parse_function_body, parse_function_cardinality_expression,
-    parse_function_signature, parse_predicate_value, parse_sequence_builder,
+    parse_function_signature, parse_predicate_value, parse_sequence_builder, parse_term,
 };

@@ -1,18 +1,23 @@
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::identifiers::{Identifier, QualifiedIdentifier};
-use sdml_core::model::members::{Cardinality, MappingType, Ordering, TypeReference, Uniqueness};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{
-    FIELD_NAME_DOMAIN, FIELD_NAME_MAX, FIELD_NAME_MIN, FIELD_NAME_ORDERING, FIELD_NAME_RANGE,
-    FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_SEQUENCE_ORDERING,
-    NODE_KIND_SEQUENCE_UNIQUENESS, NODE_KIND_TYPE_REFERENCE, NODE_KIND_UNKNOWN_TYPE,
-    NODE_KIND_UNSIGNED,
+use crate::parse::{
+    identifiers::{parse_identifier, parse_identifier_reference},
+    ParseContext,
 };
-use sdml_errors::diagnostics::functions::invalid_value_for_type_named;
-use sdml_errors::Error;
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        identifiers::{Identifier, QualifiedIdentifier},
+        members::{Cardinality, MappingType, Ordering, TypeReference, Uniqueness},
+        HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_DOMAIN, FIELD_NAME_MAX, FIELD_NAME_MIN, FIELD_NAME_ORDERING, FIELD_NAME_RANGE,
+        FIELD_NAME_UNIQUENESS, NAME_SDML, NODE_KIND_BUILTIN_SIMPLE_TYPE,
+        NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_MAPPING_TYPE, NODE_KIND_SEQUENCE_ORDERING,
+        NODE_KIND_SEQUENCE_UNIQUENESS, NODE_KIND_TYPE_REFERENCE, NODE_KIND_UNKNOWN_TYPE,
+        NODE_KIND_UNSIGNED,
+    },
+};
+use sdml_errors::{diagnostics::functions::invalid_value_for_type_named, Error};
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 

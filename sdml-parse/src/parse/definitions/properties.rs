@@ -1,10 +1,10 @@
-use crate::parse::members::parse_member_def;
-use crate::parse::ParseContext;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader;
-use sdml_core::model::definitions::PropertyDef;
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::{FIELD_NAME_MEMBER, NODE_KIND_MEMBER_DEF};
+use crate::parse::{members::parse_member_def, ParseContext};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader,
+    model::{definitions::PropertyDef, HasSourceSpan},
+    syntax::{FIELD_NAME_MEMBER, NODE_KIND_MEMBER_DEF},
+};
 use tree_sitter::TreeCursor;
 
 // ------------------------------------------------------------------------------------------------

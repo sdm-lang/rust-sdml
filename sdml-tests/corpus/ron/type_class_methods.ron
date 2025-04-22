@@ -100,6 +100,7 @@ Module {
                             },
                         ),
                         annotations: [],
+                        from: None,
                         methods: {
                             Identifier {
                                 span: Some(

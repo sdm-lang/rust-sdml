@@ -1,5 +1,5 @@
 /*!
-One-line description.
+This package provides the ability to read and write the JSON representation of SDML.
 
 TBD
 

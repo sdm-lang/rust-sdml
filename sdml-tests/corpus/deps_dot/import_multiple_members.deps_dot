@@ -1,0 +1,21 @@
+digraph G {
+  bgcolor="transparent";
+  rankdir="TB";
+  fontname="Helvetica,Arial,sans-serif";
+  node [
+    shape="tab";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=11
+  ];
+  edge [
+    style="dashed"; arrowhead="open";
+    fontname="Helvetica,Arial,sans-serif"; fontsize=9; fontcolor="dimgrey";
+    labelfontcolor="blue"; labeldistance=2.0
+  ];
+
+  corpus_test_import [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><B>corpus_test_import</B>>];
+  xsd [label=<<FONT POINT-SIZE="9">«module»</FONT><BR/><I>xsd</I>>];
+
+  corpus_test_import -> xml ;
+  corpus_test_import -> xsd ;
+  xsd -> dct ;
+}

@@ -1,16 +1,22 @@
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::ParseContext;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader;
-use sdml_core::model::annotations::{AnnotationProperty, HasAnnotations};
-use sdml_core::model::definitions::RdfDef;
-use sdml_core::model::identifiers::{Identifier, QualifiedIdentifier};
-use sdml_core::model::{HasBody, HasSourceSpan};
-use sdml_core::stdlib;
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_TYPE, FIELD_NAME_TYPES,
-    NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_RDF_TYPES,
+use crate::parse::{
+    definitions::parse_annotation_only_body,
+    identifiers::{parse_identifier, parse_identifier_reference},
+    ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader,
+    model::{
+        annotations::{AnnotationProperty, HasAnnotations},
+        definitions::RdfDef,
+        identifiers::{Identifier, QualifiedIdentifier},
+        HasBody, HasSourceSpan,
+    },
+    stdlib,
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_TYPE, FIELD_NAME_TYPES,
+        NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_RDF_TYPES,
+    },
 };
 use tree_sitter::TreeCursor;
 

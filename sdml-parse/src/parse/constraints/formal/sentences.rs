@@ -1,25 +1,31 @@
-use super::terms::parse_term;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::{
-    AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConstraintSentence, Equation,
-    InequalityRelation, Inequation, QuantifiedSentence, QuantifiedVariable,
-    QuantifiedVariableBinding, Quantifier, SimpleSentence, Term, UnaryBooleanSentence, Variable,
+use crate::parse::{
+    constraints::parse_term,
+    identifiers::{parse_identifier, parse_identifier_reference},
+    ParseContext,
 };
-use sdml_core::syntax::{
-    FIELD_NAME_ARGUMENT, FIELD_NAME_BINDING, FIELD_NAME_BODY, FIELD_NAME_LHS, FIELD_NAME_NAME,
-    FIELD_NAME_OPERATOR, FIELD_NAME_PREDICATE, FIELD_NAME_QUANTIFIER, FIELD_NAME_RANGE,
-    FIELD_NAME_RELATION, FIELD_NAME_RHS, FIELD_NAME_SOURCE, FIELD_NAME_VARIABLE,
-    NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BINARY_BOOLEAN_SENTENCE, NODE_KIND_BOOLEAN_SENTENCE,
-    NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_EQUATION, NODE_KIND_INEQUATION,
-    NODE_KIND_LINE_COMMENT, NODE_KIND_LOGICAL_OP_BICONDITIONAL, NODE_KIND_LOGICAL_OP_CONJUNCTION,
-    NODE_KIND_LOGICAL_OP_DISJUNCTION, NODE_KIND_LOGICAL_OP_EXCLUSIVE_DISJUNCTION,
-    NODE_KIND_LOGICAL_OP_IMPLICATION, NODE_KIND_LOGICAL_OP_NEGATION, NODE_KIND_QUANTIFIED_SENTENCE,
-    NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_TERM,
-    NODE_KIND_UNARY_BOOLEAN_SENTENCE,
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::constraints::{
+        AtomicSentence, BinaryBooleanSentence, BooleanSentence, ConstraintSentence, Equation,
+        InequalityRelation, Inequation, QuantifiedSentence, QuantifiedVariable,
+        QuantifiedVariableBinding, Quantifier, SimpleSentence, Term, UnaryBooleanSentence,
+        Variable,
+    },
+    syntax::{
+        FIELD_NAME_ARGUMENT, FIELD_NAME_BINDING, FIELD_NAME_BODY, FIELD_NAME_LHS, FIELD_NAME_NAME,
+        FIELD_NAME_OPERATOR, FIELD_NAME_PREDICATE, FIELD_NAME_QUANTIFIER, FIELD_NAME_RANGE,
+        FIELD_NAME_RELATION, FIELD_NAME_RHS, FIELD_NAME_SOURCE, FIELD_NAME_VARIABLE,
+        NODE_KIND_ATOMIC_SENTENCE, NODE_KIND_BINARY_BOOLEAN_SENTENCE, NODE_KIND_BOOLEAN_SENTENCE,
+        NODE_KIND_CONSTRAINT_SENTENCE, NODE_KIND_EQUATION, NODE_KIND_INEQUATION,
+        NODE_KIND_LINE_COMMENT, NODE_KIND_LOGICAL_OP_BICONDITIONAL,
+        NODE_KIND_LOGICAL_OP_CONJUNCTION, NODE_KIND_LOGICAL_OP_DISJUNCTION,
+        NODE_KIND_LOGICAL_OP_EXCLUSIVE_DISJUNCTION, NODE_KIND_LOGICAL_OP_IMPLICATION,
+        NODE_KIND_LOGICAL_OP_NEGATION, NODE_KIND_QUANTIFIED_SENTENCE,
+        NODE_KIND_QUANTIFIED_VARIABLE_BINDING, NODE_KIND_SIMPLE_SENTENCE, NODE_KIND_TERM,
+        NODE_KIND_UNARY_BOOLEAN_SENTENCE,
+    },
 };
-use sdml_errors::Error;
 use std::str::FromStr;
 use tree_sitter::TreeCursor;
 

@@ -1,0 +1,71 @@
+{
+  "__type": "module",
+  "annotations": [
+    {
+      "__type": "annotation",
+      "property": {
+        "__type": "annotation_property",
+        "name": {
+          "__type": "identifier_reference",
+          "qualified_identifier": {
+            "__type": "qualified_identifier",
+            "member": {
+              "__type": "identifier",
+              "value": "seeAlso"
+            },
+            "module": {
+              "__type": "identifier",
+              "value": "dc"
+            }
+          }
+        },
+        "span": {
+          "__type": "span",
+          "end": 217,
+          "start": 69
+        },
+        "value": {
+          "__type": "value",
+          "sequence": {
+            "__type": "sequence_of_values",
+            "members": [
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "iri",
+                  "value": "https://www.dublincore.org/"
+                }
+              },
+              {
+                "__type": "sequence_member",
+                "simple": {
+                  "__type": "iri",
+                  "value": "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/"
+                }
+              }
+            ],
+            "ordering": "unordered",
+            "span": {
+              "__type": "span",
+              "end": 217,
+              "start": 83
+            },
+            "uniqueness": "unique"
+          }
+        }
+      }
+    }
+  ],
+  "base": "http://example.orgMANIFEST_PATH/corpus/annotation_multiple_as_set.sdm/",
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_annotation"
+  },
+  "source_file": "MANIFEST_PATH/corpus/annotation_multiple_as_set.sdm",
+  "span": {
+    "__type": "span",
+    "end": 224,
+    "start": 0
+  }
+}

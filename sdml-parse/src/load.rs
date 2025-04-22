@@ -5,23 +5,31 @@ file-system based modules.
 
 use crate::parse::parse_str;
 use codespan_reporting::files::SimpleFiles;
-use sdml_core::load::{ModuleLoader, ModuleResolver};
-use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::{HeaderValue, Module};
-use sdml_core::model::{HasName, HasSourceSpan};
-use sdml_core::stdlib;
-use sdml_core::store::ModuleStore;
-use sdml_errors::diagnostics::reporter::ReportCounters;
-use sdml_errors::diagnostics::SeverityFilter;
-use sdml_errors::diagnostics::{functions::imported_module_not_found, StandardStreamReporter};
-use sdml_errors::{Diagnostic, Reporter, Source, SourceFiles};
-use sdml_errors::{Error, FileId};
+use sdml_core::{
+    load::{ModuleLoader, ModuleResolver},
+    model::{
+        identifiers::Identifier,
+        modules::{HeaderValue, Module},
+        HasName, HasSourceSpan,
+    },
+    stdlib,
+    store::ModuleStore,
+};
+use sdml_errors::{
+    diagnostics::{
+        functions::imported_module_not_found, reporter::ReportCounters, SeverityFilter,
+        StandardStreamReporter,
+    },
+    Diagnostic, Error, FileId, Reporter, Source, SourceFiles,
+};
 use search_path::SearchPath;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::Read;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    fs::File,
+    io::Read,
+    path::{Path, PathBuf},
+};
 use tracing::{debug, error, info, trace, warn};
 use url::Url;
 

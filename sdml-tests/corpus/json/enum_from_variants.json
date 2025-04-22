@@ -1,0 +1,65 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/enum_from_variants.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "enum": {
+        "__type": "enum_def",
+        "body": {
+          "__type": "enum_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Names"
+              }
+            },
+            "with": [
+              {
+                "__type": "identifier",
+                "value": "Internal"
+              }
+            ]
+          },
+          "variants": [
+            {
+              "__type": "value_variant",
+              "name": {
+                "__type": "identifier",
+                "value": "External"
+              },
+              "span": {
+                "__type": "span",
+                "end": 133,
+                "start": 125
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "NameKind"
+        },
+        "span": {
+          "__type": "span",
+          "end": 139,
+          "start": 71
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_enum"
+  },
+  "source_file": "MANIFEST_PATH/corpus/enum_from_variants.sdm",
+  "span": {
+    "__type": "span",
+    "end": 146,
+    "start": 0
+  }
+}

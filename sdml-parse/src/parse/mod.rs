@@ -9,24 +9,27 @@ YYYYY
 
 */
 
-use crate::load::FsModuleLoader;
-use crate::parse::modules::parse_module;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::comments::Comment;
-use sdml_core::model::identifiers::Identifier;
-use sdml_core::model::modules::{Import, Module};
-use sdml_core::model::HasSourceSpan;
-use sdml_core::syntax::NODE_KIND_MODULE;
-use sdml_errors::diagnostics::functions::{
-    duplicate_definition, duplicate_definition_import, duplicate_member, duplicate_module_import,
-    duplicate_variant, found_error_node,
+use crate::{load::FsModuleLoader, parse::modules::parse_module};
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        comments::Comment,
+        identifiers::Identifier,
+        modules::{Import, Module},
+        HasSourceSpan,
+    },
+    syntax::NODE_KIND_MODULE,
 };
-use sdml_errors::Error;
-use sdml_errors::{FileId, Source};
+use sdml_errors::{
+    diagnostics::functions::{
+        duplicate_definition, duplicate_definition_import, duplicate_member,
+        duplicate_module_import, duplicate_variant, found_error_node,
+    },
+    Error, FileId, Source,
+};
 use std::collections::HashSet;
 use tracing::trace;
-use tree_sitter::Node;
-use tree_sitter::Parser;
+use tree_sitter::{Node, Parser};
 use tree_sitter_sdml::language;
 
 // ------------------------------------------------------------------------------------------------

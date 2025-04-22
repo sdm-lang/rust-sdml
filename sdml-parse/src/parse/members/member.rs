@@ -1,17 +1,23 @@
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::members::{parse_cardinality_expression, parse_type_reference};
-use crate::parse::ParseContext;
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader;
-use sdml_core::model::identifiers::IdentifierReference;
-use sdml_core::model::members::{Member, MemberDef};
-use sdml_core::model::{HasOptionalBody, HasSourceSpan};
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_NAME, FIELD_NAME_PROPERTY,
-    FIELD_NAME_TARGET, NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_CARDINALITY_EXPRESSION,
-    NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
-    NODE_KIND_MEMBER_DEF, NODE_KIND_PROPERTY_REF, NODE_KIND_TYPE_REFERENCE,
+use crate::parse::{
+    definitions::parse_annotation_only_body,
+    identifiers::{parse_identifier, parse_identifier_reference},
+    members::{parse_cardinality_expression, parse_type_reference},
+    ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader,
+    model::{
+        identifiers::IdentifierReference,
+        members::{Member, MemberDef},
+        HasOptionalBody, HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_CARDINALITY, FIELD_NAME_NAME, FIELD_NAME_PROPERTY,
+        FIELD_NAME_TARGET, NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_CARDINALITY_EXPRESSION,
+        NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
+        NODE_KIND_MEMBER_DEF, NODE_KIND_PROPERTY_REF, NODE_KIND_TYPE_REFERENCE,
+    },
 };
 use tree_sitter::TreeCursor;
 

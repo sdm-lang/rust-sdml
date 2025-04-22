@@ -163,6 +163,7 @@ Module {
                                 body: None,
                             },
                         },
+                        from: None,
                         members: {},
                     },
                 ),

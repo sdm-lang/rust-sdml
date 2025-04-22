@@ -1,11 +1,16 @@
 /*!
-One-line description.
+This module provides the generators for *concept*, *entity-relationship*, and *UML class* diagrams. It also provides a
+common [`OutputFormat`] type that describes the image format.
 
-More detailed description, with
+- `concepts` -- A simple diagram showing only the entities and their relationships.
+- `erd` -- An Entity-Relationship diagram.
+- `uml` -- A detailed UML Class diagram.
+
+TBD
 
 # Example
 
-End of file during parsingSymbol’s value as variable is void: rustEnd of file during parsing
+TBD
 
 # Features
 
@@ -40,7 +45,6 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 #![deny(
     // ---------- Public
     exported_private_dependencies,
-    private_in_public,
     // ---------- Deprecated
     anonymous_parameters,
     bare_trait_objects,
@@ -51,22 +55,23 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
     dyn_drop,
 )]
 
-// use ...
-
-// ------------------------------------------------------------------------------------------------
-// Public Types
-// ------------------------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------------------------
-// Public Functions
-// ------------------------------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------------------------------
-// Implementations
-// ------------------------------------------------------------------------------------------------
-
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
+
+#[macro_use]
+mod macros;
+
+mod errors;
+
+mod exec;
+
+pub mod concepts;
+
+pub mod erd;
+
+pub mod filter;
+
+pub mod format;
+
+pub mod uml;

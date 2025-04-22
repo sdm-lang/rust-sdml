@@ -1,11 +1,11 @@
 /*!
-One-line description.
+This module provides generators that create documentation of a module given its in-memory representation.
 
-More detailed description, with
+TBD
 
 # Example
 
-End of file during parsingSymbol’s value as variable is void: rustEnd of file during parsing
+TBD
 
 # Features
 
@@ -70,3 +70,10 @@ End of file during parsingSymbol’s value as variable is void: rustEnd of file 
 // ------------------------------------------------------------------------------------------------
 // Modules
 // ------------------------------------------------------------------------------------------------
+
+#[macro_use]
+mod macros;
+
+mod errors;
+
+

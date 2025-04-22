@@ -1,14 +1,20 @@
-use crate::parse::constraints::{parse_predicate_value, parse_sequence_builder};
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::ParseContext;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::constraints::{FunctionComposition, FunctionalTerm, Subject, Term};
-use sdml_core::model::identifiers::Identifier;
-use sdml_core::syntax::{
-    FIELD_NAME_ARGUMENT, FIELD_NAME_FUNCTION, FIELD_NAME_NAME, FIELD_NAME_SUBJECT,
-    NODE_KIND_FUNCTIONAL_TERM, NODE_KIND_FUNCTION_COMPOSITION, NODE_KIND_IDENTIFIER,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
-    NODE_KIND_RESERVED_SELF, NODE_KIND_SEQUENCE_BUILDER,
+use crate::parse::{
+    constraints::{parse_predicate_value, parse_sequence_builder},
+    identifiers::{parse_identifier, parse_identifier_reference},
+    ParseContext,
+};
+use sdml_core::{
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        constraints::{FunctionComposition, FunctionalTerm, Subject, Term},
+        identifiers::Identifier,
+    },
+    syntax::{
+        FIELD_NAME_ARGUMENT, FIELD_NAME_FUNCTION, FIELD_NAME_NAME, FIELD_NAME_SUBJECT,
+        NODE_KIND_FUNCTIONAL_TERM, NODE_KIND_FUNCTION_COMPOSITION, NODE_KIND_IDENTIFIER,
+        NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_PREDICATE_VALUE,
+        NODE_KIND_RESERVED_SELF, NODE_KIND_SEQUENCE_BUILDER,
+    },
 };
 use sdml_errors::Error;
 use tree_sitter::TreeCursor;

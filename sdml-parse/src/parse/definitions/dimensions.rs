@@ -1,23 +1,27 @@
-use crate::parse::annotations::parse_annotation;
-use crate::parse::definitions::entities::parse_entity_identity;
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::identifiers::{parse_identifier, parse_identifier_reference};
-use crate::parse::members::parse_member;
-use crate::parse::{parse_comment, ParseContext};
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader;
-use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{
-    DimensionBody, DimensionDef, DimensionIdentity, DimensionParent, SourceEntity,
+use crate::parse::{
+    annotations::parse_annotation,
+    definitions::{entities::parse_entity_identity, parse_annotation_only_body},
+    identifiers::{parse_identifier, parse_identifier_reference},
+    members::parse_member,
+    parse_comment, ParseContext,
 };
-
-use sdml_core::model::{HasOptionalBody, HasSourceSpan};
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_ENTITY, FIELD_NAME_IDENTITY, FIELD_NAME_MEMBER, FIELD_NAME_NAME,
-    NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_DIMENSION_BODY,
-    NODE_KIND_DIMENSION_PARENT, NODE_KIND_ENTITY_IDENTITY, NODE_KIND_IDENTIFIER,
-    NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
-    NODE_KIND_SOURCE_ENTITY,
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader,
+    model::{
+        annotations::HasAnnotations,
+        definitions::{
+            DimensionBody, DimensionDef, DimensionIdentity, DimensionParent, SourceEntity,
+        },
+        HasOptionalBody, HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_ENTITY, FIELD_NAME_IDENTITY, FIELD_NAME_MEMBER,
+        FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY,
+        NODE_KIND_DIMENSION_BODY, NODE_KIND_DIMENSION_PARENT, NODE_KIND_ENTITY_IDENTITY,
+        NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
+        NODE_KIND_MEMBER, NODE_KIND_SOURCE_ENTITY,
+    },
 };
 use tree_sitter::TreeCursor;
 

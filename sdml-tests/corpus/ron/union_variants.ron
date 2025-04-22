@@ -79,6 +79,7 @@ Module {
                             },
                         ),
                         annotations: [],
+                        from: None,
                         variants: {
                             Identifier {
                                 span: Some(

@@ -1,0 +1,17 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/from_definition_wildcard.sdm/",
+  "definitions": [
+    {
+      "__type": "structure_def",
+      "from": {
+        "__type": "from_definition_clause",
+        "from": "Source"
+      },
+      "name": "Example"
+    }
+  ],
+  "is_library_module": false,
+  "name": "corpus_test_from_definition",
+  "source_file": "MANIFEST_PATH/corpus/from_definition_wildcard.sdm"
+}

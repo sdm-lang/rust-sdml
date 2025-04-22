@@ -130,6 +130,7 @@ Module {
                             },
                         ),
                         parents: {},
+                        from: None,
                         members: {},
                     },
                 ),

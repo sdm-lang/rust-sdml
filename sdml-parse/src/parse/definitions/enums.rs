@@ -1,15 +1,20 @@
-use crate::parse::annotations::parse_annotation;
-use crate::parse::definitions::parse_annotation_only_body;
-use crate::parse::identifiers::parse_identifier;
-use crate::parse::{parse_comment, ParseContext};
-use sdml_core::error::Error;
-use sdml_core::load::ModuleLoader as ModuleLoaderTrait;
-use sdml_core::model::annotations::HasAnnotations;
-use sdml_core::model::definitions::{EnumBody, EnumDef, ValueVariant};
-use sdml_core::model::{HasOptionalBody, HasSourceSpan};
-use sdml_core::syntax::{
-    FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY,
-    NODE_KIND_ENUM_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE_VARIANT,
+use crate::parse::{
+    annotations::parse_annotation, definitions::{parse_annotation_only_body, parse_from_definition_clause},
+    identifiers::parse_identifier, parse_comment, ParseContext,
+};
+use sdml_core::{
+    error::Error,
+    load::ModuleLoader as ModuleLoaderTrait,
+    model::{
+        annotations::HasAnnotations,
+        definitions::{EnumBody, EnumDef, ValueVariant, HasOptionalFromDefinition},
+        HasOptionalBody, HasSourceSpan,
+    },
+    syntax::{
+        FIELD_NAME_BODY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY,
+        NODE_KIND_ENUM_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_LINE_COMMENT, NODE_KIND_VALUE_VARIANT,
+        NODE_KIND_FROM_DEFINITION_CLAUSE,
+    },
 };
 use tree_sitter::TreeCursor;
 
@@ -65,6 +70,9 @@ fn parse_enum_body<'a>(
         match node.kind() {
             NODE_KIND_ANNOTATION => {
                 body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
+            }
+            NODE_KIND_FROM_DEFINITION_CLAUSE => {
+                body.set_from_definition(parse_from_definition_clause(context, &mut node.walk())?);
             }
             NODE_KIND_VALUE_VARIANT => {
                 body.add_to_variants(parse_value_variant(context, &mut node.walk())?);

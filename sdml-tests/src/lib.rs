@@ -15,7 +15,14 @@ macro_rules! writer_to_string {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! write_file_constants {
-    ($result_type: literal, $generator_fn: expr, $replace_manifest_path: expr, $sort_results: expr) => {
+    (
+        $load_recursive:expr,
+        $result_type:literal,
+        $generator_fn:expr,
+        $replace_manifest_path:expr,
+        $sort_results:expr
+    ) => {
+        const LOAD_MODULES_RECURSIVELY: bool = $load_recursive;
         const RESULT_DIR: &str = $result_type;
         const RESULT_FILE_EXT: &str = $result_type;
         const GENERATOR_FN: fn(
@@ -29,7 +36,7 @@ macro_rules! write_file_constants {
 
 #[macro_export]
 macro_rules! sort_string_as_lines {
-    ($s: expr) => {{
+    ($s:expr) => {{
         let mut new_s = $s.split("\n").collect::<Vec<&str>>();
         new_s.sort_unstable();
         new_s.join("\n")
@@ -37,8 +44,26 @@ macro_rules! sort_string_as_lines {
 }
 
 #[macro_export]
+macro_rules! generator_fn {
+    (default $options:ty, default $writer:ty) => {
+        generator_fn!(generate_to_string => default $options, default $writer);
+    };
+    ($fn_name:ident => default $options:ty, default $writer:ty) => {
+        fn $fn_name(
+            module: &::sdml_core::model::modules::Module,
+            cache: &::sdml_core::store::InMemoryModuleCache,
+        ) -> String {
+            use ::sdml_core::repr::RepresentationWriter;
+            <$writer>::default()
+                .write_to_string_with(module, Some(cache), &<$options>::default())
+                .unwrap()
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! test_case {
-    ($test_name: ident) => {
+    ($test_name:ident) => {
         ::paste::paste! {
             #[test]
             #[cfg_attr(windows, ignore)]
@@ -54,10 +79,14 @@ macro_rules! test_case {
                         test_name
                     ));
 
-                println!("Reading test example from {:?}", input);
+                println!("Reading test example from {:?} (recursive: {LOAD_MODULES_RECURSIVELY})", input);
                 let mut cache = ::sdml_core::store::InMemoryModuleCache::with_stdlib();
                 let mut loader = ::sdml_parse::load::FsModuleLoader::default();
-                let module = loader.load_from_file(input, &mut cache, false);
+                let module = loader.load_from_file(
+                    input,
+                    &mut cache,
+                    LOAD_MODULES_RECURSIVELY
+                );
                 if let Err(e) = module {
                     panic!("Load/Parse error: {}", e);
                 }
@@ -110,7 +139,7 @@ macro_rules! test_case {
 
 #[macro_export]
 macro_rules! test_suite {
-    ($suite_name: ident => ( $($test_name: ident),+ ) ) => {
+    ($suite_name:ident => ( $($test_name:ident),+ ) ) => {
         ::paste::paste! {
             #[cfg(test)]
             mod  [< $suite_name:lower _suite >] {
@@ -131,11 +160,33 @@ macro_rules! test_suite {
 
 #[macro_export]
 macro_rules! test_setup {
-    (all $result_type: literal => $generator_fn: expr) => {
-        $crate::test_setup!(all $result_type => $generator_fn ; true, false);
+    (
+        all recursive $result_type:literal => $generator_fn:expr ;
+        $replace_manifest_path:expr,
+        $sort_results:expr
+    ) => {
+        $crate::test_setup!(all $result_type => $generator_fn ; true, $replace_manifest_path, $sort_results);
     };
-    (all $result_type: literal => $generator_fn: expr ; $replace_manifest_path: expr, $sort_results: expr) => {
+    (
+        all $result_type:literal => $generator_fn:expr
+    ) => {
+        $crate::test_setup!(all $result_type => $generator_fn ; false, true, false);
+    };
+    (
+        all $result_type:literal => $generator_fn:expr ;
+        $replace_manifest_path:expr,
+        $sort_results:expr
+    ) => {
+        $crate::test_setup!(all $result_type => $generator_fn ; false, $replace_manifest_path, $sort_results);
+    };
+    (
+        all $result_type:literal => $generator_fn:expr ;
+        $load_recursive:expr,
+        $replace_manifest_path:expr,
+        $sort_results:expr
+    ) => {
         $crate::write_file_constants!(
+            $load_recursive,
             $result_type,
             $generator_fn,
             $replace_manifest_path,
@@ -254,6 +305,14 @@ macro_rules! test_setup {
         }
 
         $crate::test_suite! {
+            from_definition => (
+                from_definition_wildcard,
+                from_definition_single_name,
+                from_definition_multiple_names
+            )
+        }
+
+        $crate::test_suite! {
             datatype => (
                 datatype_empty,
                 datatype_from_string,
@@ -277,6 +336,7 @@ macro_rules! test_setup {
             r#enum => (
                 enum_empty,
                 enum_variants,
+                enum_from_variants,
                 enum_pattern_numbered_variants
             )
         }
