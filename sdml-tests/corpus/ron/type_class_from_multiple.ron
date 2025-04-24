@@ -1,6 +1,6 @@
 Module {
     source_file: Some(
-        "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/enum_from_variants.sdm",
+        "MANIFEST_PATH/corpus/type_class_from_multiple.sdm",
     ),
     file_id: Some(
         0,
@@ -8,17 +8,17 @@ Module {
     span: Some(
         Span {
             start: 0,
-            end: 146,
+            end: 145,
         },
     ),
     name: Identifier {
         span: Some(
             Span {
-                start: 48,
-                end: 64,
+                start: 50,
+                end: 72,
             },
         ),
-        value: "corpus_test_enum",
+        value: "example_typeclass_defs",
     },
     base_uri: Some(
         HeaderValue {
@@ -34,7 +34,7 @@ Module {
                     ),
                 ),
                 port: None,
-                path: "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/enum_from_variants.sdm/",
+                path: "MANIFEST_PATH/corpus/type_class_from_multiple.sdm/",
                 query: None,
                 fragment: None,
             },
@@ -48,34 +48,35 @@ Module {
         Identifier {
             span: Some(
                 Span {
-                    start: 76,
-                    end: 84,
+                    start: 85,
+                    end: 91,
                 },
             ),
-            value: "NameKind",
-        }: Enum(
-            EnumDef {
+            value: "Things",
+        }: TypeClass(
+            TypeClassDef {
                 span: Some(
                     Span {
-                        start: 71,
-                        end: 139,
+                        start: 79,
+                        end: 138,
                     },
                 ),
                 name: Identifier {
                     span: Some(
                         Span {
-                            start: 76,
-                            end: 84,
+                            start: 85,
+                            end: 91,
                         },
                     ),
-                    value: "NameKind",
+                    value: "Things",
                 },
+                variables: [],
                 body: Some(
-                    EnumBody {
+                    TypeClassBody {
                         span: Some(
                             Span {
-                                start: 85,
-                                end: 139,
+                                start: 92,
+                                end: 138,
                             },
                         ),
                         annotations: [],
@@ -86,54 +87,36 @@ Module {
                                     Identifier {
                                         span: Some(
                                             Span {
-                                                start: 97,
-                                                end: 102,
+                                                start: 104,
+                                                end: 110,
                                             },
                                         ),
-                                        value: "Names",
+                                        value: "Others",
                                     },
                                 ),
                                 with_members: {
                                     Identifier {
                                         span: Some(
                                             Span {
-                                                start: 110,
-                                                end: 118,
+                                                start: 123,
+                                                end: 130,
                                             },
                                         ),
-                                        value: "Internal",
+                                        value: "address",
+                                    },
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 118,
+                                                end: 122,
+                                            },
+                                        ),
+                                        value: "name",
                                     },
                                 },
                             },
                         ),
-                        variants: {
-                            Identifier {
-                                span: Some(
-                                    Span {
-                                        start: 125,
-                                        end: 133,
-                                    },
-                                ),
-                                value: "External",
-                            }: ValueVariant {
-                                span: Some(
-                                    Span {
-                                        start: 125,
-                                        end: 133,
-                                    },
-                                ),
-                                name: Identifier {
-                                    span: Some(
-                                        Span {
-                                            start: 125,
-                                            end: 133,
-                                        },
-                                    ),
-                                    value: "External",
-                                },
-                                body: None,
-                            },
-                        },
+                        methods: {},
                     },
                 ),
             },

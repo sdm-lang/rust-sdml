@@ -1,9 +1,9 @@
-;;; Enum, With From clause and Variants
+;;; Enum, With From clause wildcard
 
 module corpus_test_enum is
 
   enum NameKind of
-    from Names with [ Internal ]
+    from Names with _
     External
   end
 

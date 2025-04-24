@@ -1,0 +1,139 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/event_from_multiple.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 160,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 45,
+                end: 62,
+            },
+        ),
+        value: "corpus_test_event",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/event_from_multiple.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 75,
+                    end: 86,
+                },
+            ),
+            value: "NameChanged",
+        }: Event(
+            EventDef {
+                span: Some(
+                    Span {
+                        start: 69,
+                        end: 153,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 75,
+                            end: 86,
+                        },
+                    ),
+                    value: "NameChanged",
+                },
+                body: Some(
+                    EventBody {
+                        span: Some(
+                            Span {
+                                start: 87,
+                                end: 153,
+                            },
+                        ),
+                        annotations: [],
+                        source_entity: SourceEntity {
+                            span: None,
+                            target_entity: Identifier(
+                                Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 101,
+                                            end: 109,
+                                        },
+                                    ),
+                                    value: "Campaign",
+                                },
+                            ),
+                            with_members: [],
+                        },
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 119,
+                                                end: 125,
+                                            },
+                                        ),
+                                        value: "Others",
+                                    },
+                                ),
+                                with_members: {
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 138,
+                                                end: 145,
+                                            },
+                                        ),
+                                        value: "address",
+                                    },
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 133,
+                                                end: 137,
+                                            },
+                                        ),
+                                        value: "name",
+                                    },
+                                },
+                            },
+                        ),
+                        members: {},
+                    },
+                ),
+            },
+        ),
+    },
+}

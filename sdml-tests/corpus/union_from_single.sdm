@@ -1,0 +1,11 @@
+;;; Union, With From clause single
+
+module corpus_test_union is
+
+  union NameKind of
+    from Names with Internal
+    External
+  end
+
+end
+

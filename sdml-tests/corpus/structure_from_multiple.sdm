@@ -1,0 +1,10 @@
+;;; Structure, With From clause multiple
+
+module corpus_test_structure is
+
+  structure Things is
+    from Others with [ name address ]
+  end
+
+end
+

@@ -325,6 +325,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             entity => (
                 entity_empty,
+                entity_from_multiple,
+                entity_from_single,
+                entity_from_wildcard,
                 entity_with_constraints,
                 entity_with_diff_members,
                 entity_with_members,
@@ -336,7 +339,9 @@ macro_rules! test_setup {
             r#enum => (
                 enum_empty,
                 enum_variants,
-                enum_from_variants,
+                enum_from_multiple,
+                enum_from_single,
+                enum_from_wildcard,
                 enum_pattern_numbered_variants
             )
         }
@@ -344,6 +349,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             dimension => (
                 dimension_empty,
+                dimension_from_multiple,
+                dimension_from_single,
+                dimension_from_wildcard,
                 dimension_with_identity,
                 dimension_with_identity_and_members,
                 dimension_with_identity_and_parents,
@@ -356,6 +364,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             event => (
                 event_empty,
+                event_from_multiple,
+                event_from_single,
+                event_from_wildcard,
                 event_with_members,
                 event_with_source,
                 event_with_source_and_members
@@ -379,6 +390,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             structure => (
                 structure_empty,
+                structure_from_multiple,
+                structure_from_single,
+                structure_from_wildcard,
                 structure_mapping_type,
                 structure_simple_types
             )
@@ -387,6 +401,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             type_class => (
                 type_class_empty,
+                type_class_from_multiple,
+                type_class_from_single,
+                type_class_from_wildcard,
                 type_class_methods,
                 type_class_subtype
             )
@@ -395,6 +412,9 @@ macro_rules! test_setup {
         $crate::test_suite! {
             union => (
                 union_empty,
+                union_from_multiple,
+                union_from_single,
+                union_from_wildcard,
                 union_rename_variant,
                 union_variants
             )

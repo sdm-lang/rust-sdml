@@ -1,0 +1,11 @@
+;;; Entity, With From clause multiple
+
+module corpus_test_entity is
+
+  entity Thing is
+    identity id -> ThingId
+    from Others with [ name address ]
+  end
+
+end
+

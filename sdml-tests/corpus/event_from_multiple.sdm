@@ -1,0 +1,11 @@
+;;; Event, With From clause multiple
+
+module corpus_test_event is
+
+  event NameChanged is
+    source Campaign
+    from Others with [ name address ]
+  end
+
+end
+

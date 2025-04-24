@@ -1,0 +1,11 @@
+;;; Union, With From clause wildcard
+
+module corpus_test_union is
+
+  union NameKind of
+    from Names with _
+    External
+  end
+
+end
+

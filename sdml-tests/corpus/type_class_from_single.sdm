@@ -1,0 +1,10 @@
+;;; Type Class, With From clause single
+
+module example_typeclass_defs is
+
+  class Things is
+    from Others with name
+  end
+
+end
+

@@ -1,0 +1,11 @@
+;;; Entity, With From clause wildcard
+
+module corpus_test_entity is
+
+  entity Things is
+    identity id -> ThingId
+    from Others with _
+  end
+
+end
+

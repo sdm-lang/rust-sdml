@@ -1,0 +1,153 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/entity_from_wildcard.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 150,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 46,
+                end: 64,
+            },
+        ),
+        value: "corpus_test_entity",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/entity_from_wildcard.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 78,
+                    end: 84,
+                },
+            ),
+            value: "Things",
+        }: Entity(
+            EntityDef {
+                span: Some(
+                    Span {
+                        start: 71,
+                        end: 143,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 78,
+                            end: 84,
+                        },
+                    ),
+                    value: "Things",
+                },
+                body: Some(
+                    EntityBody {
+                        span: Some(
+                            Span {
+                                start: 85,
+                                end: 143,
+                            },
+                        ),
+                        identity: Member {
+                            span: None,
+                            kind: Definition(
+                                MemberDef {
+                                    span: Some(
+                                        Span {
+                                            start: 101,
+                                            end: 114,
+                                        },
+                                    ),
+                                    name: Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 101,
+                                                end: 103,
+                                            },
+                                        ),
+                                        value: "id",
+                                    },
+                                    target_cardinality: Cardinality {
+                                        span: None,
+                                        ordering: None,
+                                        uniqueness: None,
+                                        range: CardinalityRange {
+                                            span: None,
+                                            min: 1,
+                                            max: Some(
+                                                1,
+                                            ),
+                                        },
+                                    },
+                                    target_type: Type(
+                                        Identifier(
+                                            Identifier {
+                                                span: Some(
+                                                    Span {
+                                                        start: 107,
+                                                        end: 114,
+                                                    },
+                                                ),
+                                                value: "ThingId",
+                                            },
+                                        ),
+                                    ),
+                                    body: None,
+                                },
+                            ),
+                        },
+                        annotations: [],
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 124,
+                                                end: 130,
+                                            },
+                                        ),
+                                        value: "Others",
+                                    },
+                                ),
+                                with_members: {},
+                            },
+                        ),
+                        members: {},
+                    },
+                ),
+            },
+        ),
+    },
+}

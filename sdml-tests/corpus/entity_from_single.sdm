@@ -1,0 +1,11 @@
+;;; Entity, With From clause single
+
+module corpus_test_entity is
+
+  entity Things is
+    identity id -> ThingId
+    from Others with name
+  end
+
+end
+

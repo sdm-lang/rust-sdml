@@ -1,0 +1,10 @@
+;;; Structure, With From clause wildcard
+
+module corpus_test_structure is
+
+  structure Things is
+    from Others with _
+  end
+
+end
+

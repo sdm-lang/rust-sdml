@@ -1,0 +1,166 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/dimension_from_single.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 160,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 47,
+                end: 68,
+            },
+        ),
+        value: "corpus_test_dimension",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/dimension_from_single.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 85,
+                    end: 91,
+                },
+            ),
+            value: "Things",
+        }: Dimension(
+            DimensionDef {
+                span: Some(
+                    Span {
+                        start: 75,
+                        end: 153,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 85,
+                            end: 91,
+                        },
+                    ),
+                    value: "Things",
+                },
+                body: Some(
+                    DimensionBody {
+                        span: Some(
+                            Span {
+                                start: 92,
+                                end: 153,
+                            },
+                        ),
+                        annotations: [],
+                        identity: Identity(
+                            Member {
+                                span: None,
+                                kind: Definition(
+                                    MemberDef {
+                                        span: Some(
+                                            Span {
+                                                start: 108,
+                                                end: 121,
+                                            },
+                                        ),
+                                        name: Identifier {
+                                            span: Some(
+                                                Span {
+                                                    start: 108,
+                                                    end: 110,
+                                                },
+                                            ),
+                                            value: "id",
+                                        },
+                                        target_cardinality: Cardinality {
+                                            span: None,
+                                            ordering: None,
+                                            uniqueness: None,
+                                            range: CardinalityRange {
+                                                span: None,
+                                                min: 1,
+                                                max: Some(
+                                                    1,
+                                                ),
+                                            },
+                                        },
+                                        target_type: Type(
+                                            Identifier(
+                                                Identifier {
+                                                    span: Some(
+                                                        Span {
+                                                            start: 114,
+                                                            end: 121,
+                                                        },
+                                                    ),
+                                                    value: "ThingId",
+                                                },
+                                            ),
+                                        ),
+                                        body: None,
+                                    },
+                                ),
+                            },
+                        ),
+                        parents: {},
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 131,
+                                                end: 137,
+                                            },
+                                        ),
+                                        value: "Others",
+                                    },
+                                ),
+                                with_members: {
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 143,
+                                                end: 147,
+                                            },
+                                        ),
+                                        value: "name",
+                                    },
+                                },
+                            },
+                        ),
+                        members: {},
+                    },
+                ),
+            },
+        ),
+    },
+}

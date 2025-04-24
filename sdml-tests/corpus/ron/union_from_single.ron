@@ -1,0 +1,145 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/union_from_single.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 139,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 43,
+                end: 60,
+            },
+        ),
+        value: "corpus_test_union",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/union_from_single.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 73,
+                    end: 81,
+                },
+            ),
+            value: "NameKind",
+        }: Union(
+            UnionDef {
+                span: Some(
+                    Span {
+                        start: 67,
+                        end: 132,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 73,
+                            end: 81,
+                        },
+                    ),
+                    value: "NameKind",
+                },
+                body: Some(
+                    UnionBody {
+                        span: Some(
+                            Span {
+                                start: 82,
+                                end: 132,
+                            },
+                        ),
+                        annotations: [],
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 94,
+                                                end: 99,
+                                            },
+                                        ),
+                                        value: "Names",
+                                    },
+                                ),
+                                with_members: {
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 105,
+                                                end: 113,
+                                            },
+                                        ),
+                                        value: "Internal",
+                                    },
+                                },
+                            },
+                        ),
+                        variants: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 118,
+                                        end: 126,
+                                    },
+                                ),
+                                value: "External",
+                            }: TypeVariant {
+                                span: Some(
+                                    Span {
+                                        start: 118,
+                                        end: 126,
+                                    },
+                                ),
+                                name_reference: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 118,
+                                                end: 126,
+                                            },
+                                        ),
+                                        value: "External",
+                                    },
+                                ),
+                                rename: None,
+                                body: None,
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    },
+}

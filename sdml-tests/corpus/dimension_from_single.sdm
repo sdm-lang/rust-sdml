@@ -1,0 +1,11 @@
+;;; Dimension, With From clause single
+
+module corpus_test_dimension is
+
+  dimension Things is
+    identity id -> ThingId
+    from Others with name
+  end
+
+end
+

@@ -1,0 +1,116 @@
+Module {
+    source_file: Some(
+        "MANIFEST_PATH/corpus/type_class_from_single.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 131,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 48,
+                end: 70,
+            },
+        ),
+        value: "example_typeclass_defs",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "MANIFEST_PATH/corpus/type_class_from_single.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 83,
+                    end: 89,
+                },
+            ),
+            value: "Things",
+        }: TypeClass(
+            TypeClassDef {
+                span: Some(
+                    Span {
+                        start: 77,
+                        end: 124,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 83,
+                            end: 89,
+                        },
+                    ),
+                    value: "Things",
+                },
+                variables: [],
+                body: Some(
+                    TypeClassBody {
+                        span: Some(
+                            Span {
+                                start: 90,
+                                end: 124,
+                            },
+                        ),
+                        annotations: [],
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 102,
+                                                end: 108,
+                                            },
+                                        ),
+                                        value: "Others",
+                                    },
+                                ),
+                                with_members: {
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 114,
+                                                end: 118,
+                                            },
+                                        ),
+                                        value: "name",
+                                    },
+                                },
+                            },
+                        ),
+                        methods: {},
+                    },
+                ),
+            },
+        ),
+    },
+}

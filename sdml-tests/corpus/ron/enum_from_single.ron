@@ -1,0 +1,142 @@
+Module {
+    source_file: Some(
+        "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/enum_from_single.sdm",
+    ),
+    file_id: Some(
+        0,
+    ),
+    span: Some(
+        Span {
+            start: 0,
+            end: 136,
+        },
+    ),
+    name: Identifier {
+        span: Some(
+            Span {
+                start: 42,
+                end: 58,
+            },
+        ),
+        value: "corpus_test_enum",
+    },
+    base_uri: Some(
+        HeaderValue {
+            span: None,
+            value: Url {
+                scheme: "http",
+                cannot_be_a_base: false,
+                username: "",
+                password: None,
+                host: Some(
+                    Domain(
+                        "example.org",
+                    ),
+                ),
+                port: None,
+                path: "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/enum_from_single.sdm/",
+                query: None,
+                fragment: None,
+            },
+        },
+    ),
+    version_info: None,
+    version_uri: None,
+    imports: [],
+    annotations: [],
+    definitions: {
+        Identifier {
+            span: Some(
+                Span {
+                    start: 70,
+                    end: 78,
+                },
+            ),
+            value: "NameKind",
+        }: Enum(
+            EnumDef {
+                span: Some(
+                    Span {
+                        start: 65,
+                        end: 129,
+                    },
+                ),
+                name: Identifier {
+                    span: Some(
+                        Span {
+                            start: 70,
+                            end: 78,
+                        },
+                    ),
+                    value: "NameKind",
+                },
+                body: Some(
+                    EnumBody {
+                        span: Some(
+                            Span {
+                                start: 79,
+                                end: 129,
+                            },
+                        ),
+                        annotations: [],
+                        from: Some(
+                            FromDefinition {
+                                span: None,
+                                definition: Identifier(
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 91,
+                                                end: 96,
+                                            },
+                                        ),
+                                        value: "Names",
+                                    },
+                                ),
+                                with_members: {
+                                    Identifier {
+                                        span: Some(
+                                            Span {
+                                                start: 102,
+                                                end: 110,
+                                            },
+                                        ),
+                                        value: "Internal",
+                                    },
+                                },
+                            },
+                        ),
+                        variants: {
+                            Identifier {
+                                span: Some(
+                                    Span {
+                                        start: 115,
+                                        end: 123,
+                                    },
+                                ),
+                                value: "External",
+                            }: ValueVariant {
+                                span: Some(
+                                    Span {
+                                        start: 115,
+                                        end: 123,
+                                    },
+                                ),
+                                name: Identifier {
+                                    span: Some(
+                                        Span {
+                                            start: 115,
+                                            end: 123,
+                                        },
+                                    ),
+                                    value: "External",
+                                },
+                                body: None,
+                            },
+                        },
+                    },
+                ),
+            },
+        ),
+    },
+}
