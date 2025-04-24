@@ -1,0 +1,9 @@
+module corpus_test_structure is
+
+  structure Things is
+
+    from Others with name
+
+  end
+
+end

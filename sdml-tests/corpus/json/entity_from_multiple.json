@@ -1,0 +1,80 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_from_multiple.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "entity": {
+        "__type": "entity_def",
+        "body": {
+          "__type": "entity_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            },
+            "with": [
+              {
+                "__type": "identifier",
+                "value": "address"
+              },
+              {
+                "__type": "identifier",
+                "value": "name"
+              }
+            ]
+          },
+          "identity": {
+            "__type": "member",
+            "definition": {
+              "__type": "member_def",
+              "name": {
+                "__type": "identifier",
+                "value": "id"
+              },
+              "span": {
+                "__type": "span",
+                "end": 113,
+                "start": 100
+              },
+              "type": {
+                "__type": "type_reference",
+                "reference": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "ThingId"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Thing"
+        },
+        "span": {
+          "__type": "span",
+          "end": 157,
+          "start": 71
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_entity"
+  },
+  "source_file": "MANIFEST_PATH/corpus/entity_from_multiple.sdm",
+  "span": {
+    "__type": "span",
+    "end": 164,
+    "start": 0
+  }
+}

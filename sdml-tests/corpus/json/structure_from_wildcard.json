@@ -1,0 +1,45 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/structure_from_wildcard.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "structure": {
+        "__type": "structure_def",
+        "body": {
+          "__type": "structure_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            }
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 125,
+          "start": 77
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_structure"
+  },
+  "source_file": "MANIFEST_PATH/corpus/structure_from_wildcard.sdm",
+  "span": {
+    "__type": "span",
+    "end": 132,
+    "start": 0
+  }
+}

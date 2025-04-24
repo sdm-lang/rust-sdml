@@ -1,0 +1,65 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/event_from_multiple.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "event": {
+        "__type": "event_def",
+        "body": {
+          "__type": "event_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            },
+            "with": [
+              {
+                "__type": "identifier",
+                "value": "address"
+              },
+              {
+                "__type": "identifier",
+                "value": "name"
+              }
+            ]
+          },
+          "source": {
+            "__type": "source_entity",
+            "entity": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Campaign"
+              }
+            }
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "NameChanged"
+        },
+        "span": {
+          "__type": "span",
+          "end": 153,
+          "start": 69
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_event"
+  },
+  "source_file": "MANIFEST_PATH/corpus/event_from_multiple.sdm",
+  "span": {
+    "__type": "span",
+    "end": 160,
+    "start": 0
+  }
+}

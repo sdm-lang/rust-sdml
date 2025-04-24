@@ -1,0 +1,21 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/event_from_wildcard.sdm/",
+  "definitions": [
+    {
+      "__type": "event_def",
+      "from": {
+        "__type": "from_definition_clause",
+        "from": "Others"
+      },
+      "name": "NameChanged",
+      "source": {
+        "__type": "source_entity",
+        "entity": "Campaign"
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": "corpus_test_event",
+  "source_file": "MANIFEST_PATH/corpus/event_from_wildcard.sdm"
+}

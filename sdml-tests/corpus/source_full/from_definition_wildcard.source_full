@@ -1,0 +1,9 @@
+module corpus_test_from_definition is
+
+  structure Example is
+
+    from Source with _
+
+  end
+
+end

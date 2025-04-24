@@ -1,0 +1,7 @@
+module example_typeclass_defs is
+
+  class Things is
+    from Others with [ address name ]
+  end
+
+end

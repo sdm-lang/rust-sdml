@@ -1163,6 +1163,7 @@ impl ToJson for EventBody {
         add_annotations!(value_map, opts, self);
         add_from_definition!(self, value_map, opts);
         set!(value_map, FIELD_NAME_SOURCE => self.source_entity().to_json_with(opts));
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,
@@ -1461,6 +1462,7 @@ impl ToJson for UnionBody {
         set!(unless opts.context_only; value_map => NODE_KIND_UNION_BODY);
         set_source_span!(self, value_map, opts, !opts.context_only);
         add_annotations!(value_map, opts, self);
+        add_from_definition!(self, value_map, opts);
         add_collection!(
             value_map,
             opts,

@@ -1,0 +1,8 @@
+module corpus_test_event is
+
+  event NameChanged is
+    source Campaign
+    from Others with [ address name ]
+  end
+
+end

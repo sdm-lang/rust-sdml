@@ -1,0 +1,11 @@
+module corpus_test_union is
+
+  union NameKind of
+
+    from Names with [ Internal Unknown ]
+
+    External
+
+  end
+
+end

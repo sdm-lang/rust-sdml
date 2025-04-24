@@ -1,0 +1,73 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/union_from_single.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "union": {
+        "__type": "union_def",
+        "body": {
+          "__type": "union_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Names"
+              }
+            },
+            "with": [
+              {
+                "__type": "identifier",
+                "value": "Internal"
+              }
+            ]
+          },
+          "span": {
+            "__type": "span",
+            "end": 132,
+            "start": 82
+          },
+          "variants": [
+            {
+              "__type": "type_variant",
+              "name": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "External"
+                }
+              },
+              "span": {
+                "__type": "span",
+                "end": 126,
+                "start": 118
+              }
+            }
+          ]
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "NameKind"
+        },
+        "span": {
+          "__type": "span",
+          "end": 132,
+          "start": 67
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_union"
+  },
+  "source_file": "MANIFEST_PATH/corpus/union_from_single.sdm",
+  "span": {
+    "__type": "span",
+    "end": 139,
+    "start": 0
+  }
+}

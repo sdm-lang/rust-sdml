@@ -1,0 +1,50 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/type_class_from_wildcard.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "type_class": {
+        "__type": "type_class_def",
+        "body": {
+          "__type": "type_class_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            }
+          },
+          "span": {
+            "__type": "span",
+            "end": 123,
+            "start": 92
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 123,
+          "start": 79
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "example_typeclass_defs"
+  },
+  "source_file": "MANIFEST_PATH/corpus/type_class_from_wildcard.sdm",
+  "span": {
+    "__type": "span",
+    "end": 130,
+    "start": 0
+  }
+}

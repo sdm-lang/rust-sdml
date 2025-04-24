@@ -1,0 +1,73 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/dimension_from_wildcard.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "dimension": {
+        "__type": "dimension_def",
+        "body": {
+          "__type": "dimension_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            }
+          },
+          "identity": {
+            "__type": "dimension_identity",
+            "identity": {
+              "__type": "member",
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "id"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 123,
+                  "start": 110
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "ThingId"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 152,
+          "start": 77
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_dimension"
+  },
+  "source_file": "MANIFEST_PATH/corpus/dimension_from_wildcard.sdm",
+  "span": {
+    "__type": "span",
+    "end": 159,
+    "start": 0
+  }
+}

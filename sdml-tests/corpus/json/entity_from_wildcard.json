@@ -1,0 +1,70 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_from_wildcard.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "entity": {
+        "__type": "entity_def",
+        "body": {
+          "__type": "entity_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            }
+          },
+          "identity": {
+            "__type": "member",
+            "definition": {
+              "__type": "member_def",
+              "name": {
+                "__type": "identifier",
+                "value": "id"
+              },
+              "span": {
+                "__type": "span",
+                "end": 114,
+                "start": 101
+              },
+              "type": {
+                "__type": "type_reference",
+                "reference": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "ThingId"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 143,
+          "start": 71
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_entity"
+  },
+  "source_file": "MANIFEST_PATH/corpus/entity_from_wildcard.sdm",
+  "span": {
+    "__type": "span",
+    "end": 150,
+    "start": 0
+  }
+}

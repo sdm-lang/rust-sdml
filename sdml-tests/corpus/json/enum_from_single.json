@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base": "http://example.orgMANIFEST_PATH/corpus/enum_from_variants.sdm/",
+  "base": "http://example.orgMANIFEST_PATH/corpus/enum_from_single.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -33,8 +33,8 @@
               },
               "span": {
                 "__type": "span",
-                "end": 133,
-                "start": 125
+                "end": 123,
+                "start": 115
               }
             }
           ]
@@ -45,8 +45,8 @@
         },
         "span": {
           "__type": "span",
-          "end": 139,
-          "start": 71
+          "end": 129,
+          "start": 65
         }
       }
     }
@@ -56,10 +56,10 @@
     "__type": "identifier",
     "value": "corpus_test_enum"
   },
-  "source_file": "MANIFEST_PATH/corpus/enum_from_variants.sdm",
+  "source_file": "MANIFEST_PATH/corpus/enum_from_single.sdm",
   "span": {
     "__type": "span",
-    "end": 146,
+    "end": 136,
     "start": 0
   }
 }

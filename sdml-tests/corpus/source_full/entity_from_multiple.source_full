@@ -1,0 +1,11 @@
+module corpus_test_entity is
+
+  entity Thing is
+
+    identity id -> ThingId
+
+    from Others with [ address name ]
+
+  end
+
+end

@@ -1,0 +1,3 @@
+module corpus_test_from_definition is
+  structure Example ;; ...
+end

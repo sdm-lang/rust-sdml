@@ -1,0 +1,76 @@
+{
+  "__type": "module",
+  "base": "http://example.orgMANIFEST_PATH/corpus/entity_from_single.sdm/",
+  "definitions": [
+    {
+      "__type": "definition",
+      "entity": {
+        "__type": "entity_def",
+        "body": {
+          "__type": "entity_body",
+          "from": {
+            "__type": "from_definition_clause",
+            "from": {
+              "__type": "identifier_reference",
+              "identifier": {
+                "__type": "identifier",
+                "value": "Others"
+              }
+            },
+            "with": [
+              {
+                "__type": "identifier",
+                "value": "name"
+              }
+            ]
+          },
+          "identity": {
+            "__type": "member",
+            "definition": {
+              "__type": "member_def",
+              "name": {
+                "__type": "identifier",
+                "value": "id"
+              },
+              "span": {
+                "__type": "span",
+                "end": 112,
+                "start": 99
+              },
+              "type": {
+                "__type": "type_reference",
+                "reference": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "ThingId"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "name": {
+          "__type": "identifier",
+          "value": "Things"
+        },
+        "span": {
+          "__type": "span",
+          "end": 144,
+          "start": 69
+        }
+      }
+    }
+  ],
+  "is_library_module": false,
+  "name": {
+    "__type": "identifier",
+    "value": "corpus_test_entity"
+  },
+  "source_file": "MANIFEST_PATH/corpus/entity_from_single.sdm",
+  "span": {
+    "__type": "span",
+    "end": 151,
+    "start": 0
+  }
+}
