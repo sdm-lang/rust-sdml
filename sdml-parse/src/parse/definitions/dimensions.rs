@@ -1,6 +1,8 @@
 use crate::parse::{
     annotations::parse_annotation,
-    definitions::{entities::parse_entity_identity, parse_annotation_only_body},
+    definitions::{
+        entities::parse_entity_identity, parse_annotation_only_body, parse_from_definition_clause,
+    },
     identifiers::{parse_identifier, parse_identifier_reference},
     members::parse_member,
     parse_comment, ParseContext,
@@ -11,7 +13,8 @@ use sdml_core::{
     model::{
         annotations::HasAnnotations,
         definitions::{
-            DimensionBody, DimensionDef, DimensionIdentity, DimensionParent, SourceEntity,
+            DimensionBody, DimensionDef, DimensionIdentity, DimensionParent,
+            HasOptionalFromDefinition, SourceEntity,
         },
         HasOptionalBody, HasSourceSpan,
     },
@@ -20,7 +23,7 @@ use sdml_core::{
         FIELD_NAME_NAME, NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY,
         NODE_KIND_DIMENSION_BODY, NODE_KIND_DIMENSION_PARENT, NODE_KIND_ENTITY_IDENTITY,
         NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE, NODE_KIND_LINE_COMMENT,
-        NODE_KIND_MEMBER, NODE_KIND_SOURCE_ENTITY,
+        NODE_KIND_MEMBER, NODE_KIND_SOURCE_ENTITY,NODE_KIND_FROM_DEFINITION_CLAUSE,
     },
 };
 use tree_sitter::TreeCursor;
@@ -95,6 +98,9 @@ fn parse_dimension_body<'a>(
             }
             NODE_KIND_DIMENSION_PARENT => {
                 body.add_to_parents(parse_dimension_parent(context, &mut node.walk())?);
+            }
+            NODE_KIND_FROM_DEFINITION_CLAUSE => {
+                body.set_from_definition(parse_from_definition_clause(context, &mut node.walk())?);
             }
             NODE_KIND_MEMBER => {
                 body.add_to_members(parse_member(context, &mut node.walk())?);

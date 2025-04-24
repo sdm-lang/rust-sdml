@@ -3,7 +3,7 @@ use crate::parse::{
     constraints::{
         parse_function_body, parse_function_cardinality_expression, parse_function_signature,
     },
-    definitions::parse_annotation_only_body,
+    definitions::{parse_from_definition_clause, parse_annotation_only_body},
     identifiers::{parse_identifier, parse_identifier_reference},
     parse_comment, ParseContext,
 };
@@ -13,7 +13,7 @@ use sdml_core::{
     model::{
         annotations::{Annotation, HasAnnotations},
         definitions::{
-            MethodDef, TypeClassArgument, TypeClassBody, TypeClassDef, TypeClassReference,
+            HasOptionalFromDefinition, MethodDef, TypeClassArgument, TypeClassBody, TypeClassDef, TypeClassReference,
             TypeVariable,
         },
         HasOptionalBody, HasSourceSpan,
@@ -24,7 +24,7 @@ use sdml_core::{
         NODE_KIND_ANNOTATION, NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_FUNCTION_BODY,
         NODE_KIND_FUNCTION_SIGNATURE, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
         NODE_KIND_LINE_COMMENT, NODE_KIND_METHOD_DEF, NODE_KIND_TYPE_CLASS_BODY,
-        NODE_KIND_TYPE_CLASS_REFERENCE, NODE_KIND_TYPE_OP_COMBINER,
+        NODE_KIND_TYPE_CLASS_REFERENCE, NODE_KIND_TYPE_OP_COMBINER,NODE_KIND_FROM_DEFINITION_CLAUSE,
     },
 };
 use tree_sitter::TreeCursor;
@@ -185,6 +185,9 @@ pub(crate) fn parse_type_class_body<'a>(
         match node.kind() {
             NODE_KIND_ANNOTATION => {
                 body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
+            }
+            NODE_KIND_FROM_DEFINITION_CLAUSE => {
+                body.set_from_definition(parse_from_definition_clause(context, &mut node.walk())?);
             }
             NODE_KIND_METHOD_DEF => {
                 body.add_to_methods(parse_method_def(context, &mut node.walk())?);

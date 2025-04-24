@@ -1,6 +1,6 @@
 use crate::parse::{
     annotations::parse_annotation,
-    definitions::parse_annotation_only_body,
+    definitions::{parse_annotation_only_body, parse_from_definition_clause},
     identifiers::{parse_identifier, parse_identifier_reference},
     parse_comment, ParseContext,
 };
@@ -9,13 +9,13 @@ use sdml_core::{
     load::ModuleLoader as ModuleLoaderTrait,
     model::{
         annotations::HasAnnotations,
-        definitions::{TypeVariant, UnionBody, UnionDef},
+        definitions::{HasOptionalFromDefinition, TypeVariant, UnionBody, UnionDef},
         HasOptionalBody, HasSourceSpan,
     },
     syntax::{
         FIELD_NAME_BODY, FIELD_NAME_NAME, FIELD_NAME_RENAME, NODE_KIND_ANNOTATION,
         NODE_KIND_ANNOTATION_ONLY_BODY, NODE_KIND_IDENTIFIER, NODE_KIND_IDENTIFIER_REFERENCE,
-        NODE_KIND_LINE_COMMENT, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY,
+        NODE_KIND_LINE_COMMENT, NODE_KIND_TYPE_VARIANT, NODE_KIND_UNION_BODY,NODE_KIND_FROM_DEFINITION_CLAUSE,
     },
 };
 use tree_sitter::TreeCursor;
@@ -71,6 +71,9 @@ fn parse_union_body<'a>(
         match node.kind() {
             NODE_KIND_ANNOTATION => {
                 body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
+            }
+            NODE_KIND_FROM_DEFINITION_CLAUSE => {
+                body.set_from_definition(parse_from_definition_clause(context, &mut node.walk())?);
             }
             NODE_KIND_TYPE_VARIANT => {
                 body.add_to_variants(parse_type_variant(context, &mut node.walk())?);

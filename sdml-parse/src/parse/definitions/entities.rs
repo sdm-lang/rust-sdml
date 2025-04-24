@@ -1,5 +1,6 @@
 use crate::parse::{
     annotations::parse_annotation, identifiers::parse_identifier, members::parse_member,
+    definitions::parse_from_definition_clause,
     ParseContext,
 };
 use sdml_core::{
@@ -7,14 +8,14 @@ use sdml_core::{
     load::ModuleLoader as ModuleLoaderTrait,
     model::{
         annotations::HasAnnotations,
-        definitions::{EntityBody, EntityDef},
+        definitions::{HasOptionalFromDefinition, EntityBody, EntityDef},
         members::Member,
         HasOptionalBody, HasSourceSpan,
     },
     syntax::{
         FIELD_NAME_BODY, FIELD_NAME_IDENTITY, FIELD_NAME_NAME, NODE_KIND_ANNOTATION,
         NODE_KIND_ENTITY_BODY, NODE_KIND_ENTITY_IDENTITY, NODE_KIND_IDENTIFIER,
-        NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,
+        NODE_KIND_LINE_COMMENT, NODE_KIND_MEMBER,NODE_KIND_FROM_DEFINITION_CLAUSE,
     },
 };
 use tree_sitter::TreeCursor;
@@ -82,6 +83,9 @@ fn parse_entity_body<'a>(
             }
             NODE_KIND_ANNOTATION => {
                 body.add_to_annotations(parse_annotation(context, &mut node.walk())?);
+            }
+            NODE_KIND_FROM_DEFINITION_CLAUSE => {
+                body.set_from_definition(parse_from_definition_clause(context, &mut node.walk())?);
             }
             NODE_KIND_MEMBER => {
                 body.add_to_members(parse_member(context, &mut node.walk())?);
