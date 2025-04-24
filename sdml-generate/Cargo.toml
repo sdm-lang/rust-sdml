@@ -24,8 +24,8 @@ indicatif = "0.17.8"
 nu-ansi-term = "0.50.1"
 rdftk_io = { version = "0.3.3", path = "../../../rust/rust-rdftk/rdftk_io" }
 regex = "1.11.0"
-sdml-core = { version = "0.4.0", features = ["serde"], path = "../sdml-core" }
-sdml-errors = { version = "0.4.0", path = "../sdml-errors" }
+sdml-core = { version = "0.4.1", features = ["serde"], path = "../sdml-core" }
+sdml-errors = { version = "0.4.1", path = "../sdml-errors" }
 sdml-rdf = { version = "0.4.0", path = "../sdml-rdf" }
 serde = { version = "1.0.210", features = ["derive"] }
 serde_json = "1.0.132"
@@ -33,12 +33,12 @@ serde_regex = "1.1.0"
 tempfile = "3.14.0"
 text_trees = { version = "0.1.2", optional = true }
 tracing = "0.1.40"
-tree-sitter-highlight = { version = "0.24.4", optional = true }
-tree-sitter-sdml = "0.4.1"
+tree-sitter-highlight = { version = "0.25.3", optional = true }
+tree-sitter-sdml = "0.4.9"
 url = "2.5.2"
 
 [dev-dependencies]
 paste = "1.0.15"
 pretty_assertions = "1.4.1"
-sdml-parse = { version = "0.4.0", path = "../sdml-parse" }
+sdml-parse = { version = "0.4.1", path = "../sdml-parse" }
 sdml-tests = { path = "../sdml-tests" }

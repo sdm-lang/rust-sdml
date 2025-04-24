@@ -19,7 +19,7 @@ dot = []
 rdf = []
 
 [dependencies]
-sdml-core = { version = "0.4.0", features = ["serde", "tree-sitter"], path = "../sdml-core" }
+sdml-core = { version = "0.4.1", features = ["serde", "tree-sitter"], path = "../sdml-core" }
 nu-ansi-term = "0.50.1"
 text_trees = "0.1.2"
 url = "2.5.2"

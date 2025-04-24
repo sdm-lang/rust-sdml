@@ -18,7 +18,7 @@ default = []
 templates = ["tera"]
 
 [dependencies]
-codespan-reporting = "0.11.1"
+codespan-reporting = "0.12.0"
 heck = "0.5"
 i18n-embed = { version = "0.15", features = ["fluent-system", "desktop-requester"]}
 i18n-embed-fl = "0.9.1"

@@ -15,11 +15,11 @@ all-features = true
 rustdoc-args = ["--html-in-header", "doc-src/header.html"]
 
 [dependencies]
-sdml-core = { version = "0.4.0", features = ["serde", "tree-sitter"], path = "../sdml-core" }
+sdml-core = { version = "0.4.1", features = ["serde", "tree-sitter"], path = "../sdml-core" }
 url = { version = "2.5", features = ["serde"] }
 
 [dev-dependencies]
 paste = "1.0.15"
 pretty_assertions = "1.4.1"
-sdml-parse = { version = "0.4.0", path = "../sdml-parse" }
+sdml-parse = { version = "0.4.1", path = "../sdml-parse" }
 sdml-tests = { path = "../sdml-tests" }
