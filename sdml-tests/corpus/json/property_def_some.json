@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base": "http://example.orgMANIFEST_PATH/corpus/property_def_some.sdm/",
+  "base": "http://example.org/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/property_def_some.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -9,44 +9,42 @@
         "member": {
           "__type": "member_def",
           "body": {
-            "body": {
-              "__type": "annotation_only_body",
-              "annotations": [
-                {
-                  "__type": "annotation",
-                  "property": {
-                    "__type": "annotation_property",
-                    "name": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "definition"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "skos"
-                        }
+            "__type": "annotation_only_body",
+            "annotations": [
+              {
+                "__type": "annotation",
+                "property": {
+                  "__type": "annotation_property",
+                  "name": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "definition"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "skos"
                       }
-                    },
-                    "span": {
-                      "__type": "span",
-                      "end": 110,
-                      "start": 85
-                    },
-                    "value": {
-                      "__type": "value",
-                      "simple": {
-                        "__type": "string",
-                        "language": "en",
-                        "value": "a"
-                      }
+                    }
+                  },
+                  "span": {
+                    "__type": "span",
+                    "end": 110,
+                    "start": 85
+                  },
+                  "value": {
+                    "__type": "value",
+                    "simple": {
+                      "__type": "string",
+                      "language": "en",
+                      "value": "a"
                     }
                   }
                 }
-              ]
-            }
+              }
+            ]
           },
           "cardinality": {
             "__type": "cardinality_expression",
@@ -88,7 +86,7 @@
     "__type": "identifier",
     "value": "corpus_test_property"
   },
-  "source_file": "MANIFEST_PATH/corpus/property_def_some.sdm",
+  "source_file": "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/property_def_some.sdm",
   "span": {
     "__type": "span",
     "end": 121,

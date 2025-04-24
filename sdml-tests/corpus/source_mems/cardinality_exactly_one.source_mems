@@ -1,0 +1,8 @@
+module corpus_test_cardinality is
+
+  structure Things is
+    thing_1 -> sdml:integer
+    thing_2 -> {1} sdml:integer
+  end
+
+end

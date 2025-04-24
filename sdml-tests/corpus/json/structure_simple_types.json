@@ -11,33 +11,30 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "a"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 73,
-                    "start": 61
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "boolean"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "a"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 73,
+                  "start": 61
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "boolean"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -46,33 +43,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "b"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 89,
-                    "start": 78
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "double"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "b"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 89,
+                  "start": 78
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "double"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -81,33 +75,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "c"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 106,
-                    "start": 94
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "decimal"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "c"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 106,
+                  "start": 94
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "decimal"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -116,33 +107,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "d"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 123,
-                    "start": 111
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "integer"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "d"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 123,
+                  "start": 111
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "integer"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -151,33 +139,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "e"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 139,
-                    "start": 128
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "e"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 139,
+                  "start": 128
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -186,33 +171,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "f"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 155,
-                    "start": 144
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "binary"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "f"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 155,
+                  "start": 144
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "binary"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -221,33 +203,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "g"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 168,
-                    "start": 160
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "iri"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "g"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 168,
+                  "start": 160
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "iri"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }

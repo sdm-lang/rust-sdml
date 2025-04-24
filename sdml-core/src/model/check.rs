@@ -656,8 +656,10 @@ pub mod terms {
             loader: &impl ModuleLoader,
         ) {
             self.name().validate_terms(validator, top, loader);
-            for annotation in self.body().annotations() {
-                annotation.validate_terms(validator, top, loader);
+            if let Some(body) = self.body() {
+                for annotation in body.annotations() {
+                    annotation.validate_terms(validator, top, loader);
+                }
             }
         }
     }

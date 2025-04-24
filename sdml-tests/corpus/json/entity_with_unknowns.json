@@ -10,46 +10,40 @@
           "__type": "entity_body",
           "identity": {
             "__type": "member",
-            "kind": {
-              "__type": "member",
-              "definition": {
-                "__type": "member_def",
-                "name": {
-                  "__type": "identifier",
-                  "value": "id"
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 117,
-                  "start": 104
-                },
-                "type": {
-                  "__type": "type_reference",
-                  "unknown": true
-                }
+            "definition": {
+              "__type": "member_def",
+              "name": {
+                "__type": "identifier",
+                "value": "id"
+              },
+              "span": {
+                "__type": "span",
+                "end": 117,
+                "start": 104
+              },
+              "type": {
+                "__type": "type_reference",
+                "unknown": true
               }
             }
           },
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "a"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 135,
-                    "start": 123
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "unknown": true
-                  }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "a"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 135,
+                  "start": 123
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "unknown": true
                 }
               }
             }

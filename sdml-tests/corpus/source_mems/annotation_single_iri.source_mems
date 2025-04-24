@@ -1,0 +1,5 @@
+module corpus_test_annotation is
+
+  @dc:seeAlso = <https://www.dublincore.org/>
+
+end

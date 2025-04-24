@@ -1,0 +1,7 @@
+module corpus_test_constraint is
+
+  structure Outer is
+    inner -> sdml:string ;; ...
+  end
+
+end

@@ -5,7 +5,7 @@ This Rust module contains the SDML model of the SDML library module `dctype` or 
 use crate::model::{
     annotations::{AnnotationOnlyBody, HasAnnotations},
     modules::Module,
-    HasBody,
+    {HasOptionalBody},
 };
 use std::str::FromStr;
 

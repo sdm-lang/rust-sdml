@@ -1,0 +1,3 @@
+module corpus_test_property is
+  structure Account ;; ...
+end

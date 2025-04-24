@@ -766,7 +766,9 @@ impl ToGraph for RdfDef {
         defn_common!(self, ctx, graph, sdml::RDF);
         add_source_span!(self, graph, ctx, cache);
 
-        add_annotations!(self.body(), graph, ctx, cache);
+        if let Some(body) = self.body() {
+            add_annotations!(body, graph, ctx, cache);
+        }
 
         ctx.pop_subject();
         Ok(())

@@ -1,0 +1,7 @@
+module corpus_test_dimension is
+
+  dimension Campaigns is
+    source entity:Campaign
+  end
+
+end

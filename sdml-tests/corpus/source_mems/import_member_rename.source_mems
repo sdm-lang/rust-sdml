@@ -1,0 +1,5 @@
+module corpus_test_import is
+
+  import xsd:base as base
+
+end

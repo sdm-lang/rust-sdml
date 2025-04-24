@@ -30,40 +30,34 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "reference": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "Target"
-                  }
+              "reference": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "Target"
                 }
               }
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "name"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 146,
-                    "start": 134
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "identifier": {
-                        "__type": "identifier",
-                        "value": "Name"
-                      }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "name"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 146,
+                  "start": 134
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "Name"
                     }
                   }
                 }

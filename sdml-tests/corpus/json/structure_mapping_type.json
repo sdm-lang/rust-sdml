@@ -11,67 +11,64 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "cardinality": {
-                    "__type": "cardinality_expression",
-                    "min": 1,
-                    "uniqueness": "unique"
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "properties"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 104,
-                    "start": 58
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "mapping": {
-                      "__type": "mapping_type",
-                      "domain": {
-                        "__type": "type_reference",
-                        "reference": {
-                          "__type": "identifier_reference",
-                          "qualified_identifier": {
-                            "__type": "qualified_identifier",
-                            "member": {
-                              "__type": "identifier",
-                              "value": "string"
-                            },
-                            "module": {
-                              "__type": "identifier",
-                              "value": "sdml"
-                            }
+              "definition": {
+                "__type": "member_def",
+                "cardinality": {
+                  "__type": "cardinality_expression",
+                  "min": 1,
+                  "uniqueness": "unique"
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "properties"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 104,
+                  "start": 58
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "mapping": {
+                    "__type": "mapping_type",
+                    "domain": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "string"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
                           }
                         }
-                      },
-                      "range": {
-                        "__type": "type_reference",
-                        "reference": {
-                          "__type": "identifier_reference",
-                          "qualified_identifier": {
-                            "__type": "qualified_identifier",
-                            "member": {
-                              "__type": "identifier",
-                              "value": "integer"
-                            },
-                            "module": {
-                              "__type": "identifier",
-                              "value": "sdml"
-                            }
-                          }
-                        }
-                      },
-                      "span": {
-                        "__type": "span",
-                        "end": 104,
-                        "start": 85
                       }
+                    },
+                    "range": {
+                      "__type": "type_reference",
+                      "reference": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "integer"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "sdml"
+                          }
+                        }
+                      }
+                    },
+                    "span": {
+                      "__type": "span",
+                      "end": 104,
+                      "start": 85
                     }
                   }
                 }

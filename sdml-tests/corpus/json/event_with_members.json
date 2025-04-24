@@ -11,33 +11,30 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "new_name"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 142,
-                    "start": 124
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "new_name"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 142,
+                  "start": 124
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -46,33 +43,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "old_name"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 119,
-                    "start": 101
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "old_name"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 119,
+                  "start": 101
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }

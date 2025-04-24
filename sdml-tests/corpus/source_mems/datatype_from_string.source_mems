@@ -1,0 +1,5 @@
+module corpus_test_datatype is
+
+  datatype nameString <- sdml:string
+
+end

@@ -11,14 +11,11 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "reference": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "accountId"
-                  }
+              "reference": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "accountId"
                 }
               }
             }

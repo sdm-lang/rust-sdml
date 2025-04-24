@@ -1,0 +1,3 @@
+module corpus_test_structure is
+  structure Thing ;; ...
+end

@@ -1,0 +1,8 @@
+module corpus_test_entity is
+
+  entity Campaign is
+    identity id -> unknown
+    a -> unknown
+  end
+
+end

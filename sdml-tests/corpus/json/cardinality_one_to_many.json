@@ -11,37 +11,34 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "cardinality": {
-                    "__type": "cardinality_expression",
-                    "min": 1
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "thing"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 123,
-                    "start": 101
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "integer"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "sdml"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "cardinality": {
+                  "__type": "cardinality_expression",
+                  "min": 1
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "thing"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 123,
+                  "start": 101
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "integer"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }

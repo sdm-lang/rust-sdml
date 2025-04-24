@@ -1,0 +1,6 @@
+module corpus_test_annotation is
+  @dc:author = #[ 
+    52 32 39 76 5A 43 42 43   65 57 55 67 51 33 4A 31
+    5A 57 77 67 56 32 39 79   62 47 51 4B 
+  ]
+end

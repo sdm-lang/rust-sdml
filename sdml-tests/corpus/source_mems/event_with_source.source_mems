@@ -1,0 +1,7 @@
+module corpus_test_event is
+
+  event NameChanged is
+    source Campaign
+  end
+
+end

@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base": "http://example.orgMANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm/",
+  "base": "http://example.org/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/enum_pattern_numbered_variants.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -49,43 +49,41 @@
             {
               "__type": "value_variant",
               "body": {
-                "body": {
-                  "__type": "annotation_only_body",
-                  "annotations": [
-                    {
-                      "__type": "annotation",
-                      "property": {
-                        "__type": "annotation_property",
-                        "name": {
-                          "__type": "identifier_reference",
-                          "qualified_identifier": {
-                            "__type": "qualified_identifier",
-                            "member": {
-                              "__type": "identifier",
-                              "value": "value"
-                            },
-                            "module": {
-                              "__type": "identifier",
-                              "value": "rdf"
-                            }
+                "__type": "annotation_only_body",
+                "annotations": [
+                  {
+                    "__type": "annotation",
+                    "property": {
+                      "__type": "annotation_property",
+                      "name": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "value"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "rdf"
                           }
-                        },
-                        "span": {
-                          "__type": "span",
-                          "end": 214,
-                          "start": 200
-                        },
-                        "value": {
-                          "__type": "value",
-                          "simple": {
-                            "__type": "integer",
-                            "value": 2
-                          }
+                        }
+                      },
+                      "span": {
+                        "__type": "span",
+                        "end": 214,
+                        "start": 200
+                      },
+                      "value": {
+                        "__type": "value",
+                        "simple": {
+                          "__type": "integer",
+                          "value": 2
                         }
                       }
                     }
-                  ]
-                }
+                  }
+                ]
               },
               "name": {
                 "__type": "identifier",
@@ -100,43 +98,41 @@
             {
               "__type": "value_variant",
               "body": {
-                "body": {
-                  "__type": "annotation_only_body",
-                  "annotations": [
-                    {
-                      "__type": "annotation",
-                      "property": {
-                        "__type": "annotation_property",
-                        "name": {
-                          "__type": "identifier_reference",
-                          "qualified_identifier": {
-                            "__type": "qualified_identifier",
-                            "member": {
-                              "__type": "identifier",
-                              "value": "value"
-                            },
-                            "module": {
-                              "__type": "identifier",
-                              "value": "rdf"
-                            }
+                "__type": "annotation_only_body",
+                "annotations": [
+                  {
+                    "__type": "annotation",
+                    "property": {
+                      "__type": "annotation_property",
+                      "name": {
+                        "__type": "identifier_reference",
+                        "qualified_identifier": {
+                          "__type": "qualified_identifier",
+                          "member": {
+                            "__type": "identifier",
+                            "value": "value"
+                          },
+                          "module": {
+                            "__type": "identifier",
+                            "value": "rdf"
                           }
-                        },
-                        "span": {
-                          "__type": "span",
-                          "end": 168,
-                          "start": 154
-                        },
-                        "value": {
-                          "__type": "value",
-                          "simple": {
-                            "__type": "integer",
-                            "value": 1
-                          }
+                        }
+                      },
+                      "span": {
+                        "__type": "span",
+                        "end": 168,
+                        "start": 154
+                      },
+                      "value": {
+                        "__type": "value",
+                        "simple": {
+                          "__type": "integer",
+                          "value": 1
                         }
                       }
                     }
-                  ]
-                }
+                  }
+                ]
               },
               "name": {
                 "__type": "identifier",
@@ -194,7 +190,7 @@
     "__type": "identifier",
     "value": "corpus_test_enum"
   },
-  "source_file": "MANIFEST_PATH/corpus/enum_pattern_numbered_variants.sdm",
+  "source_file": "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/enum_pattern_numbered_variants.sdm",
   "span": {
     "__type": "span",
     "end": 236,

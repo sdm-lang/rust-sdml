@@ -1,0 +1,7 @@
+module corpus_test_import is
+
+  from :: import xsd:base
+  from xsd import facets:minLength
+  from ::xsd import facets:minLength
+
+end

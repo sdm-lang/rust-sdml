@@ -1,0 +1,4 @@
+module corpus_test_enum is
+  import [ owl rdf ]
+  enum NameKind ;; ...
+end

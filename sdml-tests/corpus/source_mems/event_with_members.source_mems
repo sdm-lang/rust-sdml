@@ -1,0 +1,9 @@
+module corpus_test_event is
+
+  event NameChanged is
+    source Campaign
+    new_name -> sdml:string
+    old_name -> sdml:string
+  end
+
+end

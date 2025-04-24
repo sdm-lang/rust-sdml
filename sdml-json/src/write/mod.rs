@@ -902,14 +902,8 @@ impl ToJson for AnnotationOnlyBody {
                 .annotations()
                 .map(|ann| ann.to_json_with(opts))
                 .collect::<Vec<Value>>();
-            if opts.context_only {
-                set!(value_map, FIELD_NAME_ANNOTATIONS => annotations);
-            } else {
-                let mut inner_map: Map<String, Value> = new_map!(2);
-                set!(&mut inner_map => NODE_KIND_ANNOTATION_ONLY_BODY);
-                set!(&mut inner_map, FIELD_NAME_ANNOTATIONS => annotations);
-                set!(value_map, FIELD_NAME_BODY => inner_map);
-            }
+            set!(unless opts.context_only; value_map => NODE_KIND_ANNOTATION_ONLY_BODY);
+            set!(value_map, FIELD_NAME_ANNOTATIONS => annotations);
         }
     }
 }
@@ -1042,13 +1036,7 @@ impl ToJson for EntityBody {
 ///
 impl ToJson for Member {
     fn add_to_json_with(&self, value_map: &mut Map<String, Value>, opts: ValueOptions) {
-        if opts.context_only {
-            self.kind().add_to_json_with(value_map, opts)
-        } else {
-            set!(value_map => NODE_KIND_MEMBER);
-            set_source_span!(self, value_map, opts);
-            set!(value_map, FIELD_NAME_KIND => self.kind().to_json_with(opts));
-        }
+        self.kind().add_to_json_with(value_map, opts)
     }
 }
 
@@ -1340,7 +1328,7 @@ impl ToJson for RdfDef {
         set!(value_map => NODE_KIND_RDF_DEF);
         set_source_span!(self, value_map, opts);
         set!(value_map, opts, name => self);
-        self.body().add_to_json_with(value_map, opts);
+        add_body!(value_map, opts, self);
     }
 }
 

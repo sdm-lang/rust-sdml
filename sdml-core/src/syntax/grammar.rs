@@ -255,6 +255,7 @@ grammar!(field WILDCARD is wildcard);
 // Public Values ❱ Grammar Keywords
 // ------------------------------------------------------------------------------------------------
 
+grammar!(kw A is a);
 grammar!(kw ASSERT is assert);
 grammar!(kw BLOCK_END is end);
 grammar!(kw BLOCK_IS is is);
@@ -284,6 +285,7 @@ grammar!(kw RENAME_AS as "as");
 grammar!(kw SELF is self);
 grammar!(kw SOURCE as FIELD_NAME_SOURCE);
 grammar!(kw STRUCTURE is structure);
+grammar!(kw TYPE as "type");
 grammar!(kw TYPE_UNKNOWN is unknown);
 grammar!(kw UNION is union);
 grammar!(kw UNIQUENESS_NONUNIQUE is nonunique);

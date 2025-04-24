@@ -553,7 +553,7 @@
     "__type": "identifier",
     "value": "example_rdf_defs"
   },
-  "source_file": "MANIFEST_PATH/corpus/rdf_definitions.sdm",
+  "source_file": "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/rdf_definitions.sdm",
   "span": {
     "__type": "span",
     "end": 626,

@@ -106,13 +106,7 @@ pub(super) fn parse_restriction_facet<'a>(
     let node = cursor.node();
     rule_fn!("_restriction_facet", node);
 
-    let fixed = if let Some(_) =
-        optional_node_field_named!(context, RULE_NAME, node, FIELD_NAME_IS_FIXED)
-    {
-        true
-    } else {
-        false
-    };
+    let fixed = optional_node_field_named!(context, RULE_NAME, node, FIELD_NAME_IS_FIXED).is_some();
 
     match node.kind() {
         NODE_KIND_LENGTH_RESTRICTION_FACET => {
@@ -131,14 +125,14 @@ pub(super) fn parse_restriction_facet<'a>(
                 optional_node_field_named!(context, RULE_NAME, node, FIELD_NAME_FACET)
             {
                 match context.node_source(&child)? {
-                    "length" => return Ok(RestrictionFacet::Length(value, fixed)),
-                    "maxLength" => return Ok(RestrictionFacet::MaxLength(value, fixed)),
-                    "minLength" => return Ok(RestrictionFacet::MinLength(value, fixed)),
+                    "length" => Ok(RestrictionFacet::Length(value, fixed)),
+                    "maxLength" => Ok(RestrictionFacet::MaxLength(value, fixed)),
+                    "minLength" => Ok(RestrictionFacet::MinLength(value, fixed)),
                     _ => panic!(),
                 }
             } else {
                 panic!()
-            };
+            }
         }
         NODE_KIND_DIGIT_RESTRICTION_FACET => {
             let value = if let Some(child) =
@@ -152,13 +146,13 @@ pub(super) fn parse_restriction_facet<'a>(
                 optional_node_field_named!(context, RULE_NAME, node, FIELD_NAME_FACET)
             {
                 match context.node_source(&child)? {
-                    "fractionDigits" => return Ok(RestrictionFacet::FractionDigits(value, fixed)),
-                    "totalDigits" => return Ok(RestrictionFacet::TotalDigits(value, fixed)),
+                    "fractionDigits" => Ok(RestrictionFacet::FractionDigits(value, fixed)),
+                    "totalDigits" => Ok(RestrictionFacet::TotalDigits(value, fixed)),
                     _ => panic!(),
                 }
             } else {
                 panic!()
-            };
+            }
         }
         NODE_KIND_VALUE_RESTRICTION_FACET => todo!(),
         NODE_KIND_TZ_RESTRICTION_FACET => {
@@ -172,7 +166,7 @@ pub(super) fn parse_restriction_facet<'a>(
             } else {
                 panic!()
             };
-            return Ok(RestrictionFacet::ExplicitTimezone(value, fixed));
+            Ok(RestrictionFacet::ExplicitTimezone(value, fixed))
         }
         NODE_KIND_PATTERN_RESTRICTION_FACET => {
             let mut values = Vec::default();
@@ -180,7 +174,7 @@ pub(super) fn parse_restriction_facet<'a>(
                 check_node!(context, RULE_NAME, &node);
                 values.push(context.node_source(&child)?.to_string());
             }
-            return Ok(RestrictionFacet::Pattern(values));
+            Ok(RestrictionFacet::Pattern(values))
         }
         _ => {
             unexpected_node!(

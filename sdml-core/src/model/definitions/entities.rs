@@ -17,6 +17,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     fmt::Debug,
 };
+use tracing::warn;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -127,8 +128,10 @@ impl AnnotationBuilder for EntityDef {
         V: Into<Value>,
     {
         let mut self_mut = self;
-        if let Some(ref mut inner) = self_mut.body {
+        if let Some(ref mut inner) = self_mut.body_mut() {
             inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        } else {
+            warn!("No body present on model element, could not add annotation property. type: EntityDef, predicate: {}, value: {}", predicate.into(), value.into());
         }
         self_mut
     }

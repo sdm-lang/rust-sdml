@@ -1,0 +1,3 @@
+module corpus_test_cardinality is
+  structure Things ;; ...
+end

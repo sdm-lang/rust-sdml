@@ -11,86 +11,81 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "body": {
-                    "body": {
-                      "__type": "annotation_only_body",
-                      "annotations": [
-                        {
-                          "__type": "annotation",
-                          "constraint": {
-                            "__type": "constraint",
+              "definition": {
+                "__type": "member_def",
+                "body": {
+                  "__type": "annotation_only_body",
+                  "annotations": [
+                    {
+                      "__type": "annotation",
+                      "constraint": {
+                        "__type": "constraint",
+                        "body": {
+                          "__type": "constraint_body",
+                          "formal": {
+                            "__type": "formal_constraint",
                             "body": {
-                              "__type": "constraint_body",
-                              "formal": {
-                                "__type": "formal_constraint",
-                                "body": {
-                                  "__type": "constraint_sentence",
-                                  "simple": {
-                                    "__type": "simple_sentence",
-                                    "inequation": {
-                                      "__type": "inequation",
-                                      "lhs": {
-                                        "__type": "term",
-                                        "identifier": {
-                                          "__type": "identifier_reference",
-                                          "identifier": {
-                                            "__type": "identifier",
-                                            "value": "inner"
-                                          }
-                                        }
-                                      },
-                                      "relation": "op_greater_than_or_equal",
-                                      "rhs": {
-                                        "__type": "term",
-                                        "value": {
-                                          "__type": "predicate_value",
-                                          "simple": {
-                                            "__type": "string",
-                                            "value": "hello"
-                                          }
-                                        }
+                              "__type": "constraint_sentence",
+                              "simple": {
+                                "__type": "simple_sentence",
+                                "inequation": {
+                                  "__type": "inequation",
+                                  "lhs": {
+                                    "__type": "term",
+                                    "identifier": {
+                                      "__type": "identifier_reference",
+                                      "identifier": {
+                                        "__type": "identifier",
+                                        "value": "inner"
+                                      }
+                                    }
+                                  },
+                                  "relation": "op_greater_than_or_equal",
+                                  "rhs": {
+                                    "__type": "term",
+                                    "value": {
+                                      "__type": "predicate_value",
+                                      "simple": {
+                                        "__type": "string",
+                                        "value": "hello"
                                       }
                                     }
                                   }
                                 }
                               }
-                            },
-                            "name": {
-                              "__type": "identifier",
-                              "value": "not_empty"
                             }
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "inner"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 193,
-                    "start": 106
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
                         },
-                        "module": {
+                        "name": {
                           "__type": "identifier",
-                          "value": "sdml"
+                          "value": "not_empty"
                         }
+                      }
+                    }
+                  ]
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "inner"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 193,
+                  "start": 106
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -99,86 +94,81 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "body": {
-                    "body": {
-                      "__type": "annotation_only_body",
-                      "annotations": [
-                        {
-                          "__type": "annotation",
-                          "constraint": {
-                            "__type": "constraint",
+              "definition": {
+                "__type": "member_def",
+                "body": {
+                  "__type": "annotation_only_body",
+                  "annotations": [
+                    {
+                      "__type": "annotation",
+                      "constraint": {
+                        "__type": "constraint",
+                        "body": {
+                          "__type": "constraint_body",
+                          "formal": {
+                            "__type": "formal_constraint",
                             "body": {
-                              "__type": "constraint_body",
-                              "formal": {
-                                "__type": "formal_constraint",
-                                "body": {
-                                  "__type": "constraint_sentence",
-                                  "simple": {
-                                    "__type": "simple_sentence",
-                                    "inequation": {
-                                      "__type": "inequation",
-                                      "lhs": {
-                                        "__type": "term",
-                                        "identifier": {
-                                          "__type": "identifier_reference",
-                                          "identifier": {
-                                            "__type": "identifier",
-                                            "value": "inner"
-                                          }
-                                        }
-                                      },
-                                      "relation": "op_greater_than_or_equal",
-                                      "rhs": {
-                                        "__type": "term",
-                                        "value": {
-                                          "__type": "predicate_value",
-                                          "simple": {
-                                            "__type": "string",
-                                            "value": "hello"
-                                          }
-                                        }
+                              "__type": "constraint_sentence",
+                              "simple": {
+                                "__type": "simple_sentence",
+                                "inequation": {
+                                  "__type": "inequation",
+                                  "lhs": {
+                                    "__type": "term",
+                                    "identifier": {
+                                      "__type": "identifier_reference",
+                                      "identifier": {
+                                        "__type": "identifier",
+                                        "value": "inner"
+                                      }
+                                    }
+                                  },
+                                  "relation": "op_greater_than_or_equal",
+                                  "rhs": {
+                                    "__type": "term",
+                                    "value": {
+                                      "__type": "predicate_value",
+                                      "simple": {
+                                        "__type": "string",
+                                        "value": "hello"
                                       }
                                     }
                                   }
                                 }
                               }
-                            },
-                            "name": {
-                              "__type": "identifier",
-                              "value": "not_empty"
                             }
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "inner_sym"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 291,
-                    "start": 199
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
                         },
-                        "module": {
+                        "name": {
                           "__type": "identifier",
-                          "value": "sdml"
+                          "value": "not_empty"
                         }
+                      }
+                    }
+                  ]
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "inner_sym"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 291,
+                  "start": 199
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }

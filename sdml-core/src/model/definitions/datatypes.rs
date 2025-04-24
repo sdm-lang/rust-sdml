@@ -184,6 +184,9 @@ impl AnnotationBuilder for DatatypeDef {
         V: Into<Value>,
     {
         let mut self_mut = self;
+        if self_mut.body.is_none() {
+            self_mut.set_body(AnnotationOnlyBody::default());
+        }
         if let Some(ref mut inner) = self_mut.body {
             inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
         }
@@ -208,7 +211,7 @@ impl Validate for DatatypeDef {
             if let Definition::Datatype(_base) = defn {
                 // TODO: check restriction annotations.
             } else if let Definition::Rdf(base) = defn {
-                if !base.is_datatype() {
+                if !base.is_datatype().unwrap_or_default() {
                     loader
                         .report(&datatype_invalid_base_type(
                             top.file_id().copied().unwrap_or_default(),

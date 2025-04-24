@@ -78,7 +78,9 @@ pub trait HasOptionalFromDefinition {
     fn has_from_definition(&self) -> bool {
         self.from_definition().is_some()
     }
+    #[allow(clippy::wrong_self_convention)]
     fn from_definition(&self) -> Option<&FromDefinition>;
+    #[allow(clippy::wrong_self_convention)]
     fn from_definition_mut(&mut self) -> Option<&mut FromDefinition>;
     fn set_from_definition(&mut self, from_definition: FromDefinition);
     fn unset_from_definition(&mut self);
@@ -628,7 +630,7 @@ impl FromDefinition {
     where
         I: IntoIterator<Item = Identifier>,
     {
-        self.with_members.extend(extension.into_iter());
+        self.with_members.extend(extension);
     }
 }
 

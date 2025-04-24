@@ -10,18 +10,49 @@
           "__type": "entity_body",
           "identity": {
             "__type": "member",
-            "kind": {
+            "definition": {
+              "__type": "member_def",
+              "name": {
+                "__type": "identifier",
+                "value": "id"
+              },
+              "span": {
+                "__type": "span",
+                "end": 106,
+                "start": 91
+              },
+              "type": {
+                "__type": "type_reference",
+                "reference": {
+                  "__type": "identifier_reference",
+                  "qualified_identifier": {
+                    "__type": "qualified_identifier",
+                    "member": {
+                      "__type": "identifier",
+                      "value": "string"
+                    },
+                    "module": {
+                      "__type": "identifier",
+                      "value": "xs"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "members": [
+            {
               "__type": "member",
               "definition": {
                 "__type": "member_def",
                 "name": {
                   "__type": "identifier",
-                  "value": "id"
+                  "value": "a"
                 },
                 "span": {
                   "__type": "span",
-                  "end": 106,
-                  "start": 91
+                  "end": 127,
+                  "start": 112
                 },
                 "type": {
                   "__type": "type_reference",
@@ -35,44 +66,7 @@
                       },
                       "module": {
                         "__type": "identifier",
-                        "value": "xs"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "members": [
-            {
-              "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "a"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 127,
-                    "start": 112
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "xsd"
-                        }
+                        "value": "xsd"
                       }
                     }
                   }
@@ -81,33 +75,30 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "b"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 148,
-                    "start": 132
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "integer"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "xsd"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "b"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 148,
+                  "start": 132
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "integer"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "xsd"
                       }
                     }
                   }

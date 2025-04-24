@@ -96,8 +96,6 @@ impl RepresentationWriter for DotDependencyWriter {
         let tree = DependencyNode::from_module(module, None, &mut seen, cache, depth);
 
         let mut nodes = Vec::default();
-        let mut edges = Vec::default();
-
         if !seen.contains(module.name()) {
             nodes.push(self.node_to_string(module.name(), true, is_library_module(module.name())));
         }
@@ -110,7 +108,8 @@ impl RepresentationWriter for DotDependencyWriter {
             ));
         }
 
-        self.handle_all_edges(&tree, &mut nodes, &mut edges);
+        let mut edges = Vec::default();
+        self.handle_all_edges(&tree, &mut edges);
 
         w.write_all(DOT_FILE_HEADER.as_bytes())?;
 
@@ -133,33 +132,7 @@ impl RepresentationWriter for DotDependencyWriter {
 }
 
 impl DotDependencyWriter {
-    fn handle_node(
-        &self,
-        name: &Identifier,
-        is_subject: bool,
-        is_library: bool,
-        nodes: &mut Vec<String>,
-    ) {
-        let formatted_name = match (is_subject, is_library) {
-            (true, true) => {
-                format!("<B><I>{name}</I></B>")
-            }
-            (true, false) => format!("<B>{name}</B>"),
-            (false, true) => format!("<I>{name}</I>",),
-            (false, false) => name.to_string(),
-        };
-        nodes.push(format!(
-            "  {name} [label=<{MODULE_STEREOTYPE}{formatted_name}>];\n"
-        ));
-    }
-
-    #[allow(clippy::only_used_in_recursion)]
-    fn handle_all_edges(
-        &self,
-        node: &DependencyNode<'_>,
-        nodes: &mut Vec<String>,
-        edges: &mut Vec<String>,
-    ) {
+    fn handle_all_edges(&self, node: &DependencyNode<'_>, edges: &mut Vec<String>) {
         if let Some(children) = &node.children {
             for child in children {
                 edges.push(self.edge_to_string(
@@ -167,7 +140,7 @@ impl DotDependencyWriter {
                     child.name,
                     child.version_uri.map(|v| v.value()),
                 ));
-                self.handle_all_edges(child, nodes, edges);
+                self.handle_all_edges(child, edges);
             }
         }
     }

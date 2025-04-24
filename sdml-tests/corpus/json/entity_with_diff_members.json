@@ -10,27 +10,24 @@
           "__type": "entity_body",
           "identity": {
             "__type": "member",
-            "kind": {
-              "__type": "member",
-              "definition": {
-                "__type": "member_def",
-                "name": {
-                  "__type": "identifier",
-                  "value": "a"
-                },
-                "span": {
-                  "__type": "span",
-                  "end": 116,
-                  "start": 101
-                },
-                "type": {
-                  "__type": "type_reference",
-                  "reference": {
-                    "__type": "identifier_reference",
-                    "identifier": {
-                      "__type": "identifier",
-                      "value": "CampaignId"
-                    }
+            "definition": {
+              "__type": "member_def",
+              "name": {
+                "__type": "identifier",
+                "value": "a"
+              },
+              "span": {
+                "__type": "span",
+                "end": 116,
+                "start": 101
+              },
+              "type": {
+                "__type": "type_reference",
+                "reference": {
+                  "__type": "identifier_reference",
+                  "identifier": {
+                    "__type": "identifier",
+                    "value": "CampaignId"
                   }
                 }
               }
@@ -39,33 +36,30 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "b"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 137,
-                    "start": 122
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
-                        },
-                        "module": {
-                          "__type": "identifier",
-                          "value": "xsd"
-                        }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "b"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 137,
+                  "start": 122
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "xsd"
                       }
                     }
                   }
@@ -74,14 +68,11 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "reference": {
-                  "__type": "identifier_reference",
-                  "identifier": {
-                    "__type": "identifier",
-                    "value": "c"
-                  }
+              "reference": {
+                "__type": "identifier_reference",
+                "identifier": {
+                  "__type": "identifier",
+                  "value": "c"
                 }
               }
             }

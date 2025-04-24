@@ -973,7 +973,9 @@ fn walk_rdf_def(
     visit_annotations: bool,
 ) -> Result<(), Error> {
     if walker.rdf_start(thing)? {
-        walk_annotations!(walker, thing.body().annotations(), visit_annotations);
+        if let Some(body) = thing.body() {
+            walk_annotations!(walker, body.annotations(), visit_annotations);
+        }
         walker.rdf_end(thing)?;
     }
     Ok(())

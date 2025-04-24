@@ -1,6 +1,6 @@
 {
   "__type": "module",
-  "base": "http://example.orgMANIFEST_PATH/corpus/dimension_with_identity.sdm/",
+  "base": "http://example.org/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/dimension_with_identity.sdm/",
   "definitions": [
     {
       "__type": "definition",
@@ -12,27 +12,24 @@
             "__type": "dimension_identity",
             "identity": {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "name": {
-                    "__type": "identifier",
-                    "value": "campaign"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 123,
-                    "start": 101
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "identifier": {
-                        "__type": "identifier",
-                        "value": "CampaignId"
-                      }
+              "definition": {
+                "__type": "member_def",
+                "name": {
+                  "__type": "identifier",
+                  "value": "campaign"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 123,
+                  "start": 101
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "identifier": {
+                      "__type": "identifier",
+                      "value": "CampaignId"
                     }
                   }
                 }
@@ -57,7 +54,7 @@
     "__type": "identifier",
     "value": "corpus_test_dimension"
   },
-  "source_file": "MANIFEST_PATH/corpus/dimension_with_identity.sdm",
+  "source_file": "/Users/simonjo/Projects/sdm-lang/rust-sdml/sdml-tests/corpus/dimension_with_identity.sdm",
   "span": {
     "__type": "span",
     "end": 135,

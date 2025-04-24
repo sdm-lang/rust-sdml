@@ -6,7 +6,7 @@ use crate::{
         identifiers::{Identifier, IdentifierReference, QualifiedIdentifier},
         modules::Module,
         values::Value,
-        HasBody, HasName, HasSourceSpan, References, Span,
+        HasName, HasOptionalBody, HasSourceSpan, References, Span,
     },
     stdlib,
     store::ModuleStore,
@@ -28,7 +28,7 @@ pub struct RdfDef {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     span: Option<Span>,
     name: Identifier,
-    body: AnnotationOnlyBody,
+    body: Option<AnnotationOnlyBody>,
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -45,19 +45,23 @@ impl HasName for RdfDef {
     }
 }
 
-impl HasBody for RdfDef {
+impl HasOptionalBody for RdfDef {
     type Body = AnnotationOnlyBody;
 
-    fn body(&self) -> &Self::Body {
-        &self.body
+    fn body(&self) -> Option<&Self::Body> {
+        self.body.as_ref()
     }
 
-    fn body_mut(&mut self) -> &mut Self::Body {
-        &mut self.body
+    fn body_mut(&mut self) -> Option<&mut Self::Body> {
+        self.body.as_mut()
     }
 
     fn set_body(&mut self, body: Self::Body) {
-        self.body = body;
+        self.body = Some(body);
+    }
+
+    fn unset_body(&mut self) {
+        self.body = None;
     }
 }
 
@@ -83,11 +87,15 @@ impl HasSourceSpan for RdfDef {
 
 impl References for RdfDef {
     fn referenced_annotations<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
-        self.body.referenced_annotations(names);
+        if let Some(body) = self.body() {
+            body.referenced_annotations(names);
+        }
     }
 
     fn referenced_types<'a>(&'a self, names: &mut BTreeSet<&'a IdentifierReference>) {
-        self.body.referenced_types(names);
+        if let Some(body) = self.body() {
+            body.referenced_types(names);
+        }
     }
 }
 
@@ -99,9 +107,12 @@ impl AnnotationBuilder for RdfDef {
         V: Into<Value>,
     {
         let mut self_mut = self;
-        self_mut
-            .body
-            .add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        if self_mut.body.is_none() {
+            self_mut.set_body(AnnotationOnlyBody::default());
+        }
+        if let Some(ref mut inner) = self_mut.body {
+            inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
+        }
         self_mut
     }
 }
@@ -122,7 +133,9 @@ impl Validate for RdfDef {
     ) {
         self.name
             .validate(top, loader, Some(IdentifierCaseConvention::RdfDefinition));
-        self.body.validate(top, cache, loader, check_constraints);
+        if let Some(body) = self.body() {
+            body.validate(top, cache, loader, check_constraints);
+        }
     }
 }
 
@@ -146,14 +159,16 @@ impl RdfDef {
         ))
     }
 
-    pub fn is_class(&self) -> bool {
-        self.body.has_rdf_type(
-            &QualifiedIdentifier::new(
-                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::CLASS),
+    pub fn is_class(&self) -> Option<bool> {
+        self.body.as_ref().map(|body| {
+            body.has_rdf_type(
+                &QualifiedIdentifier::new(
+                    Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                    Identifier::new_unchecked(stdlib::rdfs::CLASS),
+                )
+                .into(),
             )
-            .into(),
-        )
+        })
     }
 
     pub fn datatype(name: Identifier) -> Self {
@@ -163,14 +178,16 @@ impl RdfDef {
         ))
     }
 
-    pub fn is_datatype(&self) -> bool {
-        self.body.has_rdf_type(
-            &QualifiedIdentifier::new(
-                Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdfs::DATATYPE),
+    pub fn is_datatype(&self) -> Option<bool> {
+        self.body.as_ref().map(|body| {
+            body.has_rdf_type(
+                &QualifiedIdentifier::new(
+                    Identifier::new_unchecked(stdlib::rdfs::MODULE_NAME),
+                    Identifier::new_unchecked(stdlib::rdfs::DATATYPE),
+                )
+                .into(),
             )
-            .into(),
-        )
+        })
     }
 
     pub fn property(name: Identifier) -> Self {
@@ -180,14 +197,16 @@ impl RdfDef {
         ))
     }
 
-    pub fn is_property(&self) -> bool {
-        self.body.has_rdf_type(
-            &QualifiedIdentifier::new(
-                Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
-                Identifier::new_unchecked(stdlib::rdf::PROPERTY),
+    pub fn is_property(&self) -> Option<bool> {
+        self.body.as_ref().map(|body| {
+            body.has_rdf_type(
+                &QualifiedIdentifier::new(
+                    Identifier::new_unchecked(stdlib::rdf::MODULE_NAME),
+                    Identifier::new_unchecked(stdlib::rdf::PROPERTY),
+                )
+                .into(),
             )
-            .into(),
-        )
+        })
     }
 
     pub fn individual(name: Identifier) -> Self {

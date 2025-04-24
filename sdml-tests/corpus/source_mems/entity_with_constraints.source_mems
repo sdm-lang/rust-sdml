@@ -1,0 +1,9 @@
+module corpus_test_entity is
+
+  entity Campaign is
+    identity a -> CampaignId
+    b -> xsd:string ;; ...
+    c -> Target ;; ...
+  end
+
+end

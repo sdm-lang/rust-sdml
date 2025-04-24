@@ -5,7 +5,7 @@ This Rust module contains the SDML model of the SDML library module `rdf` for RD
 use crate::model::{
     annotations::{AnnotationOnlyBody, HasAnnotations},
     modules::Module,
-    HasBody,
+    {HasOptionalBody},
 };
 use std::str::FromStr;
 

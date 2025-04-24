@@ -537,6 +537,11 @@ impl AnnotationProperty {
     // Helpers
     // --------------------------------------------------------------------------------------------
 
+    pub fn is_rdf_type(&self) -> bool {
+        self.name_reference
+            == IdentifierReference::from(QualifiedIdentifier::new_unchecked("rdf", "type"))
+    }
+
     #[inline(always)]
     pub fn is_stdlib_property(&self) -> bool {
         if let IdentifierReference::QualifiedIdentifier(name) = self.name_reference() {

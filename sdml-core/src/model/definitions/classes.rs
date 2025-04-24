@@ -156,6 +156,9 @@ impl AnnotationBuilder for TypeClassDef {
         V: Into<Value>,
     {
         let mut self_mut = self;
+        if self_mut.body.is_none() {
+            self_mut.set_body(TypeClassBody::default());
+        }
         if let Some(ref mut inner) = self_mut.body {
             inner.add_to_annotations(AnnotationProperty::new(predicate.into(), value.into()));
         }

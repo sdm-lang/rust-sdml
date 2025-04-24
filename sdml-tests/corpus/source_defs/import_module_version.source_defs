@@ -1,0 +1,3 @@
+module corpus_test_import is
+  import customer <https://example.org/v2/Customer#>
+end

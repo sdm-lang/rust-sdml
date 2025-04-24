@@ -11,138 +11,133 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "body": {
-                    "body": {
-                      "__type": "annotation_only_body",
-                      "annotations": [
-                        {
-                          "__type": "annotation",
-                          "constraint": {
-                            "__type": "constraint",
+              "definition": {
+                "__type": "member_def",
+                "body": {
+                  "__type": "annotation_only_body",
+                  "annotations": [
+                    {
+                      "__type": "annotation",
+                      "constraint": {
+                        "__type": "constraint",
+                        "body": {
+                          "__type": "constraint_body",
+                          "formal": {
+                            "__type": "formal_constraint",
                             "body": {
-                              "__type": "constraint_body",
-                              "formal": {
-                                "__type": "formal_constraint",
-                                "body": {
-                                  "__type": "constraint_sentence",
-                                  "simple": {
-                                    "__type": "simple_sentence",
-                                    "atomic": {
-                                      "__type": "atomic_sentence",
-                                      "arguments": [
+                              "__type": "constraint_sentence",
+                              "simple": {
+                                "__type": "simple_sentence",
+                                "atomic": {
+                                  "__type": "atomic_sentence",
+                                  "arguments": [
+                                    {
+                                      "__type": "term",
+                                      "identifier": {
+                                        "__type": "identifier_reference",
+                                        "identifier": {
+                                          "__type": "identifier",
+                                          "value": "foo"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "predicate": {
+                                    "__type": "term",
+                                    "composition": {
+                                      "__type": "function_composition",
+                                      "functions": [
                                         {
-                                          "__type": "term",
-                                          "identifier": {
-                                            "__type": "identifier_reference",
-                                            "identifier": {
-                                              "__type": "identifier",
-                                              "value": "foo"
-                                            }
-                                          }
+                                          "__type": "identifier",
+                                          "value": "tags"
+                                        },
+                                        {
+                                          "__type": "identifier",
+                                          "value": "contains"
                                         }
                                       ],
-                                      "predicate": {
-                                        "__type": "term",
-                                        "composition": {
-                                          "__type": "function_composition",
-                                          "functions": [
-                                            {
-                                              "__type": "identifier",
-                                              "value": "tags"
-                                            },
-                                            {
-                                              "__type": "identifier",
-                                              "value": "contains"
-                                            }
-                                          ],
-                                          "subject": {
-                                            "__type": "subject",
-                                            "self": true
-                                          }
-                                        }
+                                      "subject": {
+                                        "__type": "subject",
+                                        "self": true
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "environment": [
+                              {
+                                "__type": "function_def",
+                                "body": {
+                                  "__type": "function_body",
+                                  "term": {
+                                    "__type": "term",
+                                    "value": {
+                                      "__type": "predicate_value",
+                                      "simple": {
+                                        "__type": "string",
+                                        "value": "foo"
                                       }
                                     }
                                   }
                                 },
-                                "environment": [
-                                  {
-                                    "__type": "function_def",
-                                    "body": {
-                                      "__type": "function_body",
-                                      "term": {
-                                        "__type": "term",
-                                        "value": {
-                                          "__type": "predicate_value",
-                                          "simple": {
-                                            "__type": "string",
-                                            "value": "foo"
-                                          }
-                                        }
-                                      }
-                                    },
-                                    "signature": {
-                                      "__type": "function_signature",
-                                      "type": {
-                                        "__type": "function_type",
-                                        "type": {
-                                          "__type": "function_type_reference",
-                                          "reference": {
-                                            "__type": "identifier_reference",
-                                            "qualified_identifier": {
-                                              "__type": "qualified_identifier",
-                                              "member": {
-                                                "__type": "identifier",
-                                                "value": "string"
-                                              },
-                                              "module": {
-                                                "__type": "identifier",
-                                                "value": "sdml"
-                                              }
-                                            }
+                                "signature": {
+                                  "__type": "function_signature",
+                                  "type": {
+                                    "__type": "function_type",
+                                    "type": {
+                                      "__type": "function_type_reference",
+                                      "reference": {
+                                        "__type": "identifier_reference",
+                                        "qualified_identifier": {
+                                          "__type": "qualified_identifier",
+                                          "member": {
+                                            "__type": "identifier",
+                                            "value": "string"
+                                          },
+                                          "module": {
+                                            "__type": "identifier",
+                                            "value": "sdml"
                                           }
                                         }
                                       }
                                     }
                                   }
-                                ]
+                                }
                               }
-                            },
-                            "name": {
-                              "__type": "identifier",
-                              "value": "tagged_with_foo_path"
-                            }
+                            ]
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "inner"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 252,
-                    "start": 101
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
                         },
-                        "module": {
+                        "name": {
                           "__type": "identifier",
-                          "value": "sdml"
+                          "value": "tagged_with_foo_path"
                         }
+                      }
+                    }
+                  ]
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "inner"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 252,
+                  "start": 101
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }

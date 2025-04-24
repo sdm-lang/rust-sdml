@@ -1,0 +1,9 @@
+module corpus_test_dimension is
+
+  dimension Campaigns is
+    source Campaign with status
+    ref Target
+    name -> Name
+  end
+
+end

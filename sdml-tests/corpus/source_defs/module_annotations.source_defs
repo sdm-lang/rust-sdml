@@ -1,0 +1,5 @@
+module corpus_test_module is
+  import [ dc skos ]
+  @dc:version = 2
+  @skos:prefLang = [ "aa"@en "bb" ]
+end

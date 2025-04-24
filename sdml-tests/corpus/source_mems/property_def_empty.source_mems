@@ -1,0 +1,5 @@
+module corpus_test_property is
+
+  property accountId -> unknown
+
+end

@@ -11,83 +11,78 @@
           "members": [
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "body": {
-                    "body": {
-                      "__type": "annotation_only_body",
-                      "annotations": [
-                        {
-                          "__type": "annotation",
-                          "constraint": {
-                            "__type": "constraint",
+              "definition": {
+                "__type": "member_def",
+                "body": {
+                  "__type": "annotation_only_body",
+                  "annotations": [
+                    {
+                      "__type": "annotation",
+                      "constraint": {
+                        "__type": "constraint",
+                        "body": {
+                          "__type": "constraint_body",
+                          "formal": {
+                            "__type": "formal_constraint",
                             "body": {
-                              "__type": "constraint_body",
-                              "formal": {
-                                "__type": "formal_constraint",
-                                "body": {
-                                  "__type": "constraint_sentence",
-                                  "boolean": {
-                                    "__type": "boolean_sentence",
-                                    "binary": {
-                                      "__type": "binary_boolean_sentence",
-                                      "lhs": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "equation": {
-                                            "__type": "equation",
-                                            "lhs": {
-                                              "__type": "term",
-                                              "identifier": {
-                                                "__type": "identifier_reference",
-                                                "identifier": {
-                                                  "__type": "identifier",
-                                                  "value": "inner"
-                                                }
-                                              }
-                                            },
-                                            "rhs": {
-                                              "__type": "term",
-                                              "value": {
-                                                "__type": "predicate_value",
-                                                "simple": {
-                                                  "__type": "string",
-                                                  "value": "hi"
-                                                }
-                                              }
+                              "__type": "constraint_sentence",
+                              "boolean": {
+                                "__type": "boolean_sentence",
+                                "binary": {
+                                  "__type": "binary_boolean_sentence",
+                                  "lhs": {
+                                    "__type": "constraint_sentence",
+                                    "simple": {
+                                      "__type": "simple_sentence",
+                                      "equation": {
+                                        "__type": "equation",
+                                        "lhs": {
+                                          "__type": "term",
+                                          "identifier": {
+                                            "__type": "identifier_reference",
+                                            "identifier": {
+                                              "__type": "identifier",
+                                              "value": "inner"
+                                            }
+                                          }
+                                        },
+                                        "rhs": {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "hi"
                                             }
                                           }
                                         }
-                                      },
-                                      "operator": "logical_op_biconditional",
-                                      "rhs": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "equation": {
-                                            "__type": "equation",
-                                            "lhs": {
-                                              "__type": "term",
-                                              "identifier": {
-                                                "__type": "identifier_reference",
-                                                "identifier": {
-                                                  "__type": "identifier",
-                                                  "value": "inner_sym"
-                                                }
-                                              }
-                                            },
-                                            "rhs": {
-                                              "__type": "term",
-                                              "value": {
-                                                "__type": "predicate_value",
-                                                "simple": {
-                                                  "__type": "string",
-                                                  "value": "bye"
-                                                }
-                                              }
+                                      }
+                                    }
+                                  },
+                                  "operator": "logical_op_biconditional",
+                                  "rhs": {
+                                    "__type": "constraint_sentence",
+                                    "simple": {
+                                      "__type": "simple_sentence",
+                                      "equation": {
+                                        "__type": "equation",
+                                        "lhs": {
+                                          "__type": "term",
+                                          "identifier": {
+                                            "__type": "identifier_reference",
+                                            "identifier": {
+                                              "__type": "identifier",
+                                              "value": "inner_sym"
+                                            }
+                                          }
+                                        },
+                                        "rhs": {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "bye"
                                             }
                                           }
                                         }
@@ -96,39 +91,39 @@
                                   }
                                 }
                               }
-                            },
-                            "name": {
-                              "__type": "identifier",
-                              "value": "not_empty"
                             }
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "inner"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 210,
-                    "start": 105
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
                         },
-                        "module": {
+                        "name": {
                           "__type": "identifier",
-                          "value": "sdml"
+                          "value": "not_empty"
                         }
+                      }
+                    }
+                  ]
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "inner"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 210,
+                  "start": 105
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -137,83 +132,78 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "body": {
-                    "body": {
-                      "__type": "annotation_only_body",
-                      "annotations": [
-                        {
-                          "__type": "annotation",
-                          "constraint": {
-                            "__type": "constraint",
+              "definition": {
+                "__type": "member_def",
+                "body": {
+                  "__type": "annotation_only_body",
+                  "annotations": [
+                    {
+                      "__type": "annotation",
+                      "constraint": {
+                        "__type": "constraint",
+                        "body": {
+                          "__type": "constraint_body",
+                          "formal": {
+                            "__type": "formal_constraint",
                             "body": {
-                              "__type": "constraint_body",
-                              "formal": {
-                                "__type": "formal_constraint",
-                                "body": {
-                                  "__type": "constraint_sentence",
-                                  "boolean": {
-                                    "__type": "boolean_sentence",
-                                    "binary": {
-                                      "__type": "binary_boolean_sentence",
-                                      "lhs": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "equation": {
-                                            "__type": "equation",
-                                            "lhs": {
-                                              "__type": "term",
-                                              "identifier": {
-                                                "__type": "identifier_reference",
-                                                "identifier": {
-                                                  "__type": "identifier",
-                                                  "value": "inner"
-                                                }
-                                              }
-                                            },
-                                            "rhs": {
-                                              "__type": "term",
-                                              "value": {
-                                                "__type": "predicate_value",
-                                                "simple": {
-                                                  "__type": "string",
-                                                  "value": "hi"
-                                                }
-                                              }
+                              "__type": "constraint_sentence",
+                              "boolean": {
+                                "__type": "boolean_sentence",
+                                "binary": {
+                                  "__type": "binary_boolean_sentence",
+                                  "lhs": {
+                                    "__type": "constraint_sentence",
+                                    "simple": {
+                                      "__type": "simple_sentence",
+                                      "equation": {
+                                        "__type": "equation",
+                                        "lhs": {
+                                          "__type": "term",
+                                          "identifier": {
+                                            "__type": "identifier_reference",
+                                            "identifier": {
+                                              "__type": "identifier",
+                                              "value": "inner"
+                                            }
+                                          }
+                                        },
+                                        "rhs": {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "hi"
                                             }
                                           }
                                         }
-                                      },
-                                      "operator": "logical_op_biconditional",
-                                      "rhs": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "equation": {
-                                            "__type": "equation",
-                                            "lhs": {
-                                              "__type": "term",
-                                              "identifier": {
-                                                "__type": "identifier_reference",
-                                                "identifier": {
-                                                  "__type": "identifier",
-                                                  "value": "inner_sym"
-                                                }
-                                              }
-                                            },
-                                            "rhs": {
-                                              "__type": "term",
-                                              "value": {
-                                                "__type": "predicate_value",
-                                                "simple": {
-                                                  "__type": "string",
-                                                  "value": "bye"
-                                                }
-                                              }
+                                      }
+                                    }
+                                  },
+                                  "operator": "logical_op_biconditional",
+                                  "rhs": {
+                                    "__type": "constraint_sentence",
+                                    "simple": {
+                                      "__type": "simple_sentence",
+                                      "equation": {
+                                        "__type": "equation",
+                                        "lhs": {
+                                          "__type": "term",
+                                          "identifier": {
+                                            "__type": "identifier_reference",
+                                            "identifier": {
+                                              "__type": "identifier",
+                                              "value": "inner_sym"
+                                            }
+                                          }
+                                        },
+                                        "rhs": {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "bye"
                                             }
                                           }
                                         }
@@ -222,39 +212,39 @@
                                   }
                                 }
                               }
-                            },
-                            "name": {
-                              "__type": "identifier",
-                              "value": "not_empty"
                             }
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "inner_alt"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 326,
-                    "start": 216
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
                         },
-                        "module": {
+                        "name": {
                           "__type": "identifier",
-                          "value": "sdml"
+                          "value": "not_empty"
                         }
+                      }
+                    }
+                  ]
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "inner_alt"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 326,
+                  "start": 216
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }
@@ -263,83 +253,78 @@
             },
             {
               "__type": "member",
-              "kind": {
-                "__type": "member",
-                "definition": {
-                  "__type": "member_def",
-                  "body": {
-                    "body": {
-                      "__type": "annotation_only_body",
-                      "annotations": [
-                        {
-                          "__type": "annotation",
-                          "constraint": {
-                            "__type": "constraint",
+              "definition": {
+                "__type": "member_def",
+                "body": {
+                  "__type": "annotation_only_body",
+                  "annotations": [
+                    {
+                      "__type": "annotation",
+                      "constraint": {
+                        "__type": "constraint",
+                        "body": {
+                          "__type": "constraint_body",
+                          "formal": {
+                            "__type": "formal_constraint",
                             "body": {
-                              "__type": "constraint_body",
-                              "formal": {
-                                "__type": "formal_constraint",
-                                "body": {
-                                  "__type": "constraint_sentence",
-                                  "boolean": {
-                                    "__type": "boolean_sentence",
-                                    "binary": {
-                                      "__type": "binary_boolean_sentence",
-                                      "lhs": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "equation": {
-                                            "__type": "equation",
-                                            "lhs": {
-                                              "__type": "term",
-                                              "identifier": {
-                                                "__type": "identifier_reference",
-                                                "identifier": {
-                                                  "__type": "identifier",
-                                                  "value": "inner"
-                                                }
-                                              }
-                                            },
-                                            "rhs": {
-                                              "__type": "term",
-                                              "value": {
-                                                "__type": "predicate_value",
-                                                "simple": {
-                                                  "__type": "string",
-                                                  "value": "hi"
-                                                }
-                                              }
+                              "__type": "constraint_sentence",
+                              "boolean": {
+                                "__type": "boolean_sentence",
+                                "binary": {
+                                  "__type": "binary_boolean_sentence",
+                                  "lhs": {
+                                    "__type": "constraint_sentence",
+                                    "simple": {
+                                      "__type": "simple_sentence",
+                                      "equation": {
+                                        "__type": "equation",
+                                        "lhs": {
+                                          "__type": "term",
+                                          "identifier": {
+                                            "__type": "identifier_reference",
+                                            "identifier": {
+                                              "__type": "identifier",
+                                              "value": "inner"
+                                            }
+                                          }
+                                        },
+                                        "rhs": {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "hi"
                                             }
                                           }
                                         }
-                                      },
-                                      "operator": "logical_op_biconditional",
-                                      "rhs": {
-                                        "__type": "constraint_sentence",
-                                        "simple": {
-                                          "__type": "simple_sentence",
-                                          "equation": {
-                                            "__type": "equation",
-                                            "lhs": {
-                                              "__type": "term",
-                                              "identifier": {
-                                                "__type": "identifier_reference",
-                                                "identifier": {
-                                                  "__type": "identifier",
-                                                  "value": "inner_sym"
-                                                }
-                                              }
-                                            },
-                                            "rhs": {
-                                              "__type": "term",
-                                              "value": {
-                                                "__type": "predicate_value",
-                                                "simple": {
-                                                  "__type": "string",
-                                                  "value": "bye"
-                                                }
-                                              }
+                                      }
+                                    }
+                                  },
+                                  "operator": "logical_op_biconditional",
+                                  "rhs": {
+                                    "__type": "constraint_sentence",
+                                    "simple": {
+                                      "__type": "simple_sentence",
+                                      "equation": {
+                                        "__type": "equation",
+                                        "lhs": {
+                                          "__type": "term",
+                                          "identifier": {
+                                            "__type": "identifier_reference",
+                                            "identifier": {
+                                              "__type": "identifier",
+                                              "value": "inner_sym"
+                                            }
+                                          }
+                                        },
+                                        "rhs": {
+                                          "__type": "term",
+                                          "value": {
+                                            "__type": "predicate_value",
+                                            "simple": {
+                                              "__type": "string",
+                                              "value": "bye"
                                             }
                                           }
                                         }
@@ -348,39 +333,39 @@
                                   }
                                 }
                               }
-                            },
-                            "name": {
-                              "__type": "identifier",
-                              "value": "not_empty"
                             }
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "name": {
-                    "__type": "identifier",
-                    "value": "inner_sym"
-                  },
-                  "span": {
-                    "__type": "span",
-                    "end": 441,
-                    "start": 332
-                  },
-                  "type": {
-                    "__type": "type_reference",
-                    "reference": {
-                      "__type": "identifier_reference",
-                      "qualified_identifier": {
-                        "__type": "qualified_identifier",
-                        "member": {
-                          "__type": "identifier",
-                          "value": "string"
                         },
-                        "module": {
+                        "name": {
                           "__type": "identifier",
-                          "value": "sdml"
+                          "value": "not_empty"
                         }
+                      }
+                    }
+                  ]
+                },
+                "name": {
+                  "__type": "identifier",
+                  "value": "inner_sym"
+                },
+                "span": {
+                  "__type": "span",
+                  "end": 441,
+                  "start": 332
+                },
+                "type": {
+                  "__type": "type_reference",
+                  "reference": {
+                    "__type": "identifier_reference",
+                    "qualified_identifier": {
+                      "__type": "qualified_identifier",
+                      "member": {
+                        "__type": "identifier",
+                        "value": "string"
+                      },
+                      "module": {
+                        "__type": "identifier",
+                        "value": "sdml"
                       }
                     }
                   }

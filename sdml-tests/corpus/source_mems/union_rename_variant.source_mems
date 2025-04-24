@@ -1,0 +1,8 @@
+module corpus_test_union is
+
+  union VehicleClass of
+    Car
+    Boat as WaterCar
+  end
+
+end

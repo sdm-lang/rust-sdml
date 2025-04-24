@@ -109,11 +109,11 @@ impl<'a> DependencyNode<'a> {
     }
 
     fn base_uri(&self) -> Option<&'a HeaderValue<Url>> {
-        self.base_uri.and_then(|v| Some(v))
+        self.base_uri.and_then(Some)
     }
 
     fn version_uri(&self) -> Option<&'a HeaderValue<Url>> {
-        self.version_uri.and_then(|v| Some(v))
+        self.version_uri.and_then(Some)
     }
 
     fn children(&self) -> Option<&Vec<DependencyNode<'a>>> {

@@ -1,0 +1,3 @@
+module corpus_test_annotation is
+  @dc:version = 2
+end

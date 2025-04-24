@@ -1,0 +1,8 @@
+module corpus_test_enum is
+
+  enum NameKind of
+    from Names with Internal
+    External
+  end
+
+end

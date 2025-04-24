@@ -45,15 +45,17 @@ use sdml_core::{
 pub enum Level {
     #[default]
     Full,
-    Members,
-    Definitions,
+    SuppressMemberBodies,
+    SuppressMembers,
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Whitespace {
+    Minimal = 0,
     #[default]
-    Normal,
-    Additional,
+    Normal = 1,
+    Additional = 2,
+    Maximal = 3,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -83,8 +85,9 @@ pub struct Writer;
 const SPACE_STR: &str = " ";
 const EMPTY_STR: &str = "";
 
-const ELIPPSIS: &str = " ;; ...\n";
+const ELIPPSIS: &[u8] = b" ;; ...\n";
 const EOL: &[u8] = b"\n";
+const SPACE: &[u8] = b" ";
 
 #[derive(Copy, Clone, Debug)]
 struct Context<T>
@@ -136,18 +139,28 @@ impl Options {
     }
 
     #[inline(always)]
-    pub const fn whitespace_normal(&self) -> bool {
-        matches!(self.whitespace, Whitespace::Normal)
+    pub fn whitespace_minimal(&self) -> bool {
+        self.whitespace >= Whitespace::Minimal
     }
 
     #[inline(always)]
-    pub const fn whitespace_additional(&self) -> bool {
-        matches!(self.whitespace, Whitespace::Additional)
+    pub fn whitespace_normal(&self) -> bool {
+        self.whitespace >= Whitespace::Normal
+    }
+
+    #[inline(always)]
+    pub fn whitespace_additional(&self) -> bool {
+        self.whitespace >= Whitespace::Additional
+    }
+
+    #[inline(always)]
+    pub fn whitespace_maximal(&self) -> bool {
+        self.whitespace >= Whitespace::Maximal
     }
 
     #[inline(always)]
     pub const fn generate_definition_bodies(&self) -> bool {
-        matches!(self.level, Level::Full | Level::Members)
+        matches!(self.level, Level::Full | Level::SuppressMemberBodies)
     }
 
     #[inline(always)]
@@ -238,6 +251,7 @@ impl<T> Context<T>
 where
     T: Highlighter,
 {
+    contextfn!(keyword kw_a => KW_A);
     contextfn!(keyword kw_as => KW_RENAME_AS);
     contextfn!(keyword kw_assert => KW_ASSERT);
     contextfn!(keyword kw_class => KW_CLASS);
@@ -263,6 +277,7 @@ where
     contextfn!(keyword kw_self => KW_SELF);
     contextfn!(keyword kw_source => KW_SOURCE);
     contextfn!(keyword kw_structure => KW_STRUCTURE);
+    contextfn!(keyword kw_type => KW_TYPE);
     contextfn!(keyword kw_union => KW_UNION);
     contextfn!(keyword kw_unknown => KW_TYPE_UNKNOWN);
     contextfn!(keyword kw_version => KW_MODULE_VERSION);
@@ -353,20 +368,20 @@ impl RepresentationWriter for Writer {
         if module.has_imports() || module.has_annotations() || module.has_definitions() {
             ctx.indent();
             w.write_all(format!("{}\n", ctx.kw_is()).as_bytes())?;
-            if ctx.options.whitespace_additional() {
+            if ctx.options.whitespace_normal() {
                 w.write_all(EOL)?;
             }
 
             if module.has_imports() {
                 self.write_module_imports(w, module, &mut ctx)?;
-                if ctx.options.whitespace_additional() {
+                if ctx.options.whitespace_normal() {
                     w.write_all(EOL)?;
                 }
             }
 
             if module.has_annotations() {
                 self.write_annotations(w, module.annotations(), &mut ctx)?;
-                if ctx.options.whitespace_additional() {
+                if ctx.options.whitespace_normal() {
                     w.write_all(EOL)?;
                 }
             }
@@ -441,6 +456,9 @@ impl Writer {
                     w.write_all(format!("{} {path_string} ", ctx.kw_from()).as_bytes())?;
                 }
                 w.write_all(format!("{} {imported}\n", ctx.kw_import()).as_bytes())?;
+                if ctx.options.whitespace_maximal() {
+                    w.write_all(EOL)?;
+                }
             }
         }
 
@@ -465,6 +483,9 @@ impl Writer {
             match annotation {
                 Annotation::Property(v) => self.write_annotation_property(w, v, ctx)?,
                 Annotation::Constraint(v) => self.write_constraint(w, v, ctx)?,
+            }
+            if ctx.options.whitespace_maximal() {
+                w.write_all(EOL)?;
             }
         }
 
@@ -557,9 +578,17 @@ impl Writer {
         if constraint.has_definitions() {
             w.write_all(format!("{}\n", ctx.kw_with()).as_bytes())?;
             ctx.indent();
+
+            if ctx.options.whitespace_maximal() {
+                w.write_all(EOL)?;
+            }
             for definition in constraint.definitions() {
                 self.write_function_def(w, definition, ctx)?;
             }
+            if ctx.options.whitespace_maximal() {
+                w.write_all(EOL)?;
+            }
+
             ctx.outdent();
             w.write_all(EOL)?;
             w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_is()).as_bytes())?;
@@ -760,11 +789,21 @@ impl Writer {
         T: Highlighter,
     {
         ctx.indent();
+
+        if ctx.options.whitespace_maximal() {
+            w.write_all(EOL)?;
+        }
         w.write_all(ctx.indentation_str().as_bytes())?;
+
         match body {
             FunctionBody::Sentence(v) => self.write_constraint_sentence(w, v, ctx)?,
             FunctionBody::Term(v) => self.write_term(w, v, ctx)?,
         }
+
+        if ctx.options.whitespace_maximal() {
+            w.write_all(EOL)?;
+        }
+
         ctx.outdent();
 
         Ok(())
@@ -1247,7 +1286,7 @@ impl Writer {
                     Definition::TypeClass(v) => self.write_type_class(w, v, ctx)?,
                     Definition::Union(v) => self.write_union(w, v, ctx)?,
                 }
-                if ctx.options.whitespace_additional() {
+                if ctx.options.whitespace_normal() {
                     w.write_all(EOL)?;
                 }
             }
@@ -1334,6 +1373,9 @@ impl Writer {
             }
             for restriction in defn.restrictions() {
                 self.write_datatype_restriction(w, restriction, ctx)?;
+                if ctx.options.whitespace_maximal() {
+                    w.write_all(EOL)?;
+                }
             }
             if ctx.options.whitespace_additional() {
                 w.write_all(EOL)?;
@@ -1363,9 +1405,9 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
-        } else if !defn.has_restrictions() && ctx.options.whitespace_additional() {
+        } else if !defn.has_restrictions() {
             w.write_all(EOL)?;
         }
 
@@ -1529,7 +1571,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -1644,7 +1686,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -1731,7 +1773,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -1777,7 +1819,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -1847,7 +1889,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -1971,6 +2013,8 @@ impl Writer {
 
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
+            } else {
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -2119,37 +2163,94 @@ impl Writer {
             .as_bytes(),
         )?;
 
-        if ctx.options.generate_definition_bodies() {
-            let body = defn.body();
-            w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
-            ctx.indent();
+        if let Some(body) = defn.body() {
+            if ctx.options.generate_definition_bodies() {
+                // 1. partition the annotations
+                let annotations = if body.has_annotations() {
+                    let (mut types, mut others): (Vec<&Annotation>, Vec<&Annotation>) =
+                        body.annotations().partition(|an| {
+                            if let Some(prop) = an.as_annotation_property() {
+                                prop.is_rdf_type()
+                            } else {
+                                false
+                            }
+                        });
+                    if !types.is_empty() {
+                        w.write_all(
+                            format!(
+                                " {} ",
+                                if ctx.options.operator_form == OperatorForm::Textual {
+                                    ctx.kw_type()
+                                } else {
+                                    ctx.kw_a()
+                                }
+                            )
+                            .as_bytes(),
+                        )?;
+                        if types.len() == 1 {
+                            self.write_annotation_as_type_reference(
+                                w,
+                                types.remove(0),
+                                &mut others,
+                            )?;
+                        } else {
+                            w.write_all(format!("{} ", ctx.sequence_start()).as_bytes())?;
+                            for a_type in types {
+                                self.write_annotation_as_type_reference(w, a_type, &mut others)?;
+                                w.write_all(SPACE)?;
+                            }
+                            w.write_all(ctx.sequence_end().as_bytes())?;
+                        }
+                    }
+                    others
+                } else {
+                    Vec::default()
+                };
+                w.write_all(format!(" {}\n", ctx.kw_is()).as_bytes())?;
+                ctx.indent();
 
-            if body.has_annotations() {
-                if ctx.options.whitespace_additional() {
-                    w.write_all(EOL)?;
+                if !annotations.is_empty() {
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
+
+                    self.write_annotations(w, annotations.into_iter(), ctx)?;
+                    if ctx.options.whitespace_additional() {
+                        w.write_all(EOL)?;
+                    }
                 }
-                self.write_annotations(w, body.annotations(), ctx)?;
-                if ctx.options.whitespace_additional() {
-                    w.write_all(EOL)?;
-                }
+
+                ctx.outdent();
+                w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
+            } else {
+                w.write_all(ELIPPSIS)?;
             }
-
-            ctx.outdent();
-            w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
         } else {
-            w.write_all(
-                format!(
-                    " {}\n{}{}{}{}\n",
-                    ctx.indentation_str(),
-                    ctx.kw_is(),
-                    ELIPPSIS,
-                    ctx.indentation_str(),
-                    ctx.kw_end(),
-                )
-                .as_bytes(),
-            )?;
+            w.write_all(EOL)?;
         }
 
+        Ok(())
+    }
+
+    fn write_annotation_as_type_reference<'a, W>(
+        &self,
+        w: &mut W,
+        annotation: &'a Annotation,
+        others: &mut Vec<&'a Annotation>,
+    ) -> Result<(), sdml_core::error::Error>
+    where
+        W: std::io::Write,
+    {
+        if let Some(property) = annotation.as_annotation_property() {
+            if let Some(type_ref) = property.value().as_reference() {
+                w.write_all(type_ref.to_string().as_bytes())?;
+            } else {
+                // TODO: handle as_iri() case
+                others.push(annotation);
+            }
+        } else {
+            others.push(annotation);
+        }
         Ok(())
     }
 
@@ -2209,7 +2310,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -2282,7 +2383,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -2455,7 +2556,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;
@@ -2515,7 +2616,7 @@ impl Writer {
                 ctx.outdent();
                 w.write_all(format!("{}{}\n", ctx.indentation_str(), ctx.kw_end()).as_bytes())?;
             } else {
-                w.write_all(ELIPPSIS.as_bytes())?;
+                w.write_all(ELIPPSIS)?;
             }
         } else {
             w.write_all(EOL)?;

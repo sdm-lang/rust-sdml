@@ -1,0 +1,5 @@
+module corpus_test_annotation is
+
+  @dc:published = "date" -> xsd:date("2023-08-04")
+
+end

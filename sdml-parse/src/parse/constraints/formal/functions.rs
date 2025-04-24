@@ -178,11 +178,11 @@ fn parse_function_type_reference<'a>(
 
         match node.kind() {
             NODE_KIND_WILDCARD => {
-                return Ok(FunctionTypeReference::Wildcard.into());
+                return Ok(FunctionTypeReference::Wildcard);
             }
             NODE_KIND_IDENTIFIER_REFERENCE => {
                 let ident = parse_identifier_reference(context, &mut node.walk())?;
-                return Ok(FunctionTypeReference::Reference(ident).into());
+                return Ok(FunctionTypeReference::Reference(ident));
             }
             NODE_KIND_BUILTIN_SIMPLE_TYPE => {
                 let module = Identifier::new_unchecked(NAME_SDML);
@@ -190,11 +190,11 @@ fn parse_function_type_reference<'a>(
                 let ident = IdentifierReference::QualifiedIdentifier(QualifiedIdentifier::new(
                     module, member,
                 ));
-                return Ok(FunctionTypeReference::Reference(ident).into());
+                return Ok(FunctionTypeReference::Reference(ident));
             }
             NODE_KIND_MAPPING_TYPE => {
                 let mapping_type = parse_mapping_type(context, &mut node.walk())?;
-                return Ok(FunctionTypeReference::MappingType(mapping_type).into());
+                return Ok(FunctionTypeReference::MappingType(mapping_type));
             }
             NODE_KIND_LINE_COMMENT => {}
             _ => {

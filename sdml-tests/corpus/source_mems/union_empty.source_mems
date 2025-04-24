@@ -1,0 +1,5 @@
+module corpus_test_union is
+
+  union VehicleClass
+
+end

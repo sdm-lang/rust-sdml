@@ -198,7 +198,9 @@ impl Validate for TypeReference {
                     ))
                     .unwrap(),
                 Some(Definition::Rdf(defn)) => {
-                    if !(defn.is_datatype() || defn.is_class()) {
+                    if !(defn.is_datatype().unwrap_or_default()
+                        || defn.is_class().unwrap_or_default())
+                    {
                         loader
                             .report(&rdf_definition_incompatible_usage(
                                 top.file_id().copied().unwrap_or_default(),
