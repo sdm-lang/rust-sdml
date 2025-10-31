@@ -2,6 +2,8 @@
 
 Rust Parser for the Simple Domain Modeling Language (SDML).
 
+[![License-Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License-MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/sdml_parse.svg)](https://crates.io/crates/sdml_parse)
 [![Docs.rs](https://img.shields.io/docsrs/sdml-parse.svg)](https://docs.rs/sdml_parse)
 

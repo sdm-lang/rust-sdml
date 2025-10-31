@@ -3,6 +3,8 @@
 Rust Library containing the error and diagnostic types for the Simple Domain
 Modeling Language (SDML).
 
+[![License-Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License-MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/sdml_errors.svg)](https://crates.io/crates/sdml_errors)
 [![Docs.rs](https://img.shields.io/docsrs/sdml-errors.svg)](https://docs.rs/sdml_errors)
 

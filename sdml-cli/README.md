@@ -1,5 +1,7 @@
 # Package sdml-cli
 
+[![License-Apache_2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License-MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/sdml_cli.svg)](https://crates.io/crates/sdml_cli)
 [![Docs.rs](https://img.shields.io/docsrs/sdml-cli.svg)](https://docs.rs/sdml_cli)
 
@@ -223,7 +225,7 @@ Create an SVG representation of the dependency graph using GraphViz.
 
 ![example](https://raw.githubusercontent.com/sdm-lang/rust-sdml/main/sdml-generate/doc/example_deps_graph.svg)
 
-#### As RDF Statements 
+#### As RDF Statements
 
 Create a set of RDF statements,as N-Triples, that represent the individual OWL
 import relationships.
