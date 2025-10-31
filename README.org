@@ -140,8 +140,8 @@ be dual licensed as above, without any additional terms or conditions.
 
 For information on contributing to this project, see the following:
 
-1. Project [[./doc/contributing.org][contribution guidelines]].
-1. Project [[./doc/code_of_conduct.org][code of conduct]].
+1. Project [[https://github.com/sdm-lang/rust-sdml/blob/main/CONTRIBUTING.md][Contribution Guidelines]].
+1. Organization [[https://github.com/sdm-lang/rust-sdml/.github/main/profile/CODE_OF_CONDUCT.md][Code of Conduct]].
 
 * Changes
 
